@@ -1,0 +1,9 @@
+<div>
+    <!-- ko foreach: $data.players() -->
+    <div class="well" style="display:inline-block">
+        <h3 data-bind="text: user().username"></h3>
+        <p data-bind="text: 'Cash: ' + cash()"></p>
+        <p data-bind="text: 'Certs: ' + certificates().length"></p>
+    </div>
+    <!-- /ko -->
+</div>

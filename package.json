@@ -1,0 +1,82 @@
+{
+  "name": "18www",
+  "version": "1.0.0",
+  "description": "Online 18xx Implementation",
+  "main": "src/main.js",
+  "directories": {
+    "src": "src",
+    "doc": "docs",
+    "test": "test",
+    "web": "web"
+  },
+  "dependencies": {
+    "babel-core": "^6.25.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "express": "^4.16.2",
+    "extract-text-webpack-plugin": "^2.1.2",
+    "bootstrap-loader": "^2.1.0",
+    "css-loader": "^0.28.4",
+    "node-sass": "^4.5.3",
+    "bootstrap-sass": "^3.3.7",
+    "file-loader": "^0.11.2",
+    "style-loader": "^0.18.2",
+    "resolve-url-loader": "^2.1.0",
+    "jquery": "^3.2.1",
+    "knockout": "^3.4.2",
+    "lodash": "^4.17.4",
+    "webpack-dev-server": "^2.4.5",
+    "sass-loader": "^6.0.6",
+    "url-loader": "^0.5.9",
+    "html-loader": "^0.5.1",
+    "copy-webpack-plugin": "^4.0.1",
+    "webpack": "^2.6.1",
+    "short-uuid": "^2.3.4",
+    "uuid": "^3.1.0"
+  },
+  "devDependencies": {
+    "chai": "^4.0.2",
+    "copy-webpack-plugin": "^4.0.1",
+    "css-loader": "^0.28.4",
+    "express": "^4.16.2",
+    "html-loader": "^0.5.1",
+    "karma": "^1.7.0",
+    "karma-babel-preprocessor": "^6.0.1",
+    "karma-chai": "^0.1.0",
+    "karma-chrome-launcher": "^2.1.1",
+    "karma-mocha": "^1.3.0",
+    "karma-sinon": "^1.0.5",
+    "karma-webpack": "^2.0.3",
+    "knockout": "^3.4.2",
+    "knockout-amd-helpers": "^1.0.0",
+    "knockout-template-loader": "^1.0.1",
+    "lodash": "^4.17.4",
+    "mocha": "^3.4.2",
+    "node-sass": "^4.5.3",
+    "resolve-url-loader": "^2.1.0",
+    "sass-loader": "^6.0.6",
+    "short-uuid": "^2.3.4",
+    "sinon": "^2.3.5",
+    "style-loader": "^0.18.2",
+    "url-loader": "^0.5.9",
+    "uuid": "^3.1.0"
+  },
+  "scripts": {
+    "start": "node dist/backend.js",
+    "start-dev": "./node_modules/.bin/webpack-dev-server --open --inline --hot",
+    "test-once": "./node_modules/.bin/karma start --single-run",
+    "test": "./node_modules/.bin/karma start",
+    "bundle": "./node_modules/.bin/webpack",
+    "prestart": "npm run bundle"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/justinkwaugh/COIN.git"
+  },
+  "author": "Justin Waugh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/justinkwaugh/COIN/issues"
+  },
+  "homepage": "https://github.com/justinkwaugh/COIN"
+}

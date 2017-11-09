@@ -1,0 +1,1 @@
+gcloud app deploy --configuration app-18www --version $1 --promote

@@ -1,0 +1,115 @@
+
+.grid {
+    margin: 0;
+    padding: 0;
+}
+
+.hexagon {
+    position: relative;
+    width: 124px;
+    height: 71.59px;
+    margin: 35.80px 0;
+    background-position: center;
+    cursor: pointer;
+}
+
+.hexTop,
+.hexBottom {
+    position: absolute;
+    z-index: 1;
+    width: 87.68px;
+    height: 87.68px;
+    overflow: hidden;
+    -webkit-transform: scaleY(0.5774) rotate(-45deg);
+    -ms-transform: scaleY(0.5774) rotate(-45deg);
+    transform: scaleY(0.5774) rotate(-45deg);
+    background: inherit;
+    left: 18.16px;
+}
+
+/*counter transform the bg image on the caps*/
+.hexTop:after,
+.hexBottom:after {
+    content: "";
+    position: absolute;
+    width: 124.0000px;
+    height: 71.5914333795136px;
+    -webkit-transform: rotate(45deg) scaleY(1.7321) translateY(-35.7957px);
+    -ms-transform: rotate(45deg) scaleY(1.7321) translateY(-35.7957px);
+    transform: rotate(45deg) scaleY(1.7321) translateY(-35.7957px);
+    -webkit-transform-origin: 0 0;
+    -ms-transform-origin: 0 0;
+    transform-origin: 0 0;
+    background: inherit;
+}
+
+.hexTop {
+    top: -43.8406px;
+}
+
+.hexTop:after {
+    background-position: center top;
+}
+
+.hexBottom {
+    bottom: -43.8406px;
+}
+
+.hexBottom:after {
+    background-position: center bottom;
+}
+
+.hexagon:after {
+    content: "";
+    position: absolute;
+    top: 0.0000px;
+    left: 0;
+    width: 124.0000px;
+    height: 71.5914px;
+    z-index: 2;
+    background: inherit;
+}
+
+.hexagon.border {
+    border-left: solid 1px #333333;
+    border-right: solid 1px #333333;
+}
+
+.hexagon.border .hexTop {
+    border-top: solid 1.4142px #333333;
+    border-right: solid 1.4142px #333333;
+}
+
+.hexagon.border .hexBottom {
+    border-bottom: solid 1.4142px #333333;
+    border-left: solid 1.4142px #333333;
+}
+
+.hexBottom:after {
+    background-position: center bottom;
+}
+
+.hexagon.pos0 {
+
+}
+
+.hexagon.pos1 {
+    transform: rotate(60deg);
+}
+
+.hexagon.pos2 {
+    transform: rotate(120deg);
+}
+
+.hexagon.pos3 {
+    transform: rotate(180deg);
+}
+
+.hexagon.pos4 {
+    transform: rotate(240deg);
+}
+
+.hexagon.pos5 {
+    transform: rotate(300deg);
+}
+
