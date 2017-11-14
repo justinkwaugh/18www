@@ -14,6 +14,7 @@ const common = {
             loader: 'babel-loader'
         }, {test: /\.(woff2?|svg)$/, loader: 'url-loader?limit=10000'},
             {test: /\.(ttf|eot)$/, loader: 'file-loader'},
+            {test: /\.css$/, use: ['style-loader', 'css-loader']},
             {
                 test: /\.html$/,
                 include: path.join(__dirname, 'web'),
@@ -49,7 +50,7 @@ const common = {
 
 const frontend = {
     entry: {
-        frontend: ['bootstrap-loader', './src/frontend.js']
+        frontend: ['./src/frontend.js']
     },
 
     plugins: [
@@ -58,7 +59,8 @@ const frontend = {
         }]),
         new webpack.ProvidePlugin({
                                       $: 'jquery',
-                                      jQuery: 'jquery'
+                                      jQuery: 'jquery',
+                                      Popper: ['popper.js', 'default'],
                                   })
     ],
 
@@ -72,8 +74,8 @@ const fs = require('fs');
 const nodeModules = {};
 
 fs.readdirSync(path.resolve(__dirname, 'node_modules'))
-    .filter(x => ['.bin'].indexOf(x) === -1)
-    .forEach(mod => { nodeModules[mod] = `commonjs ${mod}`; });
+  .filter(x => ['.bin'].indexOf(x) === -1)
+  .forEach(mod => { nodeModules[mod] = `commonjs ${mod}`; });
 
 const backend = {
     entry: {

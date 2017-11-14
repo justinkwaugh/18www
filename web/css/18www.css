@@ -1,4 +1,9 @@
 
+nav a, nav a:hover {
+    color: #212529;
+    text-decoration: none;
+}
+
 .grid {
     margin: 0;
     padding: 0;
@@ -113,3 +118,58 @@
     transform: rotate(300deg);
 }
 
+.bg-gt {
+    background-color: #f4801a !important;
+}
+
+.bg-nyc {
+    background-color: black !important;
+}
+
+.bg-erie {
+    background-color: #fce80a !important;
+}
+
+.bg-prr {
+    background-color: #f21921 !important;
+}
+
+.bg-bando {
+    background-color: #0d56ad !important;
+}
+
+.bg-ic {
+    background-color: #367545 !important;
+}
+
+.bg-cando {
+    background-color: #8bd9fa !important;
+}
+
+.text-gt {
+    color: white;
+}
+
+.text-nyc {
+    color: white;
+}
+
+.text-erie {
+    color: #333;
+}
+
+.text-prr {
+    color: white;
+}
+
+.text-bando {
+    color: white;
+}
+
+.text-ic {
+    color: white;
+}
+
+.text-cando {
+    color: #333;
+}

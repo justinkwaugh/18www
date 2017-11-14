@@ -4,45 +4,63 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="css/18www.css">
 </head>
-<body style="background-color:#FFF;padding-top: 50px;">
-
-<nav class="navbar navbar-default navbar-fixed-top">
-    <div class="container-fluid">
-
+<body style="background-color:#FFF">
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light border">
+        <span class="navbar-brand">
+            <a href="/" class="h1 text-secondary">1846</a>
+        </span>
+        <div class="navbar-nav mr-auto">
+            <h2 class="mb-0 text-dark font-weight-light">Privates Draft - Player 1</h2>
+        </div>
+        <div data-bind="template: { name: 'players', data: $data.game().state()}"></div>
+    </nav>
+</header>
+<div class="container-fluid my-4" >
+    <div data-bind="template: { name: 'privateDraft', data: $data.game().privateDraft() }, visible:$data.game().privateDraft()"></div>
+    <div class="row" data-bind="visible:!$data.game().privateDraft()">
+        <div class="col">
+            <div data-bind="template: { name: 'companies', data: $data.game().state() }"></div>
+        </div>
     </div>
-</nav>
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-md-12">
-            <div data-bind="template: { name: 'players', data: $data.game().state()}"></div>
+    <div class="row" data-bind="visible:!$data.game().privateDraft()">
+        <div class="col">
+            <div data-bind="template: { name: 'pricetrack', data: $data.game() }"></div>
+        </div>
+    </div>
+    <div class="row" data-bind="visible:!$data.game().privateDraft()">
+        <div class="col">
             <!--<div style="margin-bottom:20px;">-->
-                <!--<ul class="nav nav-pills">-->
-                    <!--<li role="presentation" data-bind="css: {active : activePanel() === ActivePanelIDs.REGIONS}"><a-->
-                            <!--href="#" data-bind="click: function() {setActivePanel(ActivePanelIDs.REGIONS)}">Regions</a>-->
-                    <!--</li>-->
+            <!--<ul class="nav nav-pills">-->
+            <!--<li role="presentation" data-bind="css: {active : activePanel() === ActivePanelIDs.REGIONS}"><a-->
+            <!--href="#" data-bind="click: function() {setActivePanel(ActivePanelIDs.REGIONS)}">Regions</a>-->
+            <!--</li>-->
 
-                    <!--<li role="presentation" data-bind="css: {active : activePanel() === ActivePanelIDs.FACTIONS}"><a-->
-                            <!--href="#"-->
-                            <!--data-bind="click: function() {setActivePanel(ActivePanelIDs.FACTIONS)}">Factions</a></li>-->
-                    <!--<li role="presentation" data-bind="css: {active : activePanel() === ActivePanelIDs.CAPABILITIES}"><a-->
-                            <!--href="#"-->
-                            <!--data-bind="click: function() {setActivePanel(ActivePanelIDs.CAPABILITIES)}">Capabilities</a>-->
-                    <!--</li>-->
-                    <!--<li role="presentation" data-bind="css: {active : activePanel() === ActivePanelIDs.BOARD}"><a-->
-                            <!--href="#" data-bind="click: function() {setActivePanel(ActivePanelIDs.BOARD)}">Board</a></li>-->
-                <!--</ul>-->
+            <!--<li role="presentation" data-bind="css: {active : activePanel() === ActivePanelIDs.FACTIONS}"><a-->
+            <!--href="#"-->
+            <!--data-bind="click: function() {setActivePanel(ActivePanelIDs.FACTIONS)}">Factions</a></li>-->
+            <!--<li role="presentation" data-bind="css: {active : activePanel() === ActivePanelIDs.CAPABILITIES}"><a-->
+            <!--href="#"-->
+            <!--data-bind="click: function() {setActivePanel(ActivePanelIDs.CAPABILITIES)}">Capabilities</a>-->
+            <!--</li>-->
+            <!--<li role="presentation" data-bind="css: {active : activePanel() === ActivePanelIDs.BOARD}"><a-->
+            <!--href="#" data-bind="click: function() {setActivePanel(ActivePanelIDs.BOARD)}">Board</a></li>-->
+            <!--</ul>-->
             <!--</div>-->
-            <div class="panel panel-default">
-                <div style="position:relative;width:1836px;height:1584px;transform-origin:0 0;transform:scale(.85, .85)">
-                    <img style="width:1836px;height:1584px;" src="images/1846-map.jpg"/>
-                    <div style="position:absolute;top:427px;left:36px;height:1002px;width:1308px;" data-bind="template: {name:'grid', data: $data.game().grid()}"></div>
-                </div>
+            <div style="position:relative;width:1836px;height:1186px;transform-origin:0 0;transform:scale(.817, .817)">
+                <img style="width:1836px;height:1186px;" src="images/1846-map.jpg"/>
+                <div style="position:absolute;top:29px;left:36px;height:1002px;width:1308px;"
+                     data-bind="template: {name:'grid', data: $data.game().grid()}"></div>
+                <div style="position:absolute;top:358px;left:1411px;height:437px;width:397px;"
+                     data-bind="template: {name:'market', data: $data.game().state()}"></div>
+                <div style="position:absolute;top:934px;left:953px;height:212px;width:855px;"
+                     data-bind="template: {name:'trains', data: $data.game().state()}"></div>
             </div>
         </div>
     </div>
 </div>
 
 
-<script src="web.js"></script>
+<script src="frontend.js"></script>
 </body>
 </html>

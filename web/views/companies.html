@@ -1,0 +1,9 @@
+<!-- ko foreach: $data.publicCompanies -->
+<div class="card d-inline-flex text-center pr-3 pl-3 pt-1 pb-1 mr-1 mb-1 border-0 font-weight-light" style="min-width:10rem" data-bind="css: 'bg-' + $data.id + ' text-' + $data.id ">
+    <h6 class="mb-0" data-bind="text: $data.name"></h6>
+    <div class="d-flex justify-content-between">
+        <div class="mr-4" data-bind="text: '$' + cash()"></div>
+        <div data-bind="text: shares() + ' shares'"></div>
+    </div>
+</div>
+<!-- /ko -->

@@ -8,7 +8,10 @@ import PhaseIDs from '1846/config/phaseIds';
 import Bank from 'common/game/bank';
 import ko from 'knockout';
 import _ from 'lodash';
+import PriceEntry from '1846/game/priceEntry';
 
+
+const Prices = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 112, 124, 137, 150, 165, 180, 195, 212, 230, 250, 270, 295, 320, 345, 375, 405, 475, 510, 550];
 
 class Game extends BaseGame {
     constructor(definition) {
@@ -17,6 +20,14 @@ class Game extends BaseGame {
 
         this.state = ko.observable(definition.state);
         this.grid = ko.observable(new Grid());
+        this.privateDraft = ko.observable();
+
+        const priceEntries = _.map(Prices, (price) => {
+            return new PriceEntry({ value: price });
+        });
+
+        this.priceTrack = ko.observableArray(priceEntries);
+
     }
 
     static createGame(users) {
@@ -68,6 +79,11 @@ class Game extends BaseGame {
         }
 
         const bank = new Bank({cash, trainsByPhase});
+
+        _.each(publicCompanies, (company) => {
+            bank.certificates.push(_.last(company.certificates()));
+        });
+
         const state = new State({
                                     players,
                                     publicCompanies,

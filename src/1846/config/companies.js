@@ -7,47 +7,54 @@ import CompanyIDs from '1846/config/companyIds';
 import TrainIDs from '1846/config/trainIds';
 
 const PublicCompanyDefinitions = {
-    [CompanyIDs.GT]: {
-        id: CompanyIDs.GT,
+    [CompanyIDs.GRAND_TRUNK]: {
+        id: CompanyIDs.GRAND_TRUNK,
         type: CompanyTypes.PUBLIC,
         name: 'Grand Trunk',
-        tokens: 3
+        nickname: 'GT',
+        tokens: 3,
     },
     [CompanyIDs.NEW_YORK_CENTRAL]: {
         id: CompanyIDs.NEW_YORK_CENTRAL,
         type: CompanyTypes.PUBLIC,
         name: 'New York Central',
-        tokens: 4
+        nickname: 'NYC',
+        tokens: 4,
     },
     [CompanyIDs.ERIE]: {
         id: CompanyIDs.ERIE,
         type: CompanyTypes.PUBLIC,
         name: 'Erie',
-        tokens: 4
+        nickname: 'Erie',
+        tokens: 4,
     },
     [CompanyIDs.PENNSYLVANIA]: {
         id: CompanyIDs.PENNSYLVANIA,
         type: CompanyTypes.PUBLIC,
         name: 'Pennsylvania',
-        tokens: 5
+        nickname: 'PRR',
+        tokens: 5,
     },
     [CompanyIDs.BALTIMORE_OHIO]: {
         id: CompanyIDs.BALTIMORE_OHIO,
         type: CompanyTypes.PUBLIC,
         name: 'Baltimore & Ohio',
-        tokens: 4
+        nickname: 'B&O',
+        tokens: 4,
     },
     [CompanyIDs.ILLINOIS_CENTRAL]: {
         id: CompanyIDs.ILLINOIS_CENTRAL,
         type: CompanyTypes.PUBLIC,
         name: 'Illinois Central',
-        tokens: 4
+        nickname: 'IC',
+        tokens: 4,
     },
     [CompanyIDs.CHESAPEAKE_OHIO]: {
         id: CompanyIDs.CHESAPEAKE_OHIO,
         type: CompanyTypes.PUBLIC,
+        nickname: 'C&O',
         name: 'Chesapeake & Ohio',
-        tokens: 4
+        tokens: 4,
     }
 };
 
@@ -55,6 +62,7 @@ const PrivateCompanyDefinitions = {
     [CompanyIDs.MICHIGAN_SOUTHERN]: {
         id: CompanyIDs.MICHIGAN_SOUTHERN,
         name: 'Michigan Southern',
+        nickname: 'MS',
         tokens: 1,
         cost: 140,
         maxBuyInPrice: 60,
@@ -63,6 +71,7 @@ const PrivateCompanyDefinitions = {
     [CompanyIDs.BIG_4]: {
         id: CompanyIDs.BIG_4,
         name: 'Big 4',
+        nickname: 'Big 4',
         tokens: 1,
         cost: 100,
         maxBuyInPrice: 40,
@@ -124,6 +133,7 @@ const PrivateCompanyDefinitions = {
         maxBuyInPrice: 60,
         income: 20
     }
+
 };
 
 
