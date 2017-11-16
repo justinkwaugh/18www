@@ -24,10 +24,37 @@ class State extends BaseState {
         this.currentPlayerId = ko.computed(()=> {
             return this.players()[this.currentPlayerIndex()].id;
         });
-
+        this.currentPlayer = ko.computed(()=> {
+            return this.players()[this.currentPlayerIndex()];
+        });
         this.currentPhaseId = ko.observable(definition.currentPhase || PhaseIds.PHASE_I);
         this.currentRoundId = ko.observable(definition.currentRoundId);
         this.currentRoundNumber = ko.observable(definition.currentRoundNumber || 0);
+
+        // This logic is not great to have here.
+        this.roundName = ko.computed(()=> {
+            const currentRoundId = this.currentRoundId();
+            const currentRoundNumber = this.currentRoundNumber();
+
+            if(currentRoundId === RoundIds.PRIVATE_DRAFT) {
+                return 'Privates Draft';
+            }
+            else if(currentRoundId === RoundIds.STOCK_ROUND) {
+                return 'SR' + currentRoundNumber;
+            }
+            else if(currentRoundId === RoundIds.OPERATING_ROUND_1) {
+                return 'OR' + currentRoundNumber + '.1';
+            }
+            else if (currentRoundId === RoundIds.OPERATING_ROUND_2) {
+                return 'OR' + currentRoundNumber + '.2';
+            }
+
+            return '';
+        });
+
+
+
+
         this.publicCompanies = definition.publicCompanies || [];
         this.publicCompaniesById = _.keyBy(this.publicCompanies, 'id');
         this.privateCompanies = definition.privateCompanies || [];

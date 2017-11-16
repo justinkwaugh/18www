@@ -1,9 +1,9 @@
 <div class="d-flex flex-wrap text-center" style="width:100%;margin-left:25px;margin-top:25px;color:#333">
-    <!-- ko foreach: _.keys($data.bank.certsById()) -->
+    <!-- ko foreach: _.keys($data.bank.certificatesById()) -->
     <div class="card" style="overflow:hidden;min-width:100px;height:100px;margin-right:25px;margin-bottom:25px;border-radius:.7rem">
         <h5 class="card-title mb-0" data-bind="css: 'bg-' + $data + ' text-' + $data, text: $parent.publicCompaniesById[$data].nickname"></h5>
         <div class="m-auto">
-            <h1 class="font-weight-light mb-0" data-bind="text:$parent.bank.certsById()[$data].length"></h1>
+            <h1 class="font-weight-light mb-0" data-bind="text:$parent.bank.certificatesById()[$data].length"></h1>
         </div>
     </div>
     <!-- /ko -->

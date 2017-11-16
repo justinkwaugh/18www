@@ -1,9 +1,10 @@
 import _ from 'lodash';
+import ko from 'knockout';
 
 class ActionHistory {
     constructor(state) {
         this.state = state;
-        this.actions = [];
+        this.actions = ko.observableArray([]);
     }
 
     addAction(action) {
@@ -16,15 +17,15 @@ class ActionHistory {
     }
 
     currentIndex() {
-        return this.actions.length;
+        return this.actions().length;
     }
 
     getActionRange(start, end) {
-        return _.slice(this.actions, start, end);
+        return _.slice(this.actions(), start, end);
     }
 
     undoRange(start, end) {
-        const actualEnd = end || this.actions.length;
+        const actualEnd = end || this.actions().length;
 
         if (actualEnd <= start) {
             return [];

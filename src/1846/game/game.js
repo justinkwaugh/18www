@@ -3,7 +3,7 @@ import Grid from '1846/map/grid';
 import Companies from '1846/config/companies';
 import CompanyIDs from '1846/config/companyIds';
 import State from '1846/state/state';
-import Player from 'common/game/player';
+import Player from '1846/game/player';
 import PhaseIDs from '1846/config/phaseIds';
 import Bank from 'common/game/bank';
 import ko from 'knockout';
@@ -12,6 +12,12 @@ import PriceEntry from '1846/game/priceEntry';
 
 
 const Prices = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 112, 124, 137, 150, 165, 180, 195, 212, 230, 250, 270, 295, 320, 345, 375, 405, 475, 510, 550];
+
+const ActivePanelIDs = {
+    MAP: 'map',
+    OWNERSHIP: 'ownership',
+    HISTORY: 'history'
+};
 
 class Game extends BaseGame {
     constructor(definition) {
@@ -22,12 +28,18 @@ class Game extends BaseGame {
         this.grid = ko.observable(new Grid());
         this.privateDraft = ko.observable();
 
+        this.activePanel = ko.observable(ActivePanelIDs.MAP);
+        this.ActivePanelIDs = ActivePanelIDs;
+
         const priceEntries = _.map(Prices, (price) => {
             return new PriceEntry({ value: price });
         });
 
         this.priceTrack = ko.observableArray(priceEntries);
 
+    }
+    setActivePanel(newPanel) {
+        this.activePanel(newPanel);
     }
 
     static createGame(users) {

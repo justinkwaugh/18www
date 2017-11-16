@@ -3,7 +3,10 @@ import PrivateDraft from '1846/game/privateDraft';
 import _ from 'lodash';
 class Sequence {
     static finishTurn(game) {
+        game.state().turnHistory.commitTurn();
         //commit to server
+
+        // if local
         this.nextRoundPhaseAndTurn(game);
     }
 
@@ -35,6 +38,7 @@ class Sequence {
                 game.privateDraft(null);
             }
         }
+        game.state().turnHistory.startTurn();
     }
 }
 

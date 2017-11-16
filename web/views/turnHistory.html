@@ -1,0 +1,18 @@
+<table class="table table-striped">
+    <tbody>
+    <!-- ko foreach: $data.turnHistory.turns -->
+    <tr>
+        <td>
+            <div data-bind="text: 'Turn ' + $data.number + ' ' + $parent.playersById()[$data.playerId].name() + ' ' + $data.roundId + ' ' + $data.roundNumber"></div>
+        </td>
+    </tr>
+    <!-- ko foreach: $data.getSummaries() -->
+    <tr>
+        <td>
+            <div data-bind="text: $data.summary"></div>
+        </td>
+    </tr>
+    <!-- /ko -->
+    <!-- /ko -->
+    </tbody>
+</table>

@@ -19,10 +19,10 @@ class DraftPass extends Action {
 
     }
 
-    instructions(state) {
-        return ['Player ' + this.playerId + ' passed on ' + this.privateId];
+    summary(state) {
+        const privateCompany = state.privateCompaniesById[this.privateId];
+        return 'Passed on ' + privateCompany.name;
     }
-
 }
 
 export default DraftPass

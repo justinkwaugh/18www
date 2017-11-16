@@ -1,36 +1,35 @@
 import _ from 'lodash';
+import ko from 'knockout';
 import Turn from 'common/game/turn';
 
 class TurnHistory {
-    constructor(state) {
+    constructor(state, definition) {
+        definition = definition || {};
         this.state = state;
-        this.turns = [];
-        this.currentTurn = null;
+        this.turns = ko.observableArray(definition.turns || []);
+        this.currentTurn = ko.observable(definition.currentTurn);
     }
 
-    startTurn(playerId) {
-        this.currentTurn = new Turn(this.state, {
-            number: this.nextTurnNumber(),
-            playerId: playerId,
-            actionStartIndex: this.state.actionHistory.currentIndex()
-        });
+    startTurn() {
+        this.currentTurn(new Turn(this.state, {
+            number: this.nextTurnNumber()
+        }));
     }
 
     rollbackTurn() {
-        if (this.currentTurn) {
-            this.currentTurn.undo();
+        if (this.currentTurn()) {
+            this.currentTurn().undo();
         }
     }
 
     rollbackCurrentAction() {
-        this.currentTurn.rollbackActionGroup();
+        this.currentTurn().rollbackActionGroup();
     }
 
-    commitTurn(action) {
-        this.currentTurn.commandAction = action;
-        this.currentTurn.actionEndIndex = this.state.actionHistory.currentIndex();
-        this.turns.push(this.currentTurn);
-        this.currentTurn = null;
+    commitTurn() {
+        this.currentTurn().actionEndIndex = this.state.actionHistory.currentIndex();
+        this.turns.push(this.currentTurn());
+        this.currentTurn(null);
     }
 
     undoLastTurn() {
@@ -39,15 +38,15 @@ class TurnHistory {
     }
 
     getCurrentTurn() {
-        return this.currentTurn;
+        return this.currentTurn();
     }
 
     lastTurn() {
-        return _.last(this.turns);
+        return _.last(this.turns());
     }
 
     nextTurnNumber() {
-        return this.turns.length + 1;
+        return this.turns().length + 1;
     }
 
 }

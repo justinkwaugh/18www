@@ -6,7 +6,7 @@
                 <!-- ko foreach: $data.privatesOffered() -->
                 <div class="card d-inline-flex mb-2"
                      style="overflow:hidden;cursor:pointer;min-width:250px;min-height:100px;"
-                     data-bind="click: $parent.selectPrivate.bind($parent, $data.id), css: {'border-success': $parent.selectedPrivateId() === $data.id }">
+                     data-bind="click: $parent.selectPrivate.bind($parent, $data.id), css: {'border-warning': $parent.selectedPrivateId() === $data.id }">
                     <h5 class="card-title font-weight-light bg-erie" data-bind="text: $data.name"></h5>
                     <div data-bind="text: _.startsWith($data.id, 'pass') ? '' : $data.cost"></div>
                 </div>

@@ -1,4 +1,5 @@
 import ko from 'knockout';
+import StartCompany from '1846/actions/startCompany';
 
 
 class Company {
@@ -14,10 +15,24 @@ class Company {
         this.tokens = ko.observable(definition.tokens || 0);
         this.privates = ko.observableArray(definition.privates || []);
         this.trains = ko.observableArray(definition.trains || []);
-        this.owner = ko.observable(definition.owner);
-        this.sharePrice = ko.observable(definition.sharePrice);
+        this.president = ko.observable(definition.president);
+        this.priceIndex = ko.observable(definition.priceIndex || 0);
         this.lastRun = ko.observable(definition.lastRun);
+        this.opened = ko.observable(definition.opened || false);
     }
+
+    addCash(amount) {
+        this.cash(this.cash() + amount);
+    }
+
+    removeCash(amount) {
+        this.cash(this.cash() - amount);
+    }
+
+    start(state, playerId) {
+        new StartCompany({playerId, companyId: this.id, startIndex: 7}).execute(state);
+    }
+
 }
 
 export default Company;

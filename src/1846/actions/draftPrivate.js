@@ -16,6 +16,7 @@ class DraftPrivate extends Action {
         const privateCompany = state.privateCompaniesById[this.privateId];
         if (!_.startsWith(this.privateId, 'pass')) {
             player.cash(player.cash() - privateCompany.cost);
+            state.bank.cash(state.bank.cash() + privateCompany.cost);
             player.certificates.push(privateCompany.certificates.pop());
         }
         state.undraftedPrivateIds.removeAll(this.offeredIds);
@@ -27,9 +28,13 @@ class DraftPrivate extends Action {
 
     }
 
-    instructions(state) {
-        return ['Player ' + this.playerId + ' drafted ' + this.privateId];
+    summary(state) {
+        const privateCompany = state.privateCompaniesById[this.privateId];
+        const passed = _.startsWith(this.privateId, 'pass');
+        return 'Drafted ' + (passed ? this.privateId : privateCompany.name);
     }
+
+
 
 }
 

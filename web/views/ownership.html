@@ -1,0 +1,47 @@
+<div class="text-center">
+    <table class="table text-center">
+        <thead>
+        <tr >
+            <th scope="col" class="border-0"></th>
+            <!-- ko foreach: $data.publicCompanies -->
+            <th scope="col" class="border-0 font-weight-normal pt-2 pb-2" data-bind="css: 'bg-' + $data.id + ' text-' + $data.id"><h5 class="font-weight-normal mb-0" data-bind="text:$data.nickname"></h5>
+            <!-- ko if: $parent.currentPlayer().canStartCompany($parent, $data.id) -->
+                <button type="button" class="btn btn-primary" data-bind="click: function() { $data.start($parent, $parent.currentPlayerId()) }; ">start</button>
+            <!-- /ko -->
+            </th>
+            <!-- /ko -->
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <th class="border-right-0 border-top-0 font-weight-normal pt-1 pb-1 bg-warning" scope="row">Cash</th>
+            <!-- ko foreach: $data.publicCompanies -->
+            <td class="bg-light pt-1 pb-1"><div data-bind="text: '$326'"></div></td>
+            <!-- /ko -->
+        </tr>
+        <tr>
+            <th class="border-right-0 border-top-0 font-weight-normal pt-1 pb-1 bg-warning" scope="row">Shares</th>
+            <!-- ko foreach: $data.publicCompanies -->
+            <td class="bg-light pt-1 pb-1"><div data-bind="text: '3'"></div><div class="bg-dark text-white" data-bind="text: '4'"></div></td>
+            <!-- /ko -->
+        </tr>
+        <!-- ko foreach: $data.players() -->
+        <tr>
+            <th class="text-white border-right-0  font-weight-normal" scope="row" data-bind="text:$data.user().username, css: $parent.currentPlayerId() === $data.id ? 'bg-info': 'bg-secondary'"></th>
+            <!-- ko foreach: $parent.publicCompanies -->
+            <td data-bind="text:0"></td>
+            <!-- /ko -->
+        </tr>
+        <!-- /ko -->
+                <tr>
+            <th class="border-right-0 border-top-0 font-weight-normal pt-1 pb-1 bg-warning" scope="row">Trains</th>
+            <!-- ko foreach: $data.publicCompanies -->
+            <td class="bg-light pt-1 pb-1" data-bind="text:'2T 4T'"></td>
+            <!-- /ko -->
+        </tr>
+        </tbody>
+
+    </table>
+
+
+</div>

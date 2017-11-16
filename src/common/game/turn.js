@@ -1,4 +1,5 @@
 import ActionGroup from 'common/game/actionGroup';
+import ko from 'knockout';
 import _ from 'lodash';
 
 class Turn extends ActionGroup {
@@ -8,16 +9,21 @@ class Turn extends ActionGroup {
         super(definition);
         this.state = state;
         this.number = definition.number;
-        this.playerId = definition.playerId;
-        this.phaseId = definition.phaseId;
-        this.roundId = definition.roundId;
-        this.roundNumber = definition.roundNumber;
+        this.playerId = definition.playerId || state.currentPlayerId();
+        this.phaseId = definition.phaseId || state.currentPhaseId();
+        this.roundId = definition.roundId || state.currentRoundId();
+        this.roundNumber = definition.roundNumber || state.currentRoundNumber();
         this.actionGroups = [];
         this.inProgress = [];
+        this.actionStartIndex = this.state.actionHistory.currentIndex();
     }
 
     undo() {
         this.state.actionHistory.undoRange(this.actionStartIndex, this.actionEndIndex);
+    }
+
+    undoLast() {
+        this.state.actionHistory.undo();
     }
 
     commitActionGroup(type) {
@@ -62,6 +68,23 @@ class Turn extends ActionGroup {
             actionStartIndex: this.state.actionHistory.currentIndex()
         });
         this.inProgress.push(actionGroup);
+    }
+
+    getSummaries() {
+        if (this.actionEndIndex <= this.actionStartIndex) {
+            return [];
+        }
+
+        return _(
+            this.state.actionHistory.getActionRange(this.actionStartIndex, this.actionEndIndex))
+            .invokeMap('summary', this.state).map(
+                (summary, index) => {
+                        return {
+                            index: this.actionStartIndex + index,
+                            type: 'action',
+                            summary
+                        }
+                }).value();
     }
 
     getInstructions(state) {

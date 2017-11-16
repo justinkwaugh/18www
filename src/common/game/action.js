@@ -23,8 +23,12 @@ class Action {
 
     }
 
+    summary(state) {
+        return 'Unknown action';
+    }
+
     instructions(state) {
-        return [];
+        return [this.summary(state)];
     }
 
 }
