@@ -1,1 +1,5 @@
-<div style="position:absolute" data-bind="style: { top: $data.top +'px', left: $data.left + 'px'}"><div class="hexagon" data-bind="css: {  }, style: {backgroundImage: $data.imageUrl()}"><div class="hexTop"></div><div class="hexBottom"></div></div></div>
+<div style="position:absolute" data-bind="style: { top: $data.top +'px', left: $data.left + 'px'}">
+    <!-- ko if: $data.tile() -->
+    <div data-bind="template: 'tiles/' + $data.tile().id"></div>
+    <!-- /ko -->
+</div>

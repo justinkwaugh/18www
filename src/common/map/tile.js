@@ -5,14 +5,16 @@ class Tile {
         data = data || {};
 
         this.id = data.id;
-        this.phaseId = data.phaseId;
+        this.colorId = data.colorId;
 
-        this.position = 0;
+        this.position = ko.observable(data.position || 0);
         this.connections = data.connections || [];
+        this.upgrades = data.upgrades || [];
 
-        this.revenue = 0;
-        this.maxTokens = 0;
-        this.tokens = [];
+        this.revenue = data.revenue || 0;
+        this.maxTokens = data.maxTokens || 0;
+        this.tokens = ko.observableArray(data.tokens || []);
+
     }
 }
 

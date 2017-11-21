@@ -1,5 +1,6 @@
 import Action from 'common/game/action';
 import Prices from '1846/config/prices';
+import ValidationError from 'common/game/validationError';
 import _ from 'lodash';
 
 class StartCompany extends Action {
@@ -18,8 +19,14 @@ class StartCompany extends Action {
         const cash = Prices.price(this.startIndex)*2;
 
         // validate things
-        // not operating
-        // cash
+        if(company.opened()) {
+            throw new ValidationError('Cannot start a company that was already opened');
+        }
+
+        if(player.cash() < cash) {
+            throw new ValidationError(player.name() + ' does not have enough cash to start ' + company.name + ' at ' + (cash/2));
+        }
+
         // cert limit
 
         company.priceIndex(this.startIndex);

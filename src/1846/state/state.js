@@ -71,7 +71,7 @@ class State extends BaseState {
         this.priceTrack = ko.observableArray();
 
         this.bank = definition.bank;
-
+        this.manifest = definition.manifest;
 
         this.turnHistory = definition.turnHistory || new TurnHistory(this);
         this.actionHistory = definition.actionHistory || new ActionHistory(this);

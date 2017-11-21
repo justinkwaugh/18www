@@ -26,6 +26,10 @@
                         href="#" class="nav-link"
                         data-bind="click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.OWNERSHIP)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP ? 'active text-white font-weight-bold' : 'text-secondary' ">Ownership</a>
                 </li>
+                <li class="nav-item" data-bind="css: $data.game().activePanel() === $data.game().ActivePanelIDs.TILE_MANIFEST ? 'bg-active-nav' : ''"><a
+                        href="#" class="nav-link"
+                        data-bind="click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.TILE_MANIFEST)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.TILE_MANIFEST ? 'active text-white font-weight-bold' : 'text-secondary' ">Tile Manifest</a>
+                </li>
                 <li class="nav-item" data-bind="css: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY ? 'bg-active-nav' : ''"><a
                         href="#" class="nav-link"
                         data-bind="click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.HISTORY)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY ? 'active text-white font-weight-bold' : 'text-secondary' ">History</a>
@@ -33,10 +37,11 @@
             </ul>
     </div>
     <div data-bind="template: { name: 'turnsummary', data: $data.game().state() }, visible:true || !$data.game().privateDraft()"></div>
+    <div data-bind="template: { name: 'stockRound', data: $data.game().state() }, visible:true || !$data.game().privateDraft()"></div>
 </header>
 <div class="container-fluid my-4">
 
-    <div data-bind="template: { name: 'privateDraft', data: $data.game().privateDraft() }, visible:$data.game().privateDraft()"></div>
+    <div data-bind="template: { name: 'privateDraft', data: $data.game().privateDraft() }, visible:false && $data.game().privateDraft()"></div>
     <div data-bind="visible:true || !$data.game().privateDraft()">
 
         <div data-bind="visible: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP">
@@ -81,7 +86,13 @@
                 </div>
             </div>
         </div>
-
+        <div data-bind="if: $data.game().activePanel() === $data.game().ActivePanelIDs.TILE_MANIFEST">
+            <div class="row">
+                <div class="col">
+                    <div data-bind="template: { name: 'tileManifest', data: $data.game().state() }"></div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

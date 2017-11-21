@@ -4,6 +4,12 @@ function cleanupPopover(element) {
     $(element).off('inserted.bs.popover');
     $(element).off('shown.bs.popover');
     $(element).off('hidden.bs.popover');
+
+    if(currentPopover === element) {
+        $(currentPopover).popover('hide');
+        currentPopover = null;
+    }
+
     const popover = $(element).data['bs.popover'];
     if (popover) {
         popover.destroy();
@@ -29,24 +35,40 @@ function setupPopover(element, args, bindingContext) {
         });
     }
 
-    if (args.onShow) {
-        popover.on('shown.bs.popover', function (e) {
+    popover.on('shown.bs.popover', function (e) {
+        if(currentPopover && currentPopover !== element) {
+            $(currentPopover).popover('hide');
+            currentPopover = null;
+        }
+
+        if (args.onShow) {
             const pop = popover.data('bs.popover').tip;
             args.onShow(pop);
-        });
-    }
+        }
+        currentPopover = element;
+    });
 
-    if (args.onHide) {
-        popover.on('hidden.bs.popover', function (e) {
+
+    popover.on('hidden.bs.popover', function (e) {
+        if (args.onHide) {
             const pop = popover.data('bs.popover').tip;
             args.onHide(pop);
-        });
-    }
+        }
+
+        if(currentPopover === element) {
+            currentPopover = null;
+        }
+    });
+
 
     ko.utils.domNodeDisposal.addDisposeCallback(element, function () {
         cleanupPopover(element);
     });
+
+
 }
+
+let currentPopover = null;
 
 ko.bindingHandlers.popover = {
     init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {

@@ -31,6 +31,10 @@ class Bank {
         this.certificates(certs);
         return removedCert;
     }
+
+    numSharesOwnedOfCompany(companyId) {
+        return _(this.certificatesById(companyId) || []).sumBy('shares');
+    }
 }
 
 export default Bank;

@@ -1,0 +1,33 @@
+<div>
+    <ul class="nav nav-pills mb-3">
+        <li class="nav-item">
+            <a class="nav-link" href="#"
+               data-bind="css: { active : $data.manifest.activeTileSet() === $data.manifest.TileColorIDs.YELLOW}, click:function() { $data.manifest.setActiveTileSet($data.manifest.TileColorIDs.YELLOW); }">Yellow</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#"
+               data-bind="css: { active : $data.manifest.activeTileSet() === $data.manifest.TileColorIDs.GREEN}, click:function() { $data.manifest.setActiveTileSet($data.manifest.TileColorIDs.GREEN); }">Green</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#"
+               data-bind="css: { active : $data.manifest.activeTileSet() === $data.manifest.TileColorIDs.BROWN}, click:function() { $data.manifest.setActiveTileSet($data.manifest.TileColorIDs.BROWN); }">Brown</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#"
+               data-bind="css: { active : $data.manifest.activeTileSet() === $data.manifest.TileColorIDs.GRAY}, click:function() { $data.manifest.setActiveTileSet($data.manifest.TileColorIDs.GRAY); }">Gray</a>
+        </li>
+    </ul>
+
+    <div class="d-flex flex-wrap m-auto">
+        <!-- ko foreach: $data.manifest.activeTiles() -->
+        <div class="position-relative">
+
+            <h5 class="position-absolute" style="top:0;left:10px;"
+                data-bind="text: $data.remaining === -1 ? '&#x221e;' : $data.remaining "></h5>
+
+                <div class="mr-1 mb-1" style="width:126px;height:144px;"
+                     data-bind="style: { opacity : $data.remaining === 0 ? .5 : 1 }, template: 'tiles/' + $data.id, popover: $parent.manifest.popoverParams"></div>
+        </div>
+        <!-- /ko -->
+    </div>
+</div>

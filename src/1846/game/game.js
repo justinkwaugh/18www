@@ -9,6 +9,7 @@ import Bank from 'common/game/bank';
 import ko from 'knockout';
 import _ from 'lodash';
 import PriceEntry from '1846/game/priceEntry';
+import TileManifest from '1846/config/tileManifest';
 
 
 const Prices = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 112, 124, 137, 150, 165, 180, 195, 212, 230, 250, 270, 295, 320, 345, 375, 405, 475, 510, 550];
@@ -16,6 +17,7 @@ const Prices = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 112, 124, 137, 150, 
 const ActivePanelIDs = {
     MAP: 'map',
     OWNERSHIP: 'ownership',
+    TILE_MANIFEST: 'manifest',
     HISTORY: 'history'
 };
 
@@ -96,11 +98,14 @@ class Game extends BaseGame {
             bank.certificates.push(_.last(company.certificates()));
         });
 
+        const manifest = new TileManifest();
+
         const state = new State({
                                     players,
                                     publicCompanies,
                                     privateCompanies,
-                                    bank
+                                    bank,
+                                    manifest
                                 });
 
 
