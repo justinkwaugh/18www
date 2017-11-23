@@ -94,9 +94,10 @@ class Grid extends BaseGrid {
 
         super({ cellSize: 124, cells });
 
-        const tile = new Tile({id: 5});
-
-        this.cellsById()['F10'].tile(tile);
+        this.cellsById()['F8'].tile(new Tile({id: 7,position: 4}));
+        this.cellsById()['F10'].tile(new Tile({id: 5,position: 2}));
+        this.cellsById()['E9'].tile(new Tile({id:23, position: 2}));
+        this.cellsById()['D8'].tile(new Tile({id:8, position: 0}))
     }
 
     connectNeighbors() {

@@ -1,8 +1,8 @@
 <!-- ko if: $data.tile() -->
 
-<div data-bind="style: { width: $root.game().state().manifest.getUpgradesForTile($data.tile().id).length === 1 ? '126px' : '256px'} ">
+<div data-bind="style: { width: $data.getUpgradeTiles($root.game().state()).length === 1 ? '126px' : '256px'} ">
     <div class="d-flex flex-wrap m-auto">
-        <!-- ko foreach: $root.game().state().manifest.getUpgradesForTile($data.tile().id) -->
+        <!-- ko foreach: $data.getUpgradeTiles($root.game().state()) -->
         <div class="position-relative">
             <h5 class="position-absolute" style="top:0;left:10px;"
                 data-bind="text: $data.remaining === -1 ? '&#x221e;' : $data.remaining "></h5>
