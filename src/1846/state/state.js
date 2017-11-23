@@ -51,9 +51,7 @@ class State extends BaseState {
 
             return '';
         });
-
-
-
+        this.currentCompanyId = ko.observable(definition.currentCompanyId);
 
         this.publicCompanies = definition.publicCompanies || [];
         this.publicCompaniesById = _.keyBy(this.publicCompanies, 'id');

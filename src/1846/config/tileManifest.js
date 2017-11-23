@@ -1,10 +1,57 @@
 import _ from 'lodash';
 import Tile from 'common/map/tile';
 import TileColorIDs from '1846/config/tileColorIds';
+import MapTileIDs from '1846/config/mapTileIds';
 import ko from 'knockout';
 import ValidationError from 'common/game/validationError';
 
 const TileDefinitions = {
+    [MapTileIDs.BLANK]: {
+        id:MapTileIDs.BLANK,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.CITY]: {
+        id:MapTileIDs.CITY,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.CHICAGO]: {
+        id:MapTileIDs.CHICAGO,
+        colorId: TileColorIDs.INVISIBLE,
+        revenue: 10,
+        connections: [[1, 7], [2, 8], [3, 9], [4, 10]]
+    },
+    [MapTileIDs.CENTRALIA]: {
+        id:MapTileIDs.CENTRALIA,
+        colorId: TileColorIDs.INVISIBLE,
+        revenue: 10,
+        connections: [[0,7],[1,7],[3,7],[4,7]]
+    },
+    [MapTileIDs.DETROIT]: {
+        id:MapTileIDs.DETROIT,
+        colorId: TileColorIDs.INVISIBLE,
+        revenue: 40,
+        connections: [[0,7],[4,7]]
+    },
+    [MapTileIDs.ERIE]: {
+        id:MapTileIDs.ERIE,
+        colorId: TileColorIDs.INVISIBLE,
+        revenue: 10,
+        connections: [[0,7],[3,7],[4,7]]
+    },
+    [MapTileIDs.CLEVELAND]: {
+        id:MapTileIDs.CLEVELAND,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.CINCINNATI]: {
+        id:MapTileIDs.CINCINNATI,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.WHEELING]: {
+        id:MapTileIDs.WHEELING,
+        colorId: TileColorIDs.INVISIBLE,
+        revenue: 10,
+        connections: [[2,7]]
+    },
     5: {
         id: 5,
         colorId: TileColorIDs.YELLOW,
@@ -240,6 +287,33 @@ const TileDefinitions = {
 };
 
 const Manifest = {
+    [MapTileIDs.BLANK]: {
+        upgrades: [7,8,9]
+    },
+    [MapTileIDs.CITY]: {
+        upgrades: [5,6,57]
+    },
+    [MapTileIDs.CHICAGO]: {
+        upgrades:[298]
+    },
+    [MapTileIDs.CENTRALIA]: {
+        upgrades:[]
+    },
+    [MapTileIDs.DETROIT]: {
+        upgrades:[294,295]
+    },
+    [MapTileIDs.ERIE]: {
+        upgrades:[14]
+    },
+    [MapTileIDs.CLEVELAND]: {
+        upgrades:[294,295,296]
+    },
+    [MapTileIDs.CINCINNATI]: {
+        upgrades:[294,295,296]
+    },
+    [MapTileIDs.WHEELING]: {
+        upgrades:[5,6,57]
+    },
     5: {
         upgrades: [14, 15, 619],
         count: 3
@@ -445,7 +519,7 @@ class TileManifest {
 
         this.popoverParams = {
             placement: 'right',
-            content: '<div style="width:270px;" data-bind="template: { name: \'tileUpgradePopover\' }"></div>'
+            content: '<div data-bind="template: { name: \'tileUpgradePopover\' }"></div>'
         };
 
     }
@@ -482,7 +556,7 @@ class TileManifest {
         return this.createTile(id);
     }
 
-    createTile(id) {
+    static createTile(id) {
         const definition = _.clone(TileDefinitions[id]);
         definition['upgrades'] = Manifest[id].upgrades;
         return new Tile(definition);

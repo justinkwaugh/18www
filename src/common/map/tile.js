@@ -14,7 +14,6 @@ class Tile {
         this.revenue = data.revenue || 0;
         this.maxTokens = data.maxTokens || 0;
         this.tokens = ko.observableArray(data.tokens || []);
-
     }
 }
 

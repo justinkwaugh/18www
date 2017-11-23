@@ -1,7 +1,9 @@
 import BaseGrid from 'common/map/baseGrid';
+import MapTileIDs from '1846/config/mapTileIds';
 import _ from 'lodash';
 import Cell from 'common/map/cell';
 import Tile from 'common/map/tile';
+import TileManifest from '1846/config/tileManifest';
 
 const RowLetters = ['B','C','D','E','F','G','H','I','J','K'];
 
@@ -17,6 +19,24 @@ const OffBoardIds = {
     BINGHAMTON: 'binghamton',
     PITTSBURGH: 'pittsburgh',
     CUMBERLAND: 'cumberland'
+};
+
+const SpecialTiles = {
+    C9 : MapTileIDs.CITY,
+    C15 : MapTileIDs.DETROIT,
+    D6 : MapTileIDs.CHICAGO,
+    D14: MapTileIDs.CITY,
+    D20: MapTileIDs.ERIE,
+    E11: MapTileIDs.CITY,
+    E17: MapTileIDs.CLEVELAND,
+    G3: MapTileIDs.CITY,
+    G7: MapTileIDs.CITY,
+    G9: MapTileIDs.CITY,
+    G13: MapTileIDs.CITY,
+    G15: MapTileIDs.CITY,
+    G19: MapTileIDs.WHEELING,
+    H12: MapTileIDs.CINCINNATI,
+    I5: MapTileIDs.CENTRALIA
 };
 
 class Grid extends BaseGrid {
@@ -64,22 +84,22 @@ class Grid extends BaseGrid {
             return new Cell({
                 id: RowLetters[row] + (col*2 + ((row % 2) ? 3 : 2)),
                 top: 1 + (row *107),
-                left: 3 + ((row % 2) ? 62 : 0) + col * 124
+                left: 2 + ((row % 2) ? 62 : 0) + col * 124
             });
         }).compact().value();
 
-
+        _.each(cells, (cell)=> {
+            cell.tile(TileManifest.createTile(SpecialTiles[cell.id] || MapTileIDs.BLANK));
+        });
 
         super({ cellSize: 124, cells });
 
-        const cell = this.cellsById()['F10'];
-        cell.tile(new Tile({id: 9}));
+        const tile = new Tile({id: 5});
 
-        const cell2 = this.cellsById()['F8'];
-        cell2.tile(new Tile({id: 8}));
+        this.cellsById()['F10'].tile(tile);
+    }
 
-        const cell3 = this.cellsById()['F6'];
-        cell3.tile(new Tile({id: 57}));
+    connectNeighbors() {
 
     }
 

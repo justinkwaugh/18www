@@ -9,114 +9,54 @@ nav a, nav a:hover {
     padding: 0;
 }
 
-.hexagon {
-    position: relative;
-    width: 124px;
-    height: 71.59px;
-    margin: 35.80px 0;
-    background-position: center;
-    cursor: pointer;
+.pos0 {
+    transform: translate(63px, 72px) rotate(0);
 }
 
-.hexTop,
-.hexBottom {
-    position: absolute;
-    z-index: 1;
-    width: 87.68px;
-    height: 87.68px;
-    overflow: hidden;
-    -webkit-transform: scaleY(0.5774) rotate(-45deg);
-    -ms-transform: scaleY(0.5774) rotate(-45deg);
-    transform: scaleY(0.5774) rotate(-45deg);
-    background: inherit;
-    left: 18.16px;
+.pos1 {
+    transform: translate(63px, 72px) rotate(60deg);
 }
 
-/*counter transform the bg image on the caps*/
-.hexTop:after,
-.hexBottom:after {
-    content: "";
-    position: absolute;
-    width: 124.0000px;
-    height: 71.5914333795136px;
-    -webkit-transform: rotate(45deg) scaleY(1.7321) translateY(-35.7957px);
-    -ms-transform: rotate(45deg) scaleY(1.7321) translateY(-35.7957px);
-    transform: rotate(45deg) scaleY(1.7321) translateY(-35.7957px);
-    -webkit-transform-origin: 0 0;
-    -ms-transform-origin: 0 0;
-    transform-origin: 0 0;
-    background: inherit;
+.pos2 {
+    transform: translate(63px, 72px) rotate(120deg);
 }
 
-.hexTop {
-    top: -43.8406px;
+.pos3 {
+    transform: translate(63px, 72px) rotate(180deg);
 }
 
-.hexTop:after {
-    background-position: center top;
+.pos4 {
+    transform: translate(63px, 72px) rotate(240deg);
 }
 
-.hexBottom {
-    bottom: -43.8406px;
+.pos5 {
+    transform: translate(63px, 72px) rotate(300deg);
 }
 
-.hexBottom:after {
-    background-position: center bottom;
+.pos-value0 {
+    transform: rotate(0);
 }
 
-.hexagon:after {
-    content: "";
-    position: absolute;
-    top: 0.0000px;
-    left: 0;
-    width: 124.0000px;
-    height: 71.5914px;
-    z-index: 2;
-    background: inherit;
+.pos-value1 {
+    transform: rotate(-60deg);
 }
 
-.hexagon.border {
-    border-left: solid 1px #333333;
-    border-right: solid 1px #333333;
+.pos-value2 {
+    transform: rotate(-120deg);
 }
 
-.hexagon.border .hexTop {
-    border-top: solid 1.4142px #333333;
-    border-right: solid 1.4142px #333333;
+.pos-value3 {
+    transform: rotate(-180deg);
 }
 
-.hexagon.border .hexBottom {
-    border-bottom: solid 1.4142px #333333;
-    border-left: solid 1.4142px #333333;
+.pos-value4 {
+    transform: rotate(-240deg);
 }
 
-.hexBottom:after {
-    background-position: center bottom;
+.pos-value5 {
+    transform: rotate(-300deg);
 }
 
-.hexagon.pos0 {
-
-}
-
-.hexagon.pos1 {
-    transform: rotate(60deg);
-}
-
-.hexagon.pos2 {
-    transform: rotate(120deg);
-}
-
-.hexagon.pos3 {
-    transform: rotate(180deg);
-}
-
-.hexagon.pos4 {
-    transform: rotate(240deg);
-}
-
-.hexagon.pos5 {
-    transform: rotate(300deg);
-}
 
 .bg-gt {
     background-color: #f4801a !important;
@@ -176,4 +116,14 @@ nav a, nav a:hover {
 
 .text-cando {
     color: #333;
+}
+
+.editable .tile .tile-border:hover {
+    cursor:pointer;
+    stroke: red;
+    stroke-width: 3;
+}
+
+.popover {
+    max-width: 600px !important;
 }

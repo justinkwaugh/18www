@@ -1,5 +1,13 @@
-<div style="position:absolute" data-bind="style: { top: $data.top +'px', left: $data.left + 'px'}">
+<div style="pointer-events:none;position:absolute"
+     data-bind="style: { top: $data.top +'px', left: $data.left + 'px'}, css: {editable: $data.canEdit($root.game().state())}">
     <!-- ko if: $data.tile() -->
-    <div data-bind="template: 'tiles/' + $data.tile().id"></div>
+    <svg xmlns="http://www.w3.org/2000/svg" style="width:126px;height:144px;" pointer-events="none">
+    <g class="tile" xmlns="http://www.w3.org/2000/svg" fill-opacity="1" visibility="inherit"
+        data-bind="popover: $data.popoverParams, css: 'pos' + ($data.tile().position ? $data.tile().position() : 0)" >
+        <g pointer-events="all" transform="translate(-63,-72)" data-bind="template: { name: 'tiles/' + $data.tile().id, data: $data.tile() }"></g>
+        <polygon pointer-events="all"  class="tile-border" fill="none" stroke="none" stroke-width="0"
+                 points="0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796"></polygon>
+    </g>
+    </svg>
     <!-- /ko -->
 </div>
