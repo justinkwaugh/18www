@@ -3,6 +3,7 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" type="text/css" href="css/18www.css">
+    <link href="open-iconic/font/css/open-iconic-bootstrap.css" rel="stylesheet">
 </head>
 <body style="background-color:#FFF">
 <header>
@@ -14,7 +15,7 @@
             <h2 class="mb-0 text-dark font-weight-light"
                 data-bind="text: $data.game().state().roundName() + ' - ' + $data.game().state().currentPlayer().user().username"></h2>
         </div>
-        <div data-bind="template: { name: 'players', data: $data.game().state()}"></div>
+        <div data-bind="template: { name: 'views/players', data: $data.game().state()}"></div>
     </nav>
     <div class="border border-right-0 border-top-0 border-left-0 pl-3 pr-3 bg-light" data-bind="true || visible:!$data.game().privateDraft()">
             <ul class="nav">
@@ -36,18 +37,18 @@
                 </li>
             </ul>
     </div>
-    <div data-bind="template: { name: 'turnsummary', data: $data.game().state() }, visible:true || !$data.game().privateDraft()"></div>
-    <div data-bind="template: { name: 'stockRound', data: $data.game().state() }, visible:true || !$data.game().privateDraft()"></div>
+    <div data-bind="template: { name: 'views/turnsummary', data: $data.game().state() }, visible:true || !$data.game().privateDraft()"></div>
+    <div data-bind="template: { name: 'views/stockRound', data: $data.game().state() }, visible:true || !$data.game().privateDraft()"></div>
 </header>
 <div class="container-fluid my-4">
 
-    <div data-bind="template: { name: 'privateDraft', data: $data.game().privateDraft() }, visible:false && $data.game().privateDraft()"></div>
+    <div data-bind="template: { name: 'views/privateDraft', data: $data.game().privateDraft() }, visible:false && $data.game().privateDraft()"></div>
     <div data-bind="visible:true || !$data.game().privateDraft()">
 
         <div data-bind="visible: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP">
             <div class="row">
                 <div class="col">
-                    <div data-bind="template: { name: 'ownership', data: $data.game().state() }"></div>
+                    <div data-bind="template: { name: 'views/ownership', data: $data.game().state() }"></div>
                 </div>
             </div>
         </div>
@@ -55,25 +56,24 @@
         <div data-bind="visible: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP">
             <div class="row">
                 <div class="col">
-                    <div data-bind="template: { name: 'companies', data: $data.game().state() }"></div>
+                    <div data-bind="template: { name: 'views/companies', data: $data.game().state() }"></div>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
-                    <div data-bind="template: { name: 'pricetrack', data: $data.game() }"></div>
+                    <div data-bind="template: { name: 'views/pricetrack', data: $data.game() }"></div>
                 </div>
             </div>
             <div class="row">
                 <div class="col">
-
                     <div style="position:relative;width:1836px;height:1186px;transform-origin:0 0;transform:scale(.817, .817)">
-                        <img style="width:1836px;height:1186px;" src="images/1846-map.jpg"/>
+                        <img style="width:1836px;height:1186px;"data-bind="attr: { src: 'images/1846-map.jpg' }"/>
                         <div style="position:absolute;top:29px;left:36px;height:1002px;width:1308px;"
-                             data-bind="template: {name:'grid', data: $data.game().grid()}"></div>
+                             data-bind="template: {name:'views/grid', data: $data.game().grid()}"></div>
                         <div style="position:absolute;top:358px;left:1411px;height:437px;width:397px;"
-                             data-bind="template: {name:'market', data: $data.game().state()}"></div>
+                             data-bind="template: {name:'views/market', data: $data.game().state()}"></div>
                         <div style="position:absolute;top:934px;left:953px;height:212px;width:855px;"
-                             data-bind="template: {name:'trains', data: $data.game().state()}"></div>
+                             data-bind="template: {name:'views/trains', data: $data.game().state()}"></div>
                     </div>
                 </div>
             </div>
@@ -82,14 +82,14 @@
         <div data-bind="if: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY">
             <div class="row">
                 <div class="col">
-                    <div data-bind="template: { name: 'turnHistory', data: $data.game().state() }"></div>
+                    <div data-bind="template: { name: 'views/turnHistory', data: $data.game().state() }"></div>
                 </div>
             </div>
         </div>
         <div data-bind="if: $data.game().activePanel() === $data.game().ActivePanelIDs.TILE_MANIFEST">
             <div class="row">
                 <div class="col">
-                    <div data-bind="template: { name: 'tileManifest', data: $data.game().state() }"></div>
+                    <div data-bind="template: { name: 'views/tileManifest', data: $data.game().state() }"></div>
                 </div>
             </div>
         </div>

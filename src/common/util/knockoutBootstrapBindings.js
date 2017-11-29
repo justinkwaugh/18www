@@ -1,31 +1,35 @@
 import ko from 'knockout'
 
-function cleanupPopover(element) {
+function cleanupPopover(element, dispose) {
     $(element).off('inserted.bs.popover');
     $(element).off('shown.bs.popover');
     $(element).off('hidden.bs.popover');
 
-    if(currentPopover === element) {
+    if (currentPopover === element) {
         $(currentPopover).popover('hide');
         currentPopover = null;
     }
 
-    const popover = $(element).data['bs.popover'];
-    if (popover) {
-        popover.destroy();
+    if (dispose) {
+        $(element).popover('dispose');
     }
 }
 
 function setupPopover(element, args, bindingContext) {
+
     _.defaults(args, {
         placement: 'auto',
         trigger: 'click',
         removeOnDestroy: true,
         bindContent: true,
-        html: true
+        html: true,
+        closestDiv: false
     });
 
-    const popover = $(element).popover(args);
+    const target = args.closestDiv ? $(element).parent().closest('div') : $(element);
+    const targetElement = target[0];
+
+    const popover = target.popover(args);
 
     if (args.bindContent) {
         popover.on('inserted.bs.popover', function (e) {
@@ -36,16 +40,15 @@ function setupPopover(element, args, bindingContext) {
     }
 
     popover.on('shown.bs.popover', function (e) {
-        if(currentPopover && currentPopover !== element) {
+        if (currentPopover && currentPopover !== targetElement) {
             $(currentPopover).popover('hide');
-            currentPopover = null;
         }
 
         if (args.onShow) {
             const pop = popover.data('bs.popover').tip;
             args.onShow(pop);
         }
-        currentPopover = element;
+        currentPopover = targetElement;
     });
 
 
@@ -55,14 +58,14 @@ function setupPopover(element, args, bindingContext) {
             args.onHide(pop);
         }
 
-        if(currentPopover === element) {
+        if (currentPopover === targetElement) {
             currentPopover = null;
         }
     });
 
 
     ko.utils.domNodeDisposal.addDisposeCallback(element, function () {
-        cleanupPopover(element);
+        cleanupPopover(targetElement, true);
     });
 
 
@@ -77,7 +80,9 @@ ko.bindingHandlers.popover = {
     },
     update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         const args = ko.utils.unwrapObservable(valueAccessor());
-        cleanupPopover(element);
+        const target = args.closestDiv ? $(element).parent().closest('div') : $(element);
+        const targetElement = target[0];
+        cleanupPopover(targetElement);
         setupPopover(element, args, bindingContext);
     }
 };

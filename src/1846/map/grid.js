@@ -5,7 +5,7 @@ import Cell from 'common/map/cell';
 import Tile from 'common/map/tile';
 import TileManifest from '1846/config/tileManifest';
 
-const RowLetters = ['B','C','D','E','F','G','H','I','J','K'];
+const RowLetters = ['A','B','C','D','E','F','G','H','I','J','K'];
 
 const OffBoardIds = {
     CHICAGO_CONNECTIONS: 'chicago_connections',
@@ -45,46 +45,52 @@ class Grid extends BaseGrid {
             const row = Math.floor(value/12);
             const col = value % 10;
 
-            if(row === 0 && ( col < 4 || col > 7)) {
+            if(row === 0) {
+                return
+            }
+
+            if(row === 1 && ( col < 4 || col > 7)) {
                 return;
             }
 
-            if(row === 1 && ( col < 2 || col > 6)) {
+            if(row === 2 && ( col < 2 || col > 6)) {
                 return;
             }
 
-            if(row === 2 && ( col < 2 || col === 7)) {
+            if(row === 3 && ( col < 2 || col === 7)) {
                 return;
             }
 
-            if((row === 3 || row === 4) && col < 1 ) {
+            if((row === 4 || row === 5) && col < 1 ) {
                 return;
             }
 
-            if(row === 5  && col === 9 ) {
+            if(row === 6  && col === 9 ) {
                 return;
             }
 
-            if(row === 6  && col >7 ) {
+            if(row === 7  && col >7 ) {
                 return;
             }
 
-            if(row === 7  && (col === 5 || col > 6) ) {
+            if(row === 8  && (col === 5 || col > 6) ) {
                 return;
             }
 
-            if(row === 8  && (col < 1 || col > 3) ) {
+            if(row === 9  && (col < 1 || col > 3) ) {
                 return;
             }
 
-            if(row === 9  && col !== 0 ) {
+            if(row === 10  && col !== 0 ) {
                 return;
             }
 
             return new Cell({
-                id: RowLetters[row] + (col*2 + ((row % 2) ? 3 : 2)),
-                top: 1 + (row *107),
-                left: 2 + ((row % 2) ? 62 : 0) + col * 124
+                id: Grid.getIDForRowAndColumn(row, col),
+                row,
+                col,
+                top: 1 + ((row-1) *107),
+                left: 2 + (((row-1) % 2) ? 62 : 0) + col * 124
             });
         }).compact().value();
 
@@ -94,14 +100,28 @@ class Grid extends BaseGrid {
 
         super({ cellSize: 124, cells });
 
-        this.cellsById()['F8'].tile(new Tile({id: 7,position: 4}));
-        this.cellsById()['F10'].tile(new Tile({id: 5,position: 2}));
-        this.cellsById()['E9'].tile(new Tile({id:23, position: 2}));
-        this.cellsById()['D8'].tile(new Tile({id:8, position: 0}))
+        this.connectNeighbors();
     }
 
     connectNeighbors() {
+        _.each(this.cells(), (cell)=> {
+            cell.neighbors[0] = this.cellsById()[Grid.getIDForRowAndColumn(cell.row-1, cell.col + (cell.row %2 ? 0 : 1))];
+            cell.neighbors[1] = this.cellsById()[Grid.getIDForRowAndColumn(cell.row, cell.col + 1)];
+            cell.neighbors[2] = this.cellsById()[Grid.getIDForRowAndColumn(cell.row+1, cell.col + (cell.row %2 ? 0 : 1))];
+            cell.neighbors[3] = this.cellsById()[Grid.getIDForRowAndColumn(cell.row+1, cell.col - (cell.row %2 ? 1 : 0))];
+            cell.neighbors[4] = this.cellsById()[Grid.getIDForRowAndColumn(cell.row, cell.col - 1)];
+            cell.neighbors[5] = this.cellsById()[Grid.getIDForRowAndColumn(cell.row-1, cell.col - (cell.row %2 ? 1 : 0))];
+            // console.log('Cell ' + cell.id + ' Neighbors: [' + (cell.neighbors[0] ? cell.neighbors[0].id : 'None') + ',' +
+            //        (cell.neighbors[1] ? cell.neighbors[1].id : 'None') + ',' +
+            //        (cell.neighbors[2] ? cell.neighbors[2].id : 'None') + ',' +
+            //        (cell.neighbors[3] ? cell.neighbors[3].id : 'None') + ',' +
+            //        (cell.neighbors[4] ? cell.neighbors[4].id : 'None') + ',' +
+            //        (cell.neighbors[5] ? cell.neighbors[5].id : 'None') + ']');
+        });
+    }
 
+    static getIDForRowAndColumn(row, column) {
+        return RowLetters[row] + (column*2 + ((row % 2) ? 2 : 3));
     }
 
 }

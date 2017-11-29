@@ -18,7 +18,7 @@ const TileDefinitions = {
         id:MapTileIDs.CHICAGO,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
-        connections: [[1, 7], [2, 8], [3, 9], [4, 10]]
+        connections: [[0, 7], [1, 8], [2, 9], [3, 10]]
     },
     [MapTileIDs.CENTRALIA]: {
         id:MapTileIDs.CENTRALIA,
@@ -98,104 +98,129 @@ const TileDefinitions = {
     },
     17: {
         id: 17,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[0,4], [1, 3]]
     },
     18: {
         id: 18,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[0,3],[1,2]]
     },
     19: {
         id: 19,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[0,3],[2,4]]
     },
     20: {
         id: 20,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[0,3],[2,5]]
     },
     21: {
         id: 21,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[0,1],[3,5]]
     },
     22: {
         id: 22,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[0,5],[1,3]]
     },
     23: {
         id: 23,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[0,3],[1,3]]
     },
     24: {
         id: 24,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[0,3],[3,5]]
     },
     25: {
         id: 25,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[1,3],[3,5]]
     },
     26: {
         id: 26,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[0,3],[2,3]]
     },
     27: {
         id: 27,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[0,3], [0,1]]
     },
     28: {
         id: 28,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[1,3],[2,3]]
     },
     29: {
         id: 29,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[1,3],[1,2]]
     },
     30: {
         id: 30,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[1,3],[3,4]]
     },
     31: {
         id: 31,
-        colorId: TileColorIDs.GREEN
+        colorId: TileColorIDs.GREEN,
+        connections: [[2,3],[3,5]]
     },
     39: {
         id: 39,
         colorId: TileColorIDs.BROWN,
+        connections: [[2,4],[2,3],[3,4]]
     },
     40: {
         id: 40,
         colorId: TileColorIDs.BROWN,
+        connections: [[1,5],[1,3],[3,5]]
     },
     41: {
         id: 41,
         colorId: TileColorIDs.BROWN,
+        connections: [[0,3], [0,1], [1,3]]
     },
     42: {
         id: 42,
         colorId: TileColorIDs.BROWN,
+        connections: [[0,5],[0,3],[3,5]]
     },
     43: {
         id: 43,
         colorId: TileColorIDs.BROWN,
+        connections: [[0,2],[0,3],[1,3],[1,2]]
     },
     44: {
         id: 44,
         colorId: TileColorIDs.BROWN,
+        connections: [[0,3],[0,5],[2,3],[2,5]]
     },
     45: {
         id: 45,
         colorId: TileColorIDs.BROWN,
+        connections: [[0,3],[0,4],[2,3],[2,4]]
     },
     46: {
         id: 46,
         colorId: TileColorIDs.BROWN,
+        connections: [[0,2],[0,3],[2,4],[3,4]]
     },
     47: {
         id: 47,
         colorId: TileColorIDs.BROWN,
+        connections: [[0,2],[0,3],[2,5],[3,5]]
     },
     51: {
         id: 51,
         colorId: TileColorIDs.GRAY,
         revenue: 50,
+        connections: [[0, 7], [1, 7], [3, 7], [4, 7], [5, 7]]
     },
     57: {
         id: 57,
@@ -206,6 +231,7 @@ const TileDefinitions = {
     70: {
         id: 70,
         colorId: TileColorIDs.BROWN,
+        connections: [[0,1],[0,2],[1,3],[2,3]]
     },
     290: {
         id: 290,
@@ -276,7 +302,8 @@ const TileDefinitions = {
     611: {
         id: 611,
         colorId: TileColorIDs.BROWN,
-        revenue: 40
+        revenue: 40,
+        connections: [[0, 7], [1, 7], [3, 7], [4, 7], [5, 7]]
     },
     619: {
         id: 619,
@@ -288,31 +315,39 @@ const TileDefinitions = {
 
 const Manifest = {
     [MapTileIDs.BLANK]: {
-        upgrades: [7,8,9]
+        upgrades: [7,8,9],
+        count: -1
     },
     [MapTileIDs.CITY]: {
-        upgrades: [5,6,57]
+        upgrades: [5,6,57],
+        count: -1
     },
     [MapTileIDs.CHICAGO]: {
-        upgrades:[298]
+        upgrades:[298],
+        count: -1
     },
     [MapTileIDs.CENTRALIA]: {
         upgrades:[]
     },
     [MapTileIDs.DETROIT]: {
-        upgrades:[294,295]
+        upgrades:[294,295],
+        count: -1
     },
     [MapTileIDs.ERIE]: {
-        upgrades:[14]
+        upgrades:[14],
+        count: -1
     },
     [MapTileIDs.CLEVELAND]: {
-        upgrades:[294,295,296]
+        upgrades:[291,292,293],
+        count: -1
     },
     [MapTileIDs.CINCINNATI]: {
-        upgrades:[294,295,296]
+        upgrades:[291,292,293],
+        count: -1
     },
     [MapTileIDs.WHEELING]: {
-        upgrades:[5,6,57]
+        upgrades:[5,6,57],
+        count: -1
     },
     5: {
         upgrades: [14, 15, 619],
@@ -519,7 +554,7 @@ class TileManifest {
 
         this.popoverParams = {
             placement: 'right',
-            content: '<div data-bind="template: { name: \'tileUpgradePopover\' }"></div>'
+            content: '<div data-bind="template: { name: \'views/tileUpgradePopover\' }"></div>'
         };
 
     }
@@ -540,20 +575,25 @@ class TileManifest {
     getTile(id, replacedId) {
         const numAvailable = this.availableTiles()[id];
         if(numAvailable === 0) {
-            throw ValidationError('No '+ id + ' tile available');
+            throw new ValidationError('No '+ id + ' tile available');
         }
         else if(numAvailable > 0) {
             this.availableTiles()[id] = numAvailable-1;
         }
 
         if(replacedId) {
-            const isUnlimited = this.availableTiles()[replacedId] === -1;
+            const numReplacedAvailable = this.availableTiles()[replacedId];
+            const isUnlimited = numReplacedAvailable === -1;
             if(!isUnlimited) {
-                this.availableTiles()[id] = numAvailable+1;
+                this.availableTiles()[replacedId] = numReplacedAvailable+1;
             }
         }
 
-        return this.createTile(id);
+        return TileManifest.createTile(id);
+    }
+
+    static getTileDefinition(id) {
+        return TileDefinitions[id];
     }
 
     static createTile(id) {

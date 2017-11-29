@@ -26,7 +26,7 @@
                 data-bind="text: $data.remaining === -1 ? '&#x221e;' : $data.remaining "></h5>
 
                 <div class="mr-1 mb-1" style="width:126px;height:144px;"
-                     data-bind="style: { opacity : $data.remaining === 0 ? .5 : 1 }, template: 'tiles/' + $data.id, popover: $parent.manifest.popoverParams"></div>
+                     data-bind="style: { opacity : $data.remaining === 0 ? .5 : 1 }, template: 'views/tiles/' + $data.id, popover: $parent.manifest.popoverParams"></div>
         </div>
         <!-- /ko -->
     </div>

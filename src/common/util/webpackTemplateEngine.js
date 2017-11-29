@@ -1,6 +1,7 @@
 import ko from 'knockout';
 
-const templateContext = require.context("html-loader!views", true);
+// This is mega crappy stuff right here.
+const templateContext = require.context("html-loader!../../../web", true);
 
 //define a template source that simply treats the template name as its content
 const sources = {},

@@ -26,7 +26,7 @@ class BasePlayer {
         });
 
         this.popoverParams = {
-            content: '<div data-bind="template: { name: \'playerPopover\' }"></div>'
+            content: '<div data-bind="template: { name: \'views/playerPopover\' }"></div>'
         };
 
         this.name = ko.computed(() => {
