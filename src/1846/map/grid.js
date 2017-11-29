@@ -22,6 +22,9 @@ const OffBoardIds = {
 };
 
 const SpecialTiles = {
+    A15: MapTileIDs.A15,
+    B16: MapTileIDs.CITY,
+    C7 : MapTileIDs.C7,
     C9 : MapTileIDs.CITY,
     C15 : MapTileIDs.DETROIT,
     D6 : MapTileIDs.CHICAGO,
@@ -36,7 +39,7 @@ const SpecialTiles = {
     G15: MapTileIDs.CITY,
     G19: MapTileIDs.WHEELING,
     H12: MapTileIDs.CINCINNATI,
-    I5: MapTileIDs.CENTRALIA
+    I5: MapTileIDs.CENTRALIA,
 };
 
 class Grid extends BaseGrid {
@@ -45,7 +48,7 @@ class Grid extends BaseGrid {
             const row = Math.floor(value/12);
             const col = value % 10;
 
-            if(row === 0) {
+            if(row === 0 && (col !== 6)) {
                 return
             }
 

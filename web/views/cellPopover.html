@@ -1,13 +1,12 @@
 <!-- ko if: $data.tile() -->
-
-<div data-bind="style: { width: $data.getUpgradeTiles($root.game().state()).length === 1 ? '126px' : '256px'} ">
+<div data-bind="style: { width: $data.tile().upgrades.length === 1 ? '126px' : '256px'} ">
     <div class="d-flex flex-wrap m-auto">
         <!-- ko foreach: $data.getUpgradeTiles($root.game().state()) -->
-        <div class="position-relative" style="cursor:pointer" data-bind="click: function() { $parent.previewTile($root.game().state(), $data.id); }">
+        <div class="position-relative" style="cursor:pointer" data-bind="click: function() { $parent.previewTile($root.game().state(), $data.tile.id); }">
             <h5 class="position-absolute" style="top:0;left:10px;"
                 data-bind="text: $data.remaining === -1 ? '&#x221e;' : $data.remaining "></h5>
             <div class="mr-1 mb-1" style="width:124px;height:144px;"
-                 data-bind="style: { opacity : $data.remaining === 0 ? .5 : 1 }, template: 'views/tiles/' + $data.id"></div>
+                 data-bind="style: { opacity : $data.remaining === 0 ? .5 : 1 }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.tile.id), data: $data.tile }"></div>
         </div>
         <!-- /ko -->
     </div>

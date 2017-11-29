@@ -1,0 +1,22 @@
+<!-- ko if: $data.colorId !== 'i' -->
+<svg>
+    <g fill-opacity="1" visibility="inherit" transform="translate(63,72)" pointer-events="none">
+        <polygon fill="#ffe300" stroke="black" stroke-width="1"
+                 points="0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796" data-bind="attr: { fill: $data.colorId === 'y' ? '#ffe300' : $data.colorId === 'g' ? '#5fb479' : $data.colorId === 'b' ? '#c18157' : '#d2d2d4'}  "></polygon>
+
+        <!-- ko foreach: $data.connections -->
+            <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d="" data-bind="attr: { d: $parent.getDrawingInstructions($data) }"></path>
+        <!-- /ko -->
+
+        <!-- ko foreach: $data.connections -->
+            <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="" data-bind="attr: { d: $parent.getDrawingInstructions($data,true) }"></path>
+        <!-- /ko -->
+
+        <text x="0" y="58" fill="black" stroke="black" stroke-width="0.2"
+              font-size="12" text-anchor="middle" visibility="inherit" data-bind="text: $data.id">
+        </text>
+    </g>
+</svg>
+<!-- /ko -->

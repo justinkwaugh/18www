@@ -8,7 +8,9 @@ const MapTileIDs = {
     ERIE: 'erie',
     CLEVELAND: 'cleveland',
     WHEELING: 'wheeling',
-    CINCINNATI: 'cincinnati'
+    CINCINNATI: 'cincinnati',
+    C7: 'c7',
+    A15: 'a15'
 };
 
 export default MapTileIDs;

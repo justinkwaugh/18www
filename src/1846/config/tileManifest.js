@@ -52,16 +52,30 @@ const TileDefinitions = {
         revenue: 10,
         connections: [[2,7]]
     },
+    [MapTileIDs.C7]: {
+        id:MapTileIDs.C7,
+        colorId: TileColorIDs.INVISIBLE,
+        connections: [[2,3]]
+    },
+    [MapTileIDs.A15]: {
+        id:MapTileIDs.A15,
+        colorId: TileColorIDs.INVISIBLE,
+        connections: [[2,3]]
+    },
     5: {
         id: 5,
         colorId: TileColorIDs.YELLOW,
         revenue: 20,
+        template: 'city',
+        maxTokens: 1,
         connections: [[2, 7], [3, 7]]
     },
     6: {
         id: 6,
         colorId: TileColorIDs.YELLOW,
         revenue: 20,
+        template: 'city',
+        maxTokens: 1,
         connections: [[1, 7], [3, 7]]
     },
     7: {
@@ -83,12 +97,16 @@ const TileDefinitions = {
         id: 14,
         colorId: TileColorIDs.GREEN,
         revenue: 30,
+        template: 'city',
+        maxTokens: 2,
         connections: [[0, 7], [2, 7], [3, 7], [5, 7]]
     },
     15: {
         id: 15,
         colorId: TileColorIDs.GREEN,
         revenue: 30,
+        template: 'city',
+        maxTokens: 2,
         connections: [[0, 7], [1, 7], [2, 7], [3, 7]]
     },
     16: {
@@ -220,12 +238,16 @@ const TileDefinitions = {
         id: 51,
         colorId: TileColorIDs.GRAY,
         revenue: 50,
+        template: 'city',
+        maxTokens: 2,
         connections: [[0, 7], [1, 7], [3, 7], [4, 7], [5, 7]]
     },
     57: {
         id: 57,
         colorId: TileColorIDs.YELLOW,
         revenue: 20,
+        template: 'city',
+        maxTokens: 1,
         connections: [[0, 7], [3, 7]]
     },
     70: {
@@ -237,78 +259,101 @@ const TileDefinitions = {
         id: 290,
         colorId: TileColorIDs.GRAY,
         revenue: 70,
+        template: 'z',
+        maxTokens: 3,
         connections: [[0, 7], [1, 7], [3, 7], [4, 7], [5, 7]],
     },
     291: {
         id: 291,
         colorId: TileColorIDs.YELLOW,
         revenue: 40,
+        template: 'z',
+        maxTokens: 1,
         connections: [[2, 7], [3, 7]]
     },
     292: {
         id: 292,
         colorId: TileColorIDs.YELLOW,
         revenue: 40,
+        template: 'z',
+        maxTokens: 1,
         connections: [[1, 7], [3, 7]]
     },
     293: {
         id: 293,
         colorId: TileColorIDs.YELLOW,
         revenue: 40,
+        template: 'z',
+        maxTokens: 1,
         connections: [[0, 7], [3, 7]]
     },
     294: {
         id: 294,
         colorId: TileColorIDs.GREEN,
         revenue: 50,
+        template: 'z',
+        maxTokens: 2,
         connections: [[0, 7], [2, 7], [3, 7], [5, 7]]
     },
     295: {
         id: 295,
         colorId: TileColorIDs.GREEN,
         revenue: 50,
+        template: 'z',
+        maxTokens: 2,
         connections: [[0, 7], [1, 7], [2, 7], [3, 7]]
     },
     296: {
         id: 296,
         colorId: TileColorIDs.GREEN,
         revenue: 50,
+        template: 'z',
+        maxTokens: 2,
         connections: [[0, 7], [2, 7], [3, 7], [4, 7]]
     },
     297: {
         id: 297,
         colorId: TileColorIDs.BROWN,
         revenue: 60,
+        template: 'z',
+        maxTokens: 3,
         connections: [[0, 7], [1, 7], [3, 7], [4, 7], [5, 7]]
     },
     298: {
         id: 298,
         colorId: TileColorIDs.GREEN,
         revenue: 40,
+        template: 'chicago',
         connections: [[0, 7], [1, 7], [0, 8], [2, 8], [0, 9], [3, 9], [0, 10], [4, 10]]
     },
     299: {
         id: 299,
         colorId: TileColorIDs.BROWN,
         revenue: 70,
+        template: 'chicago',
         connections: [[0, 7], [1, 7], [0, 8], [2, 8], [0, 9], [3, 9], [0, 10], [4, 10]]
     },
     300: {
         id: 300,
         colorId: TileColorIDs.GRAY,
         revenue: 90,
+        template: 'chicago',
         connections: [[0, 7], [1, 7], [0, 8], [2, 8], [0, 9], [3, 9], [0, 10], [4, 10]],
     },
     611: {
         id: 611,
         colorId: TileColorIDs.BROWN,
         revenue: 40,
+        template: 'city',
+        maxTokens: 2,
         connections: [[0, 7], [1, 7], [3, 7], [4, 7], [5, 7]]
     },
     619: {
         id: 619,
         colorId: TileColorIDs.GREEN,
         revenue: 30,
+        template: 'city',
+        maxTokens: 2,
         connections: [[0, 7], [2, 7], [3, 7], [4, 7]]
     }
 };
@@ -347,6 +392,14 @@ const Manifest = {
     },
     [MapTileIDs.WHEELING]: {
         upgrades:[5,6,57],
+        count: -1
+    },
+    [MapTileIDs.C7]: {
+        upgrades:[],
+        count: -1
+    },
+    [MapTileIDs.A15]: {
+        upgrades:[],
         count: -1
     },
     5: {
@@ -537,10 +590,14 @@ class TileManifest {
         this.TileColorIDs = TileColorIDs;
 
         this.availableTiles = ko.observable(definition.availableTiles || _.mapValues(Manifest, 'count'));
+        this.displayTilesById = ko.computed(() => {
+            return _(TileDefinitions).map(definition=> TileManifest.createTile(definition.id)).keyBy('id').value();
+        });
         this.tilesByColor = ko.computed(()=> {
             return _(TileDefinitions).map((tileDefinition)=> {
                 return {
                     id: tileDefinition.id,
+                    tile: this.displayTilesById()[tileDefinition.id],
                     colorId: tileDefinition.colorId,
                     upgrades: Manifest[tileDefinition.id].upgrades,
                     remaining: this.availableTiles()[tileDefinition.id]
@@ -566,7 +623,7 @@ class TileManifest {
     getUpgradesForTile(id) {
         return _(Manifest[id].upgrades || []).map((upgradeId) => {
             return {
-                id: upgradeId,
+                tile: this.displayTilesById()[upgradeId],
                 remaining: this.availableTiles()[upgradeId]
             }
         }).value();
@@ -594,6 +651,10 @@ class TileManifest {
 
     static getTileDefinition(id) {
         return TileDefinitions[id];
+    }
+
+    getTemplateName(id) {
+        return TileManifest.getTileDefinition(id).template || 'common';
     }
 
     static createTile(id) {

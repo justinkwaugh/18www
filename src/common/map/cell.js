@@ -8,7 +8,6 @@ class Cell {
         data = data || {};
 
         this.id = data.id;
-        this.visible = data.visible || false;
         this.upgradeable = data.upgradeable || true;
         this.top = data.top || 0;
         this.left = data.left || 0;
@@ -38,7 +37,7 @@ class Cell {
 
     getUpgradeTiles(state) {
         return _.filter(state.manifest.getUpgradesForTile(this.tile().id) || [], (upgrade) => {
-            return this.getAllowedTilePositions(state, this.tile(), upgrade.id).length > 0;
+            return this.getAllowedTilePositions(state, this.tile(), upgrade.tile.id).length > 0;
         });
     }
 
@@ -69,6 +68,7 @@ class Cell {
                 return false;
             }
 
+            // Check base tiles w/ connections
             if (oldTile && _.indexOf(_.values(MapTileIDs),oldTile.id) >= 0) {
                 // console.log('Checking tile ' + this.id + ' for valid neighbor connections for new tile id ' + newTileId + ' and position ' + pos);
                 const baseTileConnection = _.find(TileManifest.getTileDefinition(newTileId).connections, (connection) => {
@@ -166,6 +166,9 @@ class Cell {
         const existingTile = this.tile() || {};
         const newTile = state.manifest.getTile(previewTile.id, existingTile.id);
         newTile.position(previewTile.position());
+        if(newTile.id === 5) {
+            newTile.tokens(['bando']);
+        }
         this.tile(newTile);
         this.cancelPreview();
     }
