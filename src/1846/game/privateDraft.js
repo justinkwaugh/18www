@@ -3,18 +3,18 @@ import _ from 'lodash';
 import DraftPrivate from '1846/actions/draftPrivate';
 import DraftPass from '1846/actions/draftPass';
 import Sequence from '1846/game/sequence';
+import CurrentGame from 'common/game/currentGame';
 
 class PrivateDraft {
     constructor(definition) {
         definition = definition || {};
 
-        this.game = definition.game;
-        this.state = definition.state;
         this.privatesOffered = ko.observableArray(definition.privatesOffered);
 
         if (!definition.privatesOffered) {
-            this.privatesOffered(_(this.state.undraftedPrivateIds()).take(this.state.players().length + 2).map((id) => {
-                return _.startsWith(id, 'pass') ? this.state.passCardsById[id] : this.state.privateCompaniesById[id];
+            const state = CurrentGame().state();
+            this.privatesOffered(_(state.undraftedPrivateIds()).take(state.players().length + 2).map((id) => {
+                return _.startsWith(id, 'pass') ? state.passCardsById[id] : state.privateCompaniesById[id];
             }).value());
         }
 
@@ -35,16 +35,16 @@ class PrivateDraft {
                              playerId: this.state.currentPlayerId(),
                              privateId: this.selectedPrivateId(),
                              offeredIds: _.map(this.privatesOffered(), 'id')
-                         }).execute(this.state);
-        Sequence.finishTurn(this.game);
+                         }).execute(CurrentGame().state());
+        Sequence.finishTurn();
     }
 
     pass() {
         new DraftPass({
                           playerId: this.state.currentPlayerId(),
                           privateId: this.selectedPrivateId()
-                      }).execute(this.state);
-        Sequence.finishTurn(this.game);
+                      }).execute(CurrentGame().state());
+        Sequence.finishTurn();
     }
 }
 

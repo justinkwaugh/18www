@@ -33,7 +33,7 @@ class Bank {
     }
 
     numSharesOwnedOfCompany(companyId) {
-        return _(this.certificatesById(companyId) || []).sumBy('shares');
+        return _(this.certificatesById()[companyId] || []).sumBy('shares');
     }
 }
 

@@ -29,6 +29,7 @@ class Game extends BaseGame {
         this.state = ko.observable(definition.state);
         this.grid = ko.observable(new Grid());
         this.privateDraft = ko.observable();
+        this.stockRound = ko.observable();
 
         this.activePanel = ko.observable(ActivePanelIDs.MAP);
         this.ActivePanelIDs = ActivePanelIDs;
@@ -113,7 +114,6 @@ class Game extends BaseGame {
                             state
                         });
     }
-
 
 }
 

@@ -2,6 +2,7 @@ import ko from 'knockout';
 import _ from 'lodash';
 import TileManifest from '1846/config/tileManifest';
 import MapTileIDs from '1846/config/mapTileIds';
+import CurrentGame from 'common/game/currentGame';
 
 class Cell {
     constructor(data) {
@@ -31,18 +32,18 @@ class Cell {
         });
     }
 
-    canEdit(state) {
-        return this.getUpgradeTiles(state).length > 0;
+    canEdit() {
+        return this.getUpgradeTiles().length > 0;
     }
 
-    getUpgradeTiles(state) {
-        return _.filter(state.manifest.getUpgradesForTile(this.tile().id) || [], (upgrade) => {
-            return this.getAllowedTilePositions(state, this.tile(), upgrade.tile.id).length > 0;
+    getUpgradeTiles() {
+        return _.filter(CurrentGame().state().manifest.getUpgradesForTile(this.tile().id) || [], (upgrade) => {
+            return this.getAllowedTilePositions(this.tile(), upgrade.tile.id).length > 0;
         });
     }
 
-    getAllowedTilePositions(state, oldTile, newTileId) {
-        const positions = _(_.range(0, 6)).filter((pos) => {
+    getAllowedTilePositions(oldTile, newTileId) {
+        return _(_.range(0, 6)).filter((pos) => {
             // Check against existing tile connections
             if (oldTile) {
                 const oldConnectionsIds = this.getConnectionIdsForPosition(oldTile.id, oldTile.position());
@@ -106,10 +107,6 @@ class Cell {
 
             // check connection costs (including base cost if necessary)
         }).value();
-
-        return positions;
-
-
     }
 
     getConnectionIdsForPosition(tileId, position) {
@@ -141,9 +138,9 @@ class Cell {
     }
 
 
-    previewTile(state, tileId) {
+    previewTile(tileId) {
         const tile = TileManifest.createTile(tileId);
-        this.allowedPreviewPositions(this.getAllowedTilePositions(state, this.tile(), tileId));
+        this.allowedPreviewPositions(this.getAllowedTilePositions(this.tile(), tileId));
         tile.position(this.allowedPreviewPositions()[0]);
         this.preview(tile);
     }
@@ -160,11 +157,11 @@ class Cell {
         this.allowedPreviewPositions([]);
     }
 
-    commitPreview(state) {
+    commitPreview() {
         // do action
         const previewTile = this.preview();
         const existingTile = this.tile() || {};
-        const newTile = state.manifest.getTile(previewTile.id, existingTile.id);
+        const newTile = CurrentGame().state().manifest.getTile(previewTile.id, existingTile.id);
         newTile.position(previewTile.position());
         if(newTile.id === 5) {
             newTile.tokens(['bando']);

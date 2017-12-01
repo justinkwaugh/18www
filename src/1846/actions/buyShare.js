@@ -43,8 +43,13 @@ class BuyShare extends Action {
     }
 
     summary(state) {
-        const company = state.publicCompanies[this.companyId];
-        return 'Buy 1 ' + company.nickname + ' @ ' + Prices.price(this.startIndex);
+        const company = state.publicCompaniesById[this.companyId];
+        return 'Bought 1 ' + company.nickname + ' @ ' + Prices.price(this.startIndex);
+    }
+
+    confirmation(state) {
+        const company = state.publicCompaniesById[this.companyId];
+        return 'Confirm Buy 1 ' + company.nickname + ' @ ' + Prices.price(this.startIndex);
     }
 }
 

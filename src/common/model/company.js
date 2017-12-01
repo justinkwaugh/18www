@@ -19,6 +19,7 @@ class Company {
         this.privates = ko.observableArray(definition.privates || []);
         this.trains = ko.observableArray(definition.trains || []);
         this.president = ko.observable(definition.president);
+        this.parPriceIndex = ko.observable(definition.parPriceIndex || 0);
         this.priceIndex = ko.observable(definition.priceIndex || 0);
         this.lastRun = ko.observable(definition.lastRun);
         this.opened = ko.observable(definition.opened || false);

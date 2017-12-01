@@ -1,4 +1,5 @@
 import ko from 'knockout';
+import CurrentGame from 'common/game/currentGame';
 import Game from '1846/game/game';
 import User from 'common/server/user';
 import Sequence from '1846/game/sequence';
@@ -12,9 +13,15 @@ class Dashboard {
             return new User({id: index, username: 'Player ' + (index + 1)});
         });
 
-        this.game = ko.observable(Game.createGame(users));
+        CurrentGame(Game.createGame(users));
+
+        this.game = ko.computed(() => {
+            return CurrentGame();
+        });
+
+
         this.sequence = Sequence;
-        Sequence.nextRoundPhaseAndTurn(this.game())
+        Sequence.nextRoundPhaseAndTurn();
     }
 }
 

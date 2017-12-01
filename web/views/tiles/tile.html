@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" style="width:126px;height:144px;">
-    <g class="tile" xmlns="http://www.w3.org/2000/svg" fill-opacity="1" visibility="inherit" pointer-events="all"
-        data-bind="css: 'pos' + ($data.tile().position ? $data.tile().position() : 0), click: function() { $data.tile().position(($data.tile().position()+1) % 6);}" >
-        <polygon class="tile-border" fill="#ffe300" stroke="black" stroke-width="1"
-                 points="0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796"></polygon>
-        <g transform="translate(-63,-72)" data-bind="template: { name: 'views/tiles/' + $data.tile().id, data: $data.tile() }"></g>
-    </g>
-</svg>

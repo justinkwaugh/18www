@@ -19,7 +19,10 @@ class State extends BaseState {
         this.playersById = ko.computed(()=>{
             return _.keyBy(this.players(), 'id');
         });
-        this.lastPlayerId = ko.observable(definition.currentPlayerId );
+
+        this.lastPlayerId = ko.observable(definition.currentPlayerId);
+
+
         this.currentPlayerIndex = ko.observable(definition.currentPlayerIndex || 0);
         this.currentPlayerId = ko.computed(()=> {
             return this.players()[this.currentPlayerIndex()].id;
@@ -51,6 +54,10 @@ class State extends BaseState {
 
             return '';
         });
+
+        this.firstPassIndex = ko.observable(definition.firstPassIndex);
+        this.priorityDealIndex = ko.observable(definition.priorityDealIndex);
+
         this.currentCompanyId = ko.observable(definition.currentCompanyId);
 
         this.publicCompanies = definition.publicCompanies || [];

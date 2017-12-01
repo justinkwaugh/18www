@@ -48,7 +48,7 @@ class BasePlayer {
     }
 
     numSharesOwnedOfCompany(companyId) {
-        return this.sharesPerCompany(companyId) || 0;
+        return this.sharesPerCompany()[companyId] || 0;
     }
 }
 

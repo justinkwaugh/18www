@@ -62,6 +62,7 @@ const PrivateCompanyDefinitions = {
     [CompanyIDs.MICHIGAN_SOUTHERN]: {
         id: CompanyIDs.MICHIGAN_SOUTHERN,
         name: 'Michigan Southern',
+        type: CompanyTypes.INDEPENDANT,
         nickname: 'MS',
         tokens: 1,
         cost: 140,
@@ -71,6 +72,7 @@ const PrivateCompanyDefinitions = {
     [CompanyIDs.BIG_4]: {
         id: CompanyIDs.BIG_4,
         name: 'Big 4',
+        type: CompanyTypes.INDEPENDANT,
         nickname: 'Big 4',
         tokens: 1,
         cost: 100,
@@ -80,6 +82,7 @@ const PrivateCompanyDefinitions = {
     [CompanyIDs.CHICAGO_WESTERN_INDIANA]: {
         id: CompanyIDs.CHICAGO_WESTERN_INDIANA,
         name: 'Chicago & Western Indiana',
+        type: CompanyTypes.PRIVATE,
         cost: 60,
         maxBuyInPrice: 60,
         income: 10,
@@ -87,6 +90,7 @@ const PrivateCompanyDefinitions = {
     [CompanyIDs.OHIO_INDIANA]: {
         id: CompanyIDs.OHIO_INDIANA,
         name: 'Ohio & Indiana',
+        type: CompanyTypes.PRIVATE,
         cost: 40,
         maxBuyInPrice: 40,
         income: 15
@@ -94,6 +98,7 @@ const PrivateCompanyDefinitions = {
     [CompanyIDs.MEAT_PACKING_COMPANY]: {
         id: CompanyIDs.MEAT_PACKING_COMPANY,
         name: 'Meat Packing Company',
+        type: CompanyTypes.PRIVATE,
         cost: 60,
         maxBuyInPrice: 60,
         income: 15
@@ -101,6 +106,7 @@ const PrivateCompanyDefinitions = {
     [CompanyIDs.STEAMBOAT_COMPANY]: {
         id: CompanyIDs.STEAMBOAT_COMPANY,
         name: 'Steamboat Company',
+        type: CompanyTypes.PRIVATE,
         cost: 40,
         maxBuyInPrice: 40,
         income: 10
@@ -108,6 +114,7 @@ const PrivateCompanyDefinitions = {
     [CompanyIDs.LAKE_SHORE_LINE]: {
         id: CompanyIDs.LAKE_SHORE_LINE,
         name: 'Lake Shore Line',
+        type: CompanyTypes.PRIVATE,
         cost: 40,
         maxBuyInPrice: 40,
         income: 15
@@ -115,6 +122,7 @@ const PrivateCompanyDefinitions = {
     [CompanyIDs.MICHIGAN_CENTRAL]: {
         id: CompanyIDs.MICHIGAN_CENTRAL,
         name: 'Michigan Central',
+        type: CompanyTypes.PRIVATE,
         cost: 40,
         maxBuyInPrice: 40,
         income: 15
@@ -122,6 +130,7 @@ const PrivateCompanyDefinitions = {
     [CompanyIDs.MAIL_CONTRACT]: {
         id: CompanyIDs.MAIL_CONTRACT,
         name: 'Mail Contract',
+        type: CompanyTypes.PRIVATE,
         cost: 80,
         maxBuyInPrice: 80,
         income: 0
@@ -129,6 +138,7 @@ const PrivateCompanyDefinitions = {
     [CompanyIDs.TUNNEL_BLASTING_COMPANY]: {
         id: CompanyIDs.TUNNEL_BLASTING_COMPANY,
         name: 'Tunnel Blasting Company',
+        type: CompanyTypes.PRIVATE,
         cost: 60,
         maxBuyInPrice: 60,
         income: 20

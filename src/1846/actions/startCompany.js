@@ -20,11 +20,11 @@ class StartCompany extends Action {
 
         // validate things
         if(company.opened()) {
-            throw new ValidationError('Cannot start a company that was already opened');
+            throw new ValidationError('Cannot open a company that was already opened');
         }
 
         if(player.cash() < cash) {
-            throw new ValidationError(player.name() + ' does not have enough cash to start ' + company.name + ' at ' + (cash/2));
+            throw new ValidationError(player.name() + ' does not have enough cash to open ' + company.name + ' at ' + (cash/2));
         }
 
         // cert limit
@@ -59,9 +59,13 @@ class StartCompany extends Action {
 
     summary(state) {
         const company = state.publicCompaniesById[this.companyId];
-        return 'Started ' + company.nickname + ' @ ' + Prices.price(this.startIndex);
+        return 'Opened ' + company.nickname + ' @ ' + Prices.price(this.startIndex);
     }
 
+    confirmation(state) {
+        const company = state.publicCompaniesById[this.companyId];
+        return 'Confirm Open ' + company.nickname + ' @ ' + Prices.price(this.startIndex);
+    }
 }
 
 export default StartCompany
