@@ -57,6 +57,7 @@ class State extends BaseState {
 
         this.firstPassIndex = ko.observable(definition.firstPassIndex);
         this.priorityDealIndex = ko.observable(definition.priorityDealIndex);
+        this.certLimit = ko.observable(definition.certLimit || (this.players().length === 3 ? 14 : this.players().length === 4 ? 12 : 11))
 
         this.currentCompanyId = ko.observable(definition.currentCompanyId);
 

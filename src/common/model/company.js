@@ -1,6 +1,7 @@
 import ko from 'knockout';
 import _ from 'lodash';
 import StartCompany from '1846/actions/startCompany';
+import Prices from '1846/config/prices';
 
 
 class Company {
@@ -21,8 +22,12 @@ class Company {
         this.president = ko.observable(definition.president);
         this.parPriceIndex = ko.observable(definition.parPriceIndex || 0);
         this.priceIndex = ko.observable(definition.priceIndex || 0);
+        this.price = ko.computed(() => {
+            return Prices.price(this.priceIndex() || 0);
+        });
         this.lastRun = ko.observable(definition.lastRun);
         this.opened = ko.observable(definition.opened || false);
+        this.operated = ko.observable(definition.operated || false);
     }
 
     addCash(amount) {

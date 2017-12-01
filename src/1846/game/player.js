@@ -20,7 +20,7 @@ class Player extends BasePlayer {
                     company,
                     shares: this.getMaximumAllowedSalesOfCompany(id)
                 };
-            }).filter((shares) => shares > 0).value();
+            }).filter(data => data.shares > 0).value();
         });
 
         this.hasSharesToSell = ko.computed(() => {
@@ -31,6 +31,11 @@ class Player extends BasePlayer {
             if(!CurrentGame()) {
                 return [];
             }
+
+            if(this.certificates().length >= CurrentGame().state().certLimit()) {
+                return [];
+            }
+
             return _(CurrentGame().state().publicCompaniesById).filter((company,id) => this.canBuyCompany(id)).values().value();
         });
 
@@ -45,9 +50,14 @@ class Player extends BasePlayer {
     }
 
     getMaximumAllowedSalesOfCompany(companyId) {
+        const company = CurrentGame().state().publicCompaniesById[companyId];
         const ownedShares = this.numSharesOwnedOfCompany(companyId);
-        let maxAllowedSales = _.min(ownedShares, 5-CurrentGame().state().bank.numSharesOwnedOfCompany(companyId));
-        if(this.isPresidentOfCompany(companyId) && ownedShares === 2 && _.maxBy(CurrentGame().state().players(), (player) => player.numSharesOwnedOfCompany(companyId)) < 2) {
+        let maxAllowedSales = Math.min(ownedShares, 5-CurrentGame().state().bank.numSharesOwnedOfCompany(companyId));
+        if(this.isPresidentOfCompany(companyId) && ownedShares === 2 && _(CurrentGame().state().players()).reject(player=>player.id === this.id).map(player => player.numSharesOwnedOfCompany(companyId)).max() < 2) {
+            maxAllowedSales = 0;
+        }
+
+        if(!this.isPresidentOfCompany(companyId) && !company.operated()) {
             maxAllowedSales = 0;
         }
         return maxAllowedSales;
@@ -55,6 +65,7 @@ class Player extends BasePlayer {
 
     canBuyCompany(companyId) {
         //@todo check sold company this turn
+
         const company = CurrentGame().state().publicCompaniesById[companyId];
         if (!company.opened() && !this.canStartCompany(companyId)) {
             return false;

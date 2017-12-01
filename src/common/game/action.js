@@ -1,6 +1,9 @@
-class Action {
+import Serializable from 'common/model/serializable';
 
-    constructor(args) {
+class Action extends Serializable{
+
+    constructor(definition) {
+        super();
 
     }
 

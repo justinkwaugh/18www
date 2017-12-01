@@ -1,10 +1,13 @@
 import ko from 'knockout';
 import short from 'short-uuid';
 import _ from 'lodash';
+import Serializable from 'common/model/serializable';
 
-class BasePlayer {
+class BasePlayer extends Serializable {
     constructor(definition) {
-        this.id = short().new();
+        definition = definition || {};
+        super(definition);
+        this.id = definition.id || short().new();
         this.user = ko.observable(definition.user);
         this.cash = ko.observable(definition.cash || 0);
         this.worth = ko.observable(definition.worth || 0);
@@ -22,7 +25,7 @@ class BasePlayer {
         });
 
         this.sharesPerCompany = ko.computed(()=> {
-            return _(this.ownedCompanyIds()).mapValues((companyId) => _.sumBy(this.certificatesById()[companyId],'shares')).value();
+            return _(this.ownedCompanyIds()).zipObject(_.map(this.ownedCompanyIds(), companyId => _.sumBy(this.certificatesById()[companyId],'shares'))).value();
         });
 
         this.popoverParams = {
@@ -32,7 +35,7 @@ class BasePlayer {
         this.name = ko.computed(() => {
             const user = this.user();
             return user ? user.username : this.id;
-        })
+        });
     }
 
     addCash(amount) {

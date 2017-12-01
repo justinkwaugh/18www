@@ -3,7 +3,7 @@
     <h5 class="mb-0" data-bind="text: user().username"></h5>
     <div class="d-flex justify-content-between">
         <div class="mr-4" data-bind="text: '$' + cash()"></div>
-        <div data-bind="text: certificates().length + ' certs'"></div>
+        <div data-bind="text: certificates().length + '/' + $parent.certLimit() + ' certs'"></div>
     </div>
 </div>
 <!-- ko if: $index() !== $parent.players().length -1 -->

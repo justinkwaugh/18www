@@ -1,8 +1,11 @@
 import _ from 'lodash';
 import ko from 'knockout';
+import Serializable from 'common/model/serializable';
 
-class ActionHistory {
+class ActionHistory extends Serializable {
     constructor(state) {
+        super();
+
         this.state = state;
         this.actions = ko.observableArray([]);
     }
@@ -36,5 +39,7 @@ class ActionHistory {
         });
     }
 }
+
+ActionHistory.registerClass();
 
 export default ActionHistory;

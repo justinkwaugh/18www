@@ -13,8 +13,9 @@ class BuyShare extends Action {
 
     doExecute(state) {
         const player = state.playersById()[this.playerId];
-        const company = state.publicCompanies[this.companyId];
+        const company = state.publicCompaniesById[this.companyId];
         this.startIndex = company.priceIndex();
+        this.firstPassIndex = state.firstPassIndex();
 
         // validate things
         // cash
@@ -24,9 +25,9 @@ class BuyShare extends Action {
 
         // TODO handle presidency change
         const cash = Prices.price(company.priceIndex());
-        player.cash(player.cash()-cash);
+        player.removeCash(cash);
         let cert = null;
-        if(this.treasury) {
+        if (this.treasury) {
             company.cash(company.cash() + cash);
             cert = company.certificates.pop();
         }
@@ -35,21 +36,40 @@ class BuyShare extends Action {
             cert = state.bank.removeCert(this.companyId);
         }
         player.certificates.push(cert);
+        state.firstPassIndex(null);
+        // state.turnHistory.getCurrentTurn().context
 
     }
 
     doUndo(state) {
+        const player = state.playersById()[this.playerId];
+        const company = state.publicCompaniesById[this.companyId];
+        const cash = Prices.price(company.priceIndex());
 
+        state.firstPassIndex(this.firstPassIndex);
+        let cert = player.certificates.pop();
+        if (this.treasury) {
+            company.removeCash(cash);
+            company.certificates.push(cert);
+        }
+        else {
+            state.bank.removeCash(cash);
+            state.bank.certificates.push(cert);
+        }
+        player.addCash(cash);
     }
 
     summary(state) {
         const company = state.publicCompaniesById[this.companyId];
-        return 'Bought 1 ' + company.nickname + ' @ ' + Prices.price(this.startIndex);
+        return 'Bought 1 ' + company.nickname + ' for $' + Prices.price(
+                this.startIndex) + ' from ' + (this.treasury ? 'the treasury' : 'the market');
     }
 
     confirmation(state) {
         const company = state.publicCompaniesById[this.companyId];
-        return 'Confirm Buy 1 ' + company.nickname + ' @ ' + Prices.price(this.startIndex);
+        const startIndex = company.priceIndex();
+        return 'Confirm Buy 1 ' + company.nickname + ' for $' + Prices.price(
+                startIndex) + ' from ' + (this.treasury ? 'the treasury' : 'the market');
     }
 }
 

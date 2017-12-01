@@ -1,13 +1,15 @@
 import ActionGroup from 'common/game/actionGroup';
-import ko from 'knockout';
+import CurrentGame from 'common/game/currentGame';
 import _ from 'lodash';
 
 class Turn extends ActionGroup {
 
-    constructor(state, definition) {
+    constructor(definition) {
         definition.type = 'turn';
         super(definition);
-        this.state = state;
+
+        const state = CurrentGame().state();
+
         this.number = definition.number;
         this.playerId = definition.playerId || state.currentPlayerId();
         this.phaseId = definition.phaseId || state.currentPhaseId();
@@ -15,15 +17,16 @@ class Turn extends ActionGroup {
         this.roundNumber = definition.roundNumber || state.currentRoundNumber();
         this.actionGroups = [];
         this.inProgress = [];
-        this.actionStartIndex = this.state.actionHistory.currentIndex();
+        this.actionStartIndex = state.actionHistory.currentIndex();
+        this.context = definition.context || {};
     }
 
     undo() {
-        this.state.actionHistory.undoRange(this.actionStartIndex, this.actionEndIndex);
+        CurrentGame().state().actionHistory.undoRange(this.actionStartIndex, this.actionEndIndex);
     }
 
     undoLast() {
-        this.state.actionHistory.undo();
+        CurrentGame().state().actionHistory.undo();
     }
 
     commitActionGroup(type) {
@@ -33,7 +36,7 @@ class Turn extends ActionGroup {
         }
         console.log('Committing ' + type + ' ' + last.id);
         const actionGroup = this.inProgress.pop();
-        actionGroup.actionEndIndex = this.state.actionHistory.currentIndex();
+        actionGroup.actionEndIndex = CurrentGame().state().actionHistory.currentIndex();
         this.actionGroups.push(actionGroup);
     }
 
@@ -43,7 +46,7 @@ class Turn extends ActionGroup {
             throw Error('Tried to rollback prior ' + type + ', but none found');
         }
         console.log('Rolling back ' + prior.type + ' ' + prior.id);
-        this.state.actionHistory.undoRange(prior.actionStartIndex);
+        CurrentGame().state().actionHistory.undoRange(prior.actionStartIndex);
     }
 
     rollbackActionGroup(type) {
@@ -53,7 +56,7 @@ class Turn extends ActionGroup {
         }
         console.log('Rolling back ' + last.type + ' ' + last.id);
         const actionGroup = this.inProgress.pop();
-        this.state.actionHistory.undoRange(actionGroup.actionStartIndex);
+        CurrentGame().state().actionHistory.undoRange(actionGroup.actionStartIndex);
     }
 
     startActionGroup(id, type) {
@@ -65,7 +68,7 @@ class Turn extends ActionGroup {
         const actionGroup = new ActionGroup({
             type: type,
             id: id,
-            actionStartIndex: this.state.actionHistory.currentIndex()
+            actionStartIndex: CurrentGame().state().actionHistory.currentIndex()
         });
         this.inProgress.push(actionGroup);
     }
@@ -76,8 +79,8 @@ class Turn extends ActionGroup {
         }
 
         return _(
-            this.state.actionHistory.getActionRange(this.actionStartIndex, this.actionEndIndex))
-            .invokeMap('summary', this.state).map(
+            CurrentGame().state().actionHistory.getActionRange(this.actionStartIndex, this.actionEndIndex))
+            .invokeMap('summary', CurrentGame().state()).map(
                 (summary, index) => {
                         return {
                             index: this.actionStartIndex + index,
@@ -87,14 +90,14 @@ class Turn extends ActionGroup {
                 }).value();
     }
 
-    getInstructions(state) {
+    getInstructions() {
         if (this.actionEndIndex <= this.actionStartIndex) {
             return [];
         }
 
         return _(
-            state.actionHistory.getActionRange(this.actionStartIndex, this.actionEndIndex))
-            .invokeMap('instructions', state).map(
+            CurrentGame().state().actionHistory.getActionRange(this.actionStartIndex, this.actionEndIndex))
+            .invokeMap('instructions', CurrentGame().state()).map(
                 (instructions, index) => {
                     return _.map(instructions, (instruction) => {
                         return {
@@ -107,5 +110,7 @@ class Turn extends ActionGroup {
     }
 
 }
+
+Turn.registerClass();
 
 export default Turn;

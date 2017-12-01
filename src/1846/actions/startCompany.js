@@ -17,6 +17,7 @@ class StartCompany extends Action {
         const player = state.playersById()[this.playerId];
         const company = state.publicCompaniesById[this.companyId];
         const cash = Prices.price(this.startIndex)*2;
+        this.firstPassIndex = state.firstPassIndex();
 
         // validate things
         if(company.opened()) {
@@ -38,6 +39,8 @@ class StartCompany extends Action {
         // First cert in company treasury always pres cert for convenience
         const cert = company.certificates.shift();
         player.certificates.push(cert);
+        state.firstPassIndex(null);
+
     }
 
     doUndo(state) {

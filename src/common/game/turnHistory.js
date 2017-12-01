@@ -1,17 +1,19 @@
 import _ from 'lodash';
 import ko from 'knockout';
 import Turn from 'common/game/turn';
+import Serializable from 'common/model/serializable';
+import CurrentGame from 'common/game/currentGame';
 
-class TurnHistory {
+class TurnHistory extends Serializable {
     constructor(state, definition) {
         definition = definition || {};
-        this.state = state;
+        super(definition);
         this.turns = ko.observableArray(definition.turns || []);
         this.currentTurn = ko.observable(definition.currentTurn);
     }
 
     startTurn() {
-        this.currentTurn(new Turn(this.state, {
+        this.currentTurn(new Turn({
             number: this.nextTurnNumber()
         }));
     }
@@ -27,7 +29,7 @@ class TurnHistory {
     }
 
     commitTurn() {
-        this.currentTurn().actionEndIndex = this.state.actionHistory.currentIndex();
+        this.currentTurn().actionEndIndex = CurrentGame().state().actionHistory.currentIndex();
         this.turns.push(this.currentTurn());
         this.currentTurn(null);
     }
@@ -50,5 +52,7 @@ class TurnHistory {
     }
 
 }
+
+TurnHistory.registerClass();
 
 export default TurnHistory;
