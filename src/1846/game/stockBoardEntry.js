@@ -1,12 +1,15 @@
 import ko from 'knockout';
-
-class PriceEntry {
+import Serializable from 'common/model/serializable';
+class StockBoardEntry extends Serializable {
     constructor(definition) {
         definition = definition || {};
+        super();
 
         this.value = definition.value;
         this.companies = ko.observableArray(definition.companies || []);
     }
 }
 
-export default PriceEntry;
+StockBoardEntry.registerClass();
+
+export default StockBoardEntry;

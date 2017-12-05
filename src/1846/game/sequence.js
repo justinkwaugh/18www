@@ -2,6 +2,7 @@ import RoundIDs from '1846/config/roundIds';
 import PrivateDraft from '1846/game/privateDraft';
 import StockRound from '1846/game/stockRound';
 import CurrentGame from 'common/game/currentGame';
+
 import _ from 'lodash';
 class Sequence {
     static finishTurn() {
@@ -15,6 +16,7 @@ class Sequence {
     static nextRoundPhaseAndTurn() {
         const game = CurrentGame();
         const state = game.state();
+
         if (!state.currentRoundId()) {
             state.currentRoundId(RoundIDs.STOCK_ROUND);
             state.currentRoundNumber(1);

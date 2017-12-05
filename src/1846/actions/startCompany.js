@@ -33,6 +33,7 @@ class StartCompany extends Action {
         company.priceIndex(this.startIndex);
         company.president(this.playerId);
         company.opened(true);
+        state.stockBoard.addCompany(company);
         player.removeCash(cash);
         company.addCash(cash);
 
@@ -47,11 +48,15 @@ class StartCompany extends Action {
         const player = state.playersById()[this.playerId];
         const company = state.publicCompaniesById[this.companyId];
         const cash = Prices.price(this.startIndex)*2;
+
+        company.removeCash(cash);
+        player.addCash(cash);
+
+        state.stockBoard.removeCompany(company);
         company.priceIndex(0);
         company.president(null);
         company.opened(false);
-        company.removeCash(cash);
-        player.addCash(cash);
+
 
         const certs = player.certificates();
         const certIndex = _.findIndex(player.certificates(), { companyId : this.companyId, president: true });

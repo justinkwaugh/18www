@@ -5,16 +5,17 @@ import Serializable from 'common/model/serializable';
 import CurrentGame from 'common/game/currentGame';
 
 class TurnHistory extends Serializable {
-    constructor(state, definition) {
+    constructor(definition) {
         definition = definition || {};
         super(definition);
         this.turns = ko.observableArray(definition.turns || []);
         this.currentTurn = ko.observable(definition.currentTurn);
     }
 
-    startTurn() {
+    startTurn(turnContext) {
         this.currentTurn(new Turn({
-            number: this.nextTurnNumber()
+            number: this.nextTurnNumber(),
+            context: turnContext
         }));
     }
 

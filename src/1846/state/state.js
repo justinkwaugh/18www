@@ -59,7 +59,6 @@ class State extends BaseState {
         this.priorityDealIndex = ko.observable(definition.priorityDealIndex);
         this.certLimit = ko.observable(definition.certLimit || (this.players().length === 3 ? 14 : this.players().length === 4 ? 12 : 11))
 
-        this.currentCompanyId = ko.observable(definition.currentCompanyId);
 
         this.publicCompanies = definition.publicCompanies || [];
         this.publicCompaniesById = _.keyBy(this.publicCompanies, 'id');
@@ -76,6 +75,9 @@ class State extends BaseState {
 
         this.priceTrack = ko.observableArray();
 
+        this.currentCompanyId = ko.observable(definition.currentCompanyId);
+
+        this.stockBoard = definition.stockBoard;
         this.bank = definition.bank;
         this.manifest = definition.manifest;
 

@@ -7,9 +7,13 @@ class Serializable {
         return JSON.stringify(this);
     }
 
+    getTypeName() {
+        return this.constructor.name;
+    }
+
     toJSON() {
         const plainObject = _.toPlainObject(this);
-        plainObject.className = this.constructor.name;
+        plainObject.className = this.getTypeName();
         return plainObject;
     }
 

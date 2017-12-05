@@ -1,4 +1,4 @@
-<!-- ko if: $data -->
+<!-- ko if: $data && $root.game().state().currentPlayer().canPass()-->
 <div class="alert alert-dark rounded-0 border-top-0 border-right-0 border-left-0 m-0 p-3 d-flex flex-column justify-content-center"
      role="alert">
 
@@ -37,6 +37,17 @@
             <!-- /ko -->
         </ul>
     </div>
+    <!-- ko if: $data.selectedCompany()-->
+    <h5 class="mt-3 text-center font-weight-light alert-heading">How many shares?</h5>
+    <div class="d-flex justify-content-center">
+        <div class="btn-group" role="group">
+            <!-- ko foreach: _.range(1, $root.game().state().currentPlayer().sharesCanSell()[$data.selectedCompany().id].shares) -->
+            <button type="button" class="btn"
+                    data-bind="text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.numberOfShares($index()+1); }"></button>
+            <!-- /ko -->
+        </div>
+    </div>
+    <!-- /ko -->
     <!-- /ko -->
     <!-- /ko -->
     <!-- ko if: $data.selectedAction() === $data.Actions.BUY -->

@@ -1,6 +1,7 @@
 import ActionGroup from 'common/game/actionGroup';
 import CurrentGame from 'common/game/currentGame';
 import _ from 'lodash';
+import ko from 'knockout';
 
 class Turn extends ActionGroup {
 
@@ -73,13 +74,20 @@ class Turn extends ActionGroup {
         this.inProgress.push(actionGroup);
     }
 
+    getTurnActions() {
+        if (this.actionEndIndex <= this.actionStartIndex) {
+            return [];
+        }
+        return CurrentGame().state().actionHistory.getActionRange(this.actionStartIndex, this.actionEndIndex);
+    }
+
     getSummaries() {
         if (this.actionEndIndex <= this.actionStartIndex) {
             return [];
         }
 
         return _(
-            CurrentGame().state().actionHistory.getActionRange(this.actionStartIndex, this.actionEndIndex))
+            this.getTurnActions())
             .invokeMap('summary', CurrentGame().state()).map(
                 (summary, index) => {
                         return {
@@ -96,7 +104,7 @@ class Turn extends ActionGroup {
         }
 
         return _(
-            CurrentGame().state().actionHistory.getActionRange(this.actionStartIndex, this.actionEndIndex))
+            this.getTurnActions())
             .invokeMap('instructions', CurrentGame().state()).map(
                 (instructions, index) => {
                     return _.map(instructions, (instruction) => {

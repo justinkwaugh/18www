@@ -26,24 +26,24 @@ class StockRound {
         this.selectedAction = ko.observable(definition.selectedAction);
         this.openingPriceIndex = ko.observable(definition.openingPriceIndex);
         this.selectedCompanyId = ko.observable(definition.selectedCompanyId);
-        this.selectedCompany = ko.pureComputed(() => {
+        this.selectedCompany = ko.computed(() => {
             return CurrentGame().state().publicCompaniesById[this.selectedCompanyId()];
         });
         this.numberOfShares = ko.observable(definition.numberOfShares);
         this.chosenShareSource = ko.observable(definition.chosenShareSource);
 
-        this.bankShares = ko.pureComputed(() => {
+        this.bankShares = ko.computed(() => {
             return CurrentGame().state().bank.numSharesOwnedOfCompany(this.selectedCompanyId());
         });
 
-        this.treasuryShares = ko.pureComputed(() => {
+        this.treasuryShares = ko.computed(() => {
             if (!this.selectedCompany()) {
                 return 0;
             }
             return this.selectedCompany().shares();
         });
 
-        this.shareSource = ko.pureComputed(() => {
+        this.shareSource = ko.computed(() => {
             if (this.chosenShareSource()) {
                 return this.chosenShareSource();
             }
@@ -59,7 +59,7 @@ class StockRound {
             return null;
         });
 
-        this.action = ko.pureComputed(() => {
+        this.action = ko.computed(() => {
             if (this.selectedAction() === Actions.BUY && this.selectedCompanyId()) {
                 if (CurrentGame().state().publicCompaniesById[this.selectedCompanyId()].opened() && this.shareSource()) {
                     return new BuyShare({
@@ -87,6 +87,9 @@ class StockRound {
     selectAction(actionId) {
         this.reset();
         this.selectedAction(actionId);
+        if(this.selectedAction() === Actions.PASS) {
+            this.commit();
+        }
     }
 
     reset() {

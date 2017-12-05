@@ -8,11 +8,9 @@ import PhaseIDs from '1846/config/phaseIds';
 import Bank from 'common/game/bank';
 import ko from 'knockout';
 import _ from 'lodash';
-import PriceEntry from '1846/game/priceEntry';
 import TileManifest from '1846/config/tileManifest';
+import StockBoard from '1846/game/stockBoard';
 
-
-const Prices = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 112, 124, 137, 150, 165, 180, 195, 212, 230, 250, 270, 295, 320, 345, 375, 405, 475, 510, 550];
 
 const ActivePanelIDs = {
     MAP: 'map',
@@ -33,13 +31,6 @@ class Game extends BaseGame {
 
         this.activePanel = ko.observable(ActivePanelIDs.MAP);
         this.ActivePanelIDs = ActivePanelIDs;
-
-        const priceEntries = _.map(Prices, (price) => {
-            return new PriceEntry({ value: price });
-        });
-
-        this.priceTrack = ko.observableArray(priceEntries);
-
     }
     setActivePanel(newPanel) {
         this.activePanel(newPanel);
@@ -100,13 +91,15 @@ class Game extends BaseGame {
         });
 
         const manifest = new TileManifest();
+        const stockBoard = new StockBoard();
 
         const state = new State({
                                     players,
                                     publicCompanies,
                                     privateCompanies,
                                     bank,
-                                    manifest
+                                    manifest,
+                                    stockBoard
                                 });
 
 

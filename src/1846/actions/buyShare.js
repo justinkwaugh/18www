@@ -37,7 +37,6 @@ class BuyShare extends Action {
         }
         player.certificates.push(cert);
         state.firstPassIndex(null);
-        // state.turnHistory.getCurrentTurn().context
 
     }
 
