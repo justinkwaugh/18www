@@ -24,11 +24,11 @@ class Prices {
     }
 
     static rightIndex(priceIndex) {
-        return Math.max(PriceList.length -1, priceIndex+1);
+        return Math.min(PriceList.length -1, priceIndex+1);
     }
 
     static leftIndex(priceIndex) {
-        return Math.min(0, priceIndex-1)
+        return Math.max(0, priceIndex-1)
     }
 }
 

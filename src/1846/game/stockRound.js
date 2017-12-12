@@ -1,6 +1,8 @@
 import ko from 'knockout';
+import _ from 'lodash';
 import CurrentGame from 'common/game/currentGame';
 import BuyShare from '1846/actions/buyShare';
+import SellShares from '1846/actions/sellShares';
 import StartCompany from '1846/actions/startCompany';
 import StockRoundPass from '1846/actions/stockRoundPass';
 import Sequence from '1846/game/sequence';
@@ -76,12 +78,20 @@ class StockRound {
                                             });
                 }
             }
+            else if (this.selectedAction() === Actions.SELL && this.selectedCompanyId() && this.numberOfShares()) {
+                return new SellShares({
+                    playerId: CurrentGame().state().currentPlayerId(),
+                    companyId: this.selectedCompanyId(),
+                    count: this.numberOfShares()
+                                      });
+            }
             else if (this.selectedAction() === Actions.PASS) {
                 return new StockRoundPass({
                                               playerIndex: CurrentGame().state().currentPlayerIndex()
                                           });
             }
         });
+
     }
 
     selectAction(actionId) {
@@ -90,14 +100,24 @@ class StockRound {
         if(this.selectedAction() === Actions.PASS) {
             this.commit();
         }
+        else if(this.selectedAction() === Actions.SELL && _.values(CurrentGame().state().currentPlayer().sharesCanSell()).length ===1) {
+            this.selectCompany(_.keys(CurrentGame().state().currentPlayer().sharesCanSell())[0]);
+        }
+    }
+
+    selectCompany(companyId) {
+        this.selectedCompanyId(companyId);
+        if (this.selectedAction() === Actions.SELL && CurrentGame().state().currentPlayer().sharesCanSell()[companyId].shares === 1) {
+            this.numberOfShares(1);
+        }
     }
 
     reset() {
-        this.selectedAction(null);
+        this.chosenShareSource(null);
+        this.numberOfShares(null);
         this.openingPriceIndex(null);
         this.selectedCompanyId(null);
-        this.numberOfShares(null);
-        this.chosenShareSource(null);
+        this.selectedAction(null);
     }
 
     commit() {

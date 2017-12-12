@@ -2,6 +2,7 @@ import ko from 'knockout';
 import short from 'short-uuid';
 import _ from 'lodash';
 import Serializable from 'common/model/serializable';
+import ValidationError from 'common/game/validationError';
 
 class BasePlayer extends Serializable {
     constructor(definition) {
@@ -11,6 +12,7 @@ class BasePlayer extends Serializable {
         this.user = ko.observable(definition.user);
         this.cash = ko.observable(definition.cash || 0);
         this.worth = ko.observable(definition.worth || 0);
+        this.order = ko.observable(definition.order || 0);
         this.certificates = ko.observableArray(definition.certificates);
         this.certificatesById = ko.computed(() => {
             return _.groupBy(this.certificates(), 'companyId');
@@ -52,6 +54,36 @@ class BasePlayer extends Serializable {
 
     numSharesOwnedOfCompany(companyId) {
         return this.sharesPerCompany()[companyId] || 0;
+    }
+
+    addCert(cert) {
+        this.certificates.push(cert);
+    }
+
+    addCerts(certs) {
+        this.certificates.push.apply(this.certificates, certs);
+    }
+
+    removeNonPresidentCertsForCompany(count, companyId) {
+        const numShares = this.sharesPerCompany()[companyId];
+        if(numShares < count || this.isPresidentOfCompany(companyId) && numShares < count + 2) {
+            throw new ValidationError('Not enough shares!');
+        }
+
+        const certIdsToRemove = _(this.certificatesById()[companyId]).sortBy('president').reverse().take(count).map('id').value();
+        return this.certificates.remove(cert=>{
+            return _.indexOf(certIdsToRemove, cert.id) >= 0;
+        });
+    }
+
+    removePresidentCertForCompany(companyId) {
+        if(!this.isPresidentOfCompany(companyId)) {
+            throw new ValidationError('No director Cert!');
+        }
+
+        return this.certificates.remove(cert=> {
+            return cert.companyId === companyId && cert.president;
+        })[0];
     }
 }
 

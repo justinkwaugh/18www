@@ -23,6 +23,10 @@ class Bank extends Serializable {
         this.cash(this.cash() - amount);
     }
 
+    addCerts(certs) {
+        this.certificates.push.apply(this.certificates, certs);
+    }
+
     removeCert(companyId) {
         const certs = this.certificates();
         const indexToRemove = _.findIndex(certs, {companyId});
@@ -36,6 +40,13 @@ class Bank extends Serializable {
 
     numSharesOwnedOfCompany(companyId) {
         return _(this.certificatesById()[companyId] || []).sumBy('shares');
+    }
+
+    removeNonPresidentCertsForCompany(count, companyId) {
+        const certIdsToRemove = _(this.certificatesById()[companyId]).sortBy('president').reverse().take(count).map('id').value();
+        return this.certificates.remove(cert=>{
+            return _.indexOf(certIdsToRemove, cert.id) >= 0;
+        });
     }
 }
 

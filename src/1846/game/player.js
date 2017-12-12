@@ -24,7 +24,7 @@ class Player extends BasePlayer {
                     company,
                     shares: this.getMaximumAllowedSalesOfCompany(id)
                 };
-            }).filter(data => data.shares > 0).value();
+            }).filter(data => data.shares > 0).keyBy('id').value();
         });
 
         this.hasSharesToSell = ko.computed(() => {
@@ -48,12 +48,16 @@ class Player extends BasePlayer {
                 (company, id) => this.canBuyCompany(id)).values().value();
         });
 
-        this.canBuyShare = ko.computed(() => {
-            return this.companiesCanBuy().length > 0;
+        this.canBuy = ko.computed(() => {
+            return !this.hasPassedThisTurn() && this.companiesCanBuy().length > 0;
         });
 
         this.canPass = ko.computed(() => {
             return !this.hasPassedThisTurn() && !this.hasBoughtThisTurn() && !this.hasSoldThisTurn();
+        });
+
+        this.canSell = ko.computed(() => {
+            return !this.hasPassedThisTurn() && !this.hasBoughtThisTurn() && this.hasSharesToSell();
         });
     }
 
@@ -68,7 +72,7 @@ class Player extends BasePlayer {
         }
 
         return _.find(turn.getTurnActions(), action => {
-            return action.getTypeName() === 'BuyShare' || 'StartCompany';
+            return action.getTypeName() === 'BuyShare' || action.getTypeName() === 'StartCompany';
         });
     }
 
@@ -93,6 +97,10 @@ class Player extends BasePlayer {
         }
     }
 
+    hasSoldThisRound(companyId) {
+        return false;
+    }
+
     hasPassedThisTurn() {
         if (!CurrentGame()) {
             return false;
@@ -113,22 +121,28 @@ class Player extends BasePlayer {
     }
 
     getMaximumAllowedSalesOfCompany(companyId) {
+        if (this.hasSoldThisTurn(companyId))  {
+            return 0;
+        }
         const company = CurrentGame().state().publicCompaniesById[companyId];
         const ownedShares = this.numSharesOwnedOfCompany(companyId);
         let maxAllowedSales = Math.min(ownedShares, 5 - CurrentGame().state().bank.numSharesOwnedOfCompany(companyId));
-        if (this.isPresidentOfCompany(companyId) && ownedShares === 2 && _(CurrentGame().state().players()).reject(
-                player => player.id === this.id).map(player => player.numSharesOwnedOfCompany(companyId)).max() < 2) {
-            maxAllowedSales = 0;
-        }
+        if(maxAllowedSales > 0) {
+            if (this.isPresidentOfCompany(companyId) && _(CurrentGame().state().players()).reject(
+                    player => player.id === this.id).map(
+                    player => player.numSharesOwnedOfCompany(companyId)).max() < 2) {
+                maxAllowedSales = Math.max(ownedShares - 2, 0);
+            }
 
-        if (!this.isPresidentOfCompany(companyId) && !company.operated()) {
-            maxAllowedSales = 0;
+            if (!this.isPresidentOfCompany(companyId) && !company.operated()) {
+                maxAllowedSales = 0;
+            }
         }
         return maxAllowedSales;
     }
 
     canBuyCompany(companyId) {
-        if (this.hasSoldThisTurn(companyId)) {
+        if (this.hasSoldThisTurn(companyId) || this.hasSoldThisRound(companyId)) {
             return false;
         }
 

@@ -19,6 +19,9 @@ class State extends BaseState {
         this.playersById = ko.computed(()=>{
             return _.keyBy(this.players(), 'id');
         });
+        this.playersByOrder = ko.computed(()=> {
+            return _.sortBy(this.players(), player=>player.order());
+        });
 
         this.lastPlayerId = ko.observable(definition.currentPlayerId);
 

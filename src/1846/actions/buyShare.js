@@ -9,6 +9,8 @@ class BuyShare extends Action {
         this.playerId = args.playerId;
         this.companyId = args.companyId;
         this.treasury = args.treasury;
+        this.startIndex = args.startIndex;
+        this.firstPassIndex = args.firstPassIndex;
     }
 
     doExecute(state) {

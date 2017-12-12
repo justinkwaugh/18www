@@ -45,8 +45,8 @@ class Game extends BaseGame {
         const blueGroup = [CompanyIDs.TUNNEL_BLASTING_COMPANY, CompanyIDs.STEAMBOAT_COMPANY, CompanyIDs.MEAT_PACKING_COMPANY];
         const orangeGroup = [CompanyIDs.OHIO_INDIANA, CompanyIDs.MICHIGAN_CENTRAL, CompanyIDs.LAKE_SHORE_LINE];
 
-        const players = _(users).shuffle().map((user) => {
-            return new Player({user, cash: 400});
+        const players = _(users).shuffle().map((user, index) => {
+            return new Player({user, cash: 400, order: index});
         }).value();
 
         if (players.length === 3 || players.length === 4) {
@@ -85,10 +85,6 @@ class Game extends BaseGame {
         }
 
         const bank = new Bank({cash, trainsByPhase});
-
-        _.each(publicCompanies, (company) => {
-            bank.certificates.push(_.last(company.certificates()));
-        });
 
         const manifest = new TileManifest();
         const stockBoard = new StockBoard();
