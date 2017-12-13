@@ -15,6 +15,15 @@ class Bank extends Serializable {
         });
     }
 
+    toJSON() {
+        const plainObject = super.toJSON();
+        plainObject.cash = this.cash();
+        plainObject.trainsByPhase = this.trainsByPhase();
+        plainObject.certificates = this.certificates();
+        return plainObject;
+    }
+
+
     addCash(amount) {
         this.cash(this.cash() + amount);
     }

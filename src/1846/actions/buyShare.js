@@ -11,6 +11,7 @@ class BuyShare extends Action {
         this.treasury = args.treasury;
         this.startIndex = args.startIndex;
         this.firstPassIndex = args.firstPassIndex;
+        this.oldPresidentId = args.oldPresidentId;
     }
 
     doExecute(state) {
@@ -25,9 +26,9 @@ class BuyShare extends Action {
         // cert limit
         // source
 
-        // TODO handle presidency change
         const cash = Prices.price(company.priceIndex());
         player.removeCash(cash);
+
         let cert = null;
         if (this.treasury) {
             company.cash(company.cash() + cash);
@@ -38,6 +39,19 @@ class BuyShare extends Action {
             cert = state.bank.removeCert(this.companyId);
         }
         player.certificates.push(cert);
+
+        const currentPresident = state.playersById()[company.president()];
+        if (currentPresident.sharesPerCompany()[this.companyId] < player.sharesPerCompany()[this.companyId]) {
+            const nonPresidentCerts = player.removeNonPresidentCertsForCompany(2, this.companyId);
+            const presidentCert = currentPresident.removePresidentCertForCompany(this.companyId);
+
+            player.addCert(presidentCert);
+            currentPresident.addCerts(nonPresidentCerts);
+
+            this.oldPresidentId = currentPresident.id;
+            company.president(player.id);
+        }
+
         state.firstPassIndex(null);
 
     }
@@ -48,7 +62,19 @@ class BuyShare extends Action {
         const cash = Prices.price(company.priceIndex());
 
         state.firstPassIndex(this.firstPassIndex);
-        let cert = player.certificates.pop();
+
+        if(this.oldPresidentId) {
+            const oldPresident = state.playersById()[this.oldPresidentId];
+            const nonPresidentCerts = oldPresident.removeNonPresidentCertsForCompany(2, this.companyId);
+            const presidentCert = player.removePresidentCertForCompany(this.companyId);
+
+            oldPresident.addCert(presidentCert);
+            player.addCerts(nonPresidentCerts);
+
+            company.president(oldPresident.id);
+        }
+
+        const cert = player.removeNonPresidentCertsForCompany(1, this.companyId)[0];
         if (this.treasury) {
             company.removeCash(cash);
             company.certificates.push(cert);

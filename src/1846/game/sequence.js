@@ -17,7 +17,10 @@ class Sequence {
         const game = CurrentGame();
         const state = game.state();
 
-        if (!state.currentRoundId()) {
+        const currentRound = state.roundHistory.getCurrentRound();
+
+        if (!currentRound) {
+            state.roundHistory.startRound(RoundIDs.STOCK_ROUND, 1);
             state.currentRoundId(RoundIDs.STOCK_ROUND);
             state.currentRoundNumber(1);
             state.currentPlayerIndex(0);
@@ -28,12 +31,14 @@ class Sequence {
             // state.currentPlayerIndex(state.players().length - 1);
             // game.privateDraft(new PrivateDraft());
         }
-        else if (state.currentRoundId() === RoundIDs.PRIVATE_DRAFT) {
+        else if (currentRound.id === RoundIDs.PRIVATE_DRAFT) {
             if(state.undraftedPrivateIds().length > 0) {
                 state.currentPlayerIndex(Sequence.nextPlayerIndex(true));
                 game.privateDraft(new PrivateDraft());
             }
             else {
+                state.roundHistory.commitRound();
+                state.roundHistory.startRound(RoundIDs.STOCK_ROUND, 1);
                 state.currentRoundId(RoundIDs.STOCK_ROUND);
                 state.currentRoundNumber(1);
                 state.currentPlayerIndex(0);
@@ -41,9 +46,11 @@ class Sequence {
                 game.stockRound(new StockRound());
             }
         }
-        else if (state.currentRoundId() === RoundIDs.STOCK_ROUND) {
+        else if (currentRound.id === RoundIDs.STOCK_ROUND) {
             state.currentPlayerIndex(Sequence.nextPlayerIndex());
             if(state.firstPassIndex() === state.currentPlayerIndex()) {
+                state.roundHistory.commitRound();
+                state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_1, 1);
                 state.priorityDealIndex(state.firstPassIndex());
                 state.currentRoundId(RoundIDs.OPERATING_ROUND_1);
                 game.stockRound(null);

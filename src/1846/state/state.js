@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import BaseState from 'common/game/baseState';
+import RoundHistory from 'common/game/roundHistory';
 import TurnHistory from 'common/game/turnHistory';
 import ActionHistory from 'common/game/actionHistory';
 import PhaseIds from '1846/config/phaseIds';
@@ -36,32 +37,12 @@ class State extends BaseState {
         this.currentPhaseId = ko.observable(definition.currentPhase || PhaseIds.PHASE_I);
         this.currentRoundId = ko.observable(definition.currentRoundId);
         this.currentRoundNumber = ko.observable(definition.currentRoundNumber || 0);
+        this.currentCompanyId = ko.observable(definition.currentCompanyId);
 
-        // This logic is not great to have here.
-        this.roundName = ko.computed(()=> {
-            const currentRoundId = this.currentRoundId();
-            const currentRoundNumber = this.currentRoundNumber();
-
-            if(currentRoundId === RoundIds.PRIVATE_DRAFT) {
-                return 'Privates Draft';
-            }
-            else if(currentRoundId === RoundIds.STOCK_ROUND) {
-                return 'SR' + currentRoundNumber;
-            }
-            else if(currentRoundId === RoundIds.OPERATING_ROUND_1) {
-                return 'OR' + currentRoundNumber + '.1';
-            }
-            else if (currentRoundId === RoundIds.OPERATING_ROUND_2) {
-                return 'OR' + currentRoundNumber + '.2';
-            }
-
-            return '';
-        });
 
         this.firstPassIndex = ko.observable(definition.firstPassIndex);
         this.priorityDealIndex = ko.observable(definition.priorityDealIndex);
         this.certLimit = ko.observable(definition.certLimit || (this.players().length === 3 ? 14 : this.players().length === 4 ? 12 : 11))
-
 
         this.publicCompanies = definition.publicCompanies || [];
         this.publicCompaniesById = _.keyBy(this.publicCompanies, 'id');
@@ -76,17 +57,29 @@ class State extends BaseState {
         this.passCardsById = _.keyBy(this.passCards, 'id');
         this.undraftedPrivateIds = ko.observableArray(definition.undraftedPrivateIds || _(this.privateCompanies).map('id').concat(_.map(this.passCards, 'id')).shuffle().value());
 
-        this.priceTrack = ko.observableArray();
-
-        this.currentCompanyId = ko.observable(definition.currentCompanyId);
-
         this.stockBoard = definition.stockBoard;
         this.bank = definition.bank;
         this.manifest = definition.manifest;
 
-        this.turnHistory = definition.turnHistory || new TurnHistory(this);
-        this.actionHistory = definition.actionHistory || new ActionHistory(this);
+        this.roundHistory = definition.roundHistory || new RoundHistory();
+        this.turnHistory = definition.turnHistory || new TurnHistory();
+        this.actionHistory = definition.actionHistory || new ActionHistory();
+
+        this.roundName = ko.computed(()=> {
+            const currentRound = this.roundHistory.getCurrentRound();
+            if (!currentRound) {
+                return '';
+            }
+
+            return currentRound.getRoundName();
+        });
+    }
+
+    trySerialize() {
+        console.log(this.serialize());
     }
 }
+
+State.registerClass();
 
 export default State;

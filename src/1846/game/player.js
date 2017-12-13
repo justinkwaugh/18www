@@ -49,16 +49,24 @@ class Player extends BasePlayer {
         });
 
         this.canBuy = ko.computed(() => {
-            return !this.hasPassedThisTurn() && this.companiesCanBuy().length > 0;
+            return !this.isOverCertLimit() && !this.hasPassedThisTurn() && this.companiesCanBuy().length > 0;
         });
 
         this.canPass = ko.computed(() => {
-            return !this.hasPassedThisTurn() && !this.hasBoughtThisTurn() && !this.hasSoldThisTurn();
+            return !this.isOverCertLimit() && !this.hasPassedThisTurn() && !this.hasBoughtThisTurn() && !this.hasSoldThisTurn();
         });
 
         this.canSell = ko.computed(() => {
             return !this.hasPassedThisTurn() && !this.hasBoughtThisTurn() && this.hasSharesToSell();
         });
+    }
+
+    isOverCertLimit() {
+        if (!CurrentGame()) {
+            return false;
+        }
+
+        return this.certificates().length > CurrentGame().state().certLimit();
     }
 
     hasBoughtThisTurn() {
@@ -71,7 +79,7 @@ class Player extends BasePlayer {
             return false;
         }
 
-        return _.find(turn.getTurnActions(), action => {
+        return _.find(turn.getActions(), action => {
             return action.getTypeName() === 'BuyShare' || action.getTypeName() === 'StartCompany';
         });
     }
@@ -86,19 +94,28 @@ class Player extends BasePlayer {
         }
 
         if (!companyId) {
-            return _.find(turn.getTurnActions(), action => {
+            return _.find(turn.getActions(), action => {
                 return action.getTypeName() === 'SellShares';
             });
         }
         else {
-            return _.find(turn.getTurnActions(), action => {
+            return _.find(turn.getActions(), action => {
                 return action.getTypeName() === 'SellShares' && action.companyId === companyId;
             });
         }
     }
 
     hasSoldThisRound(companyId) {
-        return false;
+        if (!CurrentGame()) {
+            return false;
+        }
+        const round = CurrentGame().state().roundHistory.currentRound();
+        if (!round) {
+            return false;
+        }
+        return _.find(round.getActions(), action => {
+                return action.getTypeName() === 'SellShares' && action.companyId === companyId;
+            });
     }
 
     hasPassedThisTurn() {
@@ -110,7 +127,7 @@ class Player extends BasePlayer {
             return false;
         }
 
-        return _.find(turn.getTurnActions(), action => {
+        return _.find(turn.getActions(), action => {
             return action.getTypeName() === 'StockRoundPass';
         });
     }

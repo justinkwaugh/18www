@@ -1,13 +1,19 @@
 import _ from 'lodash';
 import ko from 'knockout';
+import CurrentGame from 'common/game/currentGame';
 import Serializable from 'common/model/serializable';
 
 class ActionHistory extends Serializable {
-    constructor(state) {
+    constructor() {
         super();
 
-        this.state = state;
         this.actions = ko.observableArray([]);
+    }
+
+    toJSON() {
+        const plainObject = super.toJSON();
+        plainObject.actions = this.actions();
+        return plainObject;
     }
 
     addAction(action) {
@@ -15,8 +21,9 @@ class ActionHistory extends Serializable {
     }
 
     undo() {
+        const state = CurrentGame().state();
         const action = this.actions.pop();
-        action.doUndo(this.state);
+        action.doUndo(state);
     }
 
     currentIndex() {

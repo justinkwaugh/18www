@@ -15,6 +15,7 @@
             <h2 class="mb-0 text-dark font-weight-light"
                 data-bind="text: $data.game().state().roundName() + ' - ' + $data.game().state().currentPlayer().user().username"></h2>
         </div>
+        <div><button type="button" class="btn btn-danger mr-2" data-bind="click: function() { $data.game().state().trySerialize();}">SERIALIZE</button></div>
         <div data-bind="template: { name: 'views/players', data: $data.game().state()}"></div>
     </nav>
     <div class="border border-right-0 border-left-0 pl-3 pr-3 bg-light" data-bind="true || visible:!$data.game().privateDraft()">

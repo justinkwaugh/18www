@@ -12,6 +12,13 @@ class TurnHistory extends Serializable {
         this.currentTurn = ko.observable(definition.currentTurn);
     }
 
+    toJSON() {
+        const plainObject = super.toJSON();
+        plainObject.turns = this.turns();
+        plainObject.currentTurn = this.currentTurn();
+        return plainObject;
+    }
+
     startTurn(turnContext) {
         this.currentTurn(new Turn({
             number: this.nextTurnNumber(),
@@ -30,7 +37,7 @@ class TurnHistory extends Serializable {
     }
 
     commitTurn() {
-        this.currentTurn().actionEndIndex = CurrentGame().state().actionHistory.currentIndex();
+        this.currentTurn().commit();
         this.turns.push(this.currentTurn());
         this.currentTurn(null);
     }

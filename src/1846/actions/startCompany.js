@@ -39,7 +39,7 @@ class StartCompany extends Action {
 
         // First cert in company treasury always pres cert for convenience
         const cert = company.certificates.shift();
-        player.certificates.push(cert);
+        player.addCert(cert);
         state.firstPassIndex(null);
 
     }
@@ -52,16 +52,12 @@ class StartCompany extends Action {
         company.removeCash(cash);
         player.addCash(cash);
 
-        state.stockBoard.removeCompany(company);
+        state.stockBoard.removeCompany(company.id);
         company.priceIndex(0);
         company.president(null);
         company.opened(false);
 
-
-        const certs = player.certificates();
-        const certIndex = _.findIndex(player.certificates(), { companyId : this.companyId, president: true });
-        const cert = _.first(_.pullAt(certs, certIndex));
-        player.certificates(certs);
+        const cert = player.removePresidentCertForCompany(this.companyId);
         company.certificates.unshift(cert);
     }
 

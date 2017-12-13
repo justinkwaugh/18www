@@ -29,13 +29,11 @@ class SellShares extends Action {
         // market space
         // presidency requirement
 
-        // TODO handle forced and presidency change
         this.endIndex = isPresident ? Prices.leftIndex(this.startIndex) : this.startIndex;
         company.priceIndex(this.endIndex);
         const cash = Prices.price(this.startIndex) * this.count;
         state.bank.removeCash(cash);
         player.addCash(cash);
-
 
         // Handle presidency change
         if (isPresident && player.sharesPerCompany()[this.companyId] - this.count < 2) {

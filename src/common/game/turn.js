@@ -22,10 +22,6 @@ class Turn extends ActionGroup {
         this.context = definition.context || {};
     }
 
-    undo() {
-        CurrentGame().state().actionHistory.undoRange(this.actionStartIndex, this.actionEndIndex);
-    }
-
     undoLast() {
         CurrentGame().state().actionHistory.undo();
     }
@@ -73,50 +69,6 @@ class Turn extends ActionGroup {
         });
         this.inProgress.push(actionGroup);
     }
-
-    getTurnActions() {
-        if (this.actionEndIndex <= this.actionStartIndex) {
-            return [];
-        }
-        return CurrentGame().state().actionHistory.getActionRange(this.actionStartIndex, this.actionEndIndex);
-    }
-
-    getSummaries() {
-        if (this.actionEndIndex <= this.actionStartIndex) {
-            return [];
-        }
-
-        return _(
-            this.getTurnActions())
-            .invokeMap('summary', CurrentGame().state()).map(
-                (summary, index) => {
-                        return {
-                            index: this.actionStartIndex + index,
-                            type: 'action',
-                            summary
-                        }
-                }).value();
-    }
-
-    getInstructions() {
-        if (this.actionEndIndex <= this.actionStartIndex) {
-            return [];
-        }
-
-        return _(
-            this.getTurnActions())
-            .invokeMap('instructions', CurrentGame().state()).map(
-                (instructions, index) => {
-                    return _.map(instructions, (instruction) => {
-                        return {
-                            index: this.actionStartIndex + index,
-                            type: 'action',
-                            instruction
-                        }
-                    });
-                }).flatten().value();
-    }
-
 }
 
 Turn.registerClass();
