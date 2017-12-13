@@ -72,4 +72,6 @@ class StartCompany extends Action {
     }
 }
 
+StartCompany.registerClass();
+
 export default StartCompany

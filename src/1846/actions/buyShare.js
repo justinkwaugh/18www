@@ -100,4 +100,6 @@ class BuyShare extends Action {
     }
 }
 
+BuyShare.registerClass();
+
 export default BuyShare

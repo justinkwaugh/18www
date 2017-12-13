@@ -25,4 +25,6 @@ class DraftPass extends Action {
     }
 }
 
+DraftPass.registerClass();
+
 export default DraftPass

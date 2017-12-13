@@ -10,6 +10,8 @@ import ko from 'knockout';
 import _ from 'lodash';
 import TileManifest from '1846/config/tileManifest';
 import StockBoard from '1846/game/stockBoard';
+import Serializable from 'common/model/serializable';
+import Events from 'common/util/events';
 
 
 const ActivePanelIDs = {
@@ -104,6 +106,15 @@ class Game extends BaseGame {
                         });
     }
 
+    updateState(newState) {
+        this.state(newState);
+        Events.emit('stateUpdated', {});
+    }
+
+    tryDeserialize() {
+        const state = Serializable.deserialize(this.state().serialize());
+        this.updateState(state);
+    }
 }
 
 export default Game;

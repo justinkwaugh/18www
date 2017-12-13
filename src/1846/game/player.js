@@ -178,4 +178,6 @@ class Player extends BasePlayer {
     }
 }
 
+Player.registerClass();
+
 export default Player;

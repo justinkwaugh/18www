@@ -32,21 +32,6 @@ class Company extends Serializable {
         this.operated = ko.observable(definition.operated || false);
     }
 
-    toJSON() {
-        const plainObject = super.toJSON();
-        plainObject.certificates = this.certificates();
-        plainObject.cash = this.cash();
-        plainObject.tokens = this.tokens();
-        plainObject.trains = this.trains();
-        plainObject.president = this.president();
-        plainObject.parPriceIndex = this.parPriceIndex();
-        plainObject.priceIndex = this.priceIndex();
-        plainObject.lastRun = this.lastRun();
-        plainObject.opened = this.opened();
-        plainObject.operated = this.operated();
-        return plainObject;
-    }
-
     addCash(amount) {
         this.cash(this.cash() + amount);
     }

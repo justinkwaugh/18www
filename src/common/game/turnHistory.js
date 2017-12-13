@@ -12,13 +12,6 @@ class TurnHistory extends Serializable {
         this.currentTurn = ko.observable(definition.currentTurn);
     }
 
-    toJSON() {
-        const plainObject = super.toJSON();
-        plainObject.turns = this.turns();
-        plainObject.currentTurn = this.currentTurn();
-        return plainObject;
-    }
-
     startTurn(turnContext) {
         this.currentTurn(new Turn({
             number: this.nextTurnNumber(),

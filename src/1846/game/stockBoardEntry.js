@@ -9,12 +9,6 @@ class StockBoardEntry extends Serializable {
         this.value = definition.value;
         this.companies = ko.observableArray(definition.companies || []);
     }
-
-    toJSON() {
-        const plainObject = super.toJSON();
-        plainObject.companies = this.companies();
-        return plainObject;
-    }
 }
 
 StockBoardEntry.registerClass();

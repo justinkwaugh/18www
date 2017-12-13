@@ -4,16 +4,11 @@ import CurrentGame from 'common/game/currentGame';
 import Serializable from 'common/model/serializable';
 
 class ActionHistory extends Serializable {
-    constructor() {
+    constructor(definition) {
+        definition = definition || {};
         super();
 
-        this.actions = ko.observableArray([]);
-    }
-
-    toJSON() {
-        const plainObject = super.toJSON();
-        plainObject.actions = this.actions();
-        return plainObject;
+        this.actions = ko.observableArray(definition.actions || []);
     }
 
     addAction(action) {

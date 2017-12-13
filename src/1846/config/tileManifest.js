@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import Serializable from 'common/model/serializable';
 import Tile from 'common/map/tile';
 import TileColorIDs from '1846/config/tileColorIds';
 import MapTileIDs from '1846/config/mapTileIds';
@@ -584,8 +585,9 @@ const Manifest = {
     }
 };
 
-class TileManifest {
+class TileManifest extends Serializable {
     constructor(definition) {
+        super();
         definition = definition || {};
         this.TileColorIDs = TileColorIDs;
 
@@ -614,6 +616,13 @@ class TileManifest {
             content: '<div data-bind="template: { name: \'views/tileUpgradePopover\' }"></div>'
         };
 
+    }
+
+    toJSON() {
+        const plainObject = super.toJSON();
+        delete plainObject.popoverParams;
+        delete plainObject.TileColorIDs;
+        return plainObject;
     }
 
     setActiveTileSet(colorId) {
@@ -663,5 +672,7 @@ class TileManifest {
         return new Tile(definition);
     }
 }
+
+TileManifest.registerClass();
 
 export default TileManifest;

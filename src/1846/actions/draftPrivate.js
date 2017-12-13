@@ -38,4 +38,6 @@ class DraftPrivate extends Action {
 
 }
 
+DraftPrivate.registerClass();
+
 export default DraftPrivate

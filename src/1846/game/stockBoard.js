@@ -2,7 +2,8 @@ import Prices from '1846/config/prices';
 import StockBoardEntry from '1846/game/stockBoardEntry';
 import Serializable from 'common/model/serializable';
 import ko from 'knockout';
-
+import CurrentGame from 'common/game/currentGame';
+import Events from 'common/util/events';
 import _ from 'lodash';
 
 class StockBoard extends Serializable {
@@ -19,27 +20,41 @@ class StockBoard extends Serializable {
                                                                                                value: Prices.price(
                                                                                                    index)
                                                                                            });
+
+        });
+
+        Events.on('stateUpdated', ()=>{
+            _.each(this.stockBoard(), entry=> {
+                _.each(entry.companies(), (companyId) => {
+                    const company = CurrentGame().state().publicCompaniesById[companyId];
+                    this.subscribeToCompany(company);
+                });
+            });
         });
     }
 
     toJSON() {
         const plainObject = super.toJSON();
         delete plainObject.subscriptions;
-        plainObject.stockBoard = this.stockBoard();
+        plainObject.stockBoard = _.pickBy(plainObject.stockBoard, (entry, index)=> entry.companies().length > 0);
         return plainObject;
     }
 
     addCompany(company) {
         this.addToEntry(company);
-        this.subscriptions[company.id] = company.priceIndex.subscribe(() => {
-            this.removeFromEntry(company.id);
-            this.addToEntry(company);
-        });
+        this.subscribeToCompany(company);
     }
 
     removeCompany(companyId) {
         this.removeFromEntry(companyId);
         this.subscriptions[companyId].dispose();
+    }
+
+    subscribeToCompany(company) {
+        this.subscriptions[company.id] = company.priceIndex.subscribe(() => {
+            this.removeFromEntry(company.id);
+            this.addToEntry(company);
+        });
     }
 
     removeFromEntry(companyId) {

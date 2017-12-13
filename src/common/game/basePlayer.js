@@ -85,6 +85,12 @@ class BasePlayer extends Serializable {
             return cert.companyId === companyId && cert.president;
         })[0];
     }
+
+    toJSON() {
+        const plainObject = super.toJSON();
+        delete plainObject.popoverParams;
+        return plainObject;
+    }
 }
 
 export default BasePlayer;

@@ -13,4 +13,6 @@ class PrivateCompany extends Company {
     }
 }
 
+PrivateCompany.registerClass();
+
 export default PrivateCompany;

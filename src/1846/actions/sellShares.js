@@ -98,4 +98,6 @@ class SellShares extends Action {
 
 }
 
+SellShares.registerClass();
+
 export default SellShares

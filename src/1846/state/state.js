@@ -6,6 +6,7 @@ import ActionHistory from 'common/game/actionHistory';
 import PhaseIds from '1846/config/phaseIds';
 import PassCard from '1846/game/passCard';
 import RoundIds from '1846/config/roundIds';
+import Serializable from 'common/model/serializable';
 import ko from 'knockout';
 
 class State extends BaseState {
@@ -34,7 +35,7 @@ class State extends BaseState {
         this.currentPlayer = ko.computed(()=> {
             return this.players()[this.currentPlayerIndex()];
         });
-        this.currentPhaseId = ko.observable(definition.currentPhase || PhaseIds.PHASE_I);
+        this.currentPhaseId = ko.observable(definition.currentPhaseId || PhaseIds.PHASE_I);
         this.currentRoundId = ko.observable(definition.currentRoundId);
         this.currentRoundNumber = ko.observable(definition.currentRoundNumber || 0);
         this.currentCompanyId = ko.observable(definition.currentCompanyId);
@@ -77,6 +78,11 @@ class State extends BaseState {
 
     trySerialize() {
         console.log(this.serialize());
+    }
+
+    tryDeserialize() {
+        debugger;
+        const state = Serializable.deserialize(this.serialize());
     }
 }
 

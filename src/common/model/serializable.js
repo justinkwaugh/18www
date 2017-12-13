@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import ko from 'knockout';
 
 const classRegistry = {};
 
@@ -14,6 +15,11 @@ class Serializable {
     toJSON() {
         const plainObject = _.toPlainObject(this);
         plainObject.className = this.getTypeName();
+        _.each(plainObject, (value, key) => {
+            if(ko.isObservable(value) && !ko.isComputed(value)) {
+                plainObject[key] = value();
+            }
+        });
         return plainObject;
     }
 
@@ -25,11 +31,18 @@ class Serializable {
         let objDefinition = _.isString(definition) ? JSON.parse(definition) : definition;
         let objClass = this;
 
+        if(!_.isPlainObject(objDefinition)) {
+            return objDefinition;
+        }
+
+        objDefinition = this.deserializeCollection(objDefinition);
+
         if(this.prototype.constructor.name === 'Serializable') {
             objClass = classRegistry[objDefinition.className];
         }
+
         if(!objClass) {
-            throw Error('Attempt to deserialize unknown Serializable');
+            throw Error('Attempt to deserialize unknown Serializable ' + objDefinition.className);
         }
         return new objClass(objDefinition);
     }
@@ -43,7 +56,7 @@ class Serializable {
             if (_.isPlainObject(value) && value.className) {
                 obj[keyOrIndex] = this.deserialize(value);
             }
-            else if (_.isArray(value)) {
+            else if (_.isArray(value) || _.isPlainObject(value)) {
                 this.deserializeCollection(value);
             }
         });

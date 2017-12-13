@@ -27,4 +27,6 @@ class StockRoundPass extends Action {
     }
 }
 
+StockRoundPass.registerClass();
+
 export default StockRoundPass

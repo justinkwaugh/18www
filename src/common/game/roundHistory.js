@@ -11,13 +11,6 @@ class RoundHistory extends Serializable {
         this.currentRound = ko.observable(definition.currentRound);
     }
 
-    toJSON() {
-        const plainObject = super.toJSON();
-        plainObject.rounds = this.rounds();
-        plainObject.currentRound = this.currentRound();
-        return plainObject;
-    }
-
     startRound(id, number) {
         this.currentRound(new Round({
             id: id,
