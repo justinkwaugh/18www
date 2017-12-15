@@ -4,6 +4,8 @@ import _ from 'lodash';
 import Cell from 'common/map/cell';
 import Tile from 'common/map/tile';
 import TileManifest from '1846/config/tileManifest';
+import Events from 'common/util/events';
+import CurrentGame from 'common/game/currentGame';
 
 const RowLetters = ['A','B','C','D','E','F','G','H','I','J','K'];
 
@@ -43,7 +45,7 @@ const SpecialTiles = {
 };
 
 class Grid extends BaseGrid {
-    constructor(data) {
+    constructor(state) {
         const cells = _(_.range(0,10*12)).map((value) => {
             const row = Math.floor(value/12);
             const col = value % 10;
@@ -98,12 +100,20 @@ class Grid extends BaseGrid {
         }).compact().value();
 
         _.each(cells, (cell)=> {
-            cell.tile(TileManifest.createTile(SpecialTiles[cell.id] || MapTileIDs.BLANK));
+            const tile = TileManifest.createTile(SpecialTiles[cell.id] || MapTileIDs.BLANK);
+            state.tilesByCellId[cell.id] = tile;
+            cell.tile(tile);
         });
 
         super({ cellSize: 124, cells });
 
         this.connectNeighbors();
+
+        Events.on('stateUpdated', ()=>{
+            _.each(CurrentGame().state().tilesByCellId, (tile, cellId) => {
+                this.cellsById()[cellId].tile(tile);
+            });
+        });
     }
 
     connectNeighbors() {

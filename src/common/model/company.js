@@ -13,6 +13,8 @@ class Company extends Serializable {
         this.name = definition.name || 'Anonymous';
         this.nickname = definition.nickname || 'Anon';
         this.type = definition.type;
+        this.homeCellId = definition.homeCellId;
+
         this.certificates = ko.observableArray(definition.certificates);
         this.shares = ko.computed(()=> {
             return _.sumBy(this.certificates(), 'shares');

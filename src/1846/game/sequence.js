@@ -5,12 +5,19 @@ import CurrentGame from 'common/game/currentGame';
 
 import _ from 'lodash';
 class Sequence {
+
+    static undoLastAction() {
+        CurrentGame().state().turnHistory.currentTurn().undoLast();
+        CurrentGame().saveLocalState();
+    }
+
     static finishTurn() {
         CurrentGame().state().turnHistory.commitTurn();
         //commit to server
 
         // if local
         this.nextRoundPhaseAndTurn();
+        CurrentGame().saveLocalState();
     }
 
     static nextRoundPhaseAndTurn() {
@@ -18,6 +25,7 @@ class Sequence {
         const state = game.state();
 
         const currentRound = state.roundHistory.getCurrentRound();
+        state.currentCompanyId('gt');
 
         if (!currentRound) {
             state.roundHistory.startRound(RoundIDs.STOCK_ROUND, 1);
@@ -69,6 +77,18 @@ class Sequence {
             nextPlayerIndex = 0;
         }
         return nextPlayerIndex;
+    }
+
+    static restore() {
+        const game = CurrentGame();
+        const state = game.state();
+        const currentRound = state.roundHistory.getCurrentRound();
+        if (currentRound.id === RoundIDs.PRIVATE_DRAFT) {
+            game.privateDraft(new PrivateDraft());
+        }
+        else if(currentRound.id === RoundIDs.STOCK_ROUND) {
+            game.stockRound(new StockRound());
+        }
     }
 }
 

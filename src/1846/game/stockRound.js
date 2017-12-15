@@ -122,6 +122,7 @@ class StockRound {
 
     commit() {
         this.action().execute(CurrentGame().state());
+        CurrentGame().saveLocalState();
         this.reset();
     }
 }

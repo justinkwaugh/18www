@@ -127,3 +127,11 @@ nav a, nav a:hover {
 .popover {
     max-width: 600px !important;
 }
+
+.bg-table-row {
+    background-color: #DDDDDD;
+}
+
+.table-col-spacer {
+    width:10px;
+}

@@ -13,6 +13,7 @@ const PublicCompanyDefinitions = {
         name: 'Grand Trunk',
         nickname: 'GT',
         tokens: 3,
+        homeCellId: 'B16'
     },
     [CompanyIDs.NEW_YORK_CENTRAL]: {
         id: CompanyIDs.NEW_YORK_CENTRAL,
@@ -20,6 +21,7 @@ const PublicCompanyDefinitions = {
         name: 'New York Central',
         nickname: 'NYC',
         tokens: 4,
+        homeCellId: 'D20'
     },
     [CompanyIDs.ERIE]: {
         id: CompanyIDs.ERIE,
@@ -27,6 +29,7 @@ const PublicCompanyDefinitions = {
         name: 'Erie',
         nickname: 'Erie',
         tokens: 4,
+        homeCellId: 'E21'
     },
     [CompanyIDs.PENNSYLVANIA]: {
         id: CompanyIDs.PENNSYLVANIA,
@@ -34,6 +37,7 @@ const PublicCompanyDefinitions = {
         name: 'Pennsylvania',
         nickname: 'PRR',
         tokens: 5,
+        homeCellId: 'F20'
     },
     [CompanyIDs.BALTIMORE_OHIO]: {
         id: CompanyIDs.BALTIMORE_OHIO,
@@ -41,6 +45,7 @@ const PublicCompanyDefinitions = {
         name: 'Baltimore & Ohio',
         nickname: 'B&O',
         tokens: 4,
+        homeCellId: 'G19'
     },
     [CompanyIDs.ILLINOIS_CENTRAL]: {
         id: CompanyIDs.ILLINOIS_CENTRAL,
@@ -48,6 +53,7 @@ const PublicCompanyDefinitions = {
         name: 'Illinois Central',
         nickname: 'IC',
         tokens: 4,
+        homeCellId: 'K3'
     },
     [CompanyIDs.CHESAPEAKE_OHIO]: {
         id: CompanyIDs.CHESAPEAKE_OHIO,
@@ -55,6 +61,7 @@ const PublicCompanyDefinitions = {
         nickname: 'C&O',
         name: 'Chesapeake & Ohio',
         tokens: 4,
+        homeCellId: 'I15'
     }
 };
 

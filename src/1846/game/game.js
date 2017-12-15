@@ -12,6 +12,8 @@ import TileManifest from '1846/config/tileManifest';
 import StockBoard from '1846/game/stockBoard';
 import Serializable from 'common/model/serializable';
 import Events from 'common/util/events';
+import Store from 'store';
+import Sequence from '1846/game/sequence';
 
 
 const ActivePanelIDs = {
@@ -27,7 +29,7 @@ class Game extends BaseGame {
         super(definition);
 
         this.state = ko.observable(definition.state);
-        this.grid = ko.observable(new Grid());
+        this.grid = ko.observable(new Grid(definition.state));
         this.privateDraft = ko.observable();
         this.stockRound = ko.observable();
 
@@ -108,7 +110,23 @@ class Game extends BaseGame {
 
     updateState(newState) {
         this.state(newState);
+        Sequence.restore();
         Events.emit('stateUpdated', {});
+    }
+
+    saveLocalState() {
+        Store.set('4',this.state().serialize());
+    }
+
+    restoreLocalState() {
+        let restored = false;
+        const storedState = Store.get('4');
+        if(storedState) {
+            const state = Serializable.deserialize(storedState);
+            this.updateState(state);
+            restored = true;
+        }
+        return restored;
     }
 
     tryDeserialize() {

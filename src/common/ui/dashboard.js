@@ -9,7 +9,7 @@ import _ from 'lodash';
 class Dashboard {
     constructor() {
 
-        const users = _.map(_.range(3), (index) => {
+        const users = _.map(_.range(5), (index) => {
             return new User({id: index, username: 'Player ' + (index + 1)});
         });
 
@@ -21,7 +21,10 @@ class Dashboard {
 
 
         this.sequence = Sequence;
-        Sequence.nextRoundPhaseAndTurn();
+
+        if(!this.game().restoreLocalState()) {
+            Sequence.nextRoundPhaseAndTurn();
+        }
     }
 }
 

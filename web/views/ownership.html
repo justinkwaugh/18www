@@ -1,44 +1,139 @@
 <div class="text-center">
-    <table class="table text-center">
+    <div class="bg-dark " style="padding:10px;width:100%">
+    <table class="table text-center bg-dark m-0">
         <thead>
-        <tr >
+        <tr>
             <th scope="col" class="border-0"></th>
             <!-- ko foreach: $data.publicCompanies -->
-            <th scope="col" class="border-0 font-weight-normal pt-2 pb-2" data-bind="css: 'bg-' + $data.id + ' text-' + $data.id"><h5 class="font-weight-normal mb-0" data-bind="text:$data.nickname"></h5>
+            <th class="table-col-spacer p-0 border-0">&nbsp;</th>
+            <th scope="col" class="border-0 font-weight-normal pt-2 pb-2"
+                data-bind="css: 'bg-' + $data.id + ' text-' + $data.id"><h5 class="font-weight-normal mb-0"
+                                                                            data-bind="text:$data.nickname"></h5>
             </th>
+
             <!-- /ko -->
         </tr>
         </thead>
         <tbody>
         <tr>
-            <th class="border-right-0 border-top-0 font-weight-normal pt-1 pb-1 bg-warning" scope="row">Cash</th>
+            <th scope="col" style="height:10px;" class="border-0 p-0"></th>
             <!-- ko foreach: $data.publicCompanies -->
-            <td class="bg-light pt-1 pb-1"><div data-bind="text: '$326'"></div></td>
-            <!-- /ko -->
-        </tr>
-        <tr>
-            <th class="border-right-0 border-top-0 font-weight-normal pt-1 pb-1 bg-warning" scope="row">Shares</th>
-            <!-- ko foreach: $data.publicCompanies -->
-            <td class="bg-light pt-1 pb-1"><div data-bind="text: '3'"></div><div class="bg-dark text-white" data-bind="text: '4'"></div></td>
+            <th scope="col" class="table-col-spacer p-0 border-0" style="height:10px;"></th>
+            <th scope="col" style="height:10px;" class="border-0 font-weight-normal p-0"
+                data-bind="css: 'bg-' + $data.id + ' text-' + $data.id">Player Shares
+            </th>
             <!-- /ko -->
         </tr>
         <!-- ko foreach: $data.players() -->
         <tr>
-            <th class="text-white border-right-0  font-weight-normal" scope="row" data-bind="text:$data.user().username, css: $parent.currentPlayerId() === $data.id ? 'bg-info': 'bg-secondary'"></th>
+            <th class="border-0 font-weight-normal" scope="row"
+                data-bind="css: $parent.currentPlayerId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row' : 'bg-light'">
+                <h5 class="m-0 font-weight-normal " data-bind="text:$data.user().username"></h5></th>
             <!-- ko foreach: $parent.publicCompanies -->
-            <td data-bind="text:0"></td>
+            <td class="table-col-spacer p-0 border-0"
+                data-bind="css: $root.game().state().currentPlayerId() === $parent.id ? 'bg-warning': 'bg-dark'">&nbsp;
+            </td>
+            <td class="border-0"
+                data-bind="css: $root.game().state().currentPlayerId() === $parent.id ? 'bg-warning' : $parentContext.$index() % 2 ? 'bg-table-row' : 'bg-light'">
+                <h5 class="m-0 font-weight-normal text-dark"
+                    data-bind="text:$parent.numSharesOwnedOfCompany($data.id)"></h5></td>
             <!-- /ko -->
         </tr>
         <!-- /ko -->
-                <tr>
-            <th class="border-right-0 border-top-0 font-weight-normal pt-1 pb-1 bg-warning" scope="row">Trains</th>
+        <tr>
+            <th scope="col" style="height:10px;" class="border-0 p-0"></th>
             <!-- ko foreach: $data.publicCompanies -->
-            <td class="bg-light pt-1 pb-1" data-bind="text:'2T 4T'"></td>
+            <th scope="col" class="table-col-spacer p-0 border-0" style="height:10px;"></th>
+            <th scope="col" style="height:10px;" class="border-0 font-weight-normal p-0"
+                data-bind="css: 'bg-' + $data.id + ' text-' + $data.id">Avail. Shares
+            </th>
+            <!-- /ko -->
+        </tr>
+        <tr>
+            <th class="border-0 font-weight-normal p-0 text-right text-white" scope="row">
+                <div class="p-1 pr-2">
+                    <div>Price</div>
+                </div>
+            </th>
+            <!-- ko foreach: $data.publicCompanies -->
+            <td class="table-col-spacer p-0 border-0">&nbsp;</td>
+            <td class="bg-light pt-1 pb-1 border-0 ">
+                <div data-bind="text: '$' + $data.price()"></div>
+            </td>
+            <!-- /ko -->
+        </tr>
+        <tr>
+            <th class="border-0 font-weight-normal p-0 text-right text-white" scope="row">
+                <div class="p-1 pr-2">
+                    <div>Market</div>
+                </div>
+            </th>
+            <!-- ko foreach: $data.publicCompanies -->
+            <td class="table-col-spacer p-0 border-0">&nbsp;</td>
+            <td class="bg-table-row pt-1 pb-1 border-0 ">
+                <div data-bind="text: $root.game().state().bank.numSharesOwnedOfCompany($data.id)"></div>
+            </td>
+            <!-- /ko -->
+        </tr>
+        <tr>
+            <th class="border-0 font-weight-normal p-0 text-right text-white" scope="row">
+                <div class="p-1">
+                    <div>Treasury</div>
+                </div>
+            </th>
+            <!-- ko foreach: $data.publicCompanies -->
+            <td class="table-col-spacer p-0 border-0">&nbsp;</td>
+            <td class="bg-light pt-1 pb-1 border-0 ">
+                <div class=""
+                     data-bind="text: $data.shares()"></div>
+            </td>
+            <!-- /ko -->
+        </tr>
+        <tr>
+            <th scope="col" style="height:10px;" class="border-0 p-0"></th>
+            <!-- ko foreach: $data.publicCompanies -->
+            <th scope="col" class="table-col-spacer p-0 border-0" style="height:10px;"></th>
+            <th scope="col" style="height:10px;" class="border-0 font-weight-normal p-0"
+                data-bind="css: 'bg-' + $data.id + ' text-' + $data.id">Assets
+            </th>
+            <!-- /ko -->
+        </tr>
+        <tr>
+            <th class="border-0 font-weight-normal p-0 text-right text-white" scope="row">
+                <div class="p-1">
+                    Trains
+                </div>
+            </th>
+            <!-- ko foreach: $data.publicCompanies -->
+            <td class="table-col-spacer p-0 border-0">&nbsp;</td>
+            <td class="pt-1 pb-1 bg-light border-0" data-bind="text:'2T 4T'"></td>
+            <!-- /ko -->
+        </tr>
+        <tr>
+            <th class="border-0 font-weight-normal p-0 text-right text-white" scope="row">
+                <div class="p-1">Cash</div>
+            </th>
+            <!-- ko foreach: $data.publicCompanies -->
+            <td class="table-col-spacer p-0 border-0">&nbsp;</td>
+            <td class="pt-1 pb-1 bg-table-row border-0">
+                <div data-bind="text: '$' + $data.cash()"></div>
+            </td>
+            <!-- /ko -->
+        </tr>
+        <tr>
+            <th class="border-0 font-weight-normal p-0 text-right text-white" scope="row">
+                <div class="p-1">
+                    Tokens
+                </div>
+            </th>
+            <!-- ko foreach: $data.publicCompanies -->
+            <td class="table-col-spacer p-0 border-0">&nbsp;</td>
+            <td class="pt-1 pb-1 bg-light border-0" data-bind="text:'3/3'"></td>
             <!-- /ko -->
         </tr>
         </tbody>
 
     </table>
-
+    </div>
 
 </div>

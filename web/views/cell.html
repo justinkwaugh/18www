@@ -1,6 +1,6 @@
 <!-- ko if: $data.top > 0 -->
 <div style="pointer-events:none;position:absolute;"
-     data-bind="style: { top: $data.top +'px', left: $data.left + 'px'}, css: {editable: $data.canEdit($root.game().state())}">
+     data-bind="style: { top: $data.top +'px', left: $data.left + 'px'}, css: {editable: $data.canEdit()}">
     <!-- ko if: $data.visibleTile() -->
 
     <svg xmlns="http://www.w3.org/2000/svg" style="width:126px;height:144px;" pointer-events="none">

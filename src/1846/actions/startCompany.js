@@ -11,6 +11,7 @@ class StartCompany extends Action {
         this.playerId = args.playerId;
         this.companyId = args.companyId;
         this.startIndex = args.startIndex;
+        this.firstPassIndex = args.firstPassIndex;
     }
 
     doExecute(state) {
@@ -37,6 +38,8 @@ class StartCompany extends Action {
         player.removeCash(cash);
         company.addCash(cash);
 
+        state.tilesByCellId[company.homeCellId].addToken(company.id);
+
         // First cert in company treasury always pres cert for convenience
         const cert = company.certificates.shift();
         player.addCert(cert);
@@ -48,6 +51,9 @@ class StartCompany extends Action {
         const player = state.playersById()[this.playerId];
         const company = state.publicCompaniesById[this.companyId];
         const cash = Prices.price(this.startIndex)*2;
+
+
+        state.tilesByCellId[company.homeCellId].removeToken(company.id);
 
         company.removeCash(cash);
         player.addCash(cash);

@@ -15,24 +15,25 @@ class State extends BaseState {
         super(definition);
 
         this.id = definition.id;
+        this.version = definition.version || 0;
         this.local = definition.local;
 
         this.players = ko.observableArray(definition.players || []);
-        this.playersById = ko.computed(()=>{
+        this.playersById = ko.computed(() => {
             return _.keyBy(this.players(), 'id');
         });
-        this.playersByOrder = ko.computed(()=> {
-            return _.sortBy(this.players(), player=>player.order());
+        this.playersByOrder = ko.computed(() => {
+            return _.sortBy(this.players(), player => player.order());
         });
 
         this.lastPlayerId = ko.observable(definition.currentPlayerId);
 
 
         this.currentPlayerIndex = ko.observable(definition.currentPlayerIndex || 0);
-        this.currentPlayerId = ko.computed(()=> {
+        this.currentPlayerId = ko.computed(() => {
             return this.players()[this.currentPlayerIndex()].id;
         });
-        this.currentPlayer = ko.computed(()=> {
+        this.currentPlayer = ko.computed(() => {
             return this.players()[this.currentPlayerIndex()];
         });
         this.currentPhaseId = ko.observable(definition.currentPhaseId || PhaseIds.PHASE_I);
@@ -43,20 +44,23 @@ class State extends BaseState {
 
         this.firstPassIndex = ko.observable(definition.firstPassIndex);
         this.priorityDealIndex = ko.observable(definition.priorityDealIndex);
-        this.certLimit = ko.observable(definition.certLimit || (this.players().length === 3 ? 14 : this.players().length === 4 ? 12 : 11))
+        this.certLimit = ko.observable(
+            definition.certLimit || (this.players().length === 3 ? 14 : this.players().length === 4 ? 12 : 11));
 
         this.publicCompanies = definition.publicCompanies || [];
         this.publicCompaniesById = _.keyBy(this.publicCompanies, 'id');
         this.privateCompanies = definition.privateCompanies || [];
         this.privateCompaniesById = _.keyBy(this.privateCompanies, 'id');
-        this.passCards = _.map(_.range(1,this.players().length + 1), (val) => {
-           return new PassCard( {
-               id: 'pass' + val,
-               name: 'Pass ' + val
+        this.passCards = _.map(_.range(1, this.players().length + 1), (val) => {
+            return new PassCard({
+                                    id: 'pass' + val,
+                                    name: 'Pass ' + val
                                 });
         });
         this.passCardsById = _.keyBy(this.passCards, 'id');
-        this.undraftedPrivateIds = ko.observableArray(definition.undraftedPrivateIds || _(this.privateCompanies).map('id').concat(_.map(this.passCards, 'id')).shuffle().value());
+        this.undraftedPrivateIds = ko.observableArray(
+            definition.undraftedPrivateIds || _(this.privateCompanies).map('id').concat(
+                _.map(this.passCards, 'id')).shuffle().value());
 
         this.stockBoard = definition.stockBoard;
         this.bank = definition.bank;
@@ -66,7 +70,7 @@ class State extends BaseState {
         this.turnHistory = definition.turnHistory || new TurnHistory();
         this.actionHistory = definition.actionHistory || new ActionHistory();
 
-        this.roundName = ko.computed(()=> {
+        this.roundName = ko.computed(() => {
             const currentRound = this.roundHistory.getCurrentRound();
             if (!currentRound) {
                 return '';
@@ -74,6 +78,8 @@ class State extends BaseState {
 
             return currentRound.getRoundName();
         });
+
+        this.tilesByCellId = definition.tilesByCellId || {};
     }
 
     trySerialize() {

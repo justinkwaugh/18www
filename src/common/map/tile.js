@@ -1,5 +1,6 @@
 import ko from 'knockout';
 import _ from 'lodash';
+import Serializable from 'common/model/serializable';
 
 const EdgeCoordinates = [
  '31,-53.69',
@@ -26,24 +27,39 @@ const CurveControls = {
     '3-5': '-11.82,20.47 -11.82,-20.47'
 };
 
-class Tile {
+class Tile extends Serializable {
     constructor(data) {
+        super();
         data = data || {};
 
         this.id = data.id;
-        this.colorId = data.colorId;
 
-        this.position = ko.observable(data.position || 0);
+        // Static data from tile definition
+        this.colorId = data.colorId;
         this.connections = data.connections || [];
         this.upgrades = data.upgrades || [];
-
         this.revenue = data.revenue || 0;
         this.maxTokens = data.maxTokens || 0;
+
+        // Dynamic data
+        this.position = ko.observable(data.position || 0);
         this.tokens = ko.observableArray(data.tokens || []);
+    }
+
+    addToken(companyId) {
+        this.tokens.push(companyId);
+    }
+
+    removeToken(companyId) {
+        this.tokens.remove(companyId);
     }
 
     hasConnection(start,end) {
         return _.find(this.connections, connection => connection[0] === start && connection[1] === end);
+    }
+
+    getConnectionsToPoint(point) {
+        return _.filter(this.connections, connection => connection[0] === point || connection[1] === point);
     }
 
     getDrawingInstructions(connection) {
@@ -55,5 +71,7 @@ class Tile {
         }
     }
 }
+
+Tile.registerClass();
 
 export default Tile;
