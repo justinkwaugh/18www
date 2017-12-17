@@ -67,6 +67,15 @@ class StockBoard extends Serializable {
         this.stockBoard()[company.priceIndex()].companies.push(company.id);
     }
 
+    getOperatingOrder(reverse) {
+        let entries = _.values(this.stockBoard());
+        if(!reverse) {
+            entries = _.reverse(entries);
+        }
+
+        return _(entries).map(entry => entry.companies()).flatten().compact().value();
+    }
+
 }
 
 StockBoard.registerClass();

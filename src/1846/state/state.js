@@ -80,6 +80,7 @@ class State extends BaseState {
         });
 
         this.tilesByCellId = definition.tilesByCellId || {};
+        this.operatingOrder = definition.operatingOrder || [];
     }
 
     trySerialize() {

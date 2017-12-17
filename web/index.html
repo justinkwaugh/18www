@@ -13,13 +13,13 @@
         </span>
         <div class="navbar-nav mr-auto">
             <h2 class="mb-0 text-dark font-weight-light"
-                data-bind="text: $data.game().state().roundName() + ' - ' + $data.game().state().currentPlayer().user().username"></h2>
+                data-bind="text: $data.game().state().roundName() + ' - ' + ($data.game().state().currentCompanyId() ? $data.game().state().publicCompaniesById[$root.game().state().currentCompanyId()].nickname + ' - ' : '') + $data.game().state().currentPlayer().user().username"></h2>
         </div>
         <div><button type="button" class="btn btn-danger mr-2" data-bind="click: function() { $data.game().state().trySerialize();}">SERIALIZE</button></div>
         <div data-bind="template: { name: 'views/players', data: $data.game().state()}"></div>
     </nav>
     <div class="border border-right-0 border-left-0 pl-3 pr-3 bg-light"
-         data-bind="true || visible:!$data.game().privateDraft()">
+         data-bind="visible:!$data.game().privateDraft()">
         <ul class="nav">
             <li class="nav-item"
                 data-bind="css: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP ? 'bg-active-nav' : ''">
@@ -48,13 +48,13 @@
             </li>
         </ul>
     </div>
-    <div data-bind="template: { name: 'views/turnsummary', data: $data.game().state() }, visible:true || !$data.game().privateDraft()"></div>
-    <div data-bind="template: { name: 'views/stockRound', data: $data.game().stockRound() }, visible:true || !$data.game().privateDraft()"></div>
+    <div data-bind="template: { name: 'views/turnsummary', data: $data.game().state() }, visible:!$data.game().privateDraft()"></div>
+    <div data-bind="template: { name: 'views/stockRound', data: $data.game().stockRound() }, visible:!$data.game().privateDraft()"></div>
 </header>
 <div class="container-fluid px-0">
 
-    <div data-bind="template: { name: 'views/privateDraft', data: $data.game().privateDraft() }, visible:false && $data.game().privateDraft()"></div>
-    <div data-bind="visible:true || !$data.game().privateDraft()">
+    <div data-bind="template: { name: 'views/privateDraft', data: $data.game().privateDraft() }, visible:$data.game().privateDraft()"></div>
+    <div data-bind="visible:!$data.game().privateDraft()">
 
         <div class="row" data-bind="visible: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP || $data.game().activePanel() === $data.game().ActivePanelIDs.MAP">
             <div class="col">

@@ -32,7 +32,7 @@ class PrivateDraft {
 
     commit() {
         new DraftPrivate({
-                             playerId: this.state.currentPlayerId(),
+                             playerId: CurrentGame().state().currentPlayerId(),
                              privateId: this.selectedPrivateId(),
                              offeredIds: _.map(this.privatesOffered(), 'id')
                          }).execute(CurrentGame().state());
@@ -41,7 +41,7 @@ class PrivateDraft {
 
     pass() {
         new DraftPass({
-                          playerId: this.state.currentPlayerId(),
+                          playerId: CurrentGame().state().currentPlayerId(),
                           privateId: this.selectedPrivateId()
                       }).execute(CurrentGame().state());
         Sequence.finishTurn();

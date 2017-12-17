@@ -71,7 +71,7 @@ class Cell {
     }
 
     getAllowedTilePositions(oldTile, newTileId) {
-        console.log('Checking tile positions for ' + this.id);
+        // console.log('Checking tile positions for ' + this.id);
 
         const visited = {};
         const validEdges = {};
@@ -158,7 +158,7 @@ class Cell {
         if (!neighbor) {
             return false;
         }
-        console.log('Checking neighbor ' + neighbor.id + ' for connection to station');
+        // console.log('Checking neighbor ' + neighbor.id + ' for connection to station');
         const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
         const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(neighborConnectionIndex);
         if (neighborConnectionPoint < 0) {
@@ -182,7 +182,7 @@ class Cell {
     }
 
     depthFirstSearchForStation(companyId, connectionStart, visited) {
-        console.log('In Cell ' + this.id + ' starting at connection ' + connectionStart);
+        // console.log('In Cell ' + this.id + ' starting at connection ' + connectionStart);
         const connections = _.map(this.tile().getConnectionsToPoint(connectionStart), connection => {
             return connection[0] === connectionStart ? connection : [connection[1], connection[0]];
         });
@@ -206,7 +206,7 @@ class Cell {
             // start a new search from the connection point
             if (connection[1] > 6) {
                 // city on this tile
-                console.log('Starting new search on this tile from local city ' + connection[1]);
+                // console.log('Starting new search on this tile from local city ' + connection[1]);
                 found = this.depthFirstSearchForStation(companyId, connection[1], visited);
             }
             else {
@@ -219,14 +219,14 @@ class Cell {
 
                 const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(neighborConnectionIndex);
                 if (neighborConnectionPoint >= 0) {
-                    console.log(
-                        'Starting new search on neighbor ' + neighbor.id + ' from point ' + neighborConnectionPoint);
+                    // console.log(
+                    //     'Starting new search on neighbor ' + neighbor.id + ' from point ' + neighborConnectionPoint);
                     found = neighbor.depthFirstSearchForStation(companyId,
                                                                 neighborConnectionPoint,
                                                                 visited);
                 }
                 else {
-                    console.log('Neighbor not connected');
+                    // console.log('Neighbor not connected');
                 }
             }
 
