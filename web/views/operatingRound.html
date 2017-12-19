@@ -1,0 +1,67 @@
+<!-- ko if: $data -->
+<div class="alert alert-dark rounded-0 border-top-0 border-right-0 border-left-0 m-0 p-3 d-flex flex-column justify-content-center"
+     role="alert">
+
+
+    <h5 class="text-center font-weight-light alert-heading">Choose an action</h5>
+
+    <div class="d-flex justify-content-center">
+        <button class="btn btn-sm mr-2"
+                data-bind="click: function() { $data.selectAction($data.Actions.BUY_PRIVATES); }, css: $data.selectedAction() === $data.Actions.BUY_PRIVATES ? 'active btn-secondary' : 'btn-light' ">
+            Buy Privates
+        </button>
+        <!-- ko if: $data.canIssue() -->
+        <button class="btn btn-sm mr-2"
+                data-bind="click: function() { $data.selectAction($data.Actions.ISSUE_SHARES); }, css: $data.selectedAction() === $data.Actions.ISSUE_SHARES ? 'active btn-secondary' : 'btn-light' ">
+            Issue Shares
+        </button>
+        <!-- /ko -->
+        <!-- ko if: $data.canRedeem() -->
+        <button class="btn btn-sm mr-2"
+                data-bind="click: function() { $data.selectAction($data.Actions.REDEEM_SHARES); },css: $data.selectedAction() === $data.Actions.REDEEM_SHARES ? 'active btn-secondary' : 'btn-light' ">
+            Redeem Shares
+        </button>
+        <!-- /ko -->
+        <button class="btn btn-sm mr-2"
+                data-bind="click: function() { $data.selectAction($data.Actions.LAY_TRACK); },css: $data.selectedAction() === $data.Actions.LAY_TRACK ? 'active btn-secondary' : 'btn-light' ">
+            Lay Track / Token
+        </button>
+        <button class="btn btn-sm "
+                data-bind="click: function() { $data.selectAction($data.Actions.RUN_ROUTES); },css: $data.selectedAction() === $data.Actions.RUN_ROUTES ? 'active btn-secondary' : 'btn-light' ">
+            Run Routes
+        </button>
+    </div>
+    <!-- ko if: $data.selectedAction() === $data.Actions.ISSUE_SHARES -->
+    <h5 class="mt-3 text-center font-weight-light alert-heading">How many shares?</h5>
+    <div class="d-flex justify-content-center">
+        <div class="btn-group" role="group">
+            <!-- ko foreach: _.range(1, $data.getNumCanIssue()+1) -->
+            <button type="button" class="btn"
+                    data-bind="text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.numberOfShares($index()+1); }"></button>
+            <!-- /ko -->
+        </div>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: $data.selectedAction() === $data.Actions.REDEEM_SHARES -->
+    <h5 class="mt-3 text-center font-weight-light alert-heading">How many shares?</h5>
+    <div class="d-flex justify-content-center">
+        <div class="btn-group" role="group">
+            <!-- ko foreach: _.range(1, $data.getNumCanRedeem()+1) -->
+            <button type="button" class="btn"
+                    data-bind="text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.numberOfShares($index()+1); }"></button>
+            <!-- /ko -->
+        </div>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: $data.selectedAction() === $data.Actions.LAY_TRACK -->
+    <h4 class="mt-3 text-center font-weight-light alert-heading">Use the map below to lay track or add a token</h4>
+    <!-- /ko -->
+    <!-- ko if: $data.action() -->
+    <div class="d-flex justify-content-center mt-3">
+        <button type="button" class="btn btn-sm btn-primary mr-1" data-bind="click: $data.commit, text: $data.action().confirmation($root.game().state())"></button>
+        <button type="button" class="btn btn-sm btn-danger mr-1" data-bind="click: $data.reset">Cancel</button>
+    </div>
+    <!-- /ko -->
+
+</div>
+<!-- /ko -->

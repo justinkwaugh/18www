@@ -1,6 +1,7 @@
 import RoundIDs from '1846/config/roundIds';
 import PrivateDraft from '1846/game/privateDraft';
 import StockRound from '1846/game/stockRound';
+import OperatingRound from '1846/game/operatingRound';
 import CurrentGame from 'common/game/currentGame';
 
 import _ from 'lodash';

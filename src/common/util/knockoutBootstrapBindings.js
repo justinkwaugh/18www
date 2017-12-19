@@ -28,6 +28,7 @@ function setupPopover(element, args, bindingContext) {
 
     const target = args.closestDiv ? $(element).parent().closest('div') : $(element);
     const targetElement = target[0];
+    let enabledSubscription = null;
 
     const popover = target.popover(args);
 
@@ -51,7 +52,6 @@ function setupPopover(element, args, bindingContext) {
         currentPopover = targetElement;
     });
 
-
     popover.on('hidden.bs.popover', function (e) {
         if (args.onHide) {
             const pop = popover.data('bs.popover').tip;
@@ -62,9 +62,25 @@ function setupPopover(element, args, bindingContext) {
             currentPopover = null;
         }
     });
-
+//TODO: store this somewhere we can get at it from the element
+    if(args.enabledObservable) {
+        if(!args.enabledObservable()) {
+            $(targetElement).popover('disable');
+        }
+        enabledSubscription = args.enabledObservable.subscribe((value)=> {
+            if(value) {
+                $(targetElement).popover('enable');
+            }
+            else {
+                $(targetElement).popover('disable');
+            }
+        });
+    }
 
     ko.utils.domNodeDisposal.addDisposeCallback(element, function () {
+        if(enabledSubscription) {
+            enabledSubscription.dispose();
+        }
         cleanupPopover(targetElement, true);
     });
 

@@ -14,8 +14,10 @@
         data-bind="popover: $data.popoverParams, css: 'pos' + ($data.visibleTile().position ? $data.visibleTile().position() : 0)" >
 
         <g pointer-events="all" transform="translate(-63,-72)" data-bind="template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.visibleTile().id), data: $data.visibleTile() }"></g>
+        <!-- ko if: $data.canEdit()-->
         <polygon pointer-events="all"  class="tile-border" fill="none" stroke="none" stroke-width="0"
                  points="0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796"></polygon>
+        <!-- /ko -->
     </g>
     </svg>
     <!-- /ko -->

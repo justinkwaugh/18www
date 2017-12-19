@@ -46,6 +46,14 @@ class Company extends Serializable {
         new StartCompany({playerId, companyId: this.id, startIndex: 7}).execute(state);
     }
 
+    addCerts(certs) {
+        this.certificates.push.apply(this.certificates, certs);
+    }
+
+    removeCerts(count) {
+        return this.certificates.splice(0,count);
+    }
+
 }
 
 Company.registerClass();

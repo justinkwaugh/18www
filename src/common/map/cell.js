@@ -5,6 +5,7 @@ import MapTileIDs from '1846/config/mapTileIds';
 import CurrentGame from 'common/game/currentGame';
 import PhaseIDs from '1846/config/phaseIds';
 import TileColorIDs from '1846/config/tileColorIds';
+import RoundIDs from '1846/config/roundIds';
 
 class Cell {
     constructor(data) {
@@ -34,11 +35,21 @@ class Cell {
             if (!CurrentGame()) {
                 return false;
             }
+
+            if (!CurrentGame().state().isOperatingRound()) {
+                return false;
+            }
+
+            if (!CurrentGame().operatingRound().canLayTrackOrToken()) {
+                return false;
+            }
+
             return this.upgradeTiles().length > 0;
         });
 
         this.popoverParams = ko.computed(() => {
             return {
+                enabledObservable: this.canEdit,
                 placement: 'right',
                 trigger: this.preview() ? 'manual' : 'click',
                 closestDiv: true,
@@ -168,7 +179,7 @@ class Cell {
         const hasLocalStation = this.hasStationForCompany(currentOperatingCompany);
 
         return hasLocalStation || neighbor.depthFirstSearchForStation(currentOperatingCompany, neighborConnectionPoint,
-                                                   visited);
+                                                                      visited);
     }
 
     hasStationForCompany(companyId) {

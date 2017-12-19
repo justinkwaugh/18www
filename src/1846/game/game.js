@@ -14,6 +14,7 @@ import Serializable from 'common/model/serializable';
 import Events from 'common/util/events';
 import Store from 'store';
 import Sequence from '1846/game/sequence';
+import OperatingRound from '1846/game/operatingRound';
 
 
 const ActivePanelIDs = {
@@ -32,6 +33,7 @@ class Game extends BaseGame {
         this.grid = ko.observable(new Grid(definition.state));
         this.privateDraft = ko.observable();
         this.stockRound = ko.observable();
+        this.operatingRound = ko.observable(new OperatingRound());
 
         this.activePanel = ko.observable(ActivePanelIDs.MAP);
         this.ActivePanelIDs = ActivePanelIDs;
@@ -115,12 +117,12 @@ class Game extends BaseGame {
     }
 
     saveLocalState() {
-        Store.set('6',this.state().serialize());
+        Store.set('7',this.state().serialize());
     }
 
     restoreLocalState() {
         let restored = false;
-        const storedState = Store.get('6');
+        const storedState = Store.get('7');
         if(storedState) {
             const state = Serializable.deserialize(storedState);
             this.updateState(state);

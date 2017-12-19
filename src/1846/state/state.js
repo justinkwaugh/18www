@@ -41,7 +41,6 @@ class State extends BaseState {
         this.currentRoundNumber = ko.observable(definition.currentRoundNumber || 0);
         this.currentCompanyId = ko.observable(definition.currentCompanyId);
 
-
         this.firstPassIndex = ko.observable(definition.firstPassIndex);
         this.priorityDealIndex = ko.observable(definition.priorityDealIndex);
         this.certLimit = ko.observable(
@@ -51,6 +50,12 @@ class State extends BaseState {
         this.publicCompaniesById = _.keyBy(this.publicCompanies, 'id');
         this.privateCompanies = definition.privateCompanies || [];
         this.privateCompaniesById = _.keyBy(this.privateCompanies, 'id');
+        this.allCompaniesById = _(this.publicCompanies).concat(this.privateCompanies).keyBy('id').value();
+
+        this.currentCompany = ko.computed(()=> {
+            return this.currentCompanyId() ? this.getCompany(this.currentCompanyId()) : null;
+        });
+
         this.passCards = _.map(_.range(1, this.players().length + 1), (val) => {
             return new PassCard({
                                     id: 'pass' + val,
@@ -81,6 +86,14 @@ class State extends BaseState {
 
         this.tilesByCellId = definition.tilesByCellId || {};
         this.operatingOrder = definition.operatingOrder || [];
+    }
+
+    isOperatingRound() {
+        return this.currentRoundId() === RoundIds.OPERATING_ROUND_1 || this.currentRoundId() === RoundIds.OPERATING_ROUND_2;
+    }
+
+    getCompany(companyId) {
+        return this.allCompaniesById[companyId];
     }
 
     trySerialize() {

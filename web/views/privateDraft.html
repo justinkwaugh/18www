@@ -1,14 +1,13 @@
 <!-- ko if: $data -->
-<div class="row d-flex justify-content-center text-center align-items-center" style="height:50vh;">
+<div class="row d-flex justify-content-center text-center align-items-center bg-light" style="height:50vh;">
     <div class="col">
         <div class="col-lg-8 col-xl-7 mx-auto">
             <div class=""><h2 class="font-weight-light p-2">Choose a private company</h2>
                 <!-- ko foreach: $data.privatesOffered() -->
-                <div class="card d-inline-flex mb-2"
-                     style="overflow:hidden;cursor:pointer;min-width:250px;min-height:100px;"
-                     data-bind="click: $parent.selectPrivate.bind($parent, $data.id), css: {'border-warning': $parent.selectedPrivateId() === $data.id }">
-                    <h5 class="card-title font-weight-light bg-erie" data-bind="text: $data.name"></h5>
-                    <div data-bind="text: _.startsWith($data.id, 'pass') ? '' : $data.cost"></div>
+                <div class="card d-inline-flex mb-3 mr-3"
+                     style="overflow:hidden;background-size:contain;cursor:pointer;min-width:250px;min-height:160px;box-shadow:3px 3px 10px #ccc"
+                     data-bind="style: { backgroundImage: 'url(/images/privates/' + $data.id + '.png)', borderWidth: $parent.selectedPrivateId() === $data.id ? '3px' : '1px' },click: $parent.selectPrivate.bind($parent, $data.id), css: {'border-warning': $parent.selectedPrivateId() === $data.id }">
+                    <!--<div data-bind="text: _.startsWith($data.id, 'pass') ? '' : $data.cost"></div>-->
                 </div>
                 <!-- /ko -->
                 <div>
@@ -20,7 +19,7 @@
                     </div>
                     <div class="d-inline-flex">
                         <button type="button" class="btn btn-primary"
-                                data-bind="click: commit, visible: selectedPrivateId()">Choose
+                                data-bind="click: commit, visible: selectedPrivateId()">Confirm
                         </button>
                     </div>
                 </div>

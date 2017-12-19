@@ -50,6 +50,7 @@
     </div>
     <div data-bind="template: { name: 'views/turnsummary', data: $data.game().state() }, visible:!$data.game().privateDraft()"></div>
     <div data-bind="template: { name: 'views/stockRound', data: $data.game().stockRound() }, visible:!$data.game().privateDraft()"></div>
+    <div data-bind="template: { name: 'views/operatingRound', data: $data.game().operatingRound() }, visible:$data.game().operatingRound()"></div>
 </header>
 <div class="container-fluid px-0">
 
