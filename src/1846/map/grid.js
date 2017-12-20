@@ -56,6 +56,32 @@ const SpecialTiles = {
     [OffBoardIds.CUMBERLAND]: MapTileIDs.CUMBERLAND
 };
 
+const TerrainTypes = {
+    BRIDGE: 'bridge',
+    TUNNEL: 'tunnel'
+};
+
+const ConnectionCosts = {
+    B16: {1: {cost: 40, type: TerrainTypes.TUNNEL}},
+    SARNIA: {'B16|4': {cost: 40, type: TerrainTypes.TUNNEL}},
+    C15: {1: {cost: 60, type: TerrainTypes.TUNNEL}},
+    WINDSOR: {'C15|4': {cost: 60, type: TerrainTypes.TUNNEL}},
+    E19: {2: {cost: 40, type: TerrainTypes.TUNNEL}},
+    F20: {5: {cost: 40, type: TerrainTypes.TUNNEL}},
+    F18: {2: {cost: 40, type: TerrainTypes.BRIDGE}},
+    G17: {1: {cost: 20, type: TerrainTypes.BRIDGE}},
+    G19: {
+        5: {cost: 40, type: TerrainTypes.BRIDGE},
+        4: {cost: 20, type: TerrainTypes.BRIDGE},
+        1: {cost: 20, type: TerrainTypes.TUNNEL}
+    },
+    PITTSBURGH: {'G19|4': {cost: 20, type: TerrainTypes.TUNNEL}},
+    H12: {3: {cost: 40, type: TerrainTypes.BRIDGE}},
+    I11: {0: {cost: 40, type: TerrainTypes.BRIDGE}},
+    J4: {1: {cost: 40, type: TerrainTypes.BRIDGE}},
+    J6: {4: {cost: 40, type: TerrainTypes.BRIDGE}}
+};
+
 const OffBoardDefinitions = {
     [OffBoardIds.CHICAGO_CONNECTIONS]: {
         id: OffBoardIds.CHICAGO_CONNECTIONS,
@@ -71,7 +97,7 @@ const OffBoardDefinitions = {
         left: 0,
         row: 0,
         col: 0,
-        connections: ['H2|0','I3|1']
+        connections: ['H2|0', 'I3|1']
     },
     [OffBoardIds.HOLLAND]: {
         id: OffBoardIds.HOLLAND,
@@ -87,7 +113,8 @@ const OffBoardDefinitions = {
         left: 0,
         row: 0,
         col: 0,
-        connections: ['B16|4']
+        connections: ['B16|4'],
+        connectionCosts: ConnectionCosts[OffBoardIds.SARNIA]
     },
     [OffBoardIds.WINDSOR]: {
         id: OffBoardIds.WINDSOR,
@@ -95,7 +122,8 @@ const OffBoardDefinitions = {
         left: 0,
         row: 0,
         col: 0,
-        connections: ['C15|4']
+        connections: ['C15|4'],
+        connectionCosts: ConnectionCosts[OffBoardIds.WINDSOR]
     },
     [OffBoardIds.LOUISVILLE]: {
         id: OffBoardIds.LOUISVILLE,
@@ -103,7 +131,7 @@ const OffBoardDefinitions = {
         left: 0,
         row: 0,
         col: 0,
-        connections: ['I9|5','I11|0']
+        connections: ['I9|5', 'I11|0']
     },
     [OffBoardIds.CHARLESTON]: {
         id: OffBoardIds.CHARLESTON,
@@ -119,7 +147,7 @@ const OffBoardDefinitions = {
         left: 0,
         row: 0,
         col: 0,
-        connections: ['D20|3','D20|4']
+        connections: ['D20|3', 'D20|4']
     },
     [OffBoardIds.BINGHAMTON]: {
         id: OffBoardIds.BINGHAMTON,
@@ -135,7 +163,8 @@ const OffBoardDefinitions = {
         left: 0,
         row: 0,
         col: 0,
-        connections: ['F20|4','F20|5', 'G19|4']
+        connections: ['F20|4', 'F20|5', 'G19|4'],
+        connectionCosts: ConnectionCosts[OffBoardIds.WINDSOR]
     },
     [OffBoardIds.CUMBERLAND]: {
         id: OffBoardIds.CUMBERLAND,
@@ -200,7 +229,8 @@ class Grid extends BaseGrid {
                                 row,
                                 col,
                                 top: 1 + ((row - 1) * 107),
-                                left: 2 + (((row - 1) % 2) ? 62 : 0) + col * 124
+                                left: 2 + (((row - 1) % 2) ? 62 : 0) + col * 124,
+                                connectionCosts: ConnectionCosts[id]
                             });
         }).compact().value();
 

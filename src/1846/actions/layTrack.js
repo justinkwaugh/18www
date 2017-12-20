@@ -38,7 +38,7 @@ class LayTrack extends Action {
         const company = state.getCompany(this.companyId);
         const newTile = state.tilesByCellId[this.cellId];
         const oldTile = state.manifest.getTile(this.oldTileId, this.tileId);
-        oldTile.position(this.position);
+        oldTile.position(this.oldTilePosition);
         oldTile.tokens(_.clone(newTile.tokens()));
         state.tilesByCellId[this.cellId] = oldTile;
 

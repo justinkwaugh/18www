@@ -46,10 +46,11 @@ class Cell {
         this.tile = ko.observable(data.tile);
         this.preview = ko.observable(data.preview);
         this.allowedPreviewPositionData = ko.observable({});
-        this.allowedPreviewPositions = ko.computed(()=> {
-            return _.keys(this.allowedPreviewPositionData());
+        this.allowedPreviewPositions = ko.computed(() => {
+            return _.map(this.allowedPreviewPositionData(), 'position');
         });
         this.neighbors = data.neighbors || [null, null, null, null, null, null];
+        this.connectionCosts = data.connectionCosts || {};
         this.visibleTile = ko.computed(() => {
             return this.preview() || this.tile();
         });
@@ -111,6 +112,7 @@ class Cell {
                 return false;
             }
 
+
             return _.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
         });
 
@@ -149,22 +151,26 @@ class Cell {
 
         return _(_.range(0, 6)).map((pos) => {
             // Check against existing tile connections
-            if (oldTile) {
-                const oldConnectionsIds = this.getConnectionIdsForPosition(oldTile.id, oldTile.position());
-                const newConnectionsIds = this.getConnectionIdsForPosition(newTileId, pos);
 
-                if (_.difference(oldConnectionsIds, newConnectionsIds).length > 0) {
-                    return null;
-                }
+            const oldConnectionsIds = this.getConnectionIdsForPosition(oldTile.id, oldTile.position());
+            const newConnectionsIds = this.getConnectionIdsForPosition(newTileId, pos);
+
+            if (_.difference(oldConnectionsIds, newConnectionsIds).length > 0) {
+                return null;
             }
 
+            const addedConnectionIds = _.difference(newConnectionsIds, oldConnectionsIds);
+            const addedConnections = _(this.getConnectionsForPosition(newTileId, pos)).filter(
+                connection => _.indexOf(addedConnectionIds, this.getConnectionId(connection) >= 0)).value();
+
+
             // Check off map
-            const connectionOffMap = _.find(TileManifest.getTileDefinition(newTileId).connections, (connection) => {
-                if (connection[0] < 7 && !this.neighbors[(connection[0] + pos) % 6]) {
+            const connectionOffMap = _.find(addedConnections, (connection) => {
+                if (connection[0] < 7 && !this.neighbors[connection[0]]) {
                     return true;
                 }
 
-                if (connection[1] < 7 && !this.neighbors[(connection[1] + pos) % 6]) {
+                if (connection[1] < 7 && !this.neighbors[connection[1]]) {
                     return true;
                 }
             });
@@ -177,12 +183,10 @@ class Cell {
             // Check base tiles w/ connections
             if (oldTile && _.indexOf(_.values(MapTileIDs), oldTile.id) >= 0) {
                 // console.log('Checking tile ' + this.id + ' for valid neighbor connections for new tile id ' + newTileId + ' and position ' + pos);
-                const baseTileConnection = _.find(TileManifest.getTileDefinition(newTileId).connections,
+                const baseTileConnection = _.find(addedConnections,
                                                   (connection) => {
-                                                      const connectionStart = Cell.getOffsetIndexForPosition(
-                                                          connection[0], pos);
-                                                      const connectionEnd = Cell.getOffsetIndexForPosition(
-                                                          connection[1], pos);
+                                                      const connectionStart = connection[0];
+                                                      const connectionEnd = connection[1];
                                                       // console.log('connection: [' + connection[0] + ','+connection[1] + '] => [' + connectionStart + ',' + connectionEnd+']');
 
                                                       if (validEdges[connectionStart] || validEdges[connectionEnd]) {
@@ -221,7 +225,7 @@ class Cell {
 
             //TODO : connection costs
             const totalCost = baseCost + 0;
-            if(company.cash() < totalCost) {
+            if (company.cash() < totalCost) {
                 return null;
             }
 
@@ -321,11 +325,17 @@ class Cell {
 
     }
 
-    getConnectionIdsForPosition(tileId, position) {
+    getConnectionsForPosition(tileId, position) {
         return _.map(TileManifest.getTileDefinition(tileId).connections, (connection) => {
             const newStart = Cell.getOffsetIndexForPosition(connection[0], position);
             const newEnd = Cell.getOffsetIndexForPosition(connection[1], position);
-            return Math.min(newStart, newEnd) + '-' + Math.max(newStart, newEnd);
+            return [newStart, newEnd];
+        });
+    }
+
+    getConnectionIdsForPosition(tileId, position) {
+        return _.map(this.getConnectionsForPosition(tileId, position), (connection) => {
+            this.getConnectionId(connection);
         });
     }
 
@@ -384,7 +394,13 @@ class Cell {
     }
 
     commitPreview() {
-        // do action
+        // const previewTile = this.preview();
+        // const existingTile = this.tile() || {};
+        // const newTile = CurrentGame().state().manifest.getTile(previewTile.id, existingTile.id);
+        // newTile.position(previewTile.position());
+        // newTile.tokens(_.clone(existingTile.tokens()));
+        // this.tile(newTile);
+        // this.cancelPreview();
         const previewTile = this.preview();
         const layTrack = new LayTrack({
                                           companyId: CurrentGame().state().currentCompanyId(),
