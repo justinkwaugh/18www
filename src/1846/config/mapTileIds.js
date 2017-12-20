@@ -22,6 +22,7 @@ const MapTileIDs = {
     BINGHAMTON: 'binghamton',
     PITTSBURGH: 'pittsburgh',
     CUMBERLAND: 'cumberland',
+    PORT_HURON: 'porthuron',
     C7: 'c7',
     A15: 'a15'
 };

@@ -7,6 +7,7 @@ import Tile from 'common/map/tile';
 import TileManifest from '1846/config/tileManifest';
 import Events from 'common/util/events';
 import CurrentGame from 'common/game/currentGame';
+import TerrainTypes from '1846/config/terrainTypes';
 
 const RowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
 
@@ -26,7 +27,7 @@ const OffBoardIds = {
 
 const SpecialTiles = {
     A15: MapTileIDs.A15,
-    B16: MapTileIDs.CITY,
+    B16: MapTileIDs.PORT_HURON,
     C7: MapTileIDs.C7,
     C9: MapTileIDs.CITY,
     C15: MapTileIDs.DETROIT,
@@ -56,10 +57,7 @@ const SpecialTiles = {
     [OffBoardIds.CUMBERLAND]: MapTileIDs.CUMBERLAND
 };
 
-const TerrainTypes = {
-    BRIDGE: 'bridge',
-    TUNNEL: 'tunnel'
-};
+
 
 const ConnectionCosts = {
     B16: {1: {cost: 40, type: TerrainTypes.TUNNEL}},

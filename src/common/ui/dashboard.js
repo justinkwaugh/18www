@@ -9,7 +9,7 @@ import _ from 'lodash';
 class Dashboard {
     constructor() {
 
-        const users = _.map(_.range(5), (index) => {
+        const users = _.map(_.range(3), (index) => {
             return new User({id: index, username: 'Player ' + (index + 1)});
         });
 

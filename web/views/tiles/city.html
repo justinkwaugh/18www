@@ -10,11 +10,11 @@
               d="" data-bind="attr: { d: $parent.getDrawingInstructions($data) }"></path>
         <!-- /ko -->
 
-        <!-- ko if: $data.maxTokens === 1 -->
+        <!-- ko if: $data.cities[7].maxTokens === 1 -->
         <circle cx="0" cy="0" r="26" fill="white" stroke-width="1"></circle>
         <!-- /ko -->
 
-        <!-- ko if: $data.maxTokens === 2 -->
+        <!-- ko if: $data.cities[7].maxTokens === 2 -->
         <g fill-opacity="1" visibility="inherit" transform="rotate(30 0 0)">
             <circle cx="-23" cy="0" r="26" fill="white" stroke-width="1"></circle>
             <circle cx="23" cy="0" r="26" fill="white" stroke-width="1"></circle>
@@ -27,11 +27,11 @@
               d="" data-bind="attr: { d: $parent.getDrawingInstructions($data,true) }"></path>
         <!-- /ko -->
 
-        <!-- ko if: $data.maxTokens === 1 -->
+        <!-- ko if: $data.cities[7].maxTokens === 1 -->
         <circle cx="0" cy="0" r="23" fill="white" stroke="black" stroke-width="1"></circle>
         <!-- /ko -->
 
-        <!-- ko if: $data.maxTokens === 2 -->
+        <!-- ko if: $data.cities[7].maxTokens === 2 -->
         <g fill-opacity="1" visibility="inherit" transform="rotate(30 0 0)">
             <rect x="-23" y="-23" width="46" height="46" fill="white" stroke="black" stroke-width="1"></rect>
             <circle cx="-23" cy="0" r="23" fill="white" stroke="black" stroke-width="1"></circle>
@@ -39,9 +39,9 @@
         </g>
         <!-- /ko -->
 
-        <!-- ko if: $data.tokens && $data.tokens().length > 0 -->
+        <!-- ko if: $data.cities[7].maxTokens === 1 && $data.getTokensForCity(7).length > 0 -->
         <image xlink:href="" x="-19" y="-19" height="40px" width="40px"
-               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.tokens()[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
         <!-- /ko -->
 
         <!-- ko if: $data.revenue -->

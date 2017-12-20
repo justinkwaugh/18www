@@ -63,25 +63,48 @@ const TileDefinitions = {
         id: MapTileIDs.CHICAGO,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
-        connections: [[0, 7], [1, 8], [2, 9], [3, 10]]
+        connections: [[0, 7], [1, 8], [2, 9], [3, 10]],
+        cities: {
+            7: { id: 7, maxTokens: 1 },
+            8: { id: 8, maxTokens: 1 },
+            9: { id: 9, maxTokens: 1 },
+            10: { id: 10, maxTokens: 1 },
+        }
     },
     [MapTileIDs.CENTRALIA]: {
         id: MapTileIDs.CENTRALIA,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
-        connections: [[0, 7], [1, 7], [3, 7], [4, 7]]
+        connections: [[0, 7], [1, 7], [3, 7], [4, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 2 }
+        }
     },
+    [MapTileIDs.PORT_HURON]: {
+        id: MapTileIDs.PORT_HURON,
+        colorId: TileColorIDs.INVISIBLE,
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
+    },
+
     [MapTileIDs.DETROIT]: {
         id: MapTileIDs.DETROIT,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 40,
-        connections: [[0, 7], [4, 7]]
+        connections: [[0, 7], [4, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 2 }
+        }
     },
     [MapTileIDs.ERIE]: {
         id: MapTileIDs.ERIE,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
-        connections: [[0, 7], [3, 7], [4, 7]]
+        connections: [[0, 7], [3, 7], [4, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 2 }
+        }
     },
     [MapTileIDs.CLEVELAND]: {
         id: MapTileIDs.CLEVELAND,
@@ -89,31 +112,46 @@ const TileDefinitions = {
     },
     [MapTileIDs.CINCINNATI]: {
         id: MapTileIDs.CINCINNATI,
-        colorId: TileColorIDs.INVISIBLE
+        colorId: TileColorIDs.INVISIBLE,
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
     },
     [MapTileIDs.WHEELING]: {
         id: MapTileIDs.WHEELING,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
-        connections: [[2, 7]]
+        connections: [[2, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
     },
     [MapTileIDs.SALAMANCA]: {
         id: MapTileIDs.SALAMANCA,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
-        connections: [[1, 7], [4, 7], [5, 7]]
+        connections: [[1, 7], [4, 7], [5, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
     },
     [MapTileIDs.HOMEWOOD]: {
         id: MapTileIDs.HOMEWOOD,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
-        connections: [[1, 7], [2, 7], [4, 7], [5, 7]]
+        connections: [[1, 7], [2, 7], [4, 7], [5, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
     },
     [MapTileIDs.HUNTINGTON]: {
         id: MapTileIDs.HUNTINGTON,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 20,
-        connections: [[0, 7], [1, 7], [5, 7]]
+        connections: [[0, 7], [1, 7], [5, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
     },
     [MapTileIDs.C7]: {
         id: MapTileIDs.C7,
@@ -131,7 +169,10 @@ const TileDefinitions = {
         revenue: 20,
         template: 'city',
         maxTokens: 1,
-        connections: [[2, 7], [3, 7]]
+        connections: [[2, 7], [3, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
     },
     6: {
         id: 6,
@@ -139,7 +180,10 @@ const TileDefinitions = {
         revenue: 20,
         template: 'city',
         maxTokens: 1,
-        connections: [[1, 7], [3, 7]]
+        connections: [[1, 7], [3, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
     },
     7: {
         id: 7,
@@ -162,7 +206,10 @@ const TileDefinitions = {
         revenue: 30,
         template: 'city',
         maxTokens: 2,
-        connections: [[0, 7], [2, 7], [3, 7], [5, 7]]
+        connections: [[0, 7], [2, 7], [3, 7], [5, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 2 }
+        }
     },
     15: {
         id: 15,
@@ -170,7 +217,10 @@ const TileDefinitions = {
         revenue: 30,
         template: 'city',
         maxTokens: 2,
-        connections: [[0, 7], [1, 7], [2, 7], [3, 7]]
+        connections: [[0, 7], [1, 7], [2, 7], [3, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 2 }
+        }
     },
     16: {
         id: 16,
@@ -303,7 +353,10 @@ const TileDefinitions = {
         revenue: 50,
         template: 'city',
         maxTokens: 2,
-        connections: [[0, 7], [1, 7], [3, 7], [4, 7], [5, 7]]
+        connections: [[0, 7], [1, 7], [3, 7], [4, 7], [5, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 2 }
+        }
     },
     57: {
         id: 57,
@@ -311,7 +364,10 @@ const TileDefinitions = {
         revenue: 20,
         template: 'city',
         maxTokens: 1,
-        connections: [[0, 7], [3, 7]]
+        connections: [[0, 7], [3, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
     },
     70: {
         id: 70,
@@ -325,6 +381,9 @@ const TileDefinitions = {
         template: 'z',
         maxTokens: 3,
         connections: [[0, 7], [1, 7], [3, 7], [4, 7], [5, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 3 }
+        }
     },
     291: {
         id: 291,
@@ -332,7 +391,10 @@ const TileDefinitions = {
         revenue: 40,
         template: 'z',
         maxTokens: 1,
-        connections: [[2, 7], [3, 7]]
+        connections: [[2, 7], [3, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
     },
     292: {
         id: 292,
@@ -340,7 +402,10 @@ const TileDefinitions = {
         revenue: 40,
         template: 'z',
         maxTokens: 1,
-        connections: [[1, 7], [3, 7]]
+        connections: [[1, 7], [3, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
     },
     293: {
         id: 293,
@@ -348,7 +413,10 @@ const TileDefinitions = {
         revenue: 40,
         template: 'z',
         maxTokens: 1,
-        connections: [[0, 7], [3, 7]]
+        connections: [[0, 7], [3, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
     },
     294: {
         id: 294,
@@ -356,7 +424,10 @@ const TileDefinitions = {
         revenue: 50,
         template: 'z',
         maxTokens: 2,
-        connections: [[0, 7], [2, 7], [3, 7], [5, 7]]
+        connections: [[0, 7], [2, 7], [3, 7], [5, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 2 }
+        }
     },
     295: {
         id: 295,
@@ -364,7 +435,10 @@ const TileDefinitions = {
         revenue: 50,
         template: 'z',
         maxTokens: 2,
-        connections: [[0, 7], [1, 7], [2, 7], [3, 7]]
+        connections: [[0, 7], [1, 7], [2, 7], [3, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 2 }
+        }
     },
     296: {
         id: 296,
@@ -372,7 +446,10 @@ const TileDefinitions = {
         revenue: 50,
         template: 'z',
         maxTokens: 2,
-        connections: [[0, 7], [2, 7], [3, 7], [4, 7]]
+        connections: [[0, 7], [2, 7], [3, 7], [4, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 2 }
+        }
     },
     297: {
         id: 297,
@@ -380,21 +457,36 @@ const TileDefinitions = {
         revenue: 60,
         template: 'z',
         maxTokens: 3,
-        connections: [[0, 7], [1, 7], [3, 7], [4, 7], [5, 7]]
+        connections: [[0, 7], [1, 7], [3, 7], [4, 7], [5, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 3 }
+        }
     },
     298: {
         id: 298,
         colorId: TileColorIDs.GREEN,
         revenue: 40,
         template: 'chicago',
-        connections: [[0, 7], [1, 7], [0, 8], [2, 8], [0, 9], [3, 9], [0, 10], [4, 10]]
+        connections: [[0, 7], [1, 7], [0, 8], [2, 8], [0, 9], [3, 9], [0, 10], [4, 10]],
+        cities: {
+            7: { id: 7, maxTokens: 1 },
+            8: { id: 8, maxTokens: 1 },
+            9: { id: 9, maxTokens: 1 },
+            10: { id: 10, maxTokens: 1 },
+        }
     },
     299: {
         id: 299,
         colorId: TileColorIDs.BROWN,
         revenue: 70,
         template: 'chicago',
-        connections: [[0, 7], [1, 7], [0, 8], [2, 8], [0, 9], [3, 9], [0, 10], [4, 10]]
+        connections: [[0, 7], [1, 7], [0, 8], [2, 8], [0, 9], [3, 9], [0, 10], [4, 10]],
+        cities: {
+            7: { id: 7, maxTokens: 1 },
+            8: { id: 8, maxTokens: 1 },
+            9: { id: 9, maxTokens: 1 },
+            10: { id: 10, maxTokens: 1 },
+        }
     },
     300: {
         id: 300,
@@ -402,6 +494,12 @@ const TileDefinitions = {
         revenue: 90,
         template: 'chicago',
         connections: [[0, 7], [1, 7], [0, 8], [2, 8], [0, 9], [3, 9], [0, 10], [4, 10]],
+        cities: {
+            7: { id: 7, maxTokens: 1 },
+            8: { id: 8, maxTokens: 1 },
+            9: { id: 9, maxTokens: 1 },
+            10: { id: 10, maxTokens: 1 },
+        }
     },
     611: {
         id: 611,
@@ -409,7 +507,10 @@ const TileDefinitions = {
         revenue: 40,
         template: 'city',
         maxTokens: 2,
-        connections: [[0, 7], [1, 7], [3, 7], [4, 7], [5, 7]]
+        connections: [[0, 7], [1, 7], [3, 7], [4, 7], [5, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 2 }
+        }
     },
     619: {
         id: 619,
@@ -417,7 +518,10 @@ const TileDefinitions = {
         revenue: 30,
         template: 'city',
         maxTokens: 2,
-        connections: [[0, 7], [2, 7], [3, 7], [4, 7]]
+        connections: [[0, 7], [2, 7], [3, 7], [4, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 2 }
+        }
     }
 };
 
@@ -460,6 +564,10 @@ const Manifest = {
         count: -1
     },
     [MapTileIDs.CITY]: {
+        upgrades: [5, 6, 57],
+        count: -1
+    },
+    [MapTileIDs.PORT_HURON]: {
         upgrades: [5, 6, 57],
         count: -1
     },

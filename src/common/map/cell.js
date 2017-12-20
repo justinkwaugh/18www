@@ -9,6 +9,7 @@ import RoundIDs from '1846/config/roundIds';
 import CompanyIDs from '1846/config/companyIds';
 import LayTrack from '1846/actions/layTrack';
 import Events from 'common/util/events';
+import TerrainTypes from '1846/config/terrainTypes';
 
 const CellCosts = {
     C15: 40,
@@ -32,6 +33,9 @@ const FreeTunnelBlasterCells = {
     H16: true,
     H14: true
 };
+
+// Could optimize by storing known connections to stations on tiles, but would always need to refresh those if a
+// token is placed, as it can break a connection by blocking
 
 class Cell {
     constructor(data) {
@@ -61,6 +65,23 @@ class Cell {
 
             return this.getUpgradeTiles();
         });
+
+        this.canToken = ko.computed(() => {
+            if (!CurrentGame()) {
+                return false;
+            }
+
+            if (!CurrentGame().state().isOperatingRound()) {
+                return false;
+            }
+
+            if (this.tile().getOpenCities(CurrentGame().state().currentCompanyId()).length === 0) {
+                return false;
+            }
+
+            return true;
+        });
+
         this.canEdit = ko.computed(() => {
             if (!CurrentGame()) {
                 return false;
@@ -74,7 +95,7 @@ class Cell {
                 return false;
             }
 
-            return this.upgradeTiles().length > 0;
+            return this.upgradeTiles().length > 0 || this.canToken();
         });
 
         this.popoverParams = ko.computed(() => {
@@ -237,13 +258,22 @@ class Cell {
     }
 
     getConnectionCost(edgeIndex) {
-        if(edgeIndex > 6) {
+        if (edgeIndex > 6) {
             return 0;
         }
+
         const costData = this.connectionCosts[edgeIndex];
-        if(!costData) {
+        if (!costData) {
             return 0;
         }
+
+        if (costData.type === TerrainTypes.TUNNEL) {
+            const company = CurrentGame().state().currentCompany();
+            if (company.hasPrivate(CompanyIDs.TUNNEL_BLASTING_COMPANY)) {
+                return 0;
+            }
+        }
+
         const neighbor = this.neighbors[edgeIndex];
         const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
         const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
@@ -263,20 +293,10 @@ class Cell {
             return false;
         }
         const currentOperatingCompany = CurrentGame().state().currentCompanyId();
-        const hasLocalStation = this.hasStationForCompany(currentOperatingCompany);
+        const hasLocalStation = this.tile().hasTokenForCompany(currentOperatingCompany);
 
         return hasLocalStation || neighbor.depthFirstSearchForStation(currentOperatingCompany, neighborConnectionPoint,
                                                                       visited);
-    }
-
-    hasStationForCompany(companyId) {
-        if (!companyId) {
-            return false;
-        }
-
-        if (_.find(this.tile().tokens(), token => token === companyId)) {
-            return true;
-        }
     }
 
     depthFirstSearchForStation(companyId, connectionStart, visited) {
@@ -292,18 +312,19 @@ class Cell {
             if (visited[connectionId]) {
                 return;
             }
-            // check for city / token
-            if (_.find(this.tile().tokens(), token => token === companyId)) {
-                console.log('Found token!');
-                found = true;
-                return false;
-            }
 
             visited[connectionId] = true;
 
             // start a new search from the connection point
             if (connection[1] > 6) {
-                // city on this tile
+
+                // check for city / token
+                if (this.tile().hasTokenForCompany(companyId, connection[1])) {
+                    console.log('Found token!');
+                    found = true;
+                    return false;
+                }
+
                 // console.log('Starting new search on this tile from local city ' + connection[1]);
                 found = this.depthFirstSearchForStation(companyId, connection[1], visited);
             }
@@ -347,7 +368,7 @@ class Cell {
 
     getConnectionIdsForPosition(tileId, position) {
         return _.map(this.getConnectionsForPosition(tileId, position), (connection) => {
-            this.getConnectionId(connection);
+            return this.getConnectionId(connection);
         });
     }
 
