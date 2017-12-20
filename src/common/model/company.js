@@ -54,6 +54,10 @@ class Company extends Serializable {
         return this.certificates.splice(0,count);
     }
 
+    hasPrivate(id) {
+        return _.indexOf(this.privates(), id) > 0;
+    }
+
 }
 
 Company.registerClass();

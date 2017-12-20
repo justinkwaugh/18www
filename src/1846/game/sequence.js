@@ -54,10 +54,10 @@ class Sequence {
                 state.roundHistory.commitRound();
                 state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_1, 1);
                 state.priorityDealIndex(state.firstPassIndex());
-                state.currentRoundId(RoundIDs.OPERATING_ROUND_1);
-                game.stockRound(null);
                 state.operatingOrder = state.stockBoard.getOperatingOrder(true);
                 state.currentCompanyId(state.operatingOrder[0]);
+                state.currentRoundId(RoundIDs.OPERATING_ROUND_1);
+                game.stockRound(null);
                 const presidentPlayerId = state.publicCompaniesById[state.currentCompanyId()].president();
                 state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
             }
@@ -72,8 +72,8 @@ class Sequence {
             else {
                 const currentRoundNumber = state.roundHistory.currentRound().number;
                 state.roundHistory.commitRound();
-                state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_2, currentRoundNumber);
                 state.currentCompanyId(state.operatingOrder[0]);
+                state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_2, currentRoundNumber);
                 const presidentPlayerId = state.publicCompaniesById[state.currentCompanyId()].president();
                 state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
             }

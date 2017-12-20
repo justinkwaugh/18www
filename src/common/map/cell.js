@@ -6,6 +6,32 @@ import CurrentGame from 'common/game/currentGame';
 import PhaseIDs from '1846/config/phaseIds';
 import TileColorIDs from '1846/config/tileColorIds';
 import RoundIDs from '1846/config/roundIds';
+import CompanyIDs from '1846/config/companyIds';
+import LayTrack from '1846/actions/layTrack';
+import Events from 'common/util/events';
+
+const CellCosts = {
+    C15: 40,
+    F18: 40,
+    G17: 40,
+    H16: 40,
+    H14: 60
+};
+
+const FreeICCells = {
+    E5: true,
+    F6: true,
+    G5: true,
+    H6: true,
+    J4: true
+};
+
+const FreeTunnelBlasterCells = {
+    F18: true,
+    G17: true,
+    H16: true,
+    H14: true
+};
 
 class Cell {
     constructor(data) {
@@ -19,7 +45,10 @@ class Cell {
         this.col = data.col || 0;
         this.tile = ko.observable(data.tile);
         this.preview = ko.observable(data.preview);
-        this.allowedPreviewPositions = ko.observableArray([]);
+        this.allowedPreviewPositionData = ko.observable({});
+        this.allowedPreviewPositions = ko.computed(()=> {
+            return _.keys(this.allowedPreviewPositionData());
+        });
         this.neighbors = data.neighbors || [null, null, null, null, null, null];
         this.visibleTile = ko.computed(() => {
             return this.preview() || this.tile();
@@ -40,7 +69,7 @@ class Cell {
                 return false;
             }
 
-            if (!CurrentGame().operatingRound().canLayTrackOrToken()) {
+            if (CurrentGame().operatingRound().selectedAction() !== CurrentGame().operatingRound().Actions.LAY_TRACK) {
                 return false;
             }
 
@@ -55,6 +84,10 @@ class Cell {
                 closestDiv: true,
                 content: '<div data-bind="template: { name: \'views/cellPopover\' }"></div>'
             };
+        });
+
+        Events.on('tileUpdated.' + this.id, () => {
+            this.tile(CurrentGame().state().tilesByCellId[this.id]);
         });
     }
 
@@ -72,29 +105,56 @@ class Cell {
                 return false;
             }
 
-            if (phase === PhaseIDs.PHASE_III && _.indexOf([TileColorIDs.BROWN, TileColorIDs.GREEN, TileColorIDs.YELLOW],
-                                                          upgrade.tile.colorId) < 0) {
+            if (phase === PhaseIDs.PHASE_III && _.indexOf(
+                    [TileColorIDs.BROWN, TileColorIDs.GREEN, TileColorIDs.YELLOW],
+                    upgrade.tile.colorId) < 0) {
                 return false;
             }
 
-            return this.getAllowedTilePositions(this.tile(), upgrade.tile.id).length > 0;
+            return _.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
         });
+
     }
 
-    getAllowedTilePositions(oldTile, newTileId) {
+    getBaseCost() {
+        const company = CurrentGame().state().currentCompany();
+        let cost = CellCosts[this.id] || 20;
+
+        if (company.id === CompanyIDs.ILLINOIS_CENTRAL && FreeICCells[this.id]) {
+            cost = 0;
+        }
+
+        if (company.hasPrivate(CompanyIDs.TUNNEL_BLASTING_COMPANY) && FreeTunnelBlasterCells[this.id]) {
+            cost = 0;
+        }
+
+        return cost;
+    }
+
+    getAllowedTilePositionData(oldTile, newTileId) {
         // console.log('Checking tile positions for ' + this.id);
 
         const visited = {};
         const validEdges = {};
+        const state = CurrentGame().state();
+        if (!state.isOperatingRound()) {
+            return [];
+        }
 
-        return _(_.range(0, 6)).filter((pos) => {
+        const company = state.currentCompany();
+        const baseCost = this.getBaseCost();
+        if (company.cash() < baseCost) {
+            return [];
+        }
+
+        return _(_.range(0, 6)).map((pos) => {
             // Check against existing tile connections
             if (oldTile) {
                 const oldConnectionsIds = this.getConnectionIdsForPosition(oldTile.id, oldTile.position());
                 const newConnectionsIds = this.getConnectionIdsForPosition(newTileId, pos);
 
                 if (_.difference(oldConnectionsIds, newConnectionsIds).length > 0) {
-                    return false;
+                    return null;
                 }
             }
 
@@ -110,7 +170,7 @@ class Cell {
             });
 
             if (connectionOffMap) {
-                return false;
+                return null;
             }
 
 
@@ -153,14 +213,25 @@ class Cell {
                                                   });
 
                 if (!baseTileConnection) {
-                    return false;
+                    return null;
                 }
+
+
             }
 
-            return true;
+            //TODO : connection costs
+            const totalCost = baseCost + 0;
+            if(company.cash() < totalCost) {
+                return null;
+            }
+
+            return {
+                position: pos,
+                cost: totalCost
+            };
 
             // check connection costs (including base cost if necessary)
-        }).value();
+        }).compact().keyBy('position').value();
     }
 
     checkNeighborConnection(edgeIndex, visited) {
@@ -171,7 +242,7 @@ class Cell {
         }
         // console.log('Checking neighbor ' + neighbor.id + ' for connection to station');
         const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
-        const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(neighborConnectionIndex);
+        const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
         if (neighborConnectionPoint < 0) {
             return false;
         }
@@ -227,8 +298,7 @@ class Cell {
                     return;
                 }
                 const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(connectionEnd);
-
-                const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(neighborConnectionIndex);
+                const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
                 if (neighborConnectionPoint >= 0) {
                     // console.log(
                     //     'Starting new search on neighbor ' + neighbor.id + ' from point ' + neighborConnectionPoint);
@@ -275,7 +345,7 @@ class Cell {
         });
     }
 
-    getConnectionPointAtIndex(index) {
+    getConnectionPointAtIndex(neighbor, index) {
         const connection = this.hasConnectionAtIndex(index);
         if (connection) {
             return Cell.getOffsetIndexForPosition(connection[0],
@@ -295,31 +365,36 @@ class Cell {
 
     previewTile(tileId) {
         const tile = TileManifest.createTile(tileId);
-        this.allowedPreviewPositions(this.getAllowedTilePositions(this.tile(), tileId));
+        this.allowedPreviewPositionData(this.getAllowedTilePositionData(this.tile(), tileId));
         tile.position(this.allowedPreviewPositions()[0]);
         this.preview(tile);
     }
 
     nextPreviewPosition() {
         const currentPosition = this.preview().position();
-        const currentIndex = _.indexOf(this.allowedPreviewPositions(), currentPosition);
-        const nextIndex = (currentIndex + 1) % this.allowedPreviewPositions().length;
-        this.preview().position(this.allowedPreviewPositions()[nextIndex]);
+        const allowedPositions = this.allowedPreviewPositions();
+        const currentIndex = _.indexOf(allowedPositions, currentPosition);
+        const nextIndex = (currentIndex + 1) % allowedPositions.length;
+        this.preview().position(allowedPositions[nextIndex]);
     }
 
     cancelPreview() {
         this.preview(null);
-        this.allowedPreviewPositions([]);
+        this.allowedPreviewPositionData({});
     }
 
     commitPreview() {
         // do action
         const previewTile = this.preview();
-        const existingTile = this.tile() || {};
-        const newTile = CurrentGame().state().manifest.getTile(previewTile.id, existingTile.id);
-        newTile.position(previewTile.position());
-        newTile.tokens(_.clone(existingTile.tokens()));
-        this.tile(newTile);
+        const layTrack = new LayTrack({
+                                          companyId: CurrentGame().state().currentCompanyId(),
+                                          cellId: this.id,
+                                          tileId: previewTile.id,
+                                          position: previewTile.position(),
+                                          cost: this.allowedPreviewPositionData()[previewTile.position()].cost
+                                      });
+        layTrack.execute(CurrentGame().state());
+        CurrentGame().saveLocalState();
         this.cancelPreview();
     }
 }

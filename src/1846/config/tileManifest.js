@@ -7,61 +7,123 @@ import ko from 'knockout';
 import ValidationError from 'common/game/validationError';
 
 const TileDefinitions = {
+    [MapTileIDs.CHICAGO_CONNECTIONS]: {
+        id: MapTileIDs.CHICAGO_CONNECTIONS,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.ST_LOUIS]: {
+        id: MapTileIDs.ST_LOUIS,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.HOLLAND]: {
+        id: MapTileIDs.HOLLAND,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.SARNIA]: {
+        id: MapTileIDs.SARNIA,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.WINDSOR]: {
+        id: MapTileIDs.WINDSOR,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.LOUISVILLE]: {
+        id: MapTileIDs.LOUISVILLE,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.CHARLESTON]: {
+        id: MapTileIDs.CHARLESTON,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.BUFFALO]: {
+        id: MapTileIDs.BUFFALO,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.BINGHAMTON]: {
+        id: MapTileIDs.BINGHAMTON,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.PITTSBURGH]: {
+        id: MapTileIDs.PITTSBURGH,
+        colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.CUMBERLAND]: {
+        id: MapTileIDs.CUMBERLAND,
+        colorId: TileColorIDs.INVISIBLE
+    },
     [MapTileIDs.BLANK]: {
-        id:MapTileIDs.BLANK,
+        id: MapTileIDs.BLANK,
         colorId: TileColorIDs.INVISIBLE
     },
     [MapTileIDs.CITY]: {
-        id:MapTileIDs.CITY,
+        id: MapTileIDs.CITY,
         colorId: TileColorIDs.INVISIBLE
     },
     [MapTileIDs.CHICAGO]: {
-        id:MapTileIDs.CHICAGO,
+        id: MapTileIDs.CHICAGO,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
         connections: [[0, 7], [1, 8], [2, 9], [3, 10]]
     },
     [MapTileIDs.CENTRALIA]: {
-        id:MapTileIDs.CENTRALIA,
+        id: MapTileIDs.CENTRALIA,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
-        connections: [[0,7],[1,7],[3,7],[4,7]]
+        connections: [[0, 7], [1, 7], [3, 7], [4, 7]]
     },
     [MapTileIDs.DETROIT]: {
-        id:MapTileIDs.DETROIT,
+        id: MapTileIDs.DETROIT,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 40,
-        connections: [[0,7],[4,7]]
+        connections: [[0, 7], [4, 7]]
     },
     [MapTileIDs.ERIE]: {
-        id:MapTileIDs.ERIE,
+        id: MapTileIDs.ERIE,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
-        connections: [[0,7],[3,7],[4,7]]
+        connections: [[0, 7], [3, 7], [4, 7]]
     },
     [MapTileIDs.CLEVELAND]: {
-        id:MapTileIDs.CLEVELAND,
+        id: MapTileIDs.CLEVELAND,
         colorId: TileColorIDs.INVISIBLE
     },
     [MapTileIDs.CINCINNATI]: {
-        id:MapTileIDs.CINCINNATI,
+        id: MapTileIDs.CINCINNATI,
         colorId: TileColorIDs.INVISIBLE
     },
     [MapTileIDs.WHEELING]: {
-        id:MapTileIDs.WHEELING,
+        id: MapTileIDs.WHEELING,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
-        connections: [[2,7]]
+        connections: [[2, 7]]
+    },
+    [MapTileIDs.SALAMANCA]: {
+        id: MapTileIDs.SALAMANCA,
+        colorId: TileColorIDs.INVISIBLE,
+        revenue: 10,
+        connections: [[1, 7], [4, 7], [5, 7]]
+    },
+    [MapTileIDs.HOMEWOOD]: {
+        id: MapTileIDs.HOMEWOOD,
+        colorId: TileColorIDs.INVISIBLE,
+        revenue: 10,
+        connections: [[1, 7], [2, 7], [4, 7], [5, 7]]
+    },
+    [MapTileIDs.HUNTINGTON]: {
+        id: MapTileIDs.HUNTINGTON,
+        colorId: TileColorIDs.INVISIBLE,
+        revenue: 20,
+        connections: [[0, 7], [1, 7], [5, 7]]
     },
     [MapTileIDs.C7]: {
-        id:MapTileIDs.C7,
+        id: MapTileIDs.C7,
         colorId: TileColorIDs.INVISIBLE,
-        connections: [[2,3]]
+        connections: [[2, 3]]
     },
     [MapTileIDs.A15]: {
-        id:MapTileIDs.A15,
+        id: MapTileIDs.A15,
         colorId: TileColorIDs.INVISIBLE,
-        connections: [[2,3]]
+        connections: [[2, 3]]
     },
     5: {
         id: 5,
@@ -118,122 +180,122 @@ const TileDefinitions = {
     17: {
         id: 17,
         colorId: TileColorIDs.GREEN,
-        connections: [[0,4], [1, 3]]
+        connections: [[0, 4], [1, 3]]
     },
     18: {
         id: 18,
         colorId: TileColorIDs.GREEN,
-        connections: [[0,3],[1,2]]
+        connections: [[0, 3], [1, 2]]
     },
     19: {
         id: 19,
         colorId: TileColorIDs.GREEN,
-        connections: [[0,3],[2,4]]
+        connections: [[0, 3], [2, 4]]
     },
     20: {
         id: 20,
         colorId: TileColorIDs.GREEN,
-        connections: [[0,3],[2,5]]
+        connections: [[0, 3], [2, 5]]
     },
     21: {
         id: 21,
         colorId: TileColorIDs.GREEN,
-        connections: [[0,1],[3,5]]
+        connections: [[0, 1], [3, 5]]
     },
     22: {
         id: 22,
         colorId: TileColorIDs.GREEN,
-        connections: [[0,5],[1,3]]
+        connections: [[0, 5], [1, 3]]
     },
     23: {
         id: 23,
         colorId: TileColorIDs.GREEN,
-        connections: [[0,3],[1,3]]
+        connections: [[0, 3], [1, 3]]
     },
     24: {
         id: 24,
         colorId: TileColorIDs.GREEN,
-        connections: [[0,3],[3,5]]
+        connections: [[0, 3], [3, 5]]
     },
     25: {
         id: 25,
         colorId: TileColorIDs.GREEN,
-        connections: [[1,3],[3,5]]
+        connections: [[1, 3], [3, 5]]
     },
     26: {
         id: 26,
         colorId: TileColorIDs.GREEN,
-        connections: [[0,3],[2,3]]
+        connections: [[0, 3], [2, 3]]
     },
     27: {
         id: 27,
         colorId: TileColorIDs.GREEN,
-        connections: [[0,3], [0,1]]
+        connections: [[0, 3], [0, 1]]
     },
     28: {
         id: 28,
         colorId: TileColorIDs.GREEN,
-        connections: [[1,3],[2,3]]
+        connections: [[1, 3], [2, 3]]
     },
     29: {
         id: 29,
         colorId: TileColorIDs.GREEN,
-        connections: [[1,3],[1,2]]
+        connections: [[1, 3], [1, 2]]
     },
     30: {
         id: 30,
         colorId: TileColorIDs.GREEN,
-        connections: [[1,3],[3,4]]
+        connections: [[1, 3], [3, 4]]
     },
     31: {
         id: 31,
         colorId: TileColorIDs.GREEN,
-        connections: [[2,3],[3,5]]
+        connections: [[2, 3], [3, 5]]
     },
     39: {
         id: 39,
         colorId: TileColorIDs.BROWN,
-        connections: [[2,4],[2,3],[3,4]]
+        connections: [[2, 4], [2, 3], [3, 4]]
     },
     40: {
         id: 40,
         colorId: TileColorIDs.BROWN,
-        connections: [[1,5],[1,3],[3,5]]
+        connections: [[1, 5], [1, 3], [3, 5]]
     },
     41: {
         id: 41,
         colorId: TileColorIDs.BROWN,
-        connections: [[0,3], [0,1], [1,3]]
+        connections: [[0, 3], [0, 1], [1, 3]]
     },
     42: {
         id: 42,
         colorId: TileColorIDs.BROWN,
-        connections: [[0,5],[0,3],[3,5]]
+        connections: [[0, 5], [0, 3], [3, 5]]
     },
     43: {
         id: 43,
         colorId: TileColorIDs.BROWN,
-        connections: [[0,2],[0,3],[1,3],[1,2]]
+        connections: [[0, 2], [0, 3], [1, 3], [1, 2]]
     },
     44: {
         id: 44,
         colorId: TileColorIDs.BROWN,
-        connections: [[0,3],[0,5],[2,3],[2,5]]
+        connections: [[0, 3], [0, 5], [2, 3], [2, 5]]
     },
     45: {
         id: 45,
         colorId: TileColorIDs.BROWN,
-        connections: [[0,3],[0,4],[2,3],[2,4]]
+        connections: [[0, 3], [0, 4], [2, 3], [2, 4]]
     },
     46: {
         id: 46,
         colorId: TileColorIDs.BROWN,
-        connections: [[0,2],[0,3],[2,4],[3,4]]
+        connections: [[0, 2], [0, 3], [2, 4], [3, 4]]
     },
     47: {
         id: 47,
         colorId: TileColorIDs.BROWN,
-        connections: [[0,2],[0,3],[2,5],[3,5]]
+        connections: [[0, 2], [0, 3], [2, 5], [3, 5]]
     },
     51: {
         id: 51,
@@ -254,7 +316,7 @@ const TileDefinitions = {
     70: {
         id: 70,
         colorId: TileColorIDs.BROWN,
-        connections: [[0,1],[0,2],[1,3],[2,3]]
+        connections: [[0, 1], [0, 2], [1, 3], [2, 3]]
     },
     290: {
         id: 290,
@@ -360,47 +422,89 @@ const TileDefinitions = {
 };
 
 const Manifest = {
+    [MapTileIDs.CHICAGO_CONNECTIONS]: {
+        upgrades: []
+    },
+    [MapTileIDs.ST_LOUIS]: {
+        upgrades: []
+    },
+    [MapTileIDs.HOLLAND]: {
+        upgrades: []
+    },
+    [MapTileIDs.SARNIA]: {
+        upgrades: []
+    },
+    [MapTileIDs.WINDSOR]: {
+        upgrades: []
+    },
+    [MapTileIDs.LOUISVILLE]: {
+        upgrades: []
+    },
+    [MapTileIDs.CHARLESTON]: {
+        upgrades: []
+    },
+    [MapTileIDs.BUFFALO]: {
+        upgrades: []
+    },
+    [MapTileIDs.BINGHAMTON]: {
+        upgrades: []
+    },
+    [MapTileIDs.PITTSBURGH]: {
+        upgrades: []
+    },
+    [MapTileIDs.CUMBERLAND]: {
+        upgrades: []
+    },
     [MapTileIDs.BLANK]: {
-        upgrades: [7,8,9],
+        upgrades: [7, 8, 9],
         count: -1
     },
     [MapTileIDs.CITY]: {
-        upgrades: [5,6,57],
+        upgrades: [5, 6, 57],
         count: -1
     },
     [MapTileIDs.CHICAGO]: {
-        upgrades:[298],
+        upgrades: [298],
         count: -1
     },
     [MapTileIDs.CENTRALIA]: {
-        upgrades:[]
+        upgrades: []
     },
     [MapTileIDs.DETROIT]: {
-        upgrades:[294,295],
+        upgrades: [294, 295],
         count: -1
     },
     [MapTileIDs.ERIE]: {
-        upgrades:[14],
+        upgrades: [14],
         count: -1
     },
     [MapTileIDs.CLEVELAND]: {
-        upgrades:[291,292,293],
+        upgrades: [291, 292, 293],
         count: -1
     },
     [MapTileIDs.CINCINNATI]: {
-        upgrades:[291,292,293],
+        upgrades: [291, 292, 293],
         count: -1
     },
     [MapTileIDs.WHEELING]: {
-        upgrades:[5,6,57],
+        upgrades: [5, 6, 57],
         count: -1
     },
+    [MapTileIDs.SALAMANCA]: {
+        upgrades: []
+    },
+    [MapTileIDs.HOMEWOOD]: {
+        upgrades: []
+    },
+    [MapTileIDs.HUNTINGTON]: {
+        upgrades: []
+    },
     [MapTileIDs.C7]: {
-        upgrades:[],
+        upgrades: [],
         count: -1
     },
     [MapTileIDs.A15]: {
-        upgrades:[],
+        upgrades: [],
         count: -1
     },
     5: {
@@ -412,7 +516,7 @@ const Manifest = {
         count: 4
     },
     7: {
-        upgrades: [18,21,22,26,27,28,29,30,31],
+        upgrades: [18, 21, 22, 26, 27, 28, 29, 30, 31],
         count: -1
     },
     8: {
@@ -445,11 +549,11 @@ const Manifest = {
     },
     19: {
 
-        upgrades: [45,46],
+        upgrades: [45, 46],
         count: 2
     },
     20: {
-        upgrades: [44,47],
+        upgrades: [44, 47],
         count: 2
     },
     21: {
@@ -461,7 +565,7 @@ const Manifest = {
         count: 1
     },
     23: {
-        upgrades: [41,43,45,47],
+        upgrades: [41, 43, 45, 47],
         count: 4
     },
     24: {
@@ -477,11 +581,11 @@ const Manifest = {
         count: 1
     },
     27: {
-        upgrades: [41,44,46],
+        upgrades: [41, 44, 46],
         count: 1
     },
     28: {
-        upgrades: [39,43,46,70],
+        upgrades: [39, 43, 46, 70],
         count: 1
     },
     29: {
@@ -593,10 +697,10 @@ class TileManifest extends Serializable {
 
         this.availableTiles = ko.observable(definition.availableTiles || _.mapValues(Manifest, 'count'));
         this.displayTilesById = ko.computed(() => {
-            return _(TileDefinitions).map(definition=> TileManifest.createTile(definition.id)).keyBy('id').value();
+            return _(TileDefinitions).map(definition => TileManifest.createTile(definition.id)).keyBy('id').value();
         });
-        this.tilesByColor = ko.computed(()=> {
-            return _(TileDefinitions).map((tileDefinition)=> {
+        this.tilesByColor = ko.computed(() => {
+            return _(TileDefinitions).map((tileDefinition) => {
                 return {
                     id: tileDefinition.id,
                     tile: this.displayTilesById()[tileDefinition.id],
@@ -607,7 +711,7 @@ class TileManifest extends Serializable {
             }).groupBy('colorId').value();
         });
         this.activeTileSet = ko.observable(TileColorIDs.YELLOW);
-        this.activeTiles = ko.computed(()=> {
+        this.activeTiles = ko.computed(() => {
             return this.tilesByColor()[this.activeTileSet()] || [];
         });
 
@@ -640,18 +744,18 @@ class TileManifest extends Serializable {
 
     getTile(id, replacedId) {
         const numAvailable = this.availableTiles()[id];
-        if(numAvailable === 0) {
-            throw new ValidationError('No '+ id + ' tile available');
+        if (numAvailable === 0) {
+            throw new ValidationError('No ' + id + ' tile available');
         }
-        else if(numAvailable > 0) {
-            this.availableTiles()[id] = numAvailable-1;
+        else if (numAvailable > 0) {
+            this.availableTiles()[id] = numAvailable - 1;
         }
 
-        if(replacedId) {
+        if (replacedId) {
             const numReplacedAvailable = this.availableTiles()[replacedId];
             const isUnlimited = numReplacedAvailable === -1;
-            if(!isUnlimited) {
-                this.availableTiles()[replacedId] = numReplacedAvailable+1;
+            if (!isUnlimited) {
+                this.availableTiles()[replacedId] = numReplacedAvailable + 1;
             }
         }
 

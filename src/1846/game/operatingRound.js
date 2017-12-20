@@ -51,7 +51,6 @@ class OperatingRound {
         });
 
         this.canLayTrackOrToken = ko.computed(()=> {
-            return true;
             if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
                 return false;
             }
@@ -131,7 +130,7 @@ class OperatingRound {
         }
 
         return _.find(turn.getActions(), action => {
-            return action.getTypeName() === 'LayTrack' || action.getTypeName() === 'UpgradeTrack' || action.getTypeName() === 'AddToken';
+            return action.getTypeName() === 'LayTrack' || action.getTypeName() === 'AddToken';
         });
     }
 
