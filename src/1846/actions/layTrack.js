@@ -49,7 +49,7 @@ class LayTrack extends Action {
 
     summary(state) {
         const company = state.getCompany(this.companyId);
-        return company.nickname + ' laid a #' + this.tileId + ' tile at ' + this.cellId;
+        return company.nickname + ' laid a #' + this.tileId + ' tile at ' + this.cellId + ' for $' + this.cost;
     }
 }
 

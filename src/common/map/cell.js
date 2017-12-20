@@ -151,7 +151,6 @@ class Cell {
 
         return _(_.range(0, 6)).map((pos) => {
             // Check against existing tile connections
-
             const oldConnectionsIds = this.getConnectionIdsForPosition(oldTile.id, oldTile.position());
             const newConnectionsIds = this.getConnectionIdsForPosition(newTileId, pos);
 
@@ -179,52 +178,51 @@ class Cell {
                 return null;
             }
 
+            // Check for connection costs
+            const connectionCosts = _(addedConnections).flatten().uniq().sumBy(edgeIndex => {
+                return this.getConnectionCost(edgeIndex);
+            });
 
-            // Check base tiles w/ connections
-            if (oldTile && _.indexOf(_.values(MapTileIDs), oldTile.id) >= 0) {
-                // console.log('Checking tile ' + this.id + ' for valid neighbor connections for new tile id ' + newTileId + ' and position ' + pos);
-                const baseTileConnection = _.find(addedConnections,
-                                                  (connection) => {
-                                                      const connectionStart = connection[0];
-                                                      const connectionEnd = connection[1];
-                                                      // console.log('connection: [' + connection[0] + ','+connection[1] + '] => [' + connectionStart + ',' + connectionEnd+']');
+            // Check new track for a path back to station
+            // console.log('Checking tile ' + this.id + ' for valid neighbor connections for new tile id ' + newTileId + ' and position ' + pos);
+            const connectionToStation = _.find(addedConnections,
+                                               (connection) => {
+                                                   const connectionStart = connection[0];
+                                                   const connectionEnd = connection[1];
+                                                   // console.log('connection: [' + connection[0] + ','+connection[1] + '] => [' + connectionStart + ',' + connectionEnd+']');
 
-                                                      if (validEdges[connectionStart] || validEdges[connectionEnd]) {
-                                                          return true;
-                                                      }
+                                                   if (validEdges[connectionStart] || validEdges[connectionEnd]) {
+                                                       return true;
+                                                   }
 
-                                                      if (connectionStart < 7) {
-                                                          const isEdgeValid = this.checkNeighborConnection(
-                                                              connectionStart, visited);
-                                                          if (isEdgeValid) {
-                                                              console.log('Connection found');
-                                                              validEdges[connectionStart] = true;
-                                                              return true;
-                                                          }
+                                                   if (connectionStart < 7) {
+                                                       const isEdgeValid = this.checkNeighborConnection(
+                                                           connectionStart, visited);
+                                                       if (isEdgeValid) {
+                                                           console.log('Connection found');
+                                                           validEdges[connectionStart] = true;
+                                                           return true;
+                                                       }
 
-                                                      }
+                                                   }
 
-                                                      if (connectionEnd < 7) {
-                                                          const isEdgeValid = this.checkNeighborConnection(
-                                                              connectionEnd, visited);
-                                                          if (isEdgeValid) {
-                                                              console.log('Connection found');
-                                                              validEdges[connectionEnd] = true;
-                                                              return true;
-                                                          }
+                                                   if (connectionEnd < 7) {
+                                                       const isEdgeValid = this.checkNeighborConnection(
+                                                           connectionEnd, visited);
+                                                       if (isEdgeValid) {
+                                                           console.log('Connection found');
+                                                           validEdges[connectionEnd] = true;
+                                                           return true;
+                                                       }
 
-                                                      }
-                                                  });
+                                                   }
+                                               });
 
-                if (!baseTileConnection) {
-                    return null;
-                }
-
-
+            if (!connectionToStation) {
+                return null;
             }
 
-            //TODO : connection costs
-            const totalCost = baseCost + 0;
+            const totalCost = baseCost + connectionCosts;
             if (company.cash() < totalCost) {
                 return null;
             }
@@ -236,6 +234,20 @@ class Cell {
 
             // check connection costs (including base cost if necessary)
         }).compact().keyBy('position').value();
+    }
+
+    getConnectionCost(edgeIndex) {
+        if(edgeIndex > 6) {
+            return 0;
+        }
+        const costData = this.connectionCosts[edgeIndex];
+        if(!costData) {
+            return 0;
+        }
+        const neighbor = this.neighbors[edgeIndex];
+        const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
+        const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
+        return neighborConnectionPoint >= 0 ? costData.cost : 0;
     }
 
     checkNeighborConnection(edgeIndex, visited) {
