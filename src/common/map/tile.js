@@ -62,7 +62,6 @@ class Tile extends Serializable {
 
     addToken(companyId, cityId) {
         if (!cityId) {
-            debugger;
             const cities = _.values(this.cities);
             if (cities.length === 1) {
                 cityId = cities[0].id;
@@ -91,9 +90,8 @@ class Tile extends Serializable {
             return [];
         }
 
-        return _(this.tokensPerCity()).map((companies, cityId) => {
-            const self = this;
-            return this.cities[cityId].maxTokens > companies.length ? cityId : null;
+        return _(this.cities).map((city, cityId) => {
+            return city.maxTokens > this.getTokensForCity(cityId).length ? city.id : null;
         }).compact().value();
     }
 

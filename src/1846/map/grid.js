@@ -253,6 +253,8 @@ class Grid extends BaseGrid {
             _.each(CurrentGame().state().tilesByCellId, (tile, cellId) => {
                 this.cellsById()[cellId].tile(tile);
             });
+
+            Events.emit('gridRestored');
         });
     }
 

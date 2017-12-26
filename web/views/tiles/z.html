@@ -10,11 +10,11 @@
               d="" data-bind="attr: { d: $parent.getDrawingInstructions($data) }"></path>
         <!-- /ko -->
 
-        <!-- ko if: $data.maxTokens === 1 -->
+        <!-- ko if: $data.cities[7].maxTokens === 1 -->
         <circle cx="0" cy="0" r="26" fill="white" stroke-width="1"></circle>
         <!-- /ko -->
 
-        <!-- ko if: $data.maxTokens === 2 -->
+        <!-- ko if: $data.cities[7].maxTokens === 2 -->
         <g fill-opacity="1" visibility="inherit" transform="rotate(30 0 0)">
             <circle cx="-23" cy="0" r="26" fill="white" stroke-width="1"></circle>
             <circle cx="23" cy="0" r="26" fill="white" stroke-width="1"></circle>
@@ -22,7 +22,7 @@
         </g>
         <!-- /ko -->
 
-        <!-- ko if: $data.maxTokens === 3 -->
+        <!-- ko if: $data.cities[7].maxTokens === 3 -->
         <g fill-opacity="1" visibility="inherit" transform="rotate(30 0 0)">
             <circle cx="-23" cy="-13" r="25" fill="white"></circle>
             <circle cx="23" cy="-13" r="25" fill="white"></circle>
@@ -38,19 +38,32 @@
               d="" data-bind="attr: { d: $parent.getDrawingInstructions($data,true) }"></path>
         <!-- /ko -->
 
-        <!-- ko if: $data.maxTokens === 1 -->
+        <!-- ko if: $data.cities[7].maxTokens === 1 -->
         <circle cx="0" cy="0" r="23" fill="white" stroke="black" stroke-width="1"></circle>
+        <!-- ko if: $data.getTokensForCity(7).length > 0 -->
+        <image xlink:href="" x="-19" y="-19" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.tokens()[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
         <!-- /ko -->
 
-        <!-- ko if: $data.maxTokens === 2 -->
+        <!-- ko if: $data.cities[7].maxTokens === 2 -->
         <g fill-opacity="1" visibility="inherit" transform="rotate(30 0 0)">
             <rect x="-23" y="-23" width="46" height="46" fill="white" stroke="black" stroke-width="1"></rect>
             <circle cx="-23" cy="0" r="23" fill="white" stroke="black" stroke-width="1"></circle>
             <circle cx="23" cy="0" r="23" fill="white" stroke="black" stroke-width="1"></circle>
+            <!-- ko if: $data.getTokensForCity(7).length > 0 -->
+            <image xlink:href="" x="-42" y="-19" height="40px" width="40px"
+                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+            <!-- /ko -->
+
+            <!-- ko if: $data.getTokensForCity(7).length > 1 -->
+            <image xlink:href="" x="42" y="-19" height="40px" width="40px"
+                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+            <!-- /ko -->
         </g>
         <!-- /ko -->
 
-        <!-- ko if: $data.maxTokens === 3 -->
+        <!-- ko if: $data.cities[7].maxTokens === 3 -->
         <g fill-opacity="1" visibility="inherit" transform="rotate(30 0 0)">
             <rect x="-23" y="-36" width="46" height="46" fill="white" stroke="black" stroke-width="1"></rect>
             <rect x="-23" y="-36" width="46" height="46" fill="white" stroke="black" stroke-width="1"
@@ -63,13 +76,9 @@
         </g>
         <!-- /ko -->
 
-        <!-- ko if: $data.tokens && $data.tokens().length > 0 -->
-        <image xlink:href="" x="-19" y="-19" height="40px" width="40px"
-               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.tokens()[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
-        <!-- /ko -->
 
         <!-- ko if: $data.revenue -->
-        <!-- ko if: $data.maxTokens < 3 -->
+        <!-- ko if: $data.cities[7].maxTokens < 3 -->
         <g transform="translate(0, -46)">
             <circle cx="0" cy="0" r="13" fill="white" stroke="black" stroke-width="1"></circle>
             <text x="0" y="2" fill="black" stroke="black" stroke-width="0.4"
@@ -78,7 +87,7 @@
             </text>
         </g>
         <!-- /ko -->
-        <!-- ko if: $data.maxTokens === 3 -->
+        <!-- ko if: $data.cities[7].maxTokens === 3 -->
         <g transform="translate(-50, 28)">
             <circle cx="0" cy="0" r="10" fill="white" stroke="black" stroke-width="1"></circle>
             <text x="0" y="2" fill="black" stroke="black" stroke-width="0.4"
@@ -89,19 +98,19 @@
         <!-- /ko -->
         <!-- /ko -->
 
-        <!-- ko if: $data.maxTokens === 1 -->
-        <text x="-39" y="-16" fill="black" stroke="black" stroke-width=""1
+        <!-- ko if: $data.cities[7].maxTokens === 1 -->
+        <text x="-39" y="-16" fill="black" stroke="black" stroke-width="" 1
               font-size="24" text-anchor="middle" visibility="inherit">Z
         </text>
         <!-- /ko -->
 
-        <!-- ko if: $data.maxTokens === 2 -->
-        <text x="-44" y="34" fill="black" stroke="black" stroke-width=""1
+        <!-- ko if: $data.cities[7].maxTokens === 2 -->
+        <text x="-44" y="34" fill="black" stroke="black" stroke-width="" 1
               font-size="24" text-anchor="middle" visibility="inherit">Z
         </text>
         <!-- /ko -->
 
-        <!-- ko if: $data.maxTokens === 3 -->
+        <!-- ko if: $data.cities[7].maxTokens === 3 -->
         <text x="-50" y="-18" fill="black" stroke="black" stroke-width="" 1
               font-size="24" text-anchor="middle" visibility="inherit">Z
         </text>

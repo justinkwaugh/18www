@@ -1,0 +1,20 @@
+<svg style="width:126px;height:144px;">
+    <g fill-opacity="1" visibility="inherit" transform="translate(63,72)" pointer-events="none">
+        <!-- ko if: $data.getTokensForCity(7).length > 0 -->
+        <image xlink:href="" x="-21" y="-63" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+        <!-- ko if: $data.getTokensForCity(8).length > 0 -->
+        <image xlink:href="" x="15" y="-29" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(8)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+        <!-- ko if: $data.getTokensForCity(9).length > 0 -->
+        <image xlink:href="" x="-11" y="16" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(9)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+        <!-- ko if: $data.getTokensForCity(10).length > 0 -->
+        <image xlink:href="" x="-58" y="2" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(10)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+    </g>
+</svg>

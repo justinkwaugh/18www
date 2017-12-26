@@ -1,5 +1,6 @@
 import Action from 'common/game/action';
 import MapTileIDs from '1846/config/mapTileIds';
+import TileColorIDs from '1846/config/tileColorIds';
 import Events from 'common/util/events';
 import _ from 'lodash';
 
@@ -23,7 +24,7 @@ class LayTrack extends Action {
         const oldTile = state.tilesByCellId[this.cellId];
         this.oldTileId = oldTile.id;
         this.oldTilePosition = oldTile.position();
-        this.upgrade = Boolean(MapTileIDs[oldTile.id]);
+        this.upgrade = _.indexOf([TileColorIDs.YELLOW, TileColorIDs.GREEN, TileColorIDs.BROWN], oldTile.colorId) >= 0;
         const newTile = state.manifest.getTile(this.tileId, this.oldTileId);
         newTile.position(this.position);
         newTile.tokens(_.clone(oldTile.tokens()));
@@ -32,6 +33,7 @@ class LayTrack extends Action {
         company.removeCash(this.cost);
         state.bank.addCash(this.cost);
         Events.emit('tileUpdated.' + this.cellId);
+        Events.emit('trackLaid');
     }
 
     doUndo(state) {
@@ -45,6 +47,7 @@ class LayTrack extends Action {
         company.addCash(this.cost);
         state.bank.removeCash(this.cost);
         Events.emit('tileUpdated.' + this.cellId);
+        Events.emit('trackLaid');
     }
 
     summary(state) {

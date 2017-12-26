@@ -8,6 +8,7 @@ import TileColorIDs from '1846/config/tileColorIds';
 import RoundIDs from '1846/config/roundIds';
 import CompanyIDs from '1846/config/companyIds';
 import LayTrack from '1846/actions/layTrack';
+import AddToken from '1846/actions/addToken';
 import Events from 'common/util/events';
 import TerrainTypes from '1846/config/terrainTypes';
 
@@ -32,6 +33,13 @@ const FreeTunnelBlasterCells = {
     G17: true,
     H16: true,
     H14: true
+};
+
+const ReservedTokens = {
+    I5: CompanyIDs.ILLINOIS_CENTRAL,
+    E11: CompanyIDs.PENNSYLVANIA,
+    D20: CompanyIDs.ERIE,
+    H12: CompanyIDs.BALTIMORE_OHIO
 };
 
 // Could optimize by storing known connections to stations on tiles, but would always need to refresh those if a
@@ -66,6 +74,38 @@ class Cell {
             return this.getUpgradeTiles();
         });
 
+        this.tokenCheckTrigger = ko.observable().extend({notify: 'always'});
+
+        this.tokenableCities = ko.computed(() => {
+
+            if (!CurrentGame()) {
+                return false;
+            }
+
+            if (!this.tile()) {
+                return [];
+            }
+
+            this.tokenCheckTrigger();
+
+            const companyId = CurrentGame().state().currentCompanyId();
+            const openCities = this.tile().getOpenCities(companyId);
+
+            if(openCities.length > 0 && this.id === 'H12' && companyId === CompanyIDs.BALTIMORE_OHIO) {
+                return openCities;
+            }
+
+            if(openCities.length > 0 && this.id === 'E11' && companyId === CompanyIDs.PENNSYLVANIA) {
+                return openCities;
+            }
+
+            const visited = [];
+            const tokenableCities = _.filter(openCities,
+                                             cityId => this.depthFirstSearchForStation(companyId, cityId, visited));
+            return tokenableCities;
+
+        });
+
         this.canToken = ko.computed(() => {
             if (!CurrentGame()) {
                 return false;
@@ -76,6 +116,29 @@ class Cell {
             }
 
             if (this.tile().getOpenCities(CurrentGame().state().currentCompanyId()).length === 0) {
+                return false;
+            }
+
+            const turn = CurrentGame().state().turnHistory.currentTurn();
+            if (!turn) {
+                return false;
+            }
+
+            const hasTokened = _.find(turn.getActions(), action => {
+                return action.getTypeName() === 'AddToken';
+            });
+
+            if (hasTokened) {
+                return false;
+            }
+
+            const company = CurrentGame().state().currentCompany();
+            if (this.tokenableCities().length === 0) {
+                return false;
+            }
+
+            const cost = this.getTokenCost();
+            if (company.cash() < cost) {
                 return false;
             }
 
@@ -111,6 +174,28 @@ class Cell {
         Events.on('tileUpdated.' + this.id, () => {
             this.tile(CurrentGame().state().tilesByCellId[this.id]);
         });
+
+        Events.on('trackLaid', () => {
+            this.tokenCheckTrigger(1);
+        });
+
+        Events.on('gridRestored', () => {
+            this.tokenCheckTrigger(1);
+        });
+    }
+
+    getConnectedCompanies() {
+        const companies = [];
+        const visited = [];
+        _(_.range(0, 6)).each((edgeIndex) => {
+            if (!this.hasConnectionAtIndex(edgeIndex)) {
+                return;
+            }
+
+            this.checkNeighborConnection(null, edgeIndex, visited, companies)
+        });
+
+        return _.uniq(companies);
     }
 
     getUpgradeTiles() {
@@ -137,6 +222,17 @@ class Cell {
             return _.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
         });
 
+    }
+
+    getTokenCost() {
+        const company = CurrentGame().state().currentCompany();
+        let cost = 80;
+        if (ReservedTokens[this.id] === company.id) {
+            cost = 40;
+            // Need to check station connection for B&O and PRR
+        }
+
+        return cost;
     }
 
     getBaseCost() {
@@ -217,8 +313,9 @@ class Cell {
                                                    }
 
                                                    if (connectionStart < 7) {
-                                                       const isEdgeValid = this.checkNeighborConnection(
-                                                           connectionStart, visited);
+                                                       const isEdgeValid = this.checkNeighborConnection(company.id,
+                                                                                                        connectionStart,
+                                                                                                        visited);
                                                        if (isEdgeValid) {
                                                            console.log('Connection found');
                                                            validEdges[connectionStart] = true;
@@ -228,8 +325,9 @@ class Cell {
                                                    }
 
                                                    if (connectionEnd < 7) {
-                                                       const isEdgeValid = this.checkNeighborConnection(
-                                                           connectionEnd, visited);
+                                                       const isEdgeValid = this.checkNeighborConnection(company.id,
+                                                                                                        connectionEnd,
+                                                                                                        visited);
                                                        if (isEdgeValid) {
                                                            console.log('Connection found');
                                                            validEdges[connectionEnd] = true;
@@ -252,8 +350,7 @@ class Cell {
                 position: pos,
                 cost: totalCost
             };
-
-            // check connection costs (including base cost if necessary)
+            
         }).compact().keyBy('position').value();
     }
 
@@ -280,7 +377,7 @@ class Cell {
         return neighborConnectionPoint >= 0 ? costData.cost : 0;
     }
 
-    checkNeighborConnection(edgeIndex, visited) {
+    checkNeighborConnection(companyId, edgeIndex, visited, companies) {
 
         const neighbor = this.neighbors[edgeIndex];
         if (!neighbor) {
@@ -292,14 +389,13 @@ class Cell {
         if (neighborConnectionPoint < 0) {
             return false;
         }
-        const currentOperatingCompany = CurrentGame().state().currentCompanyId();
-        const hasLocalStation = this.tile().hasTokenForCompany(currentOperatingCompany);
+        const hasLocalStation = this.tile().hasTokenForCompany(companyId);
 
-        return hasLocalStation || neighbor.depthFirstSearchForStation(currentOperatingCompany, neighborConnectionPoint,
-                                                                      visited);
+        return hasLocalStation || neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint,
+                                                                      visited, companies);
     }
 
-    depthFirstSearchForStation(companyId, connectionStart, visited) {
+    depthFirstSearchForStation(companyId, connectionStart, visited, companies) {
         // console.log('In Cell ' + this.id + ' starting at connection ' + connectionStart);
         const connections = _.map(this.tile().getConnectionsToPoint(connectionStart), connection => {
             return connection[0] === connectionStart ? connection : [connection[1], connection[0]];
@@ -319,14 +415,19 @@ class Cell {
             if (connection[1] > 6) {
 
                 // check for city / token
-                if (this.tile().hasTokenForCompany(companyId, connection[1])) {
+                if (companyId && this.tile().hasTokenForCompany(companyId, connection[1])) {
                     console.log('Found token!');
                     found = true;
                     return false;
                 }
+                else if (!companyId) {
+                    companies.push.apply(companies, this.tile().getTokensForCity(connection[1]));
+                }
+
+                // Check blocked
 
                 // console.log('Starting new search on this tile from local city ' + connection[1]);
-                found = this.depthFirstSearchForStation(companyId, connection[1], visited);
+                found = this.depthFirstSearchForStation(companyId, connection[1], visited, companies);
             }
             else {
                 const connectionEnd = Cell.getOffsetIndexForPosition(connection[1], this.tile().position());
@@ -341,7 +442,8 @@ class Cell {
                     //     'Starting new search on neighbor ' + neighbor.id + ' from point ' + neighborConnectionPoint);
                     found = neighbor.depthFirstSearchForStation(companyId,
                                                                 neighborConnectionPoint,
-                                                                visited);
+                                                                visited,
+                                                                companies);
                 }
                 else {
                     // console.log('Neighbor not connected');
@@ -445,6 +547,19 @@ class Cell {
         layTrack.execute(CurrentGame().state());
         CurrentGame().saveLocalState();
         this.cancelPreview();
+    }
+
+    tokenCity(cityId) {
+        const addToken = new AddToken({
+                                          companyId: CurrentGame().state().currentCompanyId(),
+                                          cityId: cityId,
+                                          cellId: this.id,
+                                          cost: this.getTokenCost()
+                                      });
+        addToken.execute(CurrentGame().state());
+        CurrentGame().saveLocalState();
+        this.cancelPreview();
+
     }
 }
 

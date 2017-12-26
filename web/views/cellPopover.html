@@ -1,5 +1,12 @@
 <!-- ko if: $data.tile() -->
-<div data-bind="style: { width: $data.tile().upgrades.length === 1 ? '126px' : '256px'} ">
+<div data-bind="style: { width: $data.upgradeTiles().length < 2 ? '126px' : '256px'} ">
+    <!-- ko if: $data.canToken() -->
+    <div class="d-flex justify-content-center bg-light">
+        <!-- ko foreach: $data.tokenableCities -->
+        <button type="button" class="btn btn-sm btn-secondary" data-bind="click: function() { $parent.tokenCity($data); }, text: 'Add Token to City ' + $data">Add Token</button>
+        <!-- /ko -->
+    </div>
+    <!-- /ko -->
     <div class="d-flex flex-wrap m-auto">
         <!-- ko foreach: $data.upgradeTiles() -->
         <div class="position-relative" style="cursor:pointer" data-bind="click: function() { $parent.previewTile($data.tile.id); }">
