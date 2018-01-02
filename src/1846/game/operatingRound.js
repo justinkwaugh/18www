@@ -29,9 +29,18 @@ class OperatingRound {
         this.Actions = Actions;
 
         this.selectedAction = ko.observable(definition.selectedAction);
+        this.selectedPrivateId = ko.observable(definition.selectedPrivateId);
         this.numberOfShares = ko.observable(definition.numberOfShares || 0);
         this.action = ko.computed(() => {
             return false;
+        });
+        
+        this.canBuyPrivates = ko.computed(()=> {
+            if (!CurrentGame() || !CurrentGame().state().currentCompany() || !CurrentGame().state().currentPlayer()) {
+                return false;
+            }
+            
+            return CurrentGame().state().currentPlayer().getPrivates().length > 0 && CurrentGame().state().currentCompany().cash() > 0;
         });
 
         this.canIssue = ko.computed(()=> {
@@ -145,9 +154,14 @@ class OperatingRound {
         // }
     }
 
+    selectPrivate(companyId) {
+        this.selectedPrivateId(companyId);
+
+    }
     reset() {
         this.selectedAction(null);
         this.numberOfShares(0);
+        this.selectedPrivateId(null);
     }
 
     commit() {

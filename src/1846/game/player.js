@@ -3,6 +3,7 @@ import Prices from '1846/config/prices';
 import _ from 'lodash';
 import ko from 'knockout';
 import CurrentGame from 'common/game/currentGame';
+import CompanyTypes from 'common/model/companyTypes';
 
 class Player extends BasePlayer {
     constructor(definition) {
@@ -175,6 +176,10 @@ class Player extends BasePlayer {
         }
 
         return true;
+    }
+
+    getPrivates() {
+        return _(this.certificatesById()).keys().map(companyId => CurrentGame().state().getCompany(companyId)).filter({type : CompanyTypes.PRIVATE}).sortBy('name').value();
     }
 }
 

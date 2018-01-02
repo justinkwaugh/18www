@@ -350,7 +350,7 @@ class Cell {
                 position: pos,
                 cost: totalCost
             };
-            
+
         }).compact().keyBy('position').value();
     }
 

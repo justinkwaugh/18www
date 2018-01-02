@@ -6,10 +6,12 @@
     <h5 class="text-center font-weight-light alert-heading">Choose an action</h5>
 
     <div class="d-flex justify-content-center">
+        <!-- ko if: $data.canBuyPrivates() -->
         <button class="btn btn-sm mr-2"
                 data-bind="click: function() { $data.selectAction($data.Actions.BUY_PRIVATES); }, css: $data.selectedAction() === $data.Actions.BUY_PRIVATES ? 'active btn-secondary' : 'btn-light' ">
             Buy Privates
         </button>
+        <!-- /ko -->
         <!-- ko if: $data.canIssue() -->
         <button class="btn btn-sm mr-2"
                 data-bind="click: function() { $data.selectAction($data.Actions.ISSUE_SHARES); }, css: $data.selectedAction() === $data.Actions.ISSUE_SHARES ? 'active btn-secondary' : 'btn-light' ">
@@ -31,6 +33,35 @@
             Run Routes
         </button>
     </div>
+    <!-- ko if: $data.selectedAction() === $data.Actions.BUY_PRIVATES -->
+    <h5 class="mt-3 text-center font-weight-light alert-heading">Choose a private:</h5>
+    <div class="d-flex justify-content-center">
+        <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
+            <!-- ko foreach: $root.game().state().currentPlayer().getPrivates() -->
+            <button class="btn btn-sm mr-2"
+                    data-bind="click: function() {$parent.selectPrivate($data.id); },style: { opacity: !$parent.selectedPrivateId() || $parent.selectedPrivateId() === $data.id ? 1 : 0.2}, css: ($parent.selectedPrivateId() === $data.id  ? 'btn-warning' : 'btn-secondary') + ' text-white' ">
+                <span class="h6" data-bind="text: $data.name"></span>
+            </button>
+            <!-- /ko -->
+        </ul>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: $data.selectedPrivateId() -->
+    <h5 class="mt-3 text-center font-weight-light alert-heading">For how much?</h5>
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text" data-bind="text: '$1 to '"></span>
+        </div>
+        <input type="text" class="form-control">
+    </div>
+    <div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text" id="inputGroup-sizing-default">Default</span>
+  </div>
+  <input type="text" class="form-control" aria-label="Default" aria-describedby="inputGroup-sizing-default">
+</div>
+
+    <!-- /ko -->
     <!-- ko if: $data.selectedAction() === $data.Actions.ISSUE_SHARES -->
     <h5 class="mt-3 text-center font-weight-light alert-heading">How many shares?</h5>
     <div class="d-flex justify-content-center">
@@ -58,7 +89,8 @@
     <!-- /ko -->
     <!-- ko if: $data.action() -->
     <div class="d-flex justify-content-center mt-3">
-        <button type="button" class="btn btn-sm btn-primary mr-1" data-bind="click: $data.commit, text: $data.action().confirmation($root.game().state())"></button>
+        <button type="button" class="btn btn-sm btn-primary mr-1"
+                data-bind="click: $data.commit, text: $data.action().confirmation($root.game().state())"></button>
         <button type="button" class="btn btn-sm btn-danger mr-1" data-bind="click: $data.reset">Cancel</button>
     </div>
     <!-- /ko -->
