@@ -1,5 +1,6 @@
 import ko from 'knockout';
 import _ from 'lodash';
+import CurrentGame from 'common/game/currentGame';
 import StartCompany from '1846/actions/startCompany';
 import Prices from '1846/config/prices';
 import Serializable from 'common/model/serializable';
@@ -31,7 +32,9 @@ class Company extends Serializable {
         });
         this.lastRun = ko.observable(definition.lastRun);
         this.opened = ko.observable(definition.opened || false);
+        this.closed = ko.observable(definition.closed || false);
         this.operated = ko.observable(definition.operated || false);
+        this.routes = ko.observableArray(definition.routes || []);
     }
 
     addCash(amount) {
@@ -54,8 +57,29 @@ class Company extends Serializable {
         return this.certificates.splice(0,count);
     }
 
+    getPrivates() {
+        return _(this.privates()).map(cert => CurrentGame().state().getCompany(cert.companyId)).sortBy('name').value();
+    }
+
     hasPrivate(id) {
-        return _.indexOf(this.privates(), id) > 0;
+        return _.find(this.privates(), cert=> cert.companyId === id);
+    }
+
+    addPrivate(cert) {
+        this.privates.push(cert);
+    }
+
+    removePrivate(id) {
+        const privates = this.privates.remove(cert=> cert.companyId === id);
+        return privates.length > 0 ? privates[0] : null;
+    }
+
+    addTrain(train) {
+        this.trains.push(train);
+    }
+
+    removeTrainById(trainId) {
+        this.trains.remove(train=> train.id === trainId);
     }
 
 }

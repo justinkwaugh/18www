@@ -179,7 +179,7 @@ class Player extends BasePlayer {
     }
 
     getPrivates() {
-        return _(this.certificatesById()).keys().map(companyId => CurrentGame().state().getCompany(companyId)).filter({type : CompanyTypes.PRIVATE}).sortBy('name').value();
+        return _(this.certificatesById()).keys().map(companyId => CurrentGame().state().getCompany(companyId)).reject({type : CompanyTypes.PUBLIC}).sortBy('name').value();
     }
 }
 

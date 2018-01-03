@@ -1,4 +1,14 @@
 
+.no-spinners {
+  -moz-appearance:textfield;
+}
+
+.no-spinners::-webkit-outer-spin-button,
+.no-spinners::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 nav a, nav a:hover {
     color: #212529;
     text-decoration: none;
@@ -121,6 +131,12 @@ nav a, nav a:hover {
 .editable .tile .tile-border:hover {
     cursor:pointer;
     stroke: black;
+    stroke-width: 8;
+}
+
+.route .tile .tile-border:hover {
+    cursor:pointer;
+    stroke: red;
     stroke-width: 8;
 }
 

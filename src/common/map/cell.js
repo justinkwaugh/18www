@@ -91,11 +91,11 @@ class Cell {
             const companyId = CurrentGame().state().currentCompanyId();
             const openCities = this.tile().getOpenCities(companyId);
 
-            if(openCities.length > 0 && this.id === 'H12' && companyId === CompanyIDs.BALTIMORE_OHIO) {
+            if (openCities.length > 0 && this.id === 'H12' && companyId === CompanyIDs.BALTIMORE_OHIO) {
                 return openCities;
             }
 
-            if(openCities.length > 0 && this.id === 'E11' && companyId === CompanyIDs.PENNSYLVANIA) {
+            if (openCities.length > 0 && this.id === 'E11' && companyId === CompanyIDs.PENNSYLVANIA) {
                 return openCities;
             }
 
@@ -154,11 +154,34 @@ class Cell {
                 return false;
             }
 
-            if (CurrentGame().operatingRound().selectedAction() !== CurrentGame().operatingRound().Actions.LAY_TRACK) {
+            const layingTrack = CurrentGame().operatingRound().selectedAction() === CurrentGame().operatingRound().Actions.LAY_TRACK;
+            const oandi = this.isOhioIndianaLay();
+            const mc = this.isMichiganCentralLay();
+            const lsl = CurrentGame().operatingRound().selectedAction() === CurrentGame().operatingRound().Actions.USE_PRIVATES
+                        && CurrentGame().operatingRound().selectedPrivateId() === CompanyIDs.LAKE_SHORE_LINE
+                        && (this.id === 'D14' || this.id === 'E17');
+            if (!layingTrack && !oandi && !mc && !lsl) {
                 return false;
             }
 
             return this.upgradeTiles().length > 0 || this.canToken();
+        });
+
+        this.canRoute = ko.computed(() => {
+            if (!CurrentGame()) {
+                return false;
+            }
+
+            if (!CurrentGame().state().isOperatingRound()) {
+                return false;
+            }
+
+            const train = CurrentGame().operatingRound().selectedTrain();
+            if (!train) {
+                return false;
+            }
+
+            return this.isRouteable(train.route);
         });
 
         this.popoverParams = ko.computed(() => {
@@ -184,6 +207,21 @@ class Cell {
         });
     }
 
+    isRouteable(route) {
+        if (route.cells.length === 0 && this.tile().hasTokenForCompany(CurrentGame().state().currentCompany().id)) {
+            return true;
+        }
+        return false;
+    }
+
+    isOhioIndianaLay() {
+        return CurrentGame().operatingRound().isOhioIndianaAbility() && (this.id === 'F14' || this.id === 'F16');
+    }
+
+    isMichiganCentralLay() {
+        return CurrentGame().operatingRound().isMichiganCentralAbility() && (this.id === 'B10' || this.id === 'B12');
+    }
+
     getConnectedCompanies() {
         const companies = [];
         const visited = [];
@@ -199,6 +237,9 @@ class Cell {
     }
 
     getUpgradeTiles() {
+        if (this.isOhioIndianaLay()) {
+            return this.getOhioIndianaTiles();
+        }
 
         const phase = CurrentGame().state().currentPhaseId();
 
@@ -222,6 +263,16 @@ class Cell {
             return _.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
         });
 
+    }
+
+    getOhioIndianaTiles() {
+        return _.filter(CurrentGame().state().manifest.getUpgradesForTile(this.tile().id) || [], (upgrade) => {
+            if (upgrade.tile.colorId !== TileColorIDs.YELLOW) {
+                return false;
+            }
+
+            return _.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
+        });
     }
 
     getTokenCost() {
@@ -250,7 +301,40 @@ class Cell {
         return cost;
     }
 
+    getPrivatePairPositionData(oldTile, newTileId, neighborEdge) {
+
+        const neighbor = this.neighbors[neighborEdge];
+        return _(_.range(0, 6)).map((pos) => {
+            if (neighbor.tile().colorId === TileColorIDs.YELLOW) {
+                const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(neighborEdge);
+                const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
+                if (neighborConnectionPoint < 0) {
+                    return false;
+                }
+
+                const connectsToNeighbor = _.find(this.getConnectionsForPosition(newTileId, pos), connection => {
+                    return connection[0] === neighborEdge || connection[1] === neighborEdge;
+                });
+                if (!connectsToNeighbor) {
+                    return false;
+                }
+            }
+
+            return {
+                position: pos,
+                cost: 0
+            };
+        }).compact().keyBy('position').value();
+    }
+
     getAllowedTilePositionData(oldTile, newTileId) {
+        const oandi = this.isOhioIndianaLay();
+        const mc = this.isMichiganCentralLay();
+        if (oandi || mc) {
+            return this.getPrivatePairPositionData(oldTile, newTileId,
+                                                   (this.id === 'F14' || this.id === 'B10') ? 1 : 4);
+        }
+
         // console.log('Checking tile positions for ' + this.id);
 
         const visited = {};
@@ -507,6 +591,16 @@ class Cell {
         return index < 7 ? (index + position) % 6 : index;
     }
 
+    addToCurrentRoute() {
+        const train = CurrentGame().operatingRound().selectedTrain();
+        if (!train) {
+            return false;
+        }
+
+        if (this.isRouteable(train.route)) {
+            train.route.push(this.id);
+        }
+    }
 
     previewTile(tileId) {
         const tile = TileManifest.createTile(tileId);
@@ -537,12 +631,15 @@ class Cell {
         // this.tile(newTile);
         // this.cancelPreview();
         const previewTile = this.preview();
+        const privateId = this.isMichiganCentralLay() ? CompanyIDs.MICHIGAN_CENTRAL : this.isOhioIndianaLay() ? CompanyIDs.OHIO_INDIANA : null;
         const layTrack = new LayTrack({
                                           companyId: CurrentGame().state().currentCompanyId(),
                                           cellId: this.id,
                                           tileId: previewTile.id,
                                           position: previewTile.position(),
-                                          cost: this.allowedPreviewPositionData()[previewTile.position()].cost
+                                          cost: this.allowedPreviewPositionData()[previewTile.position()].cost,
+                                          privateId,
+                                          privateDone: privateId && CurrentGame().operatingRound().hasPrivateLaidTrack()
                                       });
         layTrack.execute(CurrentGame().state());
         CurrentGame().saveLocalState();

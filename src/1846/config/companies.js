@@ -5,6 +5,7 @@ import PrivateCompany from 'common/model/privateCompany';
 import CompanyTypes from 'common/model/companyTypes';
 import CompanyIDs from '1846/config/companyIds';
 import TrainIDs from '1846/config/trainIds';
+import Train from 'common/model/train';
 
 const PublicCompanyDefinitions = {
     [CompanyIDs.GRAND_TRUNK]: {
@@ -74,7 +75,7 @@ const PrivateCompanyDefinitions = {
         tokens: 1,
         cost: 140,
         maxBuyInPrice: 60,
-        trains: [TrainIDs.TRAIN_2]
+        trains: [new Train({type:TrainIDs.TRAIN_2})]
     },
     [CompanyIDs.BIG_4]: {
         id: CompanyIDs.BIG_4,
@@ -84,7 +85,7 @@ const PrivateCompanyDefinitions = {
         tokens: 1,
         cost: 100,
         maxBuyInPrice: 40,
-        trains: [TrainIDs.TRAIN_2]
+        trains: [new Train({type:TrainIDs.TRAIN_2})]
     },
     [CompanyIDs.CHICAGO_WESTERN_INDIANA]: {
         id: CompanyIDs.CHICAGO_WESTERN_INDIANA,
@@ -93,6 +94,7 @@ const PrivateCompanyDefinitions = {
         cost: 60,
         maxBuyInPrice: 60,
         income: 10,
+        hasAbility: true
     },
     [CompanyIDs.OHIO_INDIANA]: {
         id: CompanyIDs.OHIO_INDIANA,
@@ -100,7 +102,8 @@ const PrivateCompanyDefinitions = {
         type: CompanyTypes.PRIVATE,
         cost: 40,
         maxBuyInPrice: 40,
-        income: 15
+        income: 15,
+        hasAbility: true
     },
     [CompanyIDs.MEAT_PACKING_COMPANY]: {
         id: CompanyIDs.MEAT_PACKING_COMPANY,
@@ -108,7 +111,8 @@ const PrivateCompanyDefinitions = {
         type: CompanyTypes.PRIVATE,
         cost: 60,
         maxBuyInPrice: 60,
-        income: 15
+        income: 15,
+        hasAbility: true
     },
     [CompanyIDs.STEAMBOAT_COMPANY]: {
         id: CompanyIDs.STEAMBOAT_COMPANY,
@@ -116,7 +120,8 @@ const PrivateCompanyDefinitions = {
         type: CompanyTypes.PRIVATE,
         cost: 40,
         maxBuyInPrice: 40,
-        income: 10
+        income: 10,
+        hasAbility: true
     },
     [CompanyIDs.LAKE_SHORE_LINE]: {
         id: CompanyIDs.LAKE_SHORE_LINE,
@@ -124,7 +129,8 @@ const PrivateCompanyDefinitions = {
         type: CompanyTypes.PRIVATE,
         cost: 40,
         maxBuyInPrice: 40,
-        income: 15
+        income: 15,
+        hasAbility: true
     },
     [CompanyIDs.MICHIGAN_CENTRAL]: {
         id: CompanyIDs.MICHIGAN_CENTRAL,
@@ -132,7 +138,8 @@ const PrivateCompanyDefinitions = {
         type: CompanyTypes.PRIVATE,
         cost: 40,
         maxBuyInPrice: 40,
-        income: 15
+        income: 15,
+        hasAbility: true
     },
     [CompanyIDs.MAIL_CONTRACT]: {
         id: CompanyIDs.MAIL_CONTRACT,

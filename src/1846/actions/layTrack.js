@@ -17,6 +17,8 @@ class LayTrack extends Action {
         this.companyId = args.companyId;
         this.upgrade = args.upgrade;
         this.cost = args.cost;
+        this.privateId = args.privateId;
+        this.privateDone = args.privateDone;
     }
 
     doExecute(state) {
@@ -32,6 +34,12 @@ class LayTrack extends Action {
 
         company.removeCash(this.cost);
         state.bank.addCash(this.cost);
+
+        if(this.privateId && this.privateDone) {
+            const privateCompany = state.getCompany(this.privateId);
+            privateCompany.used(true);
+        }
+
         Events.emit('tileUpdated.' + this.cellId);
         Events.emit('trackLaid');
     }
@@ -44,15 +52,21 @@ class LayTrack extends Action {
         oldTile.tokens(_.clone(newTile.tokens()));
         state.tilesByCellId[this.cellId] = oldTile;
 
+        if(this.privateId && this.privateDone) {
+            const privateCompany = state.getCompany(this.privateId);
+            privateCompany.used(false);
+        }
+
         company.addCash(this.cost);
         state.bank.removeCash(this.cost);
         Events.emit('tileUpdated.' + this.cellId);
-        Events.emit('trackLaid');
+        Events.emit('trackLaid', this);
     }
 
     summary(state) {
         const company = state.getCompany(this.companyId);
-        return company.nickname + ' laid a #' + this.tileId + ' tile at ' + this.cellId + ' for $' + this.cost;
+        const privateCompany = state.getCompany(this.privateId);
+        return company.nickname + (privateCompany ? ' used ' + privateCompany.name + ' to lay' : ' laid') + ' a #' + this.tileId + ' tile at ' + this.cellId + ' for $' + this.cost;
     }
 }
 

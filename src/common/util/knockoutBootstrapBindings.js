@@ -1,4 +1,5 @@
 import ko from 'knockout'
+import _ from 'lodash'
 
 function cleanupPopover(element, dispose) {
     $(element).off('inserted.bs.popover');
@@ -101,4 +102,34 @@ ko.bindingHandlers.popover = {
         cleanupPopover(targetElement);
         setupPopover(element, args, bindingContext);
     }
+};
+
+ko.extenders.numeric = function(target, max) {
+    //create a writable computed observable to intercept writes to our observable
+    const result = ko.pureComputed({
+        read: target,  //always return the original observables value
+        write: function(newValue) {
+            const current = target();
+            let valueToWrite = (_.isNaN(newValue) || _.isNull(newValue) )? null : +newValue;
+            if(valueToWrite && max && valueToWrite > max()) {
+                valueToWrite = max();
+            }
+
+            //only write if it changed
+            if (valueToWrite !== current) {
+                target(valueToWrite);
+            } else {
+                //if the rounded value is the same, but a different value was written, force a notification for the current field
+                if (newValue !== current) {
+                    target.notifySubscribers(valueToWrite);
+                }
+            }
+        }
+    }).extend({ notify: 'always' });
+
+    //initialize with current value to make sure it is rounded appropriately
+    result(target());
+
+    //return the new computed observable
+    return result;
 };
