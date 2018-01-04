@@ -181,6 +181,8 @@ class Cell {
                 return false;
             }
 
+            return true;
+
             return this.isRouteable(train.route);
         });
 
@@ -208,10 +210,22 @@ class Cell {
     }
 
     isRouteable(route) {
-        if (route.cells.length === 0 && this.tile().hasTokenForCompany(CurrentGame().state().currentCompany().id)) {
+        if (route.cells().length === 0 && this.tile().hasTokenForCompany(CurrentGame().state().currentCompany().id)) {
             return true;
         }
-        return false;
+
+        return _.isNumber(_(_.range(0, 6)).find((edgeIndex) => {
+            if (!this.hasConnectionAtIndex(edgeIndex)) {
+                return;
+            }
+
+            const neighbor = this.neighbors[edgeIndex];
+            if(!neighbor) {
+                return;
+            }
+
+            return route.containsCell(neighbor.id);
+        }));
     }
 
     isOhioIndianaLay() {
@@ -598,7 +612,7 @@ class Cell {
         }
 
         if (this.isRouteable(train.route)) {
-            train.route.push(this.id);
+            train.route.addCell(this.id);
         }
     }
 
@@ -658,6 +672,27 @@ class Cell {
         this.cancelPreview();
 
     }
+
+    onMouseOver() {
+        console.log('mousing over cell ' + this.id);
+    }
+
+    onMouseEnter() {
+        console.log('mouse entering cell ' + this.id);
+    }
+
+    onMouseOut() {
+        console.log('mouse leaving cell ' + this.id);
+    }
+
+    onMouseDown() {
+        console.log('mouse down on ' + this.id);
+    }
+
+    onMouseUp() {
+        console.log('mouse up on ' + this.id);
+    }
+
 }
 
 export default Cell;

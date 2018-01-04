@@ -1,6 +1,6 @@
 <!-- ko if: $data.top > 0 -->
 <div style="pointer-events:none;position:absolute;"
-     data-bind="style: { top: $data.top +'px', left: $data.left + 'px'}, css: {editable: $data.canEdit(), route: $data.canRoute()}">
+     data-bind="style: { top: $data.top +'px', left: $data.left + 'px'}, css: {editable: $data.canEdit()}">
     <!-- ko if: $data.visibleTile() -->
 
     <svg xmlns="http://www.w3.org/2000/svg" style="width:126px;height:144px;" pointer-events="none">
@@ -10,13 +10,13 @@
                      points="0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796"></polygon>
         </clipPath>
     </defs>
-    <g clip-path="url(#tile-clip)" class="tile" xmlns="http://www.w3.org/2000/svg" fill-opacity="1" visibility="inherit"
+    <g clip-path="url(#tile-clip)" pointer-events="all" class="tile" xmlns="http://www.w3.org/2000/svg" fill-opacity="1" visibility="inherit"
         data-bind="popover: $data.popoverParams, css: 'pos' + ($data.visibleTile().position ? $data.visibleTile().position() : 0)" >
 
         <g pointer-events="all" transform="translate(-63,-72)" data-bind="template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.visibleTile().id), data: $data.visibleTile() }"></g>
         <!-- ko if: $data.canEdit() || $data.canRoute() -->
         <polygon pointer-events="all"  class="tile-border" fill="none" stroke="none" stroke-width="0"
-                 points="0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796"></polygon>
+                 points="0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796" data-bind="event: { mouseenter: onMouseEnter, mousedown: onMouseDown, mouseup: onMouseUp, mouseover: onMouseOver, mouseout: onMouseOut }"></polygon>
         <!-- /ko -->
     </g>
     </svg>

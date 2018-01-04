@@ -54,6 +54,15 @@ class Tile extends Serializable {
             });
             return tokensPerCity;
         });
+
+        // Not serialized
+        this.routedConnectionsById = ko.observable(data.routedConnectionsById || {});
+    }
+
+    toJSON() {
+        const plainObject = super.toJSON();
+        delete plainObject.routedConnectionsById;
+        return plainObject;
     }
 
     getTokensForCity(cityId) {
@@ -112,6 +121,24 @@ class Tile extends Serializable {
         return _.filter(this.connections, connection => connection[0] === point || connection[1] === point);
     }
 
+    getConnectionId(connection) {
+        return Math.min(connection[0], connection[1]) + '-' + Math.max(connection[0], connection[1]);
+    }
+
+    addRoutedConnection(connection, color) {
+        const connectionId = this.getConnectionId(connection);
+        this.routedConnectionsById()[connectionId] = color;
+    }
+
+    removeRoutedConnection(connection) {
+        const connectionId = this.getConnectionId(connection);
+        delete this.routedConnectionsById()[connectionId];
+    }
+
+    clearRoutedConnections() {
+        this.routedConnectionsById({});
+    }
+
     getDrawingInstructions(connection) {
         if (connection[1] > 6 || (connection[1] - connection[0] === 3)) {
             return 'M ' + EdgeCoordinates[connection[0]] + ' L ' + EdgeCoordinates[connection[1]];
@@ -120,6 +147,17 @@ class Tile extends Serializable {
             return 'M ' + EdgeCoordinates[connection[0]] + ' C ' + (CurveControls[connection[0] + '-' + connection[1]] || '0,0 0,0') + ' ' + EdgeCoordinates[connection[1]];
         }
     }
+
+    getOuterStrokeColor(connection) {
+        const connectionId = this.getConnectionId(connection);
+        return this.routedConnectionsById()[connectionId] || 'white';
+    }
+
+    getOuterStrokeWidth(connection) {
+        const connectionId = this.getConnectionId(connection);
+        return this.routedConnectionsById()[connectionId] ? 21 : 13;
+    }
+
 }
 
 Tile.registerClass();
