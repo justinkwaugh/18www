@@ -443,7 +443,7 @@ class Grid extends BaseGrid {
         const valid = this.route.isValid();
         _.each(this.route.cells(),
                cell => this.cellsById()[cell.id].tile().updateRoutedConnectionsColor(this.route.id,
-                                                                                     valid ? 'red' : 'gray'));
+                                                                                     valid ? this.route.color : 'gray'));
 
 
     }
@@ -486,7 +486,7 @@ class Grid extends BaseGrid {
                                                    neighbor => neighbor && neighbor.id === this.route.nextToLastCell().id);
                 const connection = lastCell.hasConnectionAtIndex(connectingEdge);
                 lastCell.tile().clearRoutedConnections(this.route.id);
-                lastCell.tile().addRoutedConnection(connection, 'red', this.route.id);
+                lastCell.tile().addRoutedConnection(connection, this.route.color, this.route.id);
                 this.route.updateConnections(lastCell.id, [connection]);
             }
         }

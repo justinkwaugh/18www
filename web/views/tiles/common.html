@@ -20,13 +20,10 @@
         <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
               d=""
               data-bind="attr: { d: $parent.getDrawingInstructions($data), stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }"></path>
-        <!-- /ko -->
-
-        <!-- ko foreach: $data.getRoutedConnections() -->
         <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
               d="" data-bind="attr: { d: $parent.getDrawingInstructions($data,true) }"></path>
         <!-- /ko -->
-
+        
         <text x="0" y="58" fill="black" stroke="black" stroke-width="0.2"
               font-size="12" text-anchor="middle" visibility="inherit" data-bind="text: $data.id">
         </text>

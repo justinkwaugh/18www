@@ -133,6 +133,14 @@ class Tile extends Serializable {
         return Math.min(connection[0], connection[1]) + '-' + Math.max(connection[0], connection[1]);
     }
 
+    getRoutedCityColors(cityId) {
+        cityId = cityId || 7;
+        return _(this.getRoutedConnections()).filter(connection=>Math.max(connection[0], connection[1]) === cityId).map(connection=>{
+            const connectionId = this.getConnectionId(connection);
+            return this.routedConnectionsById()[connectionId].color;
+        }).uniq().value();
+    }
+
     getRoutedConnections() {
         return _(this.connections).filter(connection=> {
             const connectionId = this.getConnectionId(connection);
@@ -210,6 +218,36 @@ class Tile extends Serializable {
     getOuterStrokeWidth(connection) {
         const connectionId = this.getConnectionId(connection);
         return this.routedConnectionsById()[connectionId] ? 21 : 13;
+    }
+
+    getCityDashArray(cityId) {
+        const num = this.getRoutedCityColors(cityId).length;
+        if(num === 2) {
+            return '40 40 40 40';
+        }
+        else if (num === 3) {
+            return '33 66 33 66';
+        }
+        else if (num === 4) {
+            return '20 60 20 60'
+        }
+
+        return '';
+    }
+
+    getCityDashOffset(cityId) {
+        const num = this.getRoutedCityColors(cityId).length;
+        if(num === 2) {
+            return '40';
+        }
+        else if (num === 3) {
+            return '33';
+        }
+        else if (num === 4) {
+            return '20'
+        }
+
+        return '';
     }
 
     getCityOuterStrokeColor(cityId) {

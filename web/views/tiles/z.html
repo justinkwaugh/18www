@@ -7,11 +7,13 @@
 
         <!-- ko foreach: $data.connections -->
         <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
-              d="" data-bind="attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }"></path>
+              d=""
+              data-bind="attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }"></path>
         <!-- /ko -->
 
         <!-- ko if: $data.cities[7].maxTokens === 1 -->
-        <circle cx="0" cy="0" r="26" fill="white" stroke-width="1" data-bind="attr: { stroke: $data.getCityOuterStrokeColor(7), 'stroke-width': $data.getCityOuterStrokeWidth(7) }"></circle>
+        <circle cx="0" cy="0" r="26" fill="white" stroke-width="1"
+                data-bind="attr: { stroke: $data.getCityOuterStrokeColor(7), 'stroke-width': $data.getCityOuterStrokeWidth(7) }"></circle>
         <!-- /ko -->
 
         <!-- ko if: $data.cities[7].maxTokens === 2 -->
@@ -34,6 +36,33 @@
         <!-- /ko -->
 
         <!-- ko foreach: $data.connections -->
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="" data-bind="attr: { d: $parent.getDrawingInstructions($data,true) }"></path>
+        <!-- /ko -->
+
+        <!-- ko foreach: $data.getRoutedCityColors() -->
+        <!-- ko if: $parent.cities[7].maxTokens === 1 -->
+        <circle cx="0" cy="0" r="26" fill="none" stroke-width="8"
+                data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }"></circle>
+        <!-- /ko -->
+        <!-- ko if: $parent.cities[7].maxTokens === 2 -->
+        <g fill-opacity="1" visibility="inherit" transform="rotate(30 0 0)">
+            <rect x="-50" y="-26" width="100" height="52" rx="26" ry="26" fill="none" stroke-width="8"
+                  data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }"></rect>
+        </g>
+        <!-- /ko -->
+        <!-- ko if: $parent.cities[7].maxTokens === 3 -->
+        <g fill-opacity="1" visibility="inherit" transform="rotate(30 0 0)">
+            <path d="M -26 -40 L 26 -40 A 26 26 0 0 1 46 0 L 23 41 A 26 26 0 0 1 -23 41 L -46 0 A 26 26 0 0 1 -26 -40"
+                  fill="none" stroke-width="8" data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }"></path>
+        </g>
+        <!-- /ko -->
+        <!-- /ko -->
+
+        <!-- ko foreach: $data.getRoutedConnections() -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d=""
+              data-bind="attr: { d: $parent.getDrawingInstructions($data), stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }"></path>
         <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
               d="" data-bind="attr: { d: $parent.getDrawingInstructions($data,true) }"></path>
         <!-- /ko -->
