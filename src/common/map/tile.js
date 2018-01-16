@@ -65,6 +65,10 @@ class Tile extends Serializable {
         return plainObject;
     }
 
+    getRevenue() {
+        return this.revenue;
+    }
+
     getTokensForCity(cityId) {
         return this.tokensPerCity()[cityId] || [];
     }
@@ -105,12 +109,16 @@ class Tile extends Serializable {
     }
 
     hasTokenForCompany(companyId, cityId) {
-        if(cityId) {
+        if (cityId) {
             return _.indexOf(this.getTokensForCity(cityId), companyId) >= 0;
         }
         else {
             return _(this.tokensPerCity()).values().flatten().indexOf(companyId) >= 0;
         }
+    }
+
+    isBlockedForCompany(companyId, cityId) {
+        return !this.hasTokenForCompany(companyId, cityId) && this.getTokensForCity(cityId).length === this.cities[cityId].maxTokens;
     }
 
     hasConnection(start, end) {
@@ -125,18 +133,63 @@ class Tile extends Serializable {
         return Math.min(connection[0], connection[1]) + '-' + Math.max(connection[0], connection[1]);
     }
 
-    addRoutedConnection(connection, color) {
+    getRoutedConnections() {
+        return _(this.connections).filter(connection=> {
+            const connectionId = this.getConnectionId(connection);
+            return this.routedConnectionsById()[connectionId];
+        }).value();
+    }
+
+    getUnroutedConnections() {
+        return _(this.connections).reject(connection=> {
+            const connectionId = this.getConnectionId(connection);
+            return this.routedConnectionsById()[connectionId];
+        }).value();
+    }
+
+    hasRoutedConnection(connection, routeId) {
         const connectionId = this.getConnectionId(connection);
-        this.routedConnectionsById()[connectionId] = color;
+        const routedConnection = this.routedConnectionsById()[connectionId];
+        return routedConnection && routedConnection.routeId === routeId;
+    }
+
+    hasOtherRoutedConnection(connection, routeId) {
+        const connectionId = this.getConnectionId(connection);
+        const routedConnection = this.routedConnectionsById()[connectionId];
+        return routedConnection && routedConnection.routeId !== routeId;
+    }
+
+    addRoutedConnection(connection, color, routeId) {
+        const connectionId = this.getConnectionId(connection);
+        this.routedConnectionsById.valueWillMutate();
+        this.routedConnectionsById()[connectionId] = { color, routeId };
+        this.routedConnectionsById.valueHasMutated();
     }
 
     removeRoutedConnection(connection) {
         const connectionId = this.getConnectionId(connection);
+        this.routedConnectionsById.valueWillMutate();
         delete this.routedConnectionsById()[connectionId];
+        this.routedConnectionsById.valueHasMutated();
     }
 
-    clearRoutedConnections() {
-        this.routedConnectionsById({});
+    clearRoutedConnections(routeId) {
+        this.routedConnectionsById.valueWillMutate();
+        if(!routeId) {
+            this.routedConnectionsById({});
+        }
+        else {
+            this.routedConnectionsById(_.pickBy(this.routedConnectionsById(), connectionData=> connectionData.routeId !== routeId));
+        }
+        this.routedConnectionsById.valueHasMutated();
+    }
+
+    updateRoutedConnectionsColor(routeId, color) {
+        this.routedConnectionsById.valueWillMutate();
+        _(this.routedConnectionsById()).values().filter(connectionData => connectionData.routeId === routeId).each(connectionData=> {
+            connectionData.color = color;
+        });
+        this.routedConnectionsById.valueHasMutated();
     }
 
     getDrawingInstructions(connection) {
@@ -150,12 +203,26 @@ class Tile extends Serializable {
 
     getOuterStrokeColor(connection) {
         const connectionId = this.getConnectionId(connection);
-        return this.routedConnectionsById()[connectionId] || 'white';
+        const connectionData = this.routedConnectionsById()[connectionId];
+        return connectionData ? connectionData.color : 'white';
     }
 
     getOuterStrokeWidth(connection) {
         const connectionId = this.getConnectionId(connection);
         return this.routedConnectionsById()[connectionId] ? 21 : 13;
+    }
+
+    getCityOuterStrokeColor(cityId) {
+        const routedConnectionId = _(this.connections).filter(connection => connection[1] === cityId || connection[0] === cityId).map(
+            connection => this.getConnectionId(connection)).find(connectionId=>this.routedConnectionsById()[connectionId]);
+        return routedConnectionId ? this.routedConnectionsById()[routedConnectionId].color : 'white';
+
+    }
+
+    getCityOuterStrokeWidth(cityId) {
+        const routed = _(this.connections).filter(connection => connection[1] === cityId || connection[0] === cityId).map(
+            connection => this.getConnectionId(connection)).find(connectionId=>this.routedConnectionsById()[connectionId]);
+        return routed ? 8 : 1;
     }
 
 }

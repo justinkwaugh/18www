@@ -49,6 +49,7 @@
     "karma-webpack": "^2.0.3",
     "knockout": "^3.4.2",
     "knockout-amd-helpers": "^1.0.0",
+    "knockout-delegated-events": "^0.6.1",
     "knockout-template-loader": "^1.0.1",
     "lodash": "^4.17.4",
     "mocha": "^3.4.2",

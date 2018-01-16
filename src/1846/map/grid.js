@@ -8,6 +8,7 @@ import TileManifest from '1846/config/tileManifest';
 import Events from 'common/util/events';
 import CurrentGame from 'common/game/currentGame';
 import TerrainTypes from '1846/config/terrainTypes';
+import Route from 'common/model/route';
 
 const RowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
 
@@ -36,6 +37,8 @@ const SpecialTiles = {
     D20: MapTileIDs.ERIE,
     E11: MapTileIDs.CITY,
     E17: MapTileIDs.CLEVELAND,
+    E21: MapTileIDs.SALAMANCA,
+    F20: MapTileIDs.HOMEWOOD,
     G3: MapTileIDs.CITY,
     G7: MapTileIDs.CITY,
     G9: MapTileIDs.CITY,
@@ -44,6 +47,8 @@ const SpecialTiles = {
     G19: MapTileIDs.WHEELING,
     H12: MapTileIDs.CINCINNATI,
     I5: MapTileIDs.CENTRALIA,
+    I15: MapTileIDs.HUNTINGTON,
+    K3: MapTileIDs.CAIRO,
     [OffBoardIds.CHICAGO_CONNECTIONS]: MapTileIDs.CHICAGO_CONNECTIONS,
     [OffBoardIds.ST_LOUIS]: MapTileIDs.ST_LOUIS,
     [OffBoardIds.HOLLAND]: MapTileIDs.HOLLAND,
@@ -56,7 +61,6 @@ const SpecialTiles = {
     [OffBoardIds.PITTSBURGH]: MapTileIDs.PITTSBURGH,
     [OffBoardIds.CUMBERLAND]: MapTileIDs.CUMBERLAND
 };
-
 
 
 const ConnectionCosts = {
@@ -176,6 +180,24 @@ const OffBoardDefinitions = {
 
 class Grid extends BaseGrid {
     constructor(state) {
+
+        super({cellSize: 124, cells: []});
+        this.cells(this.createCells(state));
+
+        this.routing = false;
+        this.route = null;
+        this.connectNeighbors();
+
+        Events.on('stateUpdated', () => {
+            _.each(CurrentGame().state().tilesByCellId, (tile, cellId) => {
+                this.cellsById()[cellId].tile(tile);
+            });
+
+            Events.emit('gridRestored');
+        });
+    }
+
+    createCells(state) {
         const cells = _(_.range(0, 10 * 12)).map((value) => {
             const row = Math.floor(value / 12);
             const col = value % 10;
@@ -244,18 +266,7 @@ class Grid extends BaseGrid {
             cell.tile(tile);
         });
 
-        super({cellSize: 124, cells: allCells});
-
-        this.connectNeighbors();
-
-
-        Events.on('stateUpdated', () => {
-            _.each(CurrentGame().state().tilesByCellId, (tile, cellId) => {
-                this.cellsById()[cellId].tile(tile);
-            });
-
-            Events.emit('gridRestored');
-        });
+        return allCells;
     }
 
     connectNeighbors() {
@@ -329,6 +340,160 @@ class Grid extends BaseGrid {
         return RowLetters[row] + (column * 2 + ((row % 2) ? 2 : 3));
     }
 
+    onMouseOver(cell) {
+        if (!this.routing) {
+            return;
+        }
+
+        // If reentering earlier in the route, prune to here
+        if (this.route.containsCell(cell.id)) {
+            if (this.route.lastCell().id !== cell.id) {
+                if (this.route.firstCell().id === cell.id) {
+                    this.startRoute(cell);
+                    return;
+                }
+                else {
+                    const index = this.route.cellIndex(cell.id);
+                    const removedCells = this.route.pruneAt(index - 1);
+                    _.each(removedCells,
+                           cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
+                    cell.tile().clearRoutedConnections(this.route.id);
+                }
+            }
+
+        }
+
+        if (this.route.isFull()) {
+            return;
+        }
+
+        const connectingEdge = _.findIndex(cell.neighbors,
+                                           neighbor => neighbor && neighbor.id === this.route.lastCell().id);
+        if (connectingEdge < 0) {
+            return;
+        }
+
+        if (!cell.hasConnectionAtIndex(connectingEdge)) {
+            return;
+        }
+
+        const neighbor = cell.neighbors[connectingEdge];
+        const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(connectingEdge);
+        const neighborConnectionsToIndex = neighbor.getConnectionsToIndex(cell, neighborConnectionIndex);
+        if (neighborConnectionsToIndex.length === 0) {
+            return;
+        }
+
+        if (_.find(neighborConnectionsToIndex,
+                   connection => neighbor.tile().hasOtherRoutedConnection(connection, this.route.id))) {
+            return;
+        }
+
+        if (!_.find(neighborConnectionsToIndex,
+                   connection => neighbor.tile().hasRoutedConnection(connection, this.route.id))) {
+            return;
+        }
+
+        const neighborConnections = [];
+        // clear the previous tile connection options for this route
+        neighbor.tile().clearRoutedConnections(this.route.id);
+        if (_.keys(neighbor.tile().cities).length > 0) {
+            const connection = neighbor.hasConnectionAtIndex(neighborConnectionIndex);
+            neighbor.tile().addRoutedConnection(connection, 'gray', this.route.id);
+            neighborConnections.push(connection);
+
+            if (this.route.numCells() > 1) {
+                const preConnectingEdge = _.findIndex(neighbor.neighbors,
+                                                      preneighbor => preneighbor && preneighbor.id === this.route.nextToLastCell().id);
+                const preConnection = neighbor.getConnectionToEdges(Math.max(connection[0], connection[1]),
+                                                                    preConnectingEdge);
+                neighbor.tile().addRoutedConnection(preConnection, 'gray', this.route.id);
+                neighborConnections.push(connection);
+            }
+        }
+        else {
+            const preConnectingEdge = _.findIndex(neighbor.neighbors,
+                                                  preneighbor => preneighbor && preneighbor.id === this.route.nextToLastCell().id);
+            const connection = neighbor.getConnectionToEdges(neighborConnectionIndex, preConnectingEdge);
+            neighbor.tile().addRoutedConnection(connection, 'gray', this.route.id);
+            neighborConnections.push(connection);
+        }
+        this.route.updateConnections(neighbor.id, neighborConnections);
+
+        // Now add the connections in our current tile
+        const startPoint = cell.getConnectionPointAtIndex(cell, connectingEdge);
+        const connectionsToPrior = _.reject(cell.getConnectionsToIndex(cell, connectingEdge), connection => {
+            const endPoint = connection[0] === startPoint ? connection[1] : connection[0];
+            const connectionsToEnd = cell.getConnectionsToPoint(cell, endPoint);
+            return _.find(connectionsToEnd,
+                          connectionToEnd => cell.tile().hasOtherRoutedConnection(connectionToEnd, this.route.id));
+        });
+
+        _.each(connectionsToPrior, connection => cell.tile().addRoutedConnection(connection, 'gray', this.route.id));
+        this.route.addCell(cell.id, connectionsToPrior);
+
+
+        if (this.route.isFull()) {
+            const connection = cell.hasConnectionAtIndex(connectingEdge);
+            cell.tile().clearRoutedConnections(this.route.id);
+            cell.tile().addRoutedConnection(connection, 'gray', this.route.id);
+            this.route.updateConnections(cell.id, [connection]);
+        }
+
+        const valid = this.route.isValid();
+        _.each(this.route.cells(),
+               cell => this.cellsById()[cell.id].tile().updateRoutedConnectionsColor(this.route.id,
+                                                                                     valid ? 'red' : 'gray'));
+
+
+    }
+
+    onMouseOut(cell) {
+        //console.log('mouse leaving cell ' + cell.id);
+    }
+
+    startRoute(cell) {
+        _.each(this.route.cells(), cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
+        this.route.clear();
+        _.each(cell.tile().getUnroutedConnections(),
+               connection => cell.tile().addRoutedConnection(connection, 'gray', this.route.id));
+        this.route.addCell(cell.id, cell.tile().getUnroutedConnections);
+    }
+
+    onMouseDown(cell) {
+        if (cell.tile().getRevenue() > 0 && this.route) {
+            this.startRoute(cell);
+            this.routing = true;
+        }
+    }
+
+    onMouseUp(cell) {
+        if (!this.routing) {
+            return;
+        }
+
+        const removedCells = this.route.pruneToLastCity();
+        _.each(removedCells, cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
+
+        if (!this.route.isValid()) {
+            _.each(this.route.cells(), cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
+            this.route.clear();
+        }
+        else {
+            const lastCell = this.cellsById()[this.route.lastCell().id];
+            if (_.keys(lastCell.tile().cities).length > 0) {
+                const connectingEdge = _.findIndex(lastCell.neighbors,
+                                                   neighbor => neighbor && neighbor.id === this.route.nextToLastCell().id);
+                const connection = lastCell.hasConnectionAtIndex(connectingEdge);
+                lastCell.tile().clearRoutedConnections(this.route.id);
+                lastCell.tile().addRoutedConnection(connection, 'red', this.route.id);
+                this.route.updateConnections(lastCell.id, [connection]);
+            }
+        }
+
+        console.log(JSON.stringify(this.route))
+        this.routing = false;
+    }
 }
 
 export default Grid;

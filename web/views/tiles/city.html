@@ -7,18 +7,18 @@
 
         <!-- ko foreach: $data.connections -->
         <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
-              d="" data-bind="attr: { d: $parent.getDrawingInstructions($data) }"></path>
+              d="" data-bind="attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }"></path>
         <!-- /ko -->
 
         <!-- ko if: $data.cities[7].maxTokens === 1 -->
-        <circle cx="0" cy="0" r="26" fill="white" stroke-width="1"></circle>
+        <circle cx="0" cy="0" r="26" fill="white" stroke-width="1" data-bind="attr: { stroke: $data.getCityOuterStrokeColor(7), 'stroke-width': $data.getCityOuterStrokeWidth(7) }" ></circle>
         <!-- /ko -->
 
         <!-- ko if: $data.cities[7].maxTokens === 2 -->
         <g fill-opacity="1" visibility="inherit" transform="rotate(30 0 0)">
-            <circle cx="-23" cy="0" r="26" fill="white" stroke-width="1"></circle>
-            <circle cx="23" cy="0" r="26" fill="white" stroke-width="1"></circle>
-            <rect x="-26" y="-26" width="52" height="52" fill="white"></rect>
+            <circle cx="-23" cy="0" r="26" fill="white" stroke-width="1" data-bind="attr: { stroke: $data.getCityOuterStrokeColor(7), 'stroke-width': $data.getCityOuterStrokeWidth(7) }"></circle>
+            <circle cx="23" cy="0" r="26" fill="white" stroke-width="1" data-bind="attr: { stroke: $data.getCityOuterStrokeColor(7), 'stroke-width': $data.getCityOuterStrokeWidth(7) }"></circle>
+            <rect x="-26" y="-26" width="52" height="52" fill="white" data-bind="attr: { stroke: $data.getCityOuterStrokeColor(7), 'stroke-width': $data.getCityOuterStrokeWidth(7) }"></rect>
         </g>
         <!-- /ko -->
 

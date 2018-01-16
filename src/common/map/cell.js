@@ -258,20 +258,20 @@ class Cell {
         const phase = CurrentGame().state().currentPhaseId();
 
         return _.filter(CurrentGame().state().manifest.getUpgradesForTile(this.tile().id) || [], (upgrade) => {
-            if (phase === PhaseIDs.PHASE_I && upgrade.tile.colorId !== TileColorIDs.YELLOW) {
-                return false;
-            }
-
-            if (phase === PhaseIDs.PHASE_II && _.indexOf([TileColorIDs.GREEN, TileColorIDs.YELLOW],
-                                                         upgrade.tile.colorId) < 0) {
-                return false;
-            }
-
-            if (phase === PhaseIDs.PHASE_III && _.indexOf(
-                    [TileColorIDs.BROWN, TileColorIDs.GREEN, TileColorIDs.YELLOW],
-                    upgrade.tile.colorId) < 0) {
-                return false;
-            }
+            // if (phase === PhaseIDs.PHASE_I && upgrade.tile.colorId !== TileColorIDs.YELLOW) {
+            //     return false;
+            // }
+            //
+            // if (phase === PhaseIDs.PHASE_II && _.indexOf([TileColorIDs.GREEN, TileColorIDs.YELLOW],
+            //                                              upgrade.tile.colorId) < 0) {
+            //     return false;
+            // }
+            //
+            // if (phase === PhaseIDs.PHASE_III && _.indexOf(
+            //         [TileColorIDs.BROWN, TileColorIDs.GREEN, TileColorIDs.YELLOW],
+            //         upgrade.tile.colorId) < 0) {
+            //     return false;
+            // }
 
 
             return _.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
@@ -588,6 +588,14 @@ class Cell {
         });
     }
 
+    getConnectionToEdges(start, end) {
+        return _.find(TileManifest.getTileDefinition(this.tile().id).connections, (connection) => {
+            const offsetStart = Cell.getOffsetIndexForPosition(connection[0], this.tile().position());
+            const offsetEnd = Cell.getOffsetIndexForPosition(connection[1], this.tile().position());
+            return (offsetStart === start || offsetStart === end ) && (offsetEnd === start || offsetEnd === end);
+        });
+    }
+
     getConnectionPointAtIndex(neighbor, index) {
         const connection = this.hasConnectionAtIndex(index);
         if (connection) {
@@ -595,6 +603,30 @@ class Cell {
                                                   this.tile().position()) === index ? connection[0] : connection[1];
         }
         return -1;
+    }
+
+    getConnectionsToIndex(neighbor, index) {
+        return _.filter(TileManifest.getTileDefinition(this.tile().id).connections, (connection) => {
+            if (Cell.getOffsetIndexForPosition(connection[0], this.tile().position()) === index) {
+                return true;
+            }
+
+            if (Cell.getOffsetIndexForPosition(connection[1], this.tile().position()) === index) {
+                return true;
+            }
+        });
+    }
+
+    getConnectionsToPoint(neighbor, index) {
+        return _.filter(TileManifest.getTileDefinition(this.tile().id).connections, (connection) => {
+            if (Cell.getOffsetIndexForPosition(connection[0], 0) === index) {
+                return true;
+            }
+
+            if (Cell.getOffsetIndexForPosition(connection[1], 0) === index) {
+                return true;
+            }
+        });
     }
 
     static getNeighboringConnectionIndex(index) {
@@ -672,27 +704,6 @@ class Cell {
         this.cancelPreview();
 
     }
-
-    onMouseOver() {
-        console.log('mousing over cell ' + this.id);
-    }
-
-    onMouseEnter() {
-        console.log('mouse entering cell ' + this.id);
-    }
-
-    onMouseOut() {
-        console.log('mouse leaving cell ' + this.id);
-    }
-
-    onMouseDown() {
-        console.log('mouse down on ' + this.id);
-    }
-
-    onMouseUp() {
-        console.log('mouse up on ' + this.id);
-    }
-
 }
 
 export default Cell;

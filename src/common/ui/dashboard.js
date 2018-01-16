@@ -5,6 +5,7 @@ import User from 'common/server/user';
 import Sequence from '1846/game/sequence';
 import 'common/util/knockoutBootstrapBindings';
 import _ from 'lodash';
+import 'knockout-delegated-events';
 
 class Dashboard {
     constructor() {

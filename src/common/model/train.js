@@ -8,7 +8,8 @@ class Train extends Serializable{
         data = data || {};
         this.id = data.id || short().new();
         this.type = data.type;
-        this.route = data.route || new Route();
+        this.lastRoute = data.lastRoute;
+        this.route = data.route || new Route({trainType: this.type});
         this.phasedOut = data.phasedOut;
     }
 }
