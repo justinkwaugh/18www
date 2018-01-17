@@ -5,7 +5,10 @@ class OffBoardCell extends Cell {
     constructor(definition) {
         definition = definition || {};
         super(definition);
+        this.offboard = true;
         this.connections = definition.connections;
+        this.direction = definition.direction;
+        this.ewBonus = definition.bonus;
     }
 
     getConnectionPointAtIndex(neighbor, index) {

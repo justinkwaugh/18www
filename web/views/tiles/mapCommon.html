@@ -1,0 +1,12 @@
+<svg style="width:126px;height:144px;">
+    <g fill-opacity="1" visibility="inherit" transform="translate(63,72)" pointer-events="none">
+        <!-- ko foreach: $data.connections -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d="" data-bind="attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }"></path>
+        <!-- /ko -->
+        <!-- ko foreach: $data.connections -->
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="" data-bind="attr: { d: $parent.getDrawingInstructions($data,true) }"></path>
+        <!-- /ko -->
+    </g>
+</svg>

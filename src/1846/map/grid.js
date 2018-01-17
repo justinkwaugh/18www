@@ -87,10 +87,13 @@ const ConnectionCosts = {
 const OffBoardDefinitions = {
     [OffBoardIds.CHICAGO_CONNECTIONS]: {
         id: OffBoardIds.CHICAGO_CONNECTIONS,
-        top: 0,
-        left: 0,
+        top: 171,
+        left: 9,
         row: 0,
         col: 0,
+        width:304,
+        height:110,
+        outline: '-152, -55 152, -55 152, 18 88,55 -152, 55',
         connections: ['D6|2']
     },
     [OffBoardIds.ST_LOUIS]: {
@@ -198,9 +201,10 @@ class Grid extends BaseGrid {
     }
 
     createCells(state) {
-        const cells = _(_.range(0, 10 * 12)).map((value) => {
+        const cells = _(_.range(0, 11 * 12)).map((value) => {
+
             const row = Math.floor(value / 12);
-            const col = value % 10;
+            const col = value % 12;
 
             if (row === 0 && (col !== 6)) {
                 return
@@ -243,12 +247,11 @@ class Grid extends BaseGrid {
             }
 
             const id = Grid.getIDForRowAndColumn(row, col);
-
             return new Cell({
                                 id: id,
                                 row,
                                 col,
-                                top: 1 + ((row - 1) * 107),
+                                top: 30 + ((row - 1) * 107),
                                 left: 2 + (((row - 1) % 2) ? 62 : 0) + col * 124,
                                 connectionCosts: ConnectionCosts[id]
                             });

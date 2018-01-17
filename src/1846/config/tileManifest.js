@@ -9,7 +9,9 @@ import ValidationError from 'common/game/validationError';
 const TileDefinitions = {
     [MapTileIDs.CHICAGO_CONNECTIONS]: {
         id: MapTileIDs.CHICAGO_CONNECTIONS,
-        colorId: TileColorIDs.INVISIBLE
+        colorId: TileColorIDs.INVISIBLE,
+        template: 'chicagoConnections',
+        connections: [['D6|2','-1']]
     },
     [MapTileIDs.ST_LOUIS]: {
         id: MapTileIDs.ST_LOUIS,
@@ -54,6 +56,15 @@ const TileDefinitions = {
     [MapTileIDs.BLANK]: {
         id: MapTileIDs.BLANK,
         colorId: TileColorIDs.INVISIBLE
+    },
+    [MapTileIDs.CAIRO]: {
+        id: MapTileIDs.CAIRO,
+        colorId: TileColorIDs.INVISIBLE,
+        revenue: 20,
+        connections: [[0, 7]],
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
     },
     [MapTileIDs.CITY]: {
         id: MapTileIDs.CITY,
@@ -160,11 +171,13 @@ const TileDefinitions = {
     [MapTileIDs.C7]: {
         id: MapTileIDs.C7,
         colorId: TileColorIDs.INVISIBLE,
+        template: 'mapCommon',
         connections: [[2, 3]]
     },
     [MapTileIDs.A15]: {
         id: MapTileIDs.A15,
         colorId: TileColorIDs.INVISIBLE,
+        template: 'mapCommon',
         connections: [[2, 3]]
     },
     5: {
@@ -566,6 +579,9 @@ const Manifest = {
     [MapTileIDs.BLANK]: {
         upgrades: [7, 8, 9],
         count: -1
+    },
+    [MapTileIDs.CAIRO]: {
+        upgrades: []
     },
     [MapTileIDs.CITY]: {
         upgrades: [5, 6, 57],

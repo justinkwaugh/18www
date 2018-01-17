@@ -67,6 +67,35 @@ nav a, nav a:hover {
     transform: rotate(-300deg);
 }
 
+.pos-token0 {
+    transform-origin:20px 20px;
+    transform: rotate(0);
+}
+
+.pos-token1 {
+    transform-origin:20px 20px;
+    transform: rotate(-60deg);
+}
+
+.pos-token2 {
+    transform-origin:20px 20px;
+    transform: rotate(-120deg);
+}
+
+.pos-token3 {
+    transform-origin:20px 20px;
+    transform: rotate(-180deg);
+}
+
+.pos-token4 {
+    transform-origin:20px 20px;
+    transform: rotate(-240deg);
+}
+
+.pos-token5 {
+    transform-origin:20px 20px;
+    transform: rotate(-300deg);
+}
 
 .bg-gt {
     background-color: #f4801a !important;

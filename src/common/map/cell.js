@@ -49,12 +49,16 @@ class Cell {
     constructor(data) {
         data = data || {};
 
+        console.log('creating cell id ' + data.id + ' at ' + data.top + ',' + data.left);
         this.id = data.id;
         this.upgradeable = data.upgradeable || true;
         this.top = data.top || 0;
         this.left = data.left || 0;
         this.row = data.row || 0;
         this.col = data.col || 0;
+        this.width = data.width || 126;
+        this.height = data.height || 144;
+        this.outline = data.outline || '0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796';
         this.tile = ko.observable(data.tile);
         this.preview = ko.observable(data.preview);
         this.allowedPreviewPositionData = ko.observable({});

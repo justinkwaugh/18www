@@ -54,7 +54,8 @@
         <!-- ko if: $parent.cities[7].maxTokens === 3 -->
         <g fill-opacity="1" visibility="inherit" transform="rotate(30 0 0)">
             <path d="M -26 -40 L 26 -40 A 26 26 0 0 1 46 0 L 23 41 A 26 26 0 0 1 -23 41 L -46 0 A 26 26 0 0 1 -26 -40"
-                  fill="none" stroke-width="8" data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }"></path>
+                  fill="none" stroke-width="8"
+                  data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }"></path>
         </g>
         <!-- /ko -->
         <!-- /ko -->
@@ -80,16 +81,21 @@
             <rect x="-23" y="-23" width="46" height="46" fill="white" stroke="black" stroke-width="1"></rect>
             <circle cx="-23" cy="0" r="23" fill="white" stroke="black" stroke-width="1"></circle>
             <circle cx="23" cy="0" r="23" fill="white" stroke="black" stroke-width="1"></circle>
-            <!-- ko if: $data.getTokensForCity(7).length > 0 -->
-            <image xlink:href="" x="-42" y="-19" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
-            <!-- /ko -->
-
-            <!-- ko if: $data.getTokensForCity(7).length > 1 -->
-            <image xlink:href="" x="42" y="-19" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
-            <!-- /ko -->
         </g>
+
+        <!-- ko if: $data.getTokensForCity(7).length > 0 -->
+        <g transform="translate(-40, -31)">
+            <image xlink:href="" x="0" y="0" height="40px" width="40px"
+                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+        </g>
+        <!-- /ko -->
+
+        <!-- ko if: $data.getTokensForCity(7).length > 1 -->
+        <g transform="translate(40, 31)">
+            <image xlink:href="" x="0" y="0" height="40px" width="40px"
+                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+        </g>
+        <!-- /ko -->
         <!-- /ko -->
 
         <!-- ko if: $data.cities[7].maxTokens === 3 -->
