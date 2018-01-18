@@ -18,6 +18,12 @@ class OffBoardCell extends Cell {
     hasConnectionAtIndex(index) {
         return _.indexOf(this.connections, index) >= 0;
     }
+
+    getConnectionsToCell(cell) {
+        return _.filter(this.tile().connections, connection=> {
+            return _.startsWith(connection[0], cell.id) || _.startsWith(connection[1], cell.id);
+        });
+    }
 }
 
 export default OffBoardCell;

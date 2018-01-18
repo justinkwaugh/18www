@@ -11,7 +11,8 @@ const TileDefinitions = {
         id: MapTileIDs.CHICAGO_CONNECTIONS,
         colorId: TileColorIDs.INVISIBLE,
         template: 'chicagoConnections',
-        connections: [['D6|2','-1']]
+        connections: [[-1, 'D6|2']],
+        revenue: [20,20,40,40]
     },
     [MapTileIDs.ST_LOUIS]: {
         id: MapTileIDs.ST_LOUIS,

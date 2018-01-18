@@ -12,7 +12,6 @@
                  points="0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796"
                  data-bind="attr: { fill: $data.colorId === 'y' ? '#ffe300' : $data.colorId === 'g' ? '#5fb479' : $data.colorId === 'b' ? '#c18157' : '#d2d2d4'}  "></polygon>
 
-
         <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
               d="M 31,-53.69 C 17.22,-29.83 34.45,0 62,0"></path>
 
@@ -25,7 +24,6 @@
         <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
               d="M 31,-53.69 C 11.82,-20.47 -23.64,0 -62,0"></path>
 
-
         <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
               d="M 31,-53.69 C 17.22,-29.83 34.45,0 62,0"></path>
 
@@ -38,15 +36,79 @@
         <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
               d="M 31,-53.69 C 11.82,-20.47 -23.64,0 -62,0"></path>
 
-        <circle cx="40" cy="-5" r="23" fill="white" stroke="black" stroke-width="1"></circle>
-        <circle cx="48" cy="0" r="23" fill="white" stroke="black" stroke-width="1" transform="rotate(60 0 0)"></circle>
-        <circle cx="48" cy="0" r="23" fill="white" stroke="black" stroke-width="1" transform="rotate(120 0 0)"></circle>
-        <circle cx="48" cy="0" r="23" fill="white" stroke="black" stroke-width="1" transform="rotate(180 0 0)"></circle>
 
-        <circle cx="0" cy="-49" r="13" fill="white" stroke="black" stroke-width="1"></circle>
-        <text x="0" y="-47" fill="black" stroke="black" stroke-width="0.4"
-              font-size="16" alignment-baseline="middle" text-anchor="middle" visibility="inherit">40
-        </text>
+        <!-- ko if: $data.getRoutedConnection([0,7]) -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d="M 31,-53.69 C 17.22,-29.83 34.45,0 62,0"
+              data-bind="attr: { stroke: $data.getOuterStrokeColor([0,7]), 'stroke-width': $data.getOuterStrokeWidth([0,7]) }"></path>
+
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="M 31,-53.69 C 17.22,-29.83 34.45,0 62,0"></path>
+        <!-- /ko -->
+
+        <!-- ko if: $data.getRoutedConnection([0,8]) -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d="M 31,-53.69 C 11.82,-20.47 11.82,20.47 31,53.69"
+              data-bind="attr: { stroke: $data.getOuterStrokeColor([0,8]), 'stroke-width': $data.getOuterStrokeWidth([0,8]) }"></path>
+
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="M 31,-53.69 C 11.82,-20.47 11.82,20.47 31,53.69"></path>
+        <!-- /ko -->
+
+        <!-- ko if: $data.getRoutedConnection([0,9]) -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d="M 31,-53.69 L -31,53.69"
+              data-bind="attr: { stroke: $data.getOuterStrokeColor([0,9]), 'stroke-width': $data.getOuterStrokeWidth([0,9]) }"></path>
+
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="M 31,-53.69 L -31,53.69"></path>
+        <!-- /ko -->
+
+        <!-- ko if: $data.getRoutedConnection([0,10]) -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d="M 31,-53.69 C 11.82,-20.47 -23.64,0 -62,0"
+              data-bind="attr: { stroke: $data.getOuterStrokeColor([0,10]), 'stroke-width': $data.getOuterStrokeWidth([0,10]) }"></path>
+
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="M 31,-53.69 C 11.82,-20.47 -23.64,0 -62,0"></path>
+        <!-- /ko -->
+
+        <!-- ko foreach: $data.getRoutedCityColors(7) -->
+        <circle cx="40" cy="-6" r="24" fill="white" stroke="none" stroke-width="8"
+                data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(7), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(7) }"></circle>
+        <!-- /ko -->
+        <!-- ko foreach: $data.getRoutedCityColors(8) -->
+        <circle cx="40" cy="-3" r="24" fill="white" stroke="none" stroke-width="8" transform="rotate(60 0 0)"
+                data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(8), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(8) }"></circle>
+        <!-- /ko -->
+
+        <!-- ko foreach: $data.getRoutedCityColors(9) -->
+        <circle cx="40" cy="0" r="24" fill="white" stroke="none" stroke-width="8" transform="rotate(120 0 0)"
+                data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(9), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(9) }"></circle>
+        <!-- /ko -->
+        <!-- ko foreach: $data.getRoutedCityColors(10) -->
+        <circle cx="40" cy="3" r="24" fill="white" stroke="none" stroke-width="8" transform="rotate(180 0 0)"
+                data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(10), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(10) }"></circle>
+        <!-- /ko -->
+
+        <circle cx="40" cy="-6" r="21" fill="white" stroke="black" stroke-width="1"></circle>
+        <circle cx="40" cy="-3" r="21" fill="white" stroke="black" stroke-width="1" transform="rotate(60 0 0)"></circle>
+        <circle cx="40" cy="0" r="21" fill="white" stroke="black" stroke-width="1" transform="rotate(120 0 0)"></circle>
+        <circle cx="40" cy="3" r="21" fill="white" stroke="black" stroke-width="1" transform="rotate(180 0 0)"></circle>
+
+        <!-- ko if: $data.getTokensForCity(7).length > 0 -->
+        <g transform="translate(20, -26)">
+            <image xlink:href="" x="0" y="0" height="40px" width="40px"
+                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+        </g>
+        <!-- /ko -->
+        <g transform="translate(0, -51)">
+            <circle cx="0" cy="0" r="13" fill="white" stroke="black" stroke-width="1"></circle>
+            <text x="0" y="2" fill="black" stroke="black" stroke-width="0.4"
+                  font-size="16" alignment-baseline="middle" text-anchor="middle" visibility="inherit"
+                  data-bind="css: 'pos-value' + ($data.position ? $data.position() : 0)">40
+            </text>
+        </g>
         <text x="-33" y="-26" fill="black" stroke="black" stroke-width="" 1
               font-size="20" text-anchor="middle" visibility="inherit">CHI
         </text>

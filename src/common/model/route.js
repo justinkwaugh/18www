@@ -50,17 +50,20 @@ class Route extends Serializable {
         }
 
         // count revenue cells
-        const cityCells = _.filter(this.cells(), cellData=> {
+        const revenueCells = _.filter(this.cells(), cellData=> {
             const tile = CurrentGame().state().tilesByCellId[cellData.id];
             return tile.getRevenue();
         });
 
-        if(cityCells.length < 2) {
+        if(revenueCells.length < 2) {
             return false;
         }
 
-        const blocked =_.find(cityCells, cellData=> {
+        const blocked =_.find(revenueCells, cellData=> {
             const cityId = this.getConnectedCityForConnections(cellData.connections);
+            if(cityId < 7) {
+                return false;
+            }
             const tile = CurrentGame().state().tilesByCellId[cellData.id];
             return tile.isBlockedForCompany(CurrentGame().state().currentCompanyId(),cityId)
         });
@@ -69,8 +72,7 @@ class Route extends Serializable {
             return false;
         }
 
-        return _.find(cityCells, cellData=> {
-            const cityId = this.getConnectedCityForConnections(cellData.connections);
+        return _.find(revenueCells, cellData=> {
             const tile = CurrentGame().state().tilesByCellId[cellData.id];
             return tile.hasTokenForCompany(CurrentGame().state().currentCompanyId());
         });
@@ -118,12 +120,10 @@ class Route extends Serializable {
         return cells;
     }
 
-    pruneToLastCity() {
+    pruneToLastRevenueLocation() {
         const index = _.findLastIndex(this.cells(), cellData=> {
-            const cityId = this.getConnectedCityForConnections(cellData.connections);
-            if(cityId > 6) {
-                return true;
-            }
+            const tile = CurrentGame().state().tilesByCellId[cellData.id];
+            return tile.getRevenue() > 0;
         });
 
         let pruned = [];

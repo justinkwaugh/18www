@@ -1,6 +1,8 @@
 import ko from 'knockout';
 import _ from 'lodash';
 import Serializable from 'common/model/serializable';
+import CurrentGame from 'common/game/currentGame';
+import PhaseIDs from '1846/config/phaseIds';
 
 const EdgeCoordinates = [
     '31,-53.69',
@@ -66,7 +68,24 @@ class Tile extends Serializable {
     }
 
     getRevenue() {
-        return this.revenue;
+        if (_.isArray(this.revenue)) {
+            const phaseId = CurrentGame().state().currentPhaseId();
+            if (phaseId === PhaseIDs.PHASE_I) {
+                return this.revenue[0];
+            }
+            else if (phaseId === PhaseIDs.PHASE_II) {
+                return this.revenue[1];
+            }
+            else if (phaseId === PhaseIDs.PHASE_III) {
+                return this.revenue[2];
+            }
+            else if (phaseId === PhaseIDs.PHASE_IV) {
+                return this.revenue[3];
+            }
+        }
+        else {
+            return this.revenue;
+        }
     }
 
     getTokensForCity(cityId) {
@@ -91,6 +110,10 @@ class Tile extends Serializable {
             }
         }
         this.tokens.remove(cityId + '|' + companyId);
+    }
+
+    hasCity() {
+        return _.keys(this.cities).length > 0;
     }
 
     getOpenCities(companyId) {
@@ -118,7 +141,8 @@ class Tile extends Serializable {
     }
 
     isBlockedForCompany(companyId, cityId) {
-        return !this.hasTokenForCompany(companyId, cityId) && this.getTokensForCity(cityId).length === this.cities[cityId].maxTokens;
+        return !this.hasTokenForCompany(companyId, cityId) && this.getTokensForCity(
+                cityId).length === this.cities[cityId].maxTokens;
     }
 
     hasConnection(start, end) {
@@ -135,21 +159,26 @@ class Tile extends Serializable {
 
     getRoutedCityColors(cityId) {
         cityId = cityId || 7;
-        return _(this.getRoutedConnections()).filter(connection=>Math.max(connection[0], connection[1]) === cityId).map(connection=>{
+        return _(this.getRoutedConnections()).filter(
+            connection => Math.max(connection[0], connection[1]) === cityId).map(connection => {
             const connectionId = this.getConnectionId(connection);
             return this.routedConnectionsById()[connectionId].color;
         }).uniq().value();
     }
 
+    getRoutedConnection(connection) {
+        const connectionId = this.getConnectionId(connection);
+        return this.routedConnectionsById()[connectionId];
+    }
+
     getRoutedConnections() {
-        return _(this.connections).filter(connection=> {
-            const connectionId = this.getConnectionId(connection);
-            return this.routedConnectionsById()[connectionId];
+        return _(this.connections).filter(connection => {
+            return this.getRoutedConnection(connection);
         }).value();
     }
 
     getUnroutedConnections() {
-        return _(this.connections).reject(connection=> {
+        return _(this.connections).reject(connection => {
             const connectionId = this.getConnectionId(connection);
             return this.routedConnectionsById()[connectionId];
         }).value();
@@ -170,7 +199,7 @@ class Tile extends Serializable {
     addRoutedConnection(connection, color, routeId) {
         const connectionId = this.getConnectionId(connection);
         this.routedConnectionsById.valueWillMutate();
-        this.routedConnectionsById()[connectionId] = { color, routeId };
+        this.routedConnectionsById()[connectionId] = {color, routeId};
         this.routedConnectionsById.valueHasMutated();
     }
 
@@ -183,20 +212,22 @@ class Tile extends Serializable {
 
     clearRoutedConnections(routeId) {
         this.routedConnectionsById.valueWillMutate();
-        if(!routeId) {
+        if (!routeId) {
             this.routedConnectionsById({});
         }
         else {
-            this.routedConnectionsById(_.pickBy(this.routedConnectionsById(), connectionData=> connectionData.routeId !== routeId));
+            this.routedConnectionsById(
+                _.pickBy(this.routedConnectionsById(), connectionData => connectionData.routeId !== routeId));
         }
         this.routedConnectionsById.valueHasMutated();
     }
 
     updateRoutedConnectionsColor(routeId, color) {
         this.routedConnectionsById.valueWillMutate();
-        _(this.routedConnectionsById()).values().filter(connectionData => connectionData.routeId === routeId).each(connectionData=> {
-            connectionData.color = color;
-        });
+        _(this.routedConnectionsById()).values().filter(connectionData => connectionData.routeId === routeId).each(
+            connectionData => {
+                connectionData.color = color;
+            });
         this.routedConnectionsById.valueHasMutated();
     }
 
@@ -222,7 +253,7 @@ class Tile extends Serializable {
 
     getCityDashArray(cityId) {
         const num = this.getRoutedCityColors(cityId).length;
-        if(num === 2) {
+        if (num === 2) {
             return '40 40 40 40';
         }
         else if (num === 3) {
@@ -237,7 +268,7 @@ class Tile extends Serializable {
 
     getCityDashOffset(cityId) {
         const num = this.getRoutedCityColors(cityId).length;
-        if(num === 2) {
+        if (num === 2) {
             return '40';
         }
         else if (num === 3) {
@@ -251,15 +282,19 @@ class Tile extends Serializable {
     }
 
     getCityOuterStrokeColor(cityId) {
-        const routedConnectionId = _(this.connections).filter(connection => connection[1] === cityId || connection[0] === cityId).map(
-            connection => this.getConnectionId(connection)).find(connectionId=>this.routedConnectionsById()[connectionId]);
+        const routedConnectionId = _(this.connections).filter(
+            connection => connection[1] === cityId || connection[0] === cityId).map(
+            connection => this.getConnectionId(connection)).find(
+            connectionId => this.routedConnectionsById()[connectionId]);
         return routedConnectionId ? this.routedConnectionsById()[routedConnectionId].color : 'white';
 
     }
 
     getCityOuterStrokeWidth(cityId) {
-        const routed = _(this.connections).filter(connection => connection[1] === cityId || connection[0] === cityId).map(
-            connection => this.getConnectionId(connection)).find(connectionId=>this.routedConnectionsById()[connectionId]);
+        const routed = _(this.connections).filter(
+            connection => connection[1] === cityId || connection[0] === cityId).map(
+            connection => this.getConnectionId(connection)).find(
+            connectionId => this.routedConnectionsById()[connectionId]);
         return routed ? 8 : 1;
     }
 

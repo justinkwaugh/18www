@@ -112,13 +112,13 @@
         <!-- /ko -->
 
 
-        <!-- ko if: $data.revenue -->
+        <!-- ko if: $data.getRevenue() -->
         <!-- ko if: $data.cities[7].maxTokens < 3 -->
         <g transform="translate(0, -46)">
             <circle cx="0" cy="0" r="13" fill="white" stroke="black" stroke-width="1"></circle>
             <text x="0" y="2" fill="black" stroke="black" stroke-width="0.4"
                   font-size="16" alignment-baseline="middle" text-anchor="middle" visibility="inherit"
-                  data-bind="css: 'pos-value' + ($data.position ? $data.position() : 0), text: $data.revenue">
+                  data-bind="css: 'pos-value' + ($data.position ? $data.position() : 0), text: $data.getRevenue()">
             </text>
         </g>
         <!-- /ko -->
@@ -127,7 +127,7 @@
             <circle cx="0" cy="0" r="10" fill="white" stroke="black" stroke-width="1"></circle>
             <text x="0" y="2" fill="black" stroke="black" stroke-width="0.4"
                   font-size="14" alignment-baseline="middle" text-anchor="middle" visibility="inherit"
-                  data-bind="css: 'pos-value' + ($data.position ? $data.position() : 0), text: $data.revenue">60
+                  data-bind="css: 'pos-value' + ($data.position ? $data.position() : 0), text: $data.getRevenue()">60
             </text>
         </g>
         <!-- /ko -->

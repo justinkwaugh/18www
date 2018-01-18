@@ -91,8 +91,8 @@ const OffBoardDefinitions = {
         left: 9,
         row: 0,
         col: 0,
-        width:304,
-        height:110,
+        width: 304,
+        height: 110,
         outline: '-152, -55 152, -55 152, 18 88,55 -152, 55',
         connections: ['D6|2']
     },
@@ -293,10 +293,14 @@ class Grid extends BaseGrid {
         });
 
         const b10 = this.cellsById()['B10'];
-        b10.neighbors[4] = this.cellsById()[OffBoardIds.HOLLAND];
+        const holland = this.cellsById()[OffBoardIds.HOLLAND];
+        b10.neighbors[4] = holland;
+        holland.neighbors = [b10];
 
         const chicago = this.cellsById()['D6'];
-        chicago.neighbors[5] = this.cellsById()[OffBoardIds.CHICAGO_CONNECTIONS];
+        const chicagoConnections = this.cellsById()[OffBoardIds.CHICAGO_CONNECTIONS];
+        chicago.neighbors[5] = chicagoConnections;
+        chicagoConnections.neighbors = [chicago];
 
         const h2 = this.cellsById()['H2'];
         h2.neighbors[3] = this.cellsById()[OffBoardIds.ST_LOUIS];
@@ -363,81 +367,82 @@ class Grid extends BaseGrid {
                     cell.tile().clearRoutedConnections(this.route.id);
                 }
             }
-
         }
 
         if (this.route.isFull()) {
             return;
         }
 
-        const connectingEdge = _.findIndex(cell.neighbors,
-                                           neighbor => neighbor && neighbor.id === this.route.lastCell().id);
-        if (connectingEdge < 0) {
+        const lastCellInRoute = this.cellsById()[this.route.lastCell().id];
+        const connectionsToLastCellInRoute = cell.getConnectionsToCell(lastCellInRoute);
+        const lastCellInRouteConnectionsToCurrent = lastCellInRoute.getConnectionsToCell(cell);
+
+        if (connectionsToLastCellInRoute.length === 0) {
+            return;
+        }
+        if (lastCellInRouteConnectionsToCurrent.length === 0) {
             return;
         }
 
-        if (!cell.hasConnectionAtIndex(connectingEdge)) {
+        if (_.find(lastCellInRouteConnectionsToCurrent,
+                   connection => lastCellInRoute.tile().hasOtherRoutedConnection(connection, this.route.id))) {
             return;
         }
 
-        const neighbor = cell.neighbors[connectingEdge];
-        const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(connectingEdge);
-        const neighborConnectionsToIndex = neighbor.getConnectionsToIndex(cell, neighborConnectionIndex);
-        if (neighborConnectionsToIndex.length === 0) {
+        if (!_.find(lastCellInRouteConnectionsToCurrent,
+                    connection => lastCellInRoute.tile().hasRoutedConnection(connection, this.route.id))) {
             return;
         }
 
-        if (_.find(neighborConnectionsToIndex,
-                   connection => neighbor.tile().hasOtherRoutedConnection(connection, this.route.id))) {
-            return;
+        // set the correct connections in the previous tile for this route
+        let lastCellConnections = [];
+        if (this.route.numCells() > 1) {
+            // Not a terminus for the route
+            const nextToLastCellInRoute = this.cellsById()[this.route.nextToLastCell().id];
+            lastCellConnections = lastCellInRoute.getConnectionsFromNeighborToNeighbor(cell, nextToLastCellInRoute);
         }
+        else if (lastCellInRoute.id === 'D6') {
+            // Chicago is special with the many cities to one
+            // Need to find the city with a station
+            const routedConnections = _.filter(lastCellInRouteConnectionsToCurrent,
+                                               connection => lastCellInRoute.tile().hasRoutedConnection(connection,
+                                                                                                        this.route.id));
 
-        if (!_.find(neighborConnectionsToIndex,
-                   connection => neighbor.tile().hasRoutedConnection(connection, this.route.id))) {
-            return;
-        }
+            const stationedConnection = _.find(routedConnections, connection => {
+                return lastCellInRoute.tile().hasTokenForCompany(CurrentGame().state().currentCompanyId(),
+                                                                 _.max(connection));
+            });
 
-        const neighborConnections = [];
-        // clear the previous tile connection options for this route
-        neighbor.tile().clearRoutedConnections(this.route.id);
-        if (_.keys(neighbor.tile().cities).length > 0) {
-            const connection = neighbor.hasConnectionAtIndex(neighborConnectionIndex);
-            neighbor.tile().addRoutedConnection(connection, 'gray', this.route.id);
-            neighborConnections.push(connection);
-
-            if (this.route.numCells() > 1) {
-                const preConnectingEdge = _.findIndex(neighbor.neighbors,
-                                                      preneighbor => preneighbor && preneighbor.id === this.route.nextToLastCell().id);
-                const preConnection = neighbor.getConnectionToEdges(Math.max(connection[0], connection[1]),
-                                                                    preConnectingEdge);
-                neighbor.tile().addRoutedConnection(preConnection, 'gray', this.route.id);
-                neighborConnections.push(connection);
-            }
+            lastCellConnections = stationedConnection ? [stationedConnection] : routedConnections;
         }
         else {
-            const preConnectingEdge = _.findIndex(neighbor.neighbors,
-                                                  preneighbor => preneighbor && preneighbor.id === this.route.nextToLastCell().id);
-            const connection = neighbor.getConnectionToEdges(neighborConnectionIndex, preConnectingEdge);
-            neighbor.tile().addRoutedConnection(connection, 'gray', this.route.id);
-            neighborConnections.push(connection);
+            lastCellConnections = lastCellInRouteConnectionsToCurrent;
         }
-        this.route.updateConnections(neighbor.id, neighborConnections);
+
+        lastCellInRoute.tile().clearRoutedConnections(this.route.id);
+        _.each(lastCellConnections, connection => {
+            lastCellInRoute.tile().addRoutedConnection(connection, 'gray', this.route.id);
+        });
+        this.route.updateConnections(lastCellInRoute.id, lastCellConnections);
 
         // Now add the connections in our current tile
-        const startPoint = cell.getConnectionPointAtIndex(cell, connectingEdge);
-        const connectionsToPrior = _.reject(cell.getConnectionsToIndex(cell, connectingEdge), connection => {
+        const edgeToPrior = cell.getConnectionEdgeToCell(lastCellInRoute);
+        const startPoint = cell.getConnectionPointAtIndex(cell, edgeToPrior);
+        const routeableConnectionsToPrior = _.reject(connectionsToLastCellInRoute, connection => {
             const endPoint = connection[0] === startPoint ? connection[1] : connection[0];
             const connectionsToEnd = cell.getConnectionsToPoint(cell, endPoint);
             return _.find(connectionsToEnd,
                           connectionToEnd => cell.tile().hasOtherRoutedConnection(connectionToEnd, this.route.id));
         });
+        _.each(routeableConnectionsToPrior,
+               connection => cell.tile().addRoutedConnection(connection, 'gray', this.route.id));
 
-        _.each(connectionsToPrior, connection => cell.tile().addRoutedConnection(connection, 'gray', this.route.id));
-        this.route.addCell(cell.id, connectionsToPrior);
+        // Add the cell to the route
+        this.route.addCell(cell.id, routeableConnectionsToPrior);
 
-
+        // Cap off the route if full
         if (this.route.isFull()) {
-            const connection = cell.hasConnectionAtIndex(connectingEdge);
+            const connection = cell.hasConnectionAtIndex(edgeToPrior);
             cell.tile().clearRoutedConnections(this.route.id);
             cell.tile().addRoutedConnection(connection, 'gray', this.route.id);
             this.route.updateConnections(cell.id, [connection]);
@@ -475,7 +480,7 @@ class Grid extends BaseGrid {
             return;
         }
 
-        const removedCells = this.route.pruneToLastCity();
+        const removedCells = this.route.pruneToLastRevenueLocation();
         _.each(removedCells, cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
 
         if (!this.route.isValid()) {

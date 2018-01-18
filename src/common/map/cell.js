@@ -592,6 +592,32 @@ class Cell {
         });
     }
 
+    getConnectionsToCell(cell) {
+        const cellIndex = _.findIndex(this.neighbors, neighbor => neighbor && neighbor.id === cell.id);
+        if (cellIndex < 0) {
+            return [];
+        }
+
+        return this.getConnectionsToIndex(cell, cellIndex);
+    }
+
+    getConnectionEdgeToCell(cell) {
+        return _.findIndex(this.neighbors, neighbor => neighbor && neighbor.id === cell.id);
+    }
+
+    getConnectionsFromNeighborToNeighbor(neighborOne, neighborTwo) {
+        const edgeOne = this.getConnectionEdgeToCell(neighborOne);
+        const edgeTwo = this.getConnectionEdgeToCell(neighborTwo);
+
+        if(_.keys(this.tile().cities).length > 0) {
+            return _.compact([this.getConnectionToEdges(edgeOne, 7), this.getConnectionToEdges(edgeTwo, 7)]);
+
+        }
+        else {
+            return [this.getConnectionToEdges(edgeOne, edgeTwo)];
+        }
+    }
+
     getConnectionToEdges(start, end) {
         return _.find(TileManifest.getTileDefinition(this.tile().id).connections, (connection) => {
             const offsetStart = Cell.getOffsetIndexForPosition(connection[0], this.tile().position());
