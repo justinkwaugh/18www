@@ -37,6 +37,7 @@ class Tile extends Serializable {
         this.id = data.id;
 
         // Static data from tile definition
+        this.map = data.map;
         this.colorId = data.colorId;
         this.connections = data.connections || [];
         this.cities = data.cities || {};

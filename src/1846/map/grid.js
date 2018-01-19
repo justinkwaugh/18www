@@ -94,15 +94,18 @@ const OffBoardDefinitions = {
         width: 304,
         height: 110,
         outline: '-152, -55 152, -55 152, 18 88,55 -152, 55',
-        connections: ['D6|2']
+        connectionsToNeighborIndex: {'D6|2': 0}
     },
     [OffBoardIds.ST_LOUIS]: {
         id: OffBoardIds.ST_LOUIS,
-        top: 0,
+        top: 778,
         left: 0,
         row: 0,
         col: 0,
-        connections: ['H2|0', 'I3|1']
+        width: 126,
+        height: 254,
+        outline: '-63,-127 3,-91, 1, -19 63,17 63,89 1,127 -63, 127',
+        connectionsToNeighborIndex: {'H2|0': 0, 'I3|1': 1}
     },
     [OffBoardIds.HOLLAND]: {
         id: OffBoardIds.HOLLAND,
@@ -110,7 +113,7 @@ const OffBoardDefinitions = {
         left: 0,
         row: 0,
         col: 0,
-        connections: ['B10|1']
+        connectionsToNeighborIndex: {'B10|1': 0}
     },
     [OffBoardIds.SARNIA]: {
         id: OffBoardIds.SARNIA,
@@ -118,7 +121,7 @@ const OffBoardDefinitions = {
         left: 0,
         row: 0,
         col: 0,
-        connections: ['B16|4'],
+        connectionsToNeighborIndex: {'B16|4': 0},
         connectionCosts: ConnectionCosts[OffBoardIds.SARNIA]
     },
     [OffBoardIds.WINDSOR]: {
@@ -127,24 +130,29 @@ const OffBoardDefinitions = {
         left: 0,
         row: 0,
         col: 0,
-        connections: ['C15|4'],
+        connectionsToNeighborIndex: {'C15|4': 0},
         connectionCosts: ConnectionCosts[OffBoardIds.WINDSOR]
     },
     [OffBoardIds.LOUISVILLE]: {
         id: OffBoardIds.LOUISVILLE,
-        top: 0,
-        left: 0,
+        top: 886,
+        left: 498,
         row: 0,
         col: 0,
-        connections: ['I9|5', 'I11|0']
+        width: 126,
+        height: 144,
+        connectionsToNeighborIndex: {'I9|5': 0, 'I11|0': 1}
     },
     [OffBoardIds.CHARLESTON]: {
         id: OffBoardIds.CHARLESTON,
-        top: 0,
-        left: 0,
+        top: 738,
+        left: 932,
         row: 0,
         col: 0,
-        connections: ['I15|4']
+        width: 126,
+        height: 130,
+        outline: '-63,10 0,-23 0, -65 63,-65, 63,65 -63, 65',
+        connections: ['I15|4', 0]
     },
     [OffBoardIds.BUFFALO]: {
         id: OffBoardIds.BUFFALO,
@@ -152,7 +160,7 @@ const OffBoardDefinitions = {
         left: 0,
         row: 0,
         col: 0,
-        connections: ['D20|3', 'D20|4']
+        connectionsToNeighborIndex: {'D20|3': 0, 'D20|4': 1}
     },
     [OffBoardIds.BINGHAMTON]: {
         id: OffBoardIds.BINGHAMTON,
@@ -160,24 +168,30 @@ const OffBoardDefinitions = {
         left: 0,
         row: 0,
         col: 0,
-        connections: ['E21|4']
+        connectionsToNeighborIndex: {'E21|4': 0}
     },
     [OffBoardIds.PITTSBURGH]: {
         id: OffBoardIds.PITTSBURGH,
-        top: 0,
-        left: 0,
+        top: 495,
+        left: 1180,
         row: 0,
         col: 0,
-        connections: ['F20|4', 'F20|5', 'G19|4'],
-        connectionCosts: ConnectionCosts[OffBoardIds.WINDSOR]
+        width: 188,
+        height: 178,
+        outline: '-94,17 -32,-19 -32,-89 94, -89 94,89 -94, 89',
+        connectionsToNeighborIndex: {'F20|4': 0, 'F20|5': 1, 'G19|4': 2},
+        connectionCosts: ConnectionCosts[OffBoardIds.PITTSBURGH]
     },
     [OffBoardIds.CUMBERLAND]: {
         id: OffBoardIds.CUMBERLAND,
-        top: 0,
-        left: 0,
+        top: 672,
+        left: 1118,
         row: 0,
         col: 0,
-        connections: ['G19|5']
+        width: 250,
+        height: 122,
+        outline: '-125,-24 -62,-61 125, -61 125,61 -125, 61',
+        connectionsToNeighborIndex: {'G19|5': 0}
     }
 };
 
@@ -218,15 +232,15 @@ class Grid extends BaseGrid {
                 return;
             }
 
-            if (row === 3 && ( col < 2 || col === 7)) {
+            if (row === 3 && ( col < 2 || col === 7 || col > 9)) {
                 return;
             }
 
-            if ((row === 4 || row === 5) && col < 1) {
+            if ((row === 4 || row === 5) && (col < 1 || col > 9)) {
                 return;
             }
 
-            if (row === 6 && col === 9) {
+            if (row === 6 && col > 8) {
                 return;
             }
 
@@ -302,11 +316,13 @@ class Grid extends BaseGrid {
         chicago.neighbors[5] = chicagoConnections;
         chicagoConnections.neighbors = [chicago];
 
+        const stLouis = this.cellsById()[OffBoardIds.ST_LOUIS];
         const h2 = this.cellsById()['H2'];
-        h2.neighbors[3] = this.cellsById()[OffBoardIds.ST_LOUIS];
+        h2.neighbors[3] = stLouis;
 
         const i3 = this.cellsById()['I3'];
-        i3.neighbors[4] = this.cellsById()[OffBoardIds.ST_LOUIS];
+        i3.neighbors[4] = stLouis;
+        stLouis.neighbors = [h2, i3];
 
         const b16 = this.cellsById()['B16'];
         b16.neighbors[1] = this.cellsById()[OffBoardIds.SARNIA];
@@ -321,22 +337,31 @@ class Grid extends BaseGrid {
         const e21 = this.cellsById()['E21'];
         e21.neighbors[1] = this.cellsById()[OffBoardIds.BINGHAMTON];
 
+        const pittsburgh = this.cellsById()[OffBoardIds.PITTSBURGH];
         const f20 = this.cellsById()['F20'];
-        f20.neighbors[1] = this.cellsById()[OffBoardIds.PITTSBURGH];
-        f20.neighbors[2] = this.cellsById()[OffBoardIds.PITTSBURGH];
+        f20.neighbors[1] = pittsburgh;
+        f20.neighbors[2] = pittsburgh;
 
         const g19 = this.cellsById()['G19'];
-        g19.neighbors[1] = this.cellsById()[OffBoardIds.PITTSBURGH];
-        g19.neighbors[2] = this.cellsById()[OffBoardIds.CUMBERLAND];
+        g19.neighbors[1] = pittsburgh;
+        pittsburgh.neighbors = [f20, f20, g19];
 
+        const cumberland = this.cellsById()[OffBoardIds.CUMBERLAND];
+        g19.neighbors[2] = cumberland;
+        cumberland.neighbors = [g19];
+
+        const charleston = this.cellsById()[OffBoardIds.CHARLESTON];
         const i15 = this.cellsById()['I15'];
         i15.neighbors[1] = this.cellsById()[OffBoardIds.CHARLESTON];
+        charleston.neighbors = [i15];
 
+        const louisville = this.cellsById()[OffBoardIds.LOUISVILLE];
         const i9 = this.cellsById()['I9'];
-        i9.neighbors[2] = this.cellsById()[OffBoardIds.LOUISVILLE];
+        i9.neighbors[2] = louisville;
 
         const i11 = this.cellsById()['I11'];
-        i11.neighbors[3] = this.cellsById()[OffBoardIds.LOUISVILLE];
+        i11.neighbors[3] = louisville;
+        louisville.neighbors = [i9, i11];
     }
 
     static costForCell(id) {
@@ -374,25 +399,63 @@ class Grid extends BaseGrid {
         }
 
         const lastCellInRoute = this.cellsById()[this.route.lastCell().id];
+
+        // Find connections in the current cell which are available for routing
         const connectionsToLastCellInRoute = cell.getConnectionsToCell(lastCellInRoute);
+        const usedCurrentConnectionPoints = {};
+        const routeableConnectionsToPrior = _.reject(connectionsToLastCellInRoute, connection => {
+            const connectionPoint = connection[0] >= 0 && connection[0] < 7 ? connection[0] : connection[1];
+            if (usedCurrentConnectionPoints[connectionPoint]) {
+                return true;
+            }
+
+            if (cell.tile().hasOtherRoutedConnection(connection, this.route.id)) {
+                usedCurrentConnectionPoints[connectionPoint] = true;
+                return true;
+            }
+        });
+
+        const edgeToPrior = cell.getConnectionEdgeToCell(lastCellInRoute);
+        const startPoint = cell.getConnectionPointAtIndex(cell, edgeToPrior);
+        // const routeableConnectionsToPrior = _.reject(connectionsToLastCellInRoute, connection => {
+        //     const endPoint = connection[0] === startPoint ? connection[1] : connection[0];
+        //     const connectionsToEnd = cell.getConnectionsToPoint(cell, endPoint);
+        //     return _.find(connectionsToEnd,
+        //                   connectionToEnd => cell.tile().hasOtherRoutedConnection(connectionToEnd, this.route.id));
+        // });
+        //
+        // Find connections in the prior cell which are available for routing
         const lastCellInRouteConnectionsToCurrent = lastCellInRoute.getConnectionsToCell(cell);
+        const usedPriorConnectionPoints = {};
+        const routeableConnectionsToCurrent = _.reject(lastCellInRouteConnectionsToCurrent, connection => {
+            const connectionPoint = connection[0] >= 0 && connection[0] < 7 ? connection[0] : connection[1];
+            if (usedPriorConnectionPoints[connectionPoint]) {
+                return true;
+            }
 
-        if (connectionsToLastCellInRoute.length === 0) {
+            if (lastCellInRoute.tile().hasOtherRoutedConnection(connection, this.route.id)) {
+                usedPriorConnectionPoints[connectionPoint] = true;
+                return true;
+            }
+        });
+
+
+        if (routeableConnectionsToPrior.length === 0) {
             return;
         }
-        if (lastCellInRouteConnectionsToCurrent.length === 0) {
+        if (routeableConnectionsToCurrent.length === 0) {
             return;
         }
 
-        if (_.find(lastCellInRouteConnectionsToCurrent,
-                   connection => lastCellInRoute.tile().hasOtherRoutedConnection(connection, this.route.id))) {
-            return;
-        }
-
-        if (!_.find(lastCellInRouteConnectionsToCurrent,
-                    connection => lastCellInRoute.tile().hasRoutedConnection(connection, this.route.id))) {
-            return;
-        }
+        // if (_.find(lastCellInRouteConnectionsToCurrent,
+        //            connection => lastCellInRoute.tile().hasOtherRoutedConnection(connection, this.route.id))) {
+        //     return;
+        // }
+        //
+        // if (!_.find(lastCellInRouteConnectionsToCurrent,
+        //             connection => lastCellInRoute.tile().hasRoutedConnection(connection, this.route.id))) {
+        //     return;
+        // }
 
         // set the correct connections in the previous tile for this route
         let lastCellConnections = [];
@@ -416,7 +479,7 @@ class Grid extends BaseGrid {
             lastCellConnections = stationedConnection ? [stationedConnection] : routedConnections;
         }
         else {
-            lastCellConnections = lastCellInRouteConnectionsToCurrent;
+            lastCellConnections = [_.first(routeableConnectionsToCurrent)];
         }
 
         lastCellInRoute.tile().clearRoutedConnections(this.route.id);
@@ -426,14 +489,7 @@ class Grid extends BaseGrid {
         this.route.updateConnections(lastCellInRoute.id, lastCellConnections);
 
         // Now add the connections in our current tile
-        const edgeToPrior = cell.getConnectionEdgeToCell(lastCellInRoute);
-        const startPoint = cell.getConnectionPointAtIndex(cell, edgeToPrior);
-        const routeableConnectionsToPrior = _.reject(connectionsToLastCellInRoute, connection => {
-            const endPoint = connection[0] === startPoint ? connection[1] : connection[0];
-            const connectionsToEnd = cell.getConnectionsToPoint(cell, endPoint);
-            return _.find(connectionsToEnd,
-                          connectionToEnd => cell.tile().hasOtherRoutedConnection(connectionToEnd, this.route.id));
-        });
+
         _.each(routeableConnectionsToPrior,
                connection => cell.tile().addRoutedConnection(connection, 'gray', this.route.id));
 
@@ -442,7 +498,7 @@ class Grid extends BaseGrid {
 
         // Cap off the route if full
         if (this.route.isFull()) {
-            const connection = cell.hasConnectionAtIndex(edgeToPrior);
+            const connection = _.first(routeableConnectionsToPrior);
             cell.tile().clearRoutedConnections(this.route.id);
             cell.tile().addRoutedConnection(connection, 'gray', this.route.id);
             this.route.updateConnections(cell.id, [connection]);
@@ -489,10 +545,23 @@ class Grid extends BaseGrid {
         }
         else {
             const lastCell = this.cellsById()[this.route.lastCell().id];
+            const nextToLastCell = this.cellsById()[this.route.nextToLastCell().id];
             if (_.keys(lastCell.tile().cities).length > 0) {
-                const connectingEdge = _.findIndex(lastCell.neighbors,
-                                                   neighbor => neighbor && neighbor.id === this.route.nextToLastCell().id);
-                const connection = lastCell.hasConnectionAtIndex(connectingEdge);
+                const priorConnections = lastCell.getConnectionsToCell(nextToLastCell);
+                const usedConnectionPoints = {};
+                const routeablePriorConnections = _.reject(priorConnections, connection => {
+                    const connectionPoint = connection[0] >= 0 && connection[0] < 7 ? connection[0] : connection[1];
+                    if (usedConnectionPoints[connectionPoint]) {
+                        return true;
+                    }
+
+                    if (lastCell.tile().hasOtherRoutedConnection(connection, this.route.id)) {
+                        usedConnectionPoints[connectionPoint] = true;
+                        return true;
+                    }
+                });
+
+                const connection = _.first(routeablePriorConnections);
                 lastCell.tile().clearRoutedConnections(this.route.id);
                 lastCell.tile().addRoutedConnection(connection, this.route.color, this.route.id);
                 this.route.updateConnections(lastCell.id, [connection]);

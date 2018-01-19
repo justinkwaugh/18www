@@ -260,7 +260,6 @@ class Cell {
         }
 
         const phase = CurrentGame().state().currentPhaseId();
-
         return _.filter(CurrentGame().state().manifest.getUpgradesForTile(this.tile().id) || [], (upgrade) => {
             // if (phase === PhaseIDs.PHASE_I && upgrade.tile.colorId !== TileColorIDs.YELLOW) {
             //     return false;
@@ -304,7 +303,11 @@ class Cell {
         return cost;
     }
 
-    getBaseCost() {
+    getBaseCost(oldTile) {
+        if(!oldTile.map) {
+            return 20;
+        }
+
         const company = CurrentGame().state().currentCompany();
         let cost = CellCosts[this.id] || 20;
 
@@ -363,7 +366,7 @@ class Cell {
         }
 
         const company = state.currentCompany();
-        const baseCost = this.getBaseCost();
+        const baseCost = this.getBaseCost(oldTile);
         if (company.cash() < baseCost) {
             return [];
         }
@@ -379,7 +382,9 @@ class Cell {
 
             const addedConnectionIds = _.difference(newConnectionsIds, oldConnectionsIds);
             const addedConnections = _(this.getConnectionsForPosition(newTileId, pos)).filter(
-                connection => _.indexOf(addedConnectionIds, this.getConnectionId(connection) >= 0)).value();
+                connection => {
+                    return _.indexOf(addedConnectionIds, this.getConnectionId(connection)) >= 0;
+                }).value();
 
 
             // Check off map
@@ -398,7 +403,8 @@ class Cell {
             }
 
             // Check for connection costs
-            const connectionCosts = _(addedConnections).flatten().uniq().sumBy(edgeIndex => {
+            const existingConnectionPoints = _(this.getConnectionsForPosition(oldTile.id, oldTile.position())).flatten().uniq().value();
+            const connectionCosts = _(addedConnections).flatten().uniq().difference(existingConnectionPoints).sumBy(edgeIndex => {
                 return this.getConnectionCost(edgeIndex);
             });
 
@@ -593,12 +599,12 @@ class Cell {
     }
 
     getConnectionsToCell(cell) {
-        const cellIndex = _.findIndex(this.neighbors, neighbor => neighbor && neighbor.id === cell.id);
-        if (cellIndex < 0) {
-            return [];
-        }
-
-        return this.getConnectionsToIndex(cell, cellIndex);
+        return _(this.neighbors).map((neighbor, index)=> {
+            if (!neighbor || neighbor.id !== cell.id) {
+                return;
+            }
+            return this.getConnectionsToIndex(cell, index);
+        }).compact().flatten().value();
     }
 
     getConnectionEdgeToCell(cell) {

@@ -11,55 +11,83 @@ const TileDefinitions = {
         id: MapTileIDs.CHICAGO_CONNECTIONS,
         colorId: TileColorIDs.INVISIBLE,
         template: 'chicagoConnections',
-        connections: [[-1, 'D6|2']],
+        connections: [[-1, 0]],
+        map: true,
         revenue: [20,20,40,40]
     },
     [MapTileIDs.ST_LOUIS]: {
         id: MapTileIDs.ST_LOUIS,
-        colorId: TileColorIDs.INVISIBLE
+        colorId: TileColorIDs.INVISIBLE,
+        template: 'stLouis',
+        connections: [[-1, 0],[-1, 1]],
+        map: true,
+        revenue: [50,50,70,70]
     },
     [MapTileIDs.HOLLAND]: {
         id: MapTileIDs.HOLLAND,
+        map: true,
         colorId: TileColorIDs.INVISIBLE
     },
     [MapTileIDs.SARNIA]: {
         id: MapTileIDs.SARNIA,
+        map: true,
         colorId: TileColorIDs.INVISIBLE
     },
     [MapTileIDs.WINDSOR]: {
         id: MapTileIDs.WINDSOR,
+        map: true,
         colorId: TileColorIDs.INVISIBLE
     },
     [MapTileIDs.LOUISVILLE]: {
         id: MapTileIDs.LOUISVILLE,
-        colorId: TileColorIDs.INVISIBLE
+        map: true,
+        colorId: TileColorIDs.INVISIBLE,
+        template: 'louisville',
+        connections: [[-1, 0], [-1, 1]],
+        revenue: [50,50,70,70]
     },
     [MapTileIDs.CHARLESTON]: {
         id: MapTileIDs.CHARLESTON,
-        colorId: TileColorIDs.INVISIBLE
+        map: true,
+        colorId: TileColorIDs.INVISIBLE,
+        template: 'charleston',
+        connections: [[-1, 0]],
+        revenue: [20,20,50,50]
     },
     [MapTileIDs.BUFFALO]: {
         id: MapTileIDs.BUFFALO,
+        map: true,
         colorId: TileColorIDs.INVISIBLE
     },
     [MapTileIDs.BINGHAMTON]: {
         id: MapTileIDs.BINGHAMTON,
+        map: true,
         colorId: TileColorIDs.INVISIBLE
     },
     [MapTileIDs.PITTSBURGH]: {
         id: MapTileIDs.PITTSBURGH,
-        colorId: TileColorIDs.INVISIBLE
+        map: true,
+        colorId: TileColorIDs.INVISIBLE,
+        template: 'pittsburgh',
+        connections: [[-1, 0],[-1,1],[-1,2]],
+        revenue: [30,30,70,70]
     },
     [MapTileIDs.CUMBERLAND]: {
         id: MapTileIDs.CUMBERLAND,
-        colorId: TileColorIDs.INVISIBLE
+        map: true,
+        colorId: TileColorIDs.INVISIBLE,
+        template: 'cumberland',
+        connections: [[-1, 0]],
+        revenue: [20,20,40,40]
     },
     [MapTileIDs.BLANK]: {
         id: MapTileIDs.BLANK,
+        map: true,
         colorId: TileColorIDs.INVISIBLE
     },
     [MapTileIDs.CAIRO]: {
         id: MapTileIDs.CAIRO,
+        map: true,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 20,
         connections: [[0, 7]],
@@ -69,10 +97,12 @@ const TileDefinitions = {
     },
     [MapTileIDs.CITY]: {
         id: MapTileIDs.CITY,
+        map: true,
         colorId: TileColorIDs.INVISIBLE
     },
     [MapTileIDs.CHICAGO]: {
         id: MapTileIDs.CHICAGO,
+        map: true,
         colorId: TileColorIDs.YELLOW,
         revenue: 10,
         template: 'mapChicago',
@@ -86,6 +116,7 @@ const TileDefinitions = {
     },
     [MapTileIDs.CENTRALIA]: {
         id: MapTileIDs.CENTRALIA,
+        map: true,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
         template: 'mapDoubleCity',
@@ -96,6 +127,7 @@ const TileDefinitions = {
     },
     [MapTileIDs.PORT_HURON]: {
         id: MapTileIDs.PORT_HURON,
+        map: true,
         colorId: TileColorIDs.INVISIBLE,
         cities: {
             7: { id: 7, maxTokens: 1 }
@@ -104,6 +136,7 @@ const TileDefinitions = {
 
     [MapTileIDs.DETROIT]: {
         id: MapTileIDs.DETROIT,
+        map: true,
         colorId: TileColorIDs.YELLOW,
         revenue: 40,
         template: 'mapDoubleCity',
@@ -114,6 +147,7 @@ const TileDefinitions = {
     },
     [MapTileIDs.ERIE]: {
         id: MapTileIDs.ERIE,
+        map: true,
         colorId: TileColorIDs.YELLOW,
         revenue: 10,
         template: 'mapDoubleCity',
@@ -124,10 +158,12 @@ const TileDefinitions = {
     },
     [MapTileIDs.CLEVELAND]: {
         id: MapTileIDs.CLEVELAND,
+        map: true,
         colorId: TileColorIDs.INVISIBLE
     },
     [MapTileIDs.CINCINNATI]: {
         id: MapTileIDs.CINCINNATI,
+        map: true,
         colorId: TileColorIDs.INVISIBLE,
         cities: {
             7: { id: 7, maxTokens: 1 }
@@ -135,6 +171,7 @@ const TileDefinitions = {
     },
     [MapTileIDs.WHEELING]: {
         id: MapTileIDs.WHEELING,
+        map: true,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
         connections: [[2, 7]],
@@ -144,6 +181,7 @@ const TileDefinitions = {
     },
     [MapTileIDs.SALAMANCA]: {
         id: MapTileIDs.SALAMANCA,
+        map: true,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
         connections: [[1, 7], [4, 7], [5, 7]],
@@ -153,7 +191,9 @@ const TileDefinitions = {
     },
     [MapTileIDs.HOMEWOOD]: {
         id: MapTileIDs.HOMEWOOD,
+        map: true,
         colorId: TileColorIDs.INVISIBLE,
+        template: 'homewood',
         revenue: 10,
         connections: [[1, 7], [2, 7], [4, 7], [5, 7]],
         cities: {
@@ -162,6 +202,7 @@ const TileDefinitions = {
     },
     [MapTileIDs.HUNTINGTON]: {
         id: MapTileIDs.HUNTINGTON,
+        map: true,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 20,
         connections: [[0, 7], [1, 7], [5, 7]],
@@ -171,12 +212,14 @@ const TileDefinitions = {
     },
     [MapTileIDs.C7]: {
         id: MapTileIDs.C7,
+        map: true,
         colorId: TileColorIDs.INVISIBLE,
         template: 'mapCommon',
         connections: [[2, 3]]
     },
     [MapTileIDs.A15]: {
         id: MapTileIDs.A15,
+        map: true,
         colorId: TileColorIDs.INVISIBLE,
         template: 'mapCommon',
         connections: [[2, 3]]
@@ -604,7 +647,7 @@ const Manifest = {
         count: -1
     },
     [MapTileIDs.ERIE]: {
-        upgrades: [14],
+        upgrades: [14,619],
         count: -1
     },
     [MapTileIDs.CLEVELAND]: {
@@ -616,7 +659,7 @@ const Manifest = {
         count: -1
     },
     [MapTileIDs.WHEELING]: {
-        upgrades: [5, 6, 57],
+        upgrades: [14],
         count: -1
     },
     [MapTileIDs.SALAMANCA]: {
@@ -896,6 +939,7 @@ class TileManifest extends Serializable {
     }
 
     getTemplateName(id) {
+        console.log("Get template name: " + id)
         return TileManifest.getTileDefinition(id).template || 'common';
     }
 

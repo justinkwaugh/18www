@@ -23,6 +23,8 @@ const MapTileIDs = {
     PITTSBURGH: 'pittsburgh',
     CUMBERLAND: 'cumberland',
     PORT_HURON: 'porthuron',
+    LOUISVILLE: 'louisville',
+    CHARLESTON: 'charleston',
     C7: 'c7',
     A15: 'a15'
 };
