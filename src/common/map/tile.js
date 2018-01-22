@@ -188,7 +188,7 @@ class Tile extends Serializable {
     hasRoutedConnection(connection, routeId) {
         const connectionId = this.getConnectionId(connection);
         const routedConnection = this.routedConnectionsById()[connectionId];
-        return routedConnection && routedConnection.routeId === routeId;
+        return routedConnection && (!routeId || routedConnection.routeId === routeId);
     }
 
     hasOtherRoutedConnection(connection, routeId) {

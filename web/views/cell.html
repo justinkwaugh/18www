@@ -15,11 +15,11 @@
 
             <g pointer-events="all" transform=""
                data-bind="attr: { transform: 'translate(-' + Math.floor($data.width/2) + ', -' + Math.floor($data.height/2)+')'  }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.visibleTile().id), data: $data.visibleTile() }"></g>
-
-            <polygon pointer-events="all" class="tile-border" fill="none" stroke="yellow" stroke-width="2"
+            <!-- ko if: $data.canEdit() || $data.canRoute() -->
+            <polygon pointer-events="all" class="tile-border" fill="none" stroke="none" stroke-width="0"
                      points="" data-bind="attr: { points: $data.outline }" data-mouseover="onMouseOver"
                      data-mousedown="onMouseDown" data-mouseout="onMouseOut" data-mouseup="onMouseUp"></polygon>
-
+            <!-- /ko -->
         </g>
     </svg>
     <!-- /ko -->

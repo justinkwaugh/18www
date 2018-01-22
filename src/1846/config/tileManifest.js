@@ -26,17 +26,26 @@ const TileDefinitions = {
     [MapTileIDs.HOLLAND]: {
         id: MapTileIDs.HOLLAND,
         map: true,
-        colorId: TileColorIDs.INVISIBLE
+        colorId: TileColorIDs.INVISIBLE,
+        template: 'holland',
+        connections: [[-1, 0]],
+        revenue: [40,40,10,10]
     },
     [MapTileIDs.SARNIA]: {
         id: MapTileIDs.SARNIA,
         map: true,
-        colorId: TileColorIDs.INVISIBLE
+        colorId: TileColorIDs.INVISIBLE,
+        template: 'sarnia',
+        connections: [[-1, 0]],
+        revenue: [30,30,50,50]
     },
     [MapTileIDs.WINDSOR]: {
         id: MapTileIDs.WINDSOR,
         map: true,
-        colorId: TileColorIDs.INVISIBLE
+        colorId: TileColorIDs.INVISIBLE,
+        template: 'windsor',
+        connections: [[-1, 0]],
+        revenue: [40,40,60,60]
     },
     [MapTileIDs.LOUISVILLE]: {
         id: MapTileIDs.LOUISVILLE,
@@ -57,12 +66,18 @@ const TileDefinitions = {
     [MapTileIDs.BUFFALO]: {
         id: MapTileIDs.BUFFALO,
         map: true,
-        colorId: TileColorIDs.INVISIBLE
+        colorId: TileColorIDs.INVISIBLE,
+        template: 'buffalo',
+        connections: [[-1, 0],[-1,1]],
+        revenue: [30,30,60,60]
     },
     [MapTileIDs.BINGHAMTON]: {
         id: MapTileIDs.BINGHAMTON,
         map: true,
-        colorId: TileColorIDs.INVISIBLE
+        colorId: TileColorIDs.INVISIBLE,
+        template: 'binghamton',
+        connections: [[-1, 0]],
+        revenue: [20,20,50,50]
     },
     [MapTileIDs.PITTSBURGH]: {
         id: MapTileIDs.PITTSBURGH,
@@ -174,6 +189,7 @@ const TileDefinitions = {
         map: true,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
+        template: 'wheeling',
         connections: [[2, 7]],
         cities: {
             7: { id: 7, maxTokens: 1 }
@@ -184,6 +200,7 @@ const TileDefinitions = {
         map: true,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 10,
+        template: 'salamanca',
         connections: [[1, 7], [4, 7], [5, 7]],
         cities: {
             7: { id: 7, maxTokens: 1 }
