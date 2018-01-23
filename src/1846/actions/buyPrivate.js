@@ -21,7 +21,9 @@ class BuyPrivate extends Action {
         if (privateCompany.type === CompanyTypes.INDEPENDANT) {
             company.addCash(privateCompany.cash());
             privateCompany.closed(true);
-            company.addTrain(privateCompany.trains()[0]);
+            const train = privateCompany.trains()[0].clone();
+            train.route.color = company.getAvailableRouteColor();
+            company.addTrain(train);
         }
 
         const cert = player.removePrivate(this.privateId);

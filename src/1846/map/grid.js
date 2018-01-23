@@ -558,14 +558,14 @@ class Grid extends BaseGrid {
 
         lastCellInRoute.tile().clearRoutedConnections(this.route.id);
         _.each(lastCellConnections, connection => {
-            lastCellInRoute.tile().addRoutedConnection(connection, 'gray', this.route.id);
+            lastCellInRoute.tile().addRoutedConnection(connection, 0, this.route.id);
         });
         this.route.updateConnections(lastCellInRoute.id, lastCellConnections);
 
         // Now add the connections in our current tile
 
         _.each(routeableConnectionsToPrior,
-               connection => cell.tile().addRoutedConnection(connection, 'gray', this.route.id));
+               connection => cell.tile().addRoutedConnection(connection, 0, this.route.id));
 
         // Add the cell to the route
         this.route.addCell(cell.id, routeableConnectionsToPrior);
@@ -578,15 +578,14 @@ class Grid extends BaseGrid {
                 return cell.tile().hasTokenForCompany(CurrentGame().state().currentCompanyId(),
                                                                  _.max(connection))}) : _.first(routeableConnectionsToPrior);
             cell.tile().clearRoutedConnections(this.route.id);
-            cell.tile().addRoutedConnection(connection, 'gray', this.route.id);
+            cell.tile().addRoutedConnection(connection, 0, this.route.id);
             this.route.updateConnections(cell.id, [connection]);
         }
 
         const valid = this.route.isValid();
         _.each(this.route.cells(),
                cell => this.cellsById()[cell.id].tile().updateRoutedConnectionsColor(this.route.id,
-                                                                                     valid ? this.route.color : 'gray'));
-
+                                                                                     valid ? this.route.color : 0));
 
     }
 
@@ -598,7 +597,7 @@ class Grid extends BaseGrid {
         _.each(this.route.cells(), cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
         this.route.clear();
         _.each(cell.tile().getUnroutedConnections(),
-               connection => cell.tile().addRoutedConnection(connection, 'gray', this.route.id));
+               connection => cell.tile().addRoutedConnection(connection, 0, this.route.id));
         this.route.addCell(cell.id, cell.tile().getUnroutedConnections);
     }
 

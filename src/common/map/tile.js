@@ -3,6 +3,7 @@ import _ from 'lodash';
 import Serializable from 'common/model/serializable';
 import CurrentGame from 'common/game/currentGame';
 import PhaseIDs from '1846/config/phaseIds';
+import RouteColors from '1846/config/routeColors';
 
 const EdgeCoordinates = [
     '31,-53.69',
@@ -165,7 +166,7 @@ class Tile extends Serializable {
         return _(this.getRoutedConnections()).filter(
             connection => Math.max(connection[0], connection[1]) === cityId).map(connection => {
             const connectionId = this.getConnectionId(connection);
-            return this.routedConnectionsById()[connectionId].color;
+            return RouteColors[this.routedConnectionsById()[connectionId].color];
         }).uniq().value();
     }
 
@@ -246,7 +247,7 @@ class Tile extends Serializable {
     getOuterStrokeColor(connection) {
         const connectionId = this.getConnectionId(connection);
         const connectionData = this.routedConnectionsById()[connectionId];
-        return connectionData ? connectionData.color : 'white';
+        return connectionData ? RouteColors[connectionData.color] : 'white';
     }
 
     getOuterStrokeWidth(connection) {
@@ -289,7 +290,7 @@ class Tile extends Serializable {
             connection => connection[1] === cityId || connection[0] === cityId).map(
             connection => this.getConnectionId(connection)).find(
             connectionId => this.routedConnectionsById()[connectionId]);
-        return routedConnectionId ? this.routedConnectionsById()[routedConnectionId].color : 'white';
+        return routedConnectionId ? RouteColors[this.routedConnectionsById()[routedConnectionId].color] : 'white';
 
     }
 

@@ -79,7 +79,12 @@ class Company extends Serializable {
     }
 
     removeTrainById(trainId) {
-        this.trains.remove(train=> train.id === trainId);
+        return this.trains.remove(train=> train.id === trainId);
+    }
+
+    getAvailableRouteColor() {
+        const currentColors = _.map(this.trains(), train=> train.route.color);
+        return _(_.range(1,4)).difference(currentColors).first();
     }
 
 }

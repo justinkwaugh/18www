@@ -121,10 +121,14 @@
         <div class="d-flex justify-content-center">
             <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
             <!-- ko foreach: $root.game().state().currentCompany().trains() -->
-            <li class="rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1" style="cursor:pointer;"
-                data-bind="click: function() { $parent.selectTrain($data); }, css: 'bg-secondary text-white'">
-                <strong class="h5" data-bind="text: $data.type + ' $' + $data.route.revenue()"></strong>
-            </li>
+                <li>
+                <div class="card d-inline-flex bg-route-train"
+                     data-bind="style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(/images/trains/' + $data.type + '.png)' },click: function() { $parent.selectTrain($data)} ">
+                    <div class="bg-route-train-border" data-bind="css: 'bg-route-border-' + $data.route.color + ' ' + ($parent.selectedTrain() === $data.id ? 'bg-route-train-big-border' : 'bg-route-train-small-border')"></div>
+                    <div style="border-radius:4px; padding:0 5px;position:absolute;top:-5px;right:-5px;color:white" data-bind="css: 'bg-route-' + $data.route.color"><span style="font-size:16px;font-weight:600" data-bind="text: '$' + $data.route.revenue()"></span></div>
+                </div>
+
+                </li>
             <!-- /ko -->
         </ul>
         </div>

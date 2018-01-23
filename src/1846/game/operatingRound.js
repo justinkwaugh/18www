@@ -237,7 +237,7 @@ class OperatingRound {
     }
 
     selectTrain(train) {
-        this.selectedTrain(train);
+        this.selectedTrain(train.id);
         CurrentGame().grid().route = train.route;
     }
 

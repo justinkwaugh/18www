@@ -10,7 +10,7 @@ class Route extends Serializable {
         super();
         definition = definition || {};
         this.id = definition.id || short().new();
-        this.color = definition.color || (_.random(0,1) ? 'red': 'blue');
+        this.color = definition.color || _.random(1,4) ;
         this.companyId = definition.companyId;
         this.maxStops = definition.maxStops;
         this.revenueStops = definition.revenueStops;

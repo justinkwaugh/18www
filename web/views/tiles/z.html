@@ -8,12 +8,11 @@
         <!-- ko foreach: $data.connections -->
         <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
               d=""
-              data-bind="attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }"></path>
+              data-bind="attr: { d: $parent.getDrawingInstructions($data)}"></path>
         <!-- /ko -->
 
         <!-- ko if: $data.cities[7].maxTokens === 1 -->
-        <circle cx="0" cy="0" r="26" fill="white" stroke-width="1"
-                data-bind="attr: { stroke: $data.getCityOuterStrokeColor(7), 'stroke-width': $data.getCityOuterStrokeWidth(7) }"></circle>
+        <circle cx="0" cy="0" r="26" fill="white" stroke-width="1"></circle>
         <!-- /ko -->
 
         <!-- ko if: $data.cities[7].maxTokens === 2 -->
@@ -40,6 +39,16 @@
               d="" data-bind="attr: { d: $parent.getDrawingInstructions($data,true) }"></path>
         <!-- /ko -->
 
+
+        <!-- ko foreach: $data.getRoutedConnections() -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d=""
+              data-bind="attr: { d: $parent.getDrawingInstructions($data), stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }"></path>
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="" data-bind="attr: { d: $parent.getDrawingInstructions($data,true) }"></path>
+        <!-- /ko -->
+
+
         <!-- ko foreach: $data.getRoutedCityColors() -->
         <!-- ko if: $parent.cities[7].maxTokens === 1 -->
         <circle cx="0" cy="0" r="26" fill="none" stroke-width="8"
@@ -60,13 +69,6 @@
         <!-- /ko -->
         <!-- /ko -->
 
-        <!-- ko foreach: $data.getRoutedConnections() -->
-        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
-              d=""
-              data-bind="attr: { d: $parent.getDrawingInstructions($data), stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }"></path>
-        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
-              d="" data-bind="attr: { d: $parent.getDrawingInstructions($data,true) }"></path>
-        <!-- /ko -->
 
         <!-- ko if: $data.cities[7].maxTokens === 1 -->
         <circle cx="0" cy="0" r="23" fill="white" stroke="black" stroke-width="1"></circle>

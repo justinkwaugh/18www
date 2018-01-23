@@ -126,7 +126,78 @@ nav a, nav a:hover {
 }
 
 .bg-active-nav {
-    background-color: #999;
+    background-color: #999 !important;
+}
+
+.bg-route-0 {
+    background-color: #888 !important;
+}
+
+.bg-route-1 {
+    background-color: #fd7e14 !important;
+}
+
+.bg-route-2 {
+    background-color: #007bff !important;
+}
+
+.bg-route-3 {
+    background-color: #6f42c1 !important;
+}
+
+.bg-route-4 {
+    border-color: #e880cb !important;
+}
+
+.bg-route-border-0 {
+    border-color: #888 !important;
+}
+
+.bg-route-border-1 {
+    border-color: #fd7e14 !important;
+}
+
+.bg-route-border-2 {
+    border-color: #007bff !important;
+}
+
+.bg-route-border-3 {
+    border-color: #6f42c1 !important;
+}
+
+.bg-route-border-4 {
+    border-color: #e880cb !important;
+}
+
+.bg-route-train {
+    position:relative;
+    background-size:contain;
+    cursor:pointer;
+    min-width:130px !important;
+    min-height:88px;
+    box-shadow:3px 3px 10px #ccc;
+}
+
+.bg-route-train-small-border {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    bottom: -1px;
+    right: -1px;
+    border: 1px #888 solid;
+    border-radius: 4px;
+}
+
+.bg-route-train-big-border {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    bottom: -5px;
+    right: -5px;
+    border: 5px #888 solid;
+    border-radius: 4px;
 }
 
 .text-gt {
@@ -179,4 +250,12 @@ nav a, nav a:hover {
 
 .table-col-spacer {
     width:10px;
+}
+
+.route-invalid {
+    stroke: gray;
+}
+
+.route-blue {
+    stroke: blue;
 }
