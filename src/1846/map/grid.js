@@ -339,7 +339,7 @@ class Grid extends BaseGrid {
             homewood.tile().addToken('removed');
         }
         else {
-            homewood.tile().reservedToken(CompanyIDs.ERIE);
+            homewood.tile().reservedToken(CompanyIDs.PENNSYLVANIA);
         }
 
         const indianapolis = this.cellsById()['G9'];

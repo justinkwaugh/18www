@@ -306,7 +306,7 @@ class Cell {
         }
         return cost;
     }
-    
+
     getBaseCost(oldTile) {
         if(!oldTile.map) {
             return 20;
