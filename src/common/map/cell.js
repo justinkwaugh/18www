@@ -297,12 +297,16 @@ class Cell {
         let cost = 80;
         if (ReservedTokens[this.id] === company.id) {
             cost = 40;
-            // Need to check station connection for B&O and PRR
+            if(company.id === CompanyIDs.BALTIMORE_OHIO || company.id === CompanyIDs.PENNSYLVANIA) {
+                const connected = this.isConnectedToStation(company.id);
+                if(!connected) {
+                    cost = company.id === CompanyIDs.BALTIMORE_OHIO ? 100 : 60;
+                }
+            }
         }
-
         return cost;
     }
-
+    
     getBaseCost(oldTile) {
         if(!oldTile.map) {
             return 20;
@@ -483,6 +487,24 @@ class Cell {
         const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
         const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
         return neighborConnectionPoint >= 0 ? costData.cost : 0;
+    }
+
+    isConnectedToStation(companyId) {
+        const connections = this.getConnectionsForPosition(this.tile().id, this.tile().position());
+        const visited = {};
+        return _.find(connections, connection=> {
+            let connected = false;
+
+            if(connection[0] < 7) {
+                connected = this.checkNeighborConnection(companyId, connection[0], visited);
+            }
+
+            if(!connected && connection[1] < 7) {
+                connected = this.checkNeighborConnection(companyId, connection[1], visited);
+            }
+            return connected;
+        });
+
     }
 
     checkNeighborConnection(companyId, edgeIndex, visited, companies) {

@@ -144,6 +144,7 @@ const TileDefinitions = {
     [MapTileIDs.PORT_HURON]: {
         id: MapTileIDs.PORT_HURON,
         map: true,
+        template: 'portHuron',
         colorId: TileColorIDs.INVISIBLE,
         cities: {
             7: { id: 7, maxTokens: 1 }

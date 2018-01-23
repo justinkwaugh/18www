@@ -74,7 +74,8 @@ class Route extends Serializable {
 
         return _.find(revenueCells, cellData=> {
             const tile = CurrentGame().state().tilesByCellId[cellData.id];
-            return tile.hasTokenForCompany(CurrentGame().state().currentCompanyId());
+            const cityId = _(cellData.connections).flatten().max();
+            return tile.hasTokenForCompany(CurrentGame().state().currentCompanyId(), cityId);
         });
     }
 
