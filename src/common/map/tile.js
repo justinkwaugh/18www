@@ -47,6 +47,8 @@ class Tile extends Serializable {
         // Dynamic data
         this.position = ko.observable(data.position || 0);
         this.tokens = ko.observableArray(data.tokens || []);
+        this.reservedToken = ko.observable(data.reservedToken);
+        this.reservedCity = data.reservedCity || 7;
         this.tokensPerCity = ko.computed(() => {
             const tokensPerCity = {};
             _.each(this.tokens(), token => {
@@ -128,7 +130,7 @@ class Tile extends Serializable {
         }
 
         return _(this.cities).map((city, cityId) => {
-            return city.maxTokens > this.getTokensForCity(cityId).length ? city.id : null;
+            return city.maxTokens > this.getTokensForCity(cityId).length + ((this.reservedToken() && this.reservedToken() !== companyId && this.reservedCity === cityId) ? 1 : 0) ? city.id : null;
         }).compact().value();
     }
 

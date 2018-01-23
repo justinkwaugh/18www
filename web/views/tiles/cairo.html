@@ -1,0 +1,34 @@
+<svg style="width:126px;height:144px;">
+    <g fill-opacity="1" visibility="inherit" transform="translate(63,72)" pointer-events="none">
+
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d="M 30 -54 L 12 -18"></path>
+
+        <circle cx="4" cy="-34" r="26" fill="white" stroke-width="1"></circle>
+
+        <!-- ko if: $data.hasRoutedConnection([0,7]) -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d="M 30 -54 L 12 -18" data-bind="attr: { stroke: $data.getOuterStrokeColor([0,7]), 'stroke-width': $data.getOuterStrokeWidth([0,7]) }"></path>
+        <!-- /ko -->
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="M 30 -54 L 12 -18"></path>
+
+        <!-- ko foreach: $data.getRoutedCityColors() -->
+        <!-- ko if: $parent.cities[7].maxTokens === 1 -->
+        <circle cx="4" cy="-34" r="26" fill="none" stroke-width="8"
+        data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }"></circle>
+        <!-- /ko -->
+        <!-- /ko -->
+
+        <circle cx="4" cy="-34" r="23" fill="white" stroke="black" stroke-width="1"></circle>
+                <!-- ko if:  $data.reservedToken() -->
+        <image xlink:href="" x="-16" y="-54" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.reservedToken() + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->
+        <image xlink:href="" x="-16" y="-54" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+
+    </g>
+</svg>

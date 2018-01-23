@@ -8,7 +8,7 @@ import TileManifest from '1846/config/tileManifest';
 import Events from 'common/util/events';
 import CurrentGame from 'common/game/currentGame';
 import TerrainTypes from '1846/config/terrainTypes';
-import Route from 'common/model/route';
+import CompanyIDs from '1846/config/companyIds';
 
 const RowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
 
@@ -35,7 +35,7 @@ const SpecialTiles = {
     D6: MapTileIDs.CHICAGO,
     D14: MapTileIDs.CITY,
     D20: MapTileIDs.ERIE,
-    E11: MapTileIDs.CITY,
+    E11: MapTileIDs.FORT_WAYNE,
     E17: MapTileIDs.CLEVELAND,
     E21: MapTileIDs.SALAMANCA,
     F20: MapTileIDs.HOMEWOOD,
@@ -218,6 +218,7 @@ class Grid extends BaseGrid {
         this.routing = false;
         this.route = null;
         this.connectNeighbors();
+        this.addTokens(state);
 
         Events.on('stateUpdated', () => {
             _.each(CurrentGame().state().tilesByCellId, (tile, cellId) => {
@@ -300,6 +301,72 @@ class Grid extends BaseGrid {
         return allCells;
     }
 
+    addTokens(state) {
+        const portHuron = this.cellsById()['B16'];
+        portHuron.tile().reservedToken(CompanyIDs.GRAND_TRUNK);
+
+        const detroit = this.cellsById()['C15'];
+        detroit.tile().addToken(CompanyIDs.MICHIGAN_SOUTHERN);
+
+        const erie = this.cellsById()['D20'];
+        erie.tile().reservedToken(CompanyIDs.NEW_YORK_CENTRAL);
+
+        const erieRemoved = !state.getCompany(CompanyIDs.ERIE);
+        if (!erieRemoved) {
+            erie.tile().reservedToken(CompanyIDs.ERIE);
+        }
+
+        const chicago = this.cellsById()['D6'];
+        chicago.tile().reservedToken(CompanyIDs.CHICAGO_WESTERN_INDIANA);
+        chicago.tile().reservedCity = 9;
+
+        const prrRemoved = !state.getCompany(CompanyIDs.PENNSYLVANIA);
+        if (!prrRemoved) {
+            const fortWayne = this.cellsById()['E11'];
+            fortWayne.tile().reservedToken(CompanyIDs.PENNSYLVANIA);
+        }
+
+        const salamanca = this.cellsById()['E21'];
+        if (erieRemoved) {
+            salamanca.tile().addToken('removed');
+        }
+        else {
+            salamanca.tile().reservedToken(CompanyIDs.ERIE);
+        }
+
+        const homewood = this.cellsById()['F20'];
+        if (prrRemoved) {
+            homewood.tile().addToken('removed');
+        }
+        else {
+            homewood.tile().reservedToken(CompanyIDs.ERIE);
+        }
+
+        const indianapolis = this.cellsById()['G9'];
+        indianapolis.tile().addToken(CompanyIDs.BIG_4);
+
+        const wheeling = this.cellsById()['G19'];
+        wheeling.tile().reservedToken(CompanyIDs.BALTIMORE_OHIO);
+
+        const cincinnati = this.cellsById()['H12'];
+        cincinnati.tile().reservedToken(CompanyIDs.BALTIMORE_OHIO);
+
+        const centralia = this.cellsById()['I5'];
+        centralia.tile().reservedToken(CompanyIDs.ILLINOIS_CENTRAL);
+
+        const candoRemoved = !state.getCompany(CompanyIDs.CHESAPEAKE_OHIO);
+        const huntington = this.cellsById()['I15'];
+        if (candoRemoved) {
+            huntington.tile().addToken('removed');
+        }
+        else {
+            huntington.tile().reservedToken(CompanyIDs.CHESAPEAKE_OHIO);
+        }
+
+        const cairo = this.cellsById()['K3'];
+        cairo.tile().reservedToken(CompanyIDs.ILLINOIS_CENTRAL);
+    }
+
     connectNeighbors() {
         _.each(this.cells(), (cell) => {
             cell.neighbors[0] = this.cellsById()[Grid.getIDForRowAndColumn(cell.row - 1,
@@ -351,7 +418,7 @@ class Grid extends BaseGrid {
         const d20 = this.cellsById()['D20'];
         d20.neighbors[0] = buffalo;
         d20.neighbors[1] = buffalo;
-        buffalo.neighbors = [d20,d20];
+        buffalo.neighbors = [d20, d20];
 
         const binghamton = this.cellsById()[OffBoardIds.BINGHAMTON];
         const e21 = this.cellsById()['E21'];
@@ -450,9 +517,10 @@ class Grid extends BaseGrid {
                 return true;
             }
 
-            if(!lastCellInRoute.tile().hasRoutedConnection(connection, this.route.id)) {
+            if (!lastCellInRoute.tile().hasRoutedConnection(connection, this.route.id)) {
                 return true;
             }
+
         });
 
 
@@ -504,7 +572,11 @@ class Grid extends BaseGrid {
 
         // Cap off the route if full
         if (this.route.isFull()) {
-            const connection = _.first(routeableConnectionsToPrior);
+
+            const chicagoStation = cell.id === 'D6' && routeableConnectionsToPrior.length > 1;
+            const connection = chicagoStation ? _.find(routeableConnectionsToPrior, connection => {
+                return cell.tile().hasTokenForCompany(CurrentGame().state().currentCompanyId(),
+                                                                 _.max(connection))}) : _.first(routeableConnectionsToPrior);
             cell.tile().clearRoutedConnections(this.route.id);
             cell.tile().addRoutedConnection(connection, 'gray', this.route.id);
             this.route.updateConnections(cell.id, [connection]);
@@ -567,7 +639,10 @@ class Grid extends BaseGrid {
                     }
                 });
 
-                const connection = _.first(routeablePriorConnections);
+                const chicagoStation = lastCell.id === 'D6' && routeablePriorConnections.length > 1;
+                const connection = chicagoStation ? _.find(routeablePriorConnections, connection => {
+                return lastCell.tile().hasTokenForCompany(CurrentGame().state().currentCompanyId(),
+                                                                 _.max(connection))}) : _.first(routeablePriorConnections);
                 lastCell.tile().clearRoutedConnections(this.route.id);
                 lastCell.tile().addRoutedConnection(connection, this.route.color, this.route.id);
                 this.route.updateConnections(lastCell.id, [connection]);

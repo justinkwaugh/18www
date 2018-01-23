@@ -105,6 +105,7 @@ const TileDefinitions = {
         map: true,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 20,
+        template: 'cairo',
         connections: [[0, 7]],
         cities: {
             7: { id: 7, maxTokens: 1 }
@@ -179,6 +180,16 @@ const TileDefinitions = {
     [MapTileIDs.CINCINNATI]: {
         id: MapTileIDs.CINCINNATI,
         map: true,
+        template:'cincinnati',
+        colorId: TileColorIDs.INVISIBLE,
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
+    },
+    [MapTileIDs.FORT_WAYNE]: {
+        id: MapTileIDs.FORT_WAYNE,
+        map: true,
+        template:'fortWayne',
         colorId: TileColorIDs.INVISIBLE,
         cities: {
             7: { id: 7, maxTokens: 1 }
@@ -222,6 +233,7 @@ const TileDefinitions = {
         map: true,
         colorId: TileColorIDs.INVISIBLE,
         revenue: 20,
+        template: 'huntington',
         connections: [[0, 7], [1, 7], [5, 7]],
         cities: {
             7: { id: 7, maxTokens: 1 }
@@ -669,6 +681,10 @@ const Manifest = {
     },
     [MapTileIDs.CLEVELAND]: {
         upgrades: [291, 292, 293],
+        count: -1
+    },
+    [MapTileIDs.FORT_WAYNE]: {
+        upgrades: [5, 6, 57],
         count: -1
     },
     [MapTileIDs.CINCINNATI]: {

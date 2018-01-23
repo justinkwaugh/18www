@@ -30,6 +30,7 @@ class LayTrack extends Action {
         const newTile = state.manifest.getTile(this.tileId, this.oldTileId);
         newTile.position(this.position);
         newTile.tokens(_.clone(oldTile.tokens()));
+        newTile.reservedToken(oldTile.reservedToken());
         state.tilesByCellId[this.cellId] = newTile;
 
         company.removeCash(this.cost);
@@ -50,6 +51,7 @@ class LayTrack extends Action {
         const oldTile = state.manifest.getTile(this.oldTileId, this.tileId);
         oldTile.position(this.oldTilePosition);
         oldTile.tokens(_.clone(newTile.tokens()));
+        oldTile.reservedToken(newTile.reservedToken());
         state.tilesByCellId[this.cellId] = oldTile;
 
         if(this.privateId && this.privateDone) {

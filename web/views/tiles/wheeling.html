@@ -29,6 +29,10 @@
 
         <!-- ko if: $data.cities[7].maxTokens === 1 -->
         <circle cx="16" cy="12" r="23" fill="white" stroke="black" stroke-width="1"></circle>
+        <!-- ko if:  $data.reservedToken() -->
+        <image xlink:href="" x="-4" y="-8" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.reservedToken() + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
         <!-- ko if:  $data.getTokensForCity(7).length > 0 -->
         <image xlink:href="" x="-4" y="-8" height="40px" width="40px"
                data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>

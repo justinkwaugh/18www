@@ -7,6 +7,7 @@ const MapTileIDs = {
     CENTRALIA : 'centralia',
     DETROIT: 'detroit',
     ERIE: 'erie',
+    FORT_WAYNE: 'fort_wayne',
     CLEVELAND: 'cleveland',
     WHEELING: 'wheeling',
     CINCINNATI: 'cincinnati',
