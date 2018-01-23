@@ -97,11 +97,31 @@
         <circle cx="40" cy="3" r="21" fill="white" stroke="black" stroke-width="1" transform="rotate(180 0 0)"></circle>
 
         <!-- ko if: $data.getTokensForCity(7).length > 0 -->
-        <g transform="translate(20, -26)">
-            <image xlink:href="" x="0" y="0" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
-        </g>
+            <image xlink:href="" x="-5" y="-58" height="40px" width="40px"
+                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
         <!-- /ko -->
+
+        <!-- ko if: $data.getTokensForCity(8).length > 0 -->
+        <image xlink:href="" x="20" y="-23" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(8)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+
+        <!-- ko if:  $data.reservedToken() -->
+        <image xlink:href="" x="0" y="15" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.reservedToken() + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+
+        <!-- ko if: $data.getTokensForCity(9).length > 0 -->
+        <image xlink:href="" x="0" y="15" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(9)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+
+        <!-- ko if: $data.getTokensForCity(10).length > 0 -->
+        <image xlink:href="" x="-42" y="13" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(10)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+
+
         <g transform="translate(0, -51)">
             <circle cx="0" cy="0" r="13" fill="white" stroke="black" stroke-width="1"></circle>
             <text x="0" y="2" fill="black" stroke="black" stroke-width="0.4"

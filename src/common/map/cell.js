@@ -383,7 +383,7 @@ class Cell {
             const addedConnectionIds = _.difference(newConnectionsIds, oldConnectionsIds);
             const addedConnections = _(this.getConnectionsForPosition(newTileId, pos)).filter(
                 connection => {
-                    return _.indexOf(addedConnectionIds, this.getConnectionId(connection)) >= 0;
+                    return this.tile().hasCity() || _.indexOf(addedConnectionIds, this.getConnectionId(connection)) >= 0;
                 }).value();
 
 
@@ -487,6 +487,11 @@ class Cell {
 
     checkNeighborConnection(companyId, edgeIndex, visited, companies) {
 
+        const hasLocalStation = this.tile().hasTokenForCompany(companyId);
+        if(hasLocalStation) {
+            return true;
+        }
+
         const neighbor = this.neighbors[edgeIndex];
         if (!neighbor) {
             return false;
@@ -497,9 +502,8 @@ class Cell {
         if (neighborConnectionPoint < 0) {
             return false;
         }
-        const hasLocalStation = this.tile().hasTokenForCompany(companyId);
 
-        return hasLocalStation || neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint,
+        return neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint,
                                                                       visited, companies);
     }
 
