@@ -227,6 +227,19 @@ class Grid extends BaseGrid {
 
             Events.emit('gridRestored');
         });
+
+        Events.on('drawRoutes', (routes)=> {
+            _.each(routes, route=> {
+                _.each(route.cells(), cellData=> {
+                    const tile = this.cellsById()[cellData.id].tile();
+                    _.each(cellData.connections, connection=> tile.addRoutedConnection(connection, route.color, route.id));
+                });
+            });
+        });
+
+        Events.on('clearRoutes', ()=> {
+            _.each(this.cells(), cell=> cell.tile().clearRoutedConnections());
+        })
     }
 
     createCells(state) {

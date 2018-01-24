@@ -87,6 +87,10 @@ class Company extends Serializable {
         return _(_.range(1,4)).difference(currentColors).first();
     }
 
+    calculateRevenue() {
+        return _.sumBy(this.trains(), train=> train.route.revenue());
+    }
+
 }
 
 Company.registerClass();

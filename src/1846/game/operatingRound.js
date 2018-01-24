@@ -7,6 +7,9 @@ import IssueShares from '1846/actions/issueShares';
 import RedeemShares from '1846/actions/redeemShares';
 import BuyPrivate from '1846/actions/buyPrivate';
 import Prices from '1846/config/prices';
+import Allocations from '1846/config/allocations';
+import RunRoutes from '1846/actions/runRoutes';
+import Events from 'common/util/events';
 
 const Actions = {
     ISSUE_SHARES: 'issue',
@@ -40,10 +43,13 @@ class OperatingRound {
 
         this.Actions = Actions;
         this.PrivateActions = PrivateActions;
+        this.Allocations = Allocations;
 
         this.selectedAction = ko.observable(definition.selectedAction);
         this.selectedPrivateId = ko.observable(definition.selectedPrivateId);
+        this.companyTrains = ko.observableArray(definition.companyTrains);
         this.selectedTrain = ko.observable(definition.selectedTrain);
+        this.selectedAllocation = ko.observable(definition.selectedAllocation);
 
         this.maxPrivateCost = ko.computed(() => {
             if (!this.selectedPrivateId()) {
@@ -66,6 +72,32 @@ class OperatingRound {
             if(value.length === 0 && this.selectedPrivateId()) {
                 this.reset();
             }
+        });
+
+        this.runRevenue = ko.computed(()=> {
+            if(!this.selectedTrain()) {
+                return 0;
+            }
+
+            return _.sumBy(this.companyTrains(), train=>train.route.revenue());
+        });
+
+        this.halfPayResult = ko.computed(()=> {
+            if(!this.selectedTrain()) {
+                return 0;
+            }
+            const halfRevenue = this.runRevenue() / 2;
+            const remainder = halfRevenue % 10;
+            const payout = halfRevenue + remainder;
+            return this.calculateStockMovementDisplay(this.calculateStockMovement(payout));
+        });
+
+        this.fullPayResult = ko.computed(()=> {
+            if(!this.selectedTrain()) {
+                return 0;
+            }
+            const revenue = this.runRevenue();
+            return this.calculateStockMovementDisplay(this.calculateStockMovement(revenue));
         });
 
         this.action = ko.computed(() => {
@@ -93,7 +125,7 @@ class OperatingRound {
                 return false;
             }
 
-            return !this.hasLaidTrackOrTokenedThisTurn() && !this.hasIssuedThisTurn() && !this.hasRedeemedThisTurn() && this.getNumCanIssue() > 0;
+            return !this.hasRunRoutesThisTurn() && !this.hasLaidTrackOrTokenedThisTurn() && !this.hasIssuedThisTurn() && !this.hasRedeemedThisTurn() && this.getNumCanIssue() > 0;
         });
 
         this.canRedeem = ko.computed(() => {
@@ -101,7 +133,7 @@ class OperatingRound {
                 return false;
             }
 
-            return !this.hasLaidTrackOrTokenedThisTurn() && !this.hasRedeemedThisTurn() && !this.hasIssuedThisTurn() && this.getNumCanRedeem() > 0;
+            return !this.hasRunRoutesThisTurn() && !this.hasLaidTrackOrTokenedThisTurn() && !this.hasRedeemedThisTurn() && !this.hasIssuedThisTurn() && this.getNumCanRedeem() > 0;
         });
 
         this.canLayTrackOrToken = ko.computed(() => {
@@ -109,9 +141,37 @@ class OperatingRound {
                 return false;
             }
 
+            if(this.hasRunRoutesThisTurn()) {
+                return false;
+            }
+
             const company = CurrentGame().state().currentCompany();
             return company.cash() >= 20;
             // IC free spots
+        });
+
+        this.canRunRoutes = ko.computed(()=> {
+            if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+                return false;
+            }
+
+            if(this.hasRunRoutesThisTurn()) {
+                return false;
+            }
+
+            return true;
+        });
+
+        this.canBuyTrains = ko.computed(()=> {
+            if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+                return false;
+            }
+
+            if(!this.hasRunRoutesThisTurn()) {
+                return false;
+            }
+
+            return true;
         });
 
         this.action = ko.computed(() => {
@@ -135,10 +195,52 @@ class OperatingRound {
                                           price: this.privatePrice()
                                       });
             }
+            else if (this.selectedAction() === Actions.RUN_ROUTES && this.selectedAllocation()) {
+                return new RunRoutes({
+                                          playerId: CurrentGame().state().currentPlayerId(),
+                                          companyId: CurrentGame().state().currentCompanyId(),
+                                          revenue: this.runRevenue(),
+                                          allocation: this.selectedAllocation(),
+                                          trains: this.companyTrains()
+                                      });
+            }
         });
 
+        Events.on('undo', ()=> {
+            this.reset();
+        });
+    }
 
+    calculateStockMovement(revenue) {
+        const currentPrice = CurrentGame().state().currentCompany().price();
 
+            if(revenue < currentPrice) {
+                return 0;
+            }
+            else if(revenue < currentPrice*2) {
+                return 1;
+            }
+            else if(revenue < currentPrice*3) {
+                return 2;
+            }
+            else {
+                return 3;
+            }
+    }
+
+    calculateStockMovementDisplay(movement) {
+        if (movement === 0) {
+            return 'no change';
+        }
+        else if(movement === 1) {
+            return 'price \u21E2';
+        }
+        else if(movement === 2) {
+            return 'price \u21E2 2x';
+        }
+        else {
+            return 'price \u21E2 3x';
+        }
     }
 
     isOhioIndianaAbility() {
@@ -209,6 +311,21 @@ class OperatingRound {
         });
     }
 
+    hasRunRoutesThisTurn() {
+        if (!CurrentGame()) {
+            return false;
+        }
+
+        const turn = CurrentGame().state().turnHistory.currentTurn();
+        if (!turn) {
+            return false;
+        }
+
+        return _.find(turn.getActions(), action => {
+            return action.getTypeName() === 'RunRoutes';
+        });
+    }
+
     hasPrivateLaidTrack() {
         if (this.isOhioIndianaAbility()) {
             const turn = CurrentGame().state().turnHistory.currentTurn();
@@ -229,6 +346,14 @@ class OperatingRound {
                 this.selectPrivate(this.useablePrivates()[0].id);
             }
         }
+        else if(this.selectedAction() === Actions.RUN_ROUTES) {
+            this.companyTrains(_.map(CurrentGame().state().currentCompany().trains(), train=> train.clone()));
+            Events.emit('drawRoutes', _.map(this.companyTrains(), train=>train.route));
+
+            if(this.companyTrains().length === 0) {
+                this.selectedAllocation(Allocations.FULL);
+            }
+        }
     }
 
     selectPrivate(companyId) {
@@ -241,12 +366,18 @@ class OperatingRound {
         CurrentGame().grid().route = train.route;
     }
 
+    selectAllocation(allocation) {
+        this.selectedAllocation(allocation);
+    }
+
     reset() {
         this.selectedAction(null);
         this.numberOfShares(0);
         this.selectedPrivateId(null);
         this.privatePrice(null);
+        this.selectedAllocation(null);
         this.selectedTrain(null);
+        Events.emit('clearRoutes');
     }
 
     commit() {

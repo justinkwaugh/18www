@@ -3,6 +3,7 @@ import PrivateDraft from '1846/game/privateDraft';
 import StockRound from '1846/game/stockRound';
 import OperatingRound from '1846/game/operatingRound';
 import CurrentGame from 'common/game/currentGame';
+import Events from 'common/util/events';
 
 import _ from 'lodash';
 class Sequence {
@@ -10,6 +11,7 @@ class Sequence {
     static undoLastAction() {
         CurrentGame().state().turnHistory.currentTurn().undoLast();
         CurrentGame().saveLocalState();
+        Events.emit('undo');
     }
 
     static finishTurn() {
