@@ -7,7 +7,7 @@
             <h6 data-bind="text:$data.value"></h6>
         </div>
         <!-- ko foreach: $data.companies() -->
-            <div class="" style="height:25px;font-size:1em;margin-bottom:2px;" data-bind="text:$root.game().state().publicCompaniesById[$data].nickname,css: 'bg-' + $data + ' text-' + $data"></div>
+            <div class="" style="height:25px;font-size:1em;margin-bottom:2px;" data-bind="text:$root.game().state().getCompany($data).nickname,css: 'bg-' + $data + ' text-' + $data"></div>
         <!-- /ko -->
     </div>
     <!-- /ko -->

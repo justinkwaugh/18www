@@ -45,6 +45,7 @@ class State extends BaseState {
         this.priorityDealIndex = ko.observable(definition.priorityDealIndex);
         this.certLimit = ko.observable(
             definition.certLimit || (this.players().length === 3 ? 14 : this.players().length === 4 ? 12 : 11));
+        this.trainLimit = ko.observable(definition.trainLimit || 4);
 
         this.publicCompanies = definition.publicCompanies || [];
         this.publicCompaniesById = _.keyBy(this.publicCompanies, 'id');
@@ -90,6 +91,17 @@ class State extends BaseState {
 
     isOperatingRound() {
         return this.currentRoundId() === RoundIds.OPERATING_ROUND_1 || this.currentRoundId() === RoundIds.OPERATING_ROUND_2;
+    }
+
+    getNextPhase() {
+        if(this.currentPhaseId() === PhaseIds.PHASE_I) {
+            return PhaseIds.PHASE_II;
+        }
+        else if (this.currentPhaseId() === PhaseIds.PHASE_II) {
+            return PhaseIds.PHASE_III;
+        }
+
+        return PhaseIds.PHASE_IV;
     }
 
     getCompany(companyId) {

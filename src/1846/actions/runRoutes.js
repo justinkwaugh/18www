@@ -1,4 +1,5 @@
 import Action from 'common/game/action';
+import CompanyTypes from 'common/model/companyTypes';
 import TrainNames from '1846/config/trainNames';
 import Allocations from '1846/config/allocations';
 import Prices from '1846/config/prices';
@@ -21,7 +22,8 @@ class RunRoutes extends Action {
 
     doExecute(state) {
         const company = state.getCompany(this.companyId);
-        this.oldTrains = company.trains();
+        const player = state.playersById()[this.playerId];
+        this.oldTrains = _.map(company.trains(), train => train.clone());
         this.oldPriceIndex = company.priceIndex();
         this.oldLastRun = company.lastRun();
         const companyIncome = this.calculateCompanyIncome(company, this.revenue, this.allocation);
@@ -29,51 +31,73 @@ class RunRoutes extends Action {
 
         // Update and pay company
         company.lastRun(this.revenue);
-        company.trains(this.trains);
+        company.trains(_.map(this.trains, train => train.clone()));
         state.bank.removeCash(companyIncome);
         company.addCash(companyIncome);
-        if (this.allocation === Allocations.NONE || this.revenue === 0) {
-            company.priceIndex(Prices.leftIndex(this.oldPriceIndex));
-        }
-        else {
-            company.priceIndex(
-                Prices.rightIndex(this.oldPriceIndex, this.calculateStockMovement(payout, company.price())))
-        }
 
         // Pay players
-        const payoutPerShare = payout / 10;
-        _.each(state.players(), player => {
-            player.addCash(player.numSharesOwnedOfCompany(this.companyId) * payoutPerShare);
-        });
+        if (company.type === CompanyTypes.INDEPENDANT) {
+            state.bank.removeCash(this.revenue / 2);
+            player.addCash(this.revenue / 2);
+        }
+        else {
+            if (this.allocation === Allocations.NONE || this.revenue === 0) {
+                company.priceIndex(Prices.leftIndex(this.oldPriceIndex));
+            }
+            else {
+                company.priceIndex(
+                    Prices.rightIndex(this.oldPriceIndex, this.calculateStockMovement(payout, company.price())))
+            }
+
+            const payoutPerShare = payout / 10;
+            _.each(state.players(), player => {
+                const cash = player.numSharesOwnedOfCompany(this.companyId) * payoutPerShare;
+                state.bank.removeCash(cash);
+                player.addCash(cash);
+            });
+        }
     }
 
     doUndo(state) {
         const company = state.getCompany(this.companyId);
+        const player = state.playersById()[this.playerId];
         const companyIncome = this.calculateCompanyIncome(company, this.revenue, this.allocation);
         const payout = this.calculatePayout(this.revenue, this.allocation);
 
         // Unpay players
-        const payoutPerShare = payout / 10;
-        _.each(state.players(), player => {
-            player.removeCash(player.numSharesOwnedOfCompany(this.companyId) * payoutPerShare);
-        });
+        if (company.type === CompanyTypes.INDEPENDANT) {
+            state.bank.addCash(this.revenue / 2);
+            player.removeCash(this.revenue / 2);
+        }
+        else {
+            company.priceIndex(this.oldPriceIndex);
+            const payoutPerShare = payout / 10;
+            _.each(state.players(), player => {
+                const cash = player.numSharesOwnedOfCompany(this.companyId) * payoutPerShare;
+                state.bank.addCash(cash);
+                player.removeCash(cash);
+            });
+        }
 
         // Update and unpay company
-        company.priceIndex(this.oldPriceIndex);
-        state.bank.removeCash(companyIncome);
-        company.addCash(companyIncome);
-        company.trains(this.oldTrains);
+        state.bank.addCash(companyIncome);
+        company.removeCash(companyIncome);
+        company.trains(_.map(this.oldTrains, train => train.clone()));
         company.lastRun(this.oldLastRun);
     }
 
     summary(state) {
         const company = state.getCompany(this.companyId);
         const payout = this.calculatePayout(this.revenue, this.allocation);
-        const movement = (this.revenue === 0 || this.allocation === Allocations.NONE) ? -1 : this.calculateStockMovement(payout, Prices.price(this.oldPriceIndex));
+        const movement = (this.revenue === 0 || this.allocation === Allocations.NONE) ? -1 : this.calculateStockMovement(
+            payout, Prices.price(this.oldPriceIndex));
         const newPrice = Prices.rightPrice(this.oldPriceIndex, movement);
-        const trainText = this.trains.length === 0 ? 'no trains' : 'its '+ _(this.trains).map(train => TrainNames[train.type]).join(
-                ',') + ' train' + (this.trains.length > 1 ? 's' : '') + ' for $' + this.revenue +' and ' + this.getAllocationText(this.allocation, true);
-        return company.nickname + ' ran ' + trainText +' - share price ' + this.getMovementText(movement) + ' ' + newPrice;
+        const trainText = this.trains.length === 0 ? 'no trains' : 'its ' + _(this.trains).map(
+                train => TrainNames[train.type]).join(
+                ',') + ' train' + (this.trains.length > 1 ? 's' : '') + ' for $' + this.revenue + ' and ' + this.getAllocationText(
+                this.allocation, true);
+        const stockText = company.type === CompanyTypes.INDEPENDANT ? '' : ' - share price ' + this.getMovementText(movement) + ' $' + newPrice;
+        return company.nickname + ' ran ' + trainText + stockText;
     }
 
     confirmation(state) {
@@ -82,7 +106,10 @@ class RunRoutes extends Action {
 
     calculateCompanyIncome(company, revenue, allocation) {
         let companyIncome = 0;
-        if (allocation === Allocations.NONE) {
+        if (company.type === CompanyTypes.INDEPENDANT) {
+            companyIncome = revenue / 2;
+        }
+        else if (allocation === Allocations.NONE) {
             companyIncome = revenue;
         }
         else if (allocation === Allocations.HALF) {
@@ -142,7 +169,7 @@ class RunRoutes extends Action {
     }
 
     getMovementText(movement) {
-        if(movement < 0) {
+        if (movement < 0) {
             return 'moved back to';
         }
         else if (movement === 0) {

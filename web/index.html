@@ -13,7 +13,7 @@
         </span>
         <div class="navbar-nav mr-auto">
             <h2 class="mb-0 text-dark font-weight-light"
-                data-bind="text: $data.game().state().roundName() + ' - ' + ($data.game().state().currentCompanyId() ? $data.game().state().publicCompaniesById[$root.game().state().currentCompanyId()].nickname + ' - ' : '') + $data.game().state().currentPlayer().user().username"></h2>
+                data-bind="text: $data.game().state().roundName() + ' - ' + ($data.game().state().currentCompanyId() ? $data.game().state().getCompany($root.game().state().currentCompanyId()).nickname + ' - ' : '') + $data.game().state().currentPlayer().user().username"></h2>
         </div>
         <div><button type="button" class="btn btn-danger mr-2" data-bind="click: function() { $data.game().state().trySerialize();}">SERIALIZE</button></div>
         <div data-bind="template: { name: 'views/players', data: $data.game().state()}"></div>

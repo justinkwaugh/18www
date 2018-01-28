@@ -196,6 +196,15 @@ const TileDefinitions = {
             7: { id: 7, maxTokens: 1 }
         }
     },
+    [MapTileIDs.INDIANAPOLIS]: {
+        id: MapTileIDs.INDIANAPOLIS,
+        map: true,
+        template:'indianapolis',
+        colorId: TileColorIDs.INVISIBLE,
+        cities: {
+            7: { id: 7, maxTokens: 1 }
+        }
+    },
     [MapTileIDs.WHEELING]: {
         id: MapTileIDs.WHEELING,
         map: true,
@@ -685,6 +694,10 @@ const Manifest = {
         count: -1
     },
     [MapTileIDs.FORT_WAYNE]: {
+        upgrades: [5, 6, 57],
+        count: -1
+    },
+    [MapTileIDs.INDIANAPOLIS]: {
         upgrades: [5, 6, 57],
         count: -1
     },

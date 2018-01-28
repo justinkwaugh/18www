@@ -41,7 +41,7 @@ const SpecialTiles = {
     F20: MapTileIDs.HOMEWOOD,
     G3: MapTileIDs.CITY,
     G7: MapTileIDs.CITY,
-    G9: MapTileIDs.CITY,
+    G9: MapTileIDs.INDIANAPOLIS,
     G13: MapTileIDs.CITY,
     G15: MapTileIDs.CITY,
     G19: MapTileIDs.WHEELING,

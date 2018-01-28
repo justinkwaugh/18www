@@ -38,7 +38,10 @@ class StartCompany extends Action {
         player.removeCash(cash);
         company.addCash(cash);
 
-        state.tilesByCellId[company.homeCellId].addToken(company.id);
+        const tile = state.tilesByCellId[company.homeCellId];
+        tile.addToken(company.id);
+        tile.reservedToken(null);
+
 
         // First cert in company treasury always pres cert for convenience
         const cert = company.certificates.shift();
@@ -52,8 +55,9 @@ class StartCompany extends Action {
         const company = state.publicCompaniesById[this.companyId];
         const cash = Prices.price(this.startIndex)*2;
 
-
-        state.tilesByCellId[company.homeCellId].removeToken(company.id);
+        const tile = state.tilesByCellId[company.homeCellId];
+        tile.removeToken(company.id);
+        tile.reservedToken(company.id);
 
         company.removeCash(cash);
         player.addCash(cash);

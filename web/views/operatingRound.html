@@ -124,7 +124,9 @@
     <!-- ko if: $data.selectedAction() === $data.Actions.RUN_ROUTES -->
     <!-- ko if: $data.companyTrains().length > 0 -->
     <h5 class="mt-3 mb-0 text-center font-weight-light alert-heading">Operate Trains</h5>
-    <div style="font-size:14px;" class="mt-0 mb-3 text-center alert-heading">(Choose trains and draw routes on map below)</div>
+    <div style="font-size:14px;" class="mt-0 mb-3 text-center alert-heading">(Choose trains and draw routes on map
+        below)
+    </div>
     <div class="d-flex justify-content-center">
         <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
             <!-- ko foreach: $data.companyTrains() -->
@@ -142,23 +144,112 @@
             <!-- /ko -->
         </ul>
     </div>
-
-    <!-- ko if: $data.selectedTrain() -->
+    <!-- ko if: $data.selectedTrain() && $data.canAllocateRevenue()-->
     <h5 class="mt-3 text-center font-weight-light alert-heading"
         data-bind="text: 'Allocate $' + $data.runRevenue() + ' revenue'"></h5>
     <div class="d-flex justify-content-center">
         <div class="btn-group" role="group">
             <button type="button" class="btn"
-                    data-bind="css: $data.selectedAllocation() === $data.Allocations.NONE ? 'btn-warning' : 'btn-secondary', click: function() {  $data.selectAllocation($data.Allocations.NONE); }"><div>Withhold</div><div style="font-size:12px;" data-bind="html: '&#x21E0; price'"></div></button>
+                    data-bind="css: $data.selectedAllocation() === $data.Allocations.NONE ? 'btn-warning' : 'btn-secondary', click: function() {  $data.selectAllocation($data.Allocations.NONE); }">
+                <div>Withhold</div>
+                <div style="font-size:12px;" data-bind="html: '&#x21E0; price'"></div>
+            </button>
             <button type="button" class="btn"
-                    data-bind="css: $data.selectedAllocation() === $data.Allocations.HALF ? 'btn-warning' : 'btn-secondary', click: function() { $data.selectAllocation($data.Allocations.HALF); }"><div>Pay Half</div><div style="font-size:12px;" data-bind="text: $data.halfPayResult()"></div></button>
+                    data-bind="css: $data.selectedAllocation() === $data.Allocations.HALF ? 'btn-warning' : 'btn-secondary', click: function() { $data.selectAllocation($data.Allocations.HALF); }">
+                <div>Pay Half</div>
+                <div style="font-size:12px;" data-bind="text: $data.halfPayResult()"></div>
+            </button>
             <button type="button" class="btn"
-                    data-bind="css: $data.selectedAllocation() === $data.Allocations.FULL ? 'btn-warning' : 'btn-secondary', click: function() { $data.selectAllocation($data.Allocations.FULL); }"><div>Pay Full</div><div style="font-size:12px;" data-bind="text: $data.fullPayResult()"></div></button>
+                    data-bind="css: $data.selectedAllocation() === $data.Allocations.FULL ? 'btn-warning' : 'btn-secondary', click: function() { $data.selectAllocation($data.Allocations.FULL); }">
+                <div>Pay Full</div>
+                <div style="font-size:12px;" data-bind="text: $data.fullPayResult()"></div>
+            </button>
         </div>
     </div>
     <!-- /ko -->
     <!-- /ko -->
     <!-- /ko -->
+
+    <!-- ko if: $data.selectedAction() === $data.Actions.BUY_TRAINS -->
+    <!-- ko if: $data.getCompaniesWithTrains().length > 0-->
+    <h5 class="mt-3 mb-2 text-center font-weight-light alert-heading">Buy a train from</h5>
+    <div class="d-flex justify-content-center">
+        <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
+            <li class="rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1" style="cursor:pointer;"
+                data-bind="click: function() {$data.selectedTrainSource('bank'); },style: { opacity: !$data.selectedTrainSource() || $data.selectedTrainSource() === 'bank' ? 1 : 0.2}, css: 'bg-secondary'+ ' text-white'">
+                <strong class="h5">Bank</strong>
+            </li>
+            <!-- ko foreach: $data.getCompaniesWithTrains() -->
+            <li class="rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1" style="cursor:pointer;"
+                data-bind="click: function() {$parent.selectedTrainSource($data.id); },style: { opacity: !$parent.selectedTrainSource() || $parent.selectedTrainSource() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id ">
+                <strong class="h5" data-bind="text: $data.nickname"></strong>
+            </li>
+            <!-- /ko -->
+        </ul>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: $data.selectedTrainSource() && $data.selectedTrainSource() === 'bank'-->
+    <h5 class="mt-3 mb-2 text-center font-weight-light alert-heading">Choose Trains</h5>
+    <div class="d-flex justify-content-center">
+        <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
+            <!-- ko foreach: $data.availableBankTrains() -->
+            <li>
+                <div>
+                    <div class="card mb-0 d-inline-flex bg-route-train"
+                         data-bind="style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(/images/trains/' + $data.type + '.png)' }">
+                        <div class="bg-route-train-border"
+                             data-bind="css: 'bg-route-border-0 bg-route-train-small-border'"></div>
+                        <div style="border-radius:4px; padding:0 5px;position:absolute;top:0px;right:0px;color:black"><span
+                                style="font-size:16px;font-weight:600"
+                                data-bind="text: '$' + $data.cost"></span></div>
+                    </div>
+                    <div class="mb-2">
+                        <span style="font-size:14px" data-bind="text: $data.available + ' remaining'"></span>
+                    </div>
+                    <div>
+                        <!-- ko foreach: _.range(1, $data.num+1) -->
+                        <button type="button" class="btn"
+                                data-bind="text: $data, css: $parents[1].isBankTrainSelectedForPurchase($parent.type, $data) ? 'btn-warning' : 'btn-secondary', click: function() { $parents[1].selectBankTrainForPurchase($parent.type, $data) }"></button>
+                        <!-- /ko -->
+                    </div>
+                </div>
+            </li>
+            <!-- /ko -->
+        </ul>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: $data.selectedTrainSource() && $data.selectedTrainSource() !== 'bank'-->
+    <h5 class="mt-3 mb-2 text-center font-weight-light alert-heading">Choose Trains</h5>
+    <div class="d-flex justify-content-center">
+        <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
+            <!-- ko foreach: $data.availableCompanyTrains() -->
+            <li>
+                <div class="card d-inline-flex bg-route-train"
+                     data-bind="click: function() {$parent.selectCompanyTrainForPurchase($data); }, style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(/images/trains/' + $data.type + '.png)' }">
+
+                    <div class="bg-route-train-border"
+                         data-bind="css: 'bg-route-border-' + ($parent.isCompanyTrainSelectedForPurchase($data.id) ? '1' : '0')+ ' ' + ($parent.isCompanyTrainSelectedForPurchase($data.id) ? 'bg-route-train-big-border' : 'bg-route-train-small-border')"></div>
+                </div>
+            </li>
+            <!-- /ko -->
+        </ul>
+    </div>
+    <!-- ko if: $data.selectedCompanyTrainsForPurchase().length > 0 -->
+    <h5 class="mt-3 text-center font-weight-light alert-heading">For how much?</h5>
+    <div class="d-flex justify-content-center">
+        <div class="input-group justify-content-center">
+            <div class="input-group-prepend">
+                <span class="input-group-text" data-bind="text: '$'"></span>
+            </div>
+            <input type="number" maxlength="3" pattern="[0-9]*" min="1" max="60" inputmode="numeric"
+                   style="max-width: 72px;" class="form-control no-spinners"
+                   data-bind="value: companyTrainPurchasePrice, valueUpdate: 'keyup', attr: { placeholder: $data.selectedCompanyTrainsForPurchase().length + '-' + $data.maxCompanyTrainPurchasePrice()}">
+        </div>
+    </div>
+    <!-- /ko -->
+    <!-- /ko -->
+    <!-- /ko -->
+
     <!-- ko if: $data.action() -->
     <div class="d-flex justify-content-center mt-3">
         <button type="button" class="btn btn-sm btn-primary mr-1"

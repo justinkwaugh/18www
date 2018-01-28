@@ -1,6 +1,7 @@
 import RoundIDs from '1846/config/roundIds';
 import PrivateDraft from '1846/game/privateDraft';
 import StockRound from '1846/game/stockRound';
+import CompanyIDs from '1846/config/companyIds';
 import OperatingRound from '1846/game/operatingRound';
 import CurrentGame from 'common/game/currentGame';
 import Events from 'common/util/events';
@@ -60,15 +61,15 @@ class Sequence {
                 state.currentCompanyId(state.operatingOrder[0]);
                 state.currentRoundId(RoundIDs.OPERATING_ROUND_1);
                 game.stockRound(null);
-                const presidentPlayerId = state.publicCompaniesById[state.currentCompanyId()].president();
+                const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
                 state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
             }
         }
         else if (currentRound.id === RoundIDs.OPERATING_ROUND_1) {
             const companyIndex = _.indexOf(state.operatingOrder, state.currentCompanyId());
             if(companyIndex < state.operatingOrder.length-1) {
-                state.currentCompanyId(companyIndex+1);
-                const presidentPlayerId = state.publicCompaniesById[state.currentCompanyId()].president();
+                state.currentCompanyId(state.operatingOrder[companyIndex+1]);
+                const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
                 state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
             }
             else {
@@ -76,15 +77,15 @@ class Sequence {
                 state.roundHistory.commitRound();
                 state.currentCompanyId(state.operatingOrder[0]);
                 state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_2, currentRoundNumber);
-                const presidentPlayerId = state.publicCompaniesById[state.currentCompanyId()].president();
+                const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
                 state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
             }
         }
         else if (currentRound.id === RoundIDs.OPERATING_ROUND_2) {
             const companyIndex = _.indexOf(state.operatingOrder, state.currentCompanyId());
             if(companyIndex < state.operatingOrder.length-1) {
-                state.currentCompanyId(companyIndex+1);
-                const presidentPlayerId = state.publicCompaniesById[state.currentCompanyId()].president();
+                state.currentCompanyId(state.operatingOrder[companyIndex+1]);
+                const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
                 state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
             }
             else {

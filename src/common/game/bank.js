@@ -2,6 +2,8 @@ import ko from 'knockout';
 import _ from 'lodash';
 import ValidationError from 'common/game/validationError';
 import Serializable from 'common/model/serializable';
+import PhaseIDs from '1846/config/phaseIds';
+import TrainIDs from '1846/config/trainIds';
 
 class Bank extends Serializable {
     constructor(definition) {
@@ -13,6 +15,49 @@ class Bank extends Serializable {
         this.certificatesById = ko.computed(() => {
             return _.groupBy(this.certificates(), 'companyId');
         });
+    }
+
+    getTrainsForPhase(phase) {
+        if(phase === PhaseIDs.PHASE_I ) {
+            return [TrainIDs.TRAIN_2];
+        }
+        else if(phase === PhaseIDs.PHASE_II) {
+            return [TrainIDs.TRAIN_3_5, TrainIDs.TRAIN_4];
+        }
+        else if(phase === PhaseIDs.PHASE_III) {
+            return [TrainIDs.TRAIN_4_6, TrainIDs.TRAIN_5];
+        }
+        else if(phase === PhaseIDs.PHASE_IV) {
+            return [TrainIDs.TRAIN_6, TrainIDs.TRAIN_7_8];
+        }
+    }
+
+    removeTrains(type, count) {
+        this.trainsByPhase.valueWillMutate();
+        if(type === TrainIDs.TRAIN_2) {
+            this.trainsByPhase()[PhaseIDs.PHASE_I] -= count || 1;
+        }
+        else if(type === TrainIDs.TRAIN_3_5 || type === TrainIDs.TRAIN_4) {
+            this.trainsByPhase()[PhaseIDs.PHASE_II] -= count || 1;
+        }
+        else if(type === TrainIDs.TRAIN_4_6 || type === TrainIDs.TRAIN_5) {
+            this.trainsByPhase()[PhaseIDs.PHASE_III] -= count || 1;
+        }
+        this.trainsByPhase.valueHasMutated();
+    }
+
+    addTrains(type, count) {
+        this.trainsByPhase.valueWillMutate();
+        if(type === TrainIDs.TRAIN_2) {
+            this.trainsByPhase()[PhaseIDs.PHASE_I] += count || 1;
+        }
+        else if(type === TrainIDs.TRAIN_3_5 || type === TrainIDs.TRAIN_4) {
+            this.trainsByPhase()[PhaseIDs.PHASE_II] += count || 1;
+        }
+        else if(type === TrainIDs.TRAIN_4_6 || type === TrainIDs.TRAIN_5) {
+            this.trainsByPhase()[PhaseIDs.PHASE_III] += count || 1;
+        }
+        this.trainsByPhase.valueHasMutated();
     }
 
     addCash(amount) {

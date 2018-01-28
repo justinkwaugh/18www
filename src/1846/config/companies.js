@@ -75,6 +75,8 @@ const PrivateCompanyDefinitions = {
         tokens: 1,
         cost: 140,
         maxBuyInPrice: 60,
+        cash: 80,
+        homeCellId: 'C15',
         trains: [new Train({type:TrainIDs.TRAIN_2})]
     },
     [CompanyIDs.BIG_4]: {
@@ -85,6 +87,8 @@ const PrivateCompanyDefinitions = {
         tokens: 1,
         cost: 100,
         maxBuyInPrice: 40,
+        cash: 60,
+        homeCellId: 'G9',
         trains: [new Train({type:TrainIDs.TRAIN_2})]
     },
     [CompanyIDs.CHICAGO_WESTERN_INDIANA]: {

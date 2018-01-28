@@ -14,6 +14,7 @@ const MapTileIDs = {
     SALAMANCA: 'salamanca',
     HOMEWOOD: 'homewood',
     HUNTINGTON: 'huntington',
+    INDIANAPOLIS: 'indianapolis',
     CAIRO: 'cairo',
     HOLLAND: 'holland',
     ST_LOUIS: 'stlouis',

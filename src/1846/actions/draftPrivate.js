@@ -1,4 +1,5 @@
 import Action from 'common/game/action';
+import CompanyIDs from '1846/config/companyIds';
 import _ from 'lodash';
 
 class DraftPrivate extends Action {
@@ -18,6 +19,10 @@ class DraftPrivate extends Action {
             player.cash(player.cash() - privateCompany.cost);
             state.bank.cash(state.bank.cash() + privateCompany.cost);
             player.certificates.push(privateCompany.certificates.pop());
+
+            if(this.privateId === CompanyIDs.MICHIGAN_SOUTHERN || this.privateId === CompanyIDs.BIG_4) {
+                privateCompany.president(this.playerId);
+            }
         }
         state.undraftedPrivateIds.removeAll(this.offeredIds);
         state.undraftedPrivateIds.push.apply(state.undraftedPrivateIds,

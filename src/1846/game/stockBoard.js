@@ -1,4 +1,5 @@
 import Prices from '1846/config/prices';
+import CompanyIDs from '1846/config/companyIds';
 import StockBoardEntry from '1846/game/stockBoardEntry';
 import Serializable from 'common/model/serializable';
 import ko from 'knockout';
@@ -73,7 +74,9 @@ class StockBoard extends Serializable {
             entries = _.reverse(entries);
         }
 
-        return _(entries).map(entry => entry.companies()).flatten().compact().value();
+        const minors = _([CompanyIDs.MICHIGAN_SOUTHERN, CompanyIDs.BIG_4]).reject(companyId=>CurrentGame().state().getCompany(companyId).closed()).value();
+        const majors = _(entries).map(entry => entry.companies()).flatten().compact().value();
+        return _.concat(minors, majors);
     }
 
 }
