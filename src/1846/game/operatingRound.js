@@ -351,6 +351,11 @@ class OperatingRound {
                && this.selectedPrivateId() === CompanyIDs.MICHIGAN_CENTRAL;
     }
 
+    isLSLAbility() {
+        return this.selectedAction() === Actions.USE_PRIVATES
+               && this.selectedPrivateId() === CompanyIDs.LAKE_SHORE_LINE;
+    }
+
     getCompaniesWithTrains() {
 
         return _(CurrentGame().state().currentPlayer().presidentCompanyIds()).reject(
@@ -443,6 +448,36 @@ class OperatingRound {
                 return action.getTypeName() === 'LayTrack' && action.privateId === CompanyIDs.OHIO_INDIANA;
             });
         }
+    }
+
+    hasUpgradedTrackThisTurn() {
+        if (!CurrentGame()) {
+            return false;
+        }
+
+        const turn = CurrentGame().state().turnHistory.currentTurn();
+        if (!turn) {
+            return false;
+        }
+
+        return _.find(turn.getActions(), action => {
+            return action.getTypeName() === 'LayTrack' && action.upgrade;
+        });
+    }
+
+    hasLaidTwoTrackThisTurn() {
+        if (!CurrentGame()) {
+            return false;
+        }
+
+        const turn = CurrentGame().state().turnHistory.currentTurn();
+        if (!turn) {
+            return false;
+        }
+
+        return _.filter(turn.getActions(), action => {
+            return action.getTypeName() === 'LayTrack' && !action.privateId;
+        }).length === 2;
     }
 
     selectAction(actionId) {

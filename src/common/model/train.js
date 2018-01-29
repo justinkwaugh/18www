@@ -1,6 +1,7 @@
 import short from 'short-uuid';
 import Serializable from 'common/model/serializable';
 import Route from 'common/model/route';
+import TrainDefinitions from '1846/config/trainDefinitions';
 
 class Train extends Serializable{
     constructor(data) {
@@ -11,6 +12,9 @@ class Train extends Serializable{
         this.lastRoute = data.lastRoute;
         this.route = data.route || new Route({trainType: this.type, color: 1});
         this.phasedOut = data.phasedOut;
+    }
+    getName() {
+        return TrainDefinitions[this.type].name;
     }
 }
 

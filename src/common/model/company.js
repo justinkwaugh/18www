@@ -22,6 +22,7 @@ class Company extends Serializable {
         });
         this.cash = ko.observable(definition.cash || 0);
         this.tokens = ko.observable(definition.tokens || 0);
+        this.startTokens = definition.startTokens;
         this.privates = ko.observableArray(definition.privates || []);
         this.trains = ko.observableArray(definition.trains || []);
         this.president = ko.observable(definition.president);

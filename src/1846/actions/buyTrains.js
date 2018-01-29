@@ -1,6 +1,8 @@
 import Action from 'common/game/action';
 import Train from 'common/model/train';
 import TrainDefinitions from '1846/config/trainDefinitions';
+import TrainIDs from '1846/config/trainIds';
+import PhaseIDs from '1846/config/phaseIds';
 
 import _ from 'lodash';
 
@@ -13,6 +15,7 @@ class BuyTrains extends Action {
         this.trains = args.trains;
         this.source = args.source;
         this.trainIds = args.trainIds;
+        this.oldPhase = args.oldPhase;
     }
 
     doExecute(state) {
@@ -31,6 +34,12 @@ class BuyTrains extends Action {
                     company.addTrain(newTrain);
                     this.trainIds.push(newTrain.id);
                 });
+
+                const newPhase = this.getNewPhase(state,type);
+                if(newPhase) {
+                    this.oldPhase = state.currentPhaseId();
+                    state.currentPhaseId(newPhase);
+                }
             });
         }
     }
@@ -48,7 +57,25 @@ class BuyTrains extends Action {
                     company.removeTrainById(id);
                 });
             });
+
+            if(this.oldPhase) {
+                state.currentPhaseId(oldPhase);
+            }
         }
+    }
+
+    getNewPhase(state, type) {
+        const currentPhase = state.currentPhaseId();
+        if(currentPhase === PhaseIDs.PHASE_I && (type === TrainIDs.TRAIN_3_5 || type === TrainIDs.TRAIN_4)) {
+            return PhaseIDs.PHASE_II;
+        }
+        else if(currentPhase === PhaseIDs.PHASE_II && (type === TrainIDs.TRAIN_4_6 || type === TrainIDs.TRAIN_5)) {
+            return PhaseIDs.PHASE_III;
+        }
+        else if(currentPhase === PhaseIDs.PHASE_III && (type === TrainIDs.TRAIN_6 || type === TrainIDs.TRAIN_7_8)) {
+            return PhaseIDs.PHASE_IV;
+        }
+        return null;
     }
 
     summary(state) {

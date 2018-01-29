@@ -93,6 +93,7 @@ class Sequence {
                 const currentRoundNumber = state.roundHistory.currentRound().number;
                 state.roundHistory.commitRound();
                 state.roundHistory.startRound(RoundIDs.STOCK_ROUND, currentRoundNumber+1);
+                state.currentCompanyId(null);
                 state.currentPlayerIndex(state.priorityDealIndex());
                 game.stockRound(new StockRound());
             }

@@ -136,11 +136,12 @@ class Cell {
                 return false;
             }
 
-            const company = CurrentGame().state().currentCompany();
+
             if (this.tokenableCities().length === 0) {
                 return false;
             }
 
+            const company = CurrentGame().state().currentCompany();
             const cost = this.getTokenCost();
             if (company.cash() < cost) {
                 return false;
@@ -161,10 +162,13 @@ class Cell {
             const layingTrack = CurrentGame().operatingRound().selectedAction() === CurrentGame().operatingRound().Actions.LAY_TRACK;
             const oandi = this.isOhioIndianaLay();
             const mc = this.isMichiganCentralLay();
-            const lsl = CurrentGame().operatingRound().selectedAction() === CurrentGame().operatingRound().Actions.USE_PRIVATES
-                        && CurrentGame().operatingRound().selectedPrivateId() === CompanyIDs.LAKE_SHORE_LINE
-                        && (this.id === 'D14' || this.id === 'E17');
+            const lsl = this.isLSLLay();
+
             if (!layingTrack && !oandi && !mc && !lsl) {
+                return false;
+            }
+
+            if(!this.canLayMichiganCentral() || !this.canLayOhioIndiana()) {
                 return false;
             }
 
@@ -240,6 +244,24 @@ class Cell {
         return CurrentGame().operatingRound().isMichiganCentralAbility() && (this.id === 'B10' || this.id === 'B12');
     }
 
+    isLSLLay() {
+        return CurrentGame().operatingRound().isLSLAbility() && (this.id === 'D14' || this.id === 'E17');
+    }
+
+    canUpgrade() {
+        return !CurrentGame().operatingRound().hasUpgradedTrackThisTurn();
+    }
+
+    canLayMichiganCentral() {
+        const michiganCentral = CurrentGame().state().getCompany(CompanyIDs.MICHIGAN_CENTRAL);
+        return !michiganCentral || (this.id !== 'B10' && this.id !== 'B12') || michiganCentral.used();
+    }
+
+    canLayOhioIndiana() {
+        const ohioIndiana = CurrentGame().state().getCompany(CompanyIDs.OHIO_INDIANA);
+        return !ohioIndiana || (this.id !== 'F14' && this.id !== 'F16') || ohioIndiana.used();
+    }
+
     getConnectedCompanies() {
         const companies = [];
         const visited = [];
@@ -259,22 +281,27 @@ class Cell {
             return this.getOhioIndianaTiles();
         }
 
+        if (CurrentGame().operatingRound().hasLaidTwoTrackThisTurn()) {
+            return false;
+        }
+
         const phase = CurrentGame().state().currentPhaseId();
         return _.filter(CurrentGame().state().manifest.getUpgradesForTile(this.tile().id) || [], (upgrade) => {
-            // if (phase === PhaseIDs.PHASE_I && upgrade.tile.colorId !== TileColorIDs.YELLOW) {
-            //     return false;
-            // }
-            //
-            // if (phase === PhaseIDs.PHASE_II && _.indexOf([TileColorIDs.GREEN, TileColorIDs.YELLOW],
-            //                                              upgrade.tile.colorId) < 0) {
-            //     return false;
-            // }
-            //
-            // if (phase === PhaseIDs.PHASE_III && _.indexOf(
-            //         [TileColorIDs.BROWN, TileColorIDs.GREEN, TileColorIDs.YELLOW],
-            //         upgrade.tile.colorId) < 0) {
-            //     return false;
-            // }
+
+            if ( upgrade.tile.colorId !== TileColorIDs.YELLOW && (phase === PhaseIDs.PHASE_I || !this.canUpgrade()) ) {
+                return false;
+            }
+
+            if (phase === PhaseIDs.PHASE_II && _.indexOf([TileColorIDs.GREEN, TileColorIDs.YELLOW],
+                                                         upgrade.tile.colorId) < 0) {
+                return false;
+            }
+
+            if (phase === PhaseIDs.PHASE_III && _.indexOf(
+                    [TileColorIDs.BROWN, TileColorIDs.GREEN, TileColorIDs.YELLOW],
+                    upgrade.tile.colorId) < 0) {
+                return false;
+            }
 
 
             return _.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;

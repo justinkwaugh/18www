@@ -14,6 +14,7 @@ const PublicCompanyDefinitions = {
         name: 'Grand Trunk',
         nickname: 'GT',
         tokens: 3,
+        startTokens: 3,
         homeCellId: 'B16'
     },
     [CompanyIDs.NEW_YORK_CENTRAL]: {
@@ -22,6 +23,7 @@ const PublicCompanyDefinitions = {
         name: 'New York Central',
         nickname: 'NYC',
         tokens: 4,
+        startTokens: 4,
         homeCellId: 'D20'
     },
     [CompanyIDs.ERIE]: {
@@ -30,6 +32,7 @@ const PublicCompanyDefinitions = {
         name: 'Erie',
         nickname: 'Erie',
         tokens: 4,
+        startTokens: 4,
         homeCellId: 'E21'
     },
     [CompanyIDs.PENNSYLVANIA]: {
@@ -38,6 +41,7 @@ const PublicCompanyDefinitions = {
         name: 'Pennsylvania',
         nickname: 'PRR',
         tokens: 5,
+        startTokens: 5,
         homeCellId: 'F20'
     },
     [CompanyIDs.BALTIMORE_OHIO]: {
@@ -46,6 +50,7 @@ const PublicCompanyDefinitions = {
         name: 'Baltimore & Ohio',
         nickname: 'B&O',
         tokens: 4,
+        startTokens: 4,
         homeCellId: 'G19'
     },
     [CompanyIDs.ILLINOIS_CENTRAL]: {
@@ -54,6 +59,7 @@ const PublicCompanyDefinitions = {
         name: 'Illinois Central',
         nickname: 'IC',
         tokens: 4,
+        startTokens: 4,
         homeCellId: 'K3'
     },
     [CompanyIDs.CHESAPEAKE_OHIO]: {
@@ -62,6 +68,7 @@ const PublicCompanyDefinitions = {
         nickname: 'C&O',
         name: 'Chesapeake & Ohio',
         tokens: 4,
+        startTokens: 4,
         homeCellId: 'I15'
     }
 };
@@ -72,7 +79,8 @@ const PrivateCompanyDefinitions = {
         name: 'Michigan Southern',
         type: CompanyTypes.INDEPENDANT,
         nickname: 'MS',
-        tokens: 1,
+        tokens: 0,
+        startTokens: 1,
         cost: 140,
         maxBuyInPrice: 60,
         cash: 80,
@@ -84,7 +92,8 @@ const PrivateCompanyDefinitions = {
         name: 'Big 4',
         type: CompanyTypes.INDEPENDANT,
         nickname: 'Big 4',
-        tokens: 1,
+        tokens: 0,
+        startTokens: 1,
         cost: 100,
         maxBuyInPrice: 40,
         cash: 60,
