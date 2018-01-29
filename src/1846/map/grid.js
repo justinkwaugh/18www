@@ -316,27 +316,26 @@ class Grid extends BaseGrid {
 
     addTokens(state) {
         const portHuron = this.cellsById()['B16'];
-        portHuron.tile().reservedToken(CompanyIDs.GRAND_TRUNK);
+        portHuron.tile().addReservedToken(CompanyIDs.GRAND_TRUNK);
 
         const detroit = this.cellsById()['C15'];
         detroit.tile().addToken(CompanyIDs.MICHIGAN_SOUTHERN);
 
         const erie = this.cellsById()['D20'];
-        erie.tile().reservedToken(CompanyIDs.NEW_YORK_CENTRAL);
+        erie.tile().addReservedToken(CompanyIDs.NEW_YORK_CENTRAL);
 
         const erieRemoved = !state.getCompany(CompanyIDs.ERIE);
         if (!erieRemoved) {
-            erie.tile().reservedToken(CompanyIDs.ERIE);
+            erie.tile().addReservedToken(CompanyIDs.ERIE);
         }
 
         const chicago = this.cellsById()['D6'];
-        chicago.tile().reservedToken(CompanyIDs.CHICAGO_WESTERN_INDIANA);
-        chicago.tile().reservedCity = 9;
+        chicago.tile().addReservedToken(CompanyIDs.CHICAGO_WESTERN_INDIANA, 9);
 
         const prrRemoved = !state.getCompany(CompanyIDs.PENNSYLVANIA);
         if (!prrRemoved) {
             const fortWayne = this.cellsById()['E11'];
-            fortWayne.tile().reservedToken(CompanyIDs.PENNSYLVANIA);
+            fortWayne.tile().addReservedToken(CompanyIDs.PENNSYLVANIA);
         }
 
         const salamanca = this.cellsById()['E21'];
@@ -344,7 +343,7 @@ class Grid extends BaseGrid {
             salamanca.tile().addToken('removed');
         }
         else {
-            salamanca.tile().reservedToken(CompanyIDs.ERIE);
+            salamanca.tile().addReservedToken(CompanyIDs.ERIE);
         }
 
         const homewood = this.cellsById()['F20'];
@@ -352,20 +351,20 @@ class Grid extends BaseGrid {
             homewood.tile().addToken('removed');
         }
         else {
-            homewood.tile().reservedToken(CompanyIDs.PENNSYLVANIA);
+            homewood.tile().addReservedToken(CompanyIDs.PENNSYLVANIA);
         }
 
         const indianapolis = this.cellsById()['G9'];
         indianapolis.tile().addToken(CompanyIDs.BIG_4);
 
         const wheeling = this.cellsById()['G19'];
-        wheeling.tile().reservedToken(CompanyIDs.BALTIMORE_OHIO);
+        wheeling.tile().addReservedToken(CompanyIDs.BALTIMORE_OHIO);
 
         const cincinnati = this.cellsById()['H12'];
-        cincinnati.tile().reservedToken(CompanyIDs.BALTIMORE_OHIO);
+        cincinnati.tile().addReservedToken(CompanyIDs.BALTIMORE_OHIO);
 
         const centralia = this.cellsById()['I5'];
-        centralia.tile().reservedToken(CompanyIDs.ILLINOIS_CENTRAL);
+        centralia.tile().addReservedToken(CompanyIDs.ILLINOIS_CENTRAL);
 
         const candoRemoved = !state.getCompany(CompanyIDs.CHESAPEAKE_OHIO);
         const huntington = this.cellsById()['I15'];
@@ -373,11 +372,11 @@ class Grid extends BaseGrid {
             huntington.tile().addToken('removed');
         }
         else {
-            huntington.tile().reservedToken(CompanyIDs.CHESAPEAKE_OHIO);
+            huntington.tile().addReservedToken(CompanyIDs.CHESAPEAKE_OHIO);
         }
 
         const cairo = this.cellsById()['K3'];
-        cairo.tile().reservedToken(CompanyIDs.ILLINOIS_CENTRAL);
+        cairo.tile().addReservedToken(CompanyIDs.ILLINOIS_CENTRAL);
     }
 
     connectNeighbors() {

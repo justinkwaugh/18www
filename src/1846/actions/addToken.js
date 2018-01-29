@@ -1,4 +1,5 @@
 import Action from 'common/game/action';
+import _ from 'lodash';
 
 class AddToken extends Action {
 
@@ -16,9 +17,9 @@ class AddToken extends Action {
         const company = state.getCompany(this.companyId);
         const tile = state.tilesByCellId[this.cellId];
         tile.addToken(this.companyId, this.cityId);
-        if(this.companyId === tile.reservedToken()) {
+        if(_.find(tile.getReservedTokensForCity(this.cityId), reservedToken=>this.companyId === reservedToken)) {
             this.reserved = true;
-            tile.reservedToken(null);
+            tile.removeReservedToken(this.companyId);
         }
         company.removeCash(this.cost);
         state.bank.addCash(this.cost);
@@ -29,7 +30,7 @@ class AddToken extends Action {
         const tile = state.tilesByCellId[this.cellId];
         tile.removeToken(this.companyId, this.cityId);
         if(this.reserved) {
-            tile.reservedToken(this.companyId);
+            tile.addReservedToken(this.companyId);
         }
         company.addCash(this.cost);
         state.bank.removeCash(this.cost);

@@ -303,6 +303,10 @@ class OperatingRound {
                 this.reset();
             }
         });
+
+        Events.on('turnEnd', () => {
+            this.reset();
+        });
     }
 
     calculateStockMovement(revenue) {
@@ -317,7 +321,7 @@ class OperatingRound {
         else if (revenue < currentPrice * 3) {
             return 2;
         }
-        else {
+        else if (currentPrice >= 165) {
             return 3;
         }
     }
@@ -460,9 +464,14 @@ class OperatingRound {
             if (this.companyTrains().length === 0) {
                 this.selectedAllocation(Allocations.FULL);
             }
-            else if(company.type === CompanyTypes.INDEPENDANT) {
+            else {
+                this.selectTrain(_.first(this.companyTrains()));
+            }
+
+            if(company.type === CompanyTypes.INDEPENDANT) {
                 this.selectedAllocation(Allocations.HALF);
             }
+
         }
         else if (this.selectedAction() === Actions.BUY_TRAINS) {
             if (this.getCompaniesWithTrains().length === 0) {

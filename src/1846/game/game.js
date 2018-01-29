@@ -117,12 +117,12 @@ class Game extends BaseGame {
     }
 
     saveLocalState() {
-        Store.set('48',this.state().serialize());
+        Store.set('49',this.state().serialize());
     }
 
     restoreLocalState() {
         let restored = false;
-        const storedState = Store.get('48');
+        const storedState = Store.get('49');
         if(storedState) {
             const state = Serializable.deserialize(storedState);
             this.updateState(state);

@@ -84,7 +84,7 @@ class Company extends Serializable {
 
     getAvailableRouteColor() {
         const currentColors = _.map(this.trains(), train=> train.route.color);
-        return _(_.range(1,4)).difference(currentColors).first();
+        return _(_.range(1,5)).difference(currentColors).first();
     }
 
     calculateRevenue() {

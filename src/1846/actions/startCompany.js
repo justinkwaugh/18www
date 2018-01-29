@@ -40,8 +40,7 @@ class StartCompany extends Action {
 
         const tile = state.tilesByCellId[company.homeCellId];
         tile.addToken(company.id);
-        tile.reservedToken(null);
-
+        tile.removeReservedToken(company.id);
 
         // First cert in company treasury always pres cert for convenience
         const cert = company.certificates.shift();
@@ -57,7 +56,7 @@ class StartCompany extends Action {
 
         const tile = state.tilesByCellId[company.homeCellId];
         tile.removeToken(company.id);
-        tile.reservedToken(company.id);
+        tile.addReservedToken(company.id);
 
         company.removeCash(cash);
         player.addCash(cash);

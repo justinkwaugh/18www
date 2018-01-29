@@ -48,11 +48,20 @@ class Tile extends Serializable {
         // Dynamic data
         this.position = ko.observable(data.position || 0);
         this.tokens = ko.observableArray(data.tokens || []);
-        this.reservedToken = ko.observable(data.reservedToken);
-        this.reservedCity = data.reservedCity || 7;
+        this.reservedTokens = ko.observableArray(data.reservedTokens);
         this.tokensPerCity = ko.computed(() => {
             const tokensPerCity = {};
             _.each(this.tokens(), token => {
+                const splitToken = token.split('|');
+                const tokenArray = tokensPerCity[splitToken[0]] || [];
+                tokenArray.push(splitToken[1]);
+                tokensPerCity[splitToken[0]] = tokenArray;
+            });
+            return tokensPerCity;
+        });
+        this.reservedTokensPerCity = ko.computed(() => {
+            const tokensPerCity = {};
+            _.each(this.reservedTokens(), token => {
                 const splitToken = token.split('|');
                 const tokenArray = tokensPerCity[splitToken[0]] || [];
                 tokenArray.push(splitToken[1]);
@@ -96,6 +105,30 @@ class Tile extends Serializable {
         return this.tokensPerCity()[cityId] || [];
     }
 
+    getReservedTokensForCity(cityId) {
+        return this.reservedTokensPerCity()[cityId] || [];
+    }
+
+    addReservedToken(companyId, cityId) {
+        if (!cityId) {
+            const cities = _.values(this.cities);
+            if (cities.length === 1) {
+                cityId = cities[0].id;
+            }
+        }
+        this.reservedTokens.push(cityId +'|'+ companyId);
+    }
+
+    removeReservedToken(companyId, cityId) {
+        if (!cityId) {
+            const cities = _.values(this.cities);
+            if (cities.length === 1) {
+                cityId = cities[0].id;
+            }
+        }
+        this.reservedTokens.remove(cityId + '|' + companyId);
+    }
+
     addToken(companyId, cityId) {
         if (!cityId) {
             const cities = _.values(this.cities);
@@ -131,7 +164,8 @@ class Tile extends Serializable {
         }
 
         return _(this.cities).map((city, cityId) => {
-            return city.maxTokens > this.getTokensForCity(cityId).length + ((this.reservedToken() && this.reservedToken() !== companyId && this.reservedCity === cityId) ? 1 : 0) ? city.id : null;
+            const otherReserved = _.reject(this.getReservedTokensForCity(cityId), reservedToken => reservedToken === companyId);
+            return city.maxTokens > (this.getTokensForCity(cityId).length + otherReserved.length) ? city.id : null;
         }).compact().value();
     }
 

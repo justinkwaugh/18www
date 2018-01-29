@@ -10,14 +10,14 @@ class Route extends Serializable {
         super();
         definition = definition || {};
         this.id = definition.id || short().new();
-        this.color = definition.color || _.random(1,4) ;
+        this.color = definition.color || _.random(1, 4);
         this.companyId = definition.companyId;
         this.maxStops = definition.maxStops;
         this.revenueStops = definition.revenueStops;
         this.numStops = definition.numStops;
         this.cells = ko.observableArray(definition.cells || []);
         this.revenue = ko.observable(definition.revenue || 0);
-        if(definition.trainType) {
+        if (definition.trainType) {
             this.configureForTrain(definition.trainType);
         }
     }
@@ -37,42 +37,44 @@ class Route extends Serializable {
                 revenue: tile.getRevenue()
             }
         }).sortBy(cellData => {
-            return (cellData.hasStation? 'b' : 'c') + '-' + (999 - cellData.revenue);
+            return (cellData.hasStation ? 'b' : 'c') + '-' + (999 - cellData.revenue);
         }).value();
 
-        const revenue = revenueData.length > 0 ? _.first(revenueData).revenue + _(revenueData).tail(revenueData).sortBy('revenue').reverse().take(this.revenueStops-1).sumBy('revenue') : 0;
+        const revenue = revenueData.length > 0 ? _.first(revenueData).revenue + _(revenueData).tail(revenueData).sortBy(
+                'revenue').reverse().take(this.revenueStops - 1).sumBy('revenue') : 0;
         this.revenue(revenue);
     }
 
     isValid() {
-        if(this.cells().length < 2) {
+        if (this.cells().length < 2) {
             return false;
         }
 
         // count revenue cells
-        const revenueCells = _.filter(this.cells(), cellData=> {
+        const revenueCells = _.filter(this.cells(), cellData => {
             const tile = CurrentGame().state().tilesByCellId[cellData.id];
             return tile.getRevenue();
         });
 
-        if(revenueCells.length < 2) {
+        if (revenueCells.length < 2) {
             return false;
         }
 
-        const blocked =_.find(revenueCells, cellData=> {
-            const cityId = this.getConnectedCityForConnections(cellData.connections);
-            if(cityId < 7) {
+        if (revenueCells.length > 2) {
+            const blocked = _.find(_.slice(revenueCells, 1, revenueCells.length - 1), cellData => {
+                const cityId = this.getConnectedCityForConnections(cellData.connections);
+                if (cityId < 7) {
+                    return false;
+                }
+                const tile = CurrentGame().state().tilesByCellId[cellData.id];
+                return tile.isBlockedForCompany(CurrentGame().state().currentCompanyId(), cityId)
+            });
+            if (blocked) {
                 return false;
             }
-            const tile = CurrentGame().state().tilesByCellId[cellData.id];
-            return tile.isBlockedForCompany(CurrentGame().state().currentCompanyId(),cityId)
-        });
-
-        if(blocked) {
-            return false;
         }
 
-        return _.find(revenueCells, cellData=> {
+        return _.find(revenueCells, cellData => {
             const tile = CurrentGame().state().tilesByCellId[cellData.id];
             const cityId = _(cellData.connections).flatten().max();
             return tile.hasTokenForCompany(CurrentGame().state().currentCompanyId(), cityId);
@@ -122,13 +124,13 @@ class Route extends Serializable {
     }
 
     pruneToLastRevenueLocation() {
-        const index = _.findLastIndex(this.cells(), cellData=> {
+        const index = _.findLastIndex(this.cells(), cellData => {
             const tile = CurrentGame().state().tilesByCellId[cellData.id];
             return tile.getRevenue() > 0;
         });
 
         let pruned = [];
-        if(index < 1) {
+        if (index < 1) {
             pruned = this.cells();
             this.clear();
         }

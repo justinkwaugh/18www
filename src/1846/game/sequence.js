@@ -17,6 +17,7 @@ class Sequence {
 
     static finishTurn() {
         CurrentGame().state().turnHistory.commitTurn();
+        Events.emit('turnEnd');
         //commit to server
 
         // if local

@@ -85,12 +85,21 @@ class State extends BaseState {
             return currentRound.getRoundName();
         });
 
+        this.roundId = ko.computed(() => {
+            const currentRound = this.roundHistory.getCurrentRound();
+            if (!currentRound) {
+                return '';
+            }
+
+            return currentRound.id;
+        });
+
         this.tilesByCellId = definition.tilesByCellId || {};
         this.operatingOrder = definition.operatingOrder || [];
     }
 
     isOperatingRound() {
-        return this.currentRoundId() === RoundIds.OPERATING_ROUND_1 || this.currentRoundId() === RoundIds.OPERATING_ROUND_2;
+        return this.roundId() === RoundIds.OPERATING_ROUND_1 || this.roundId() === RoundIds.OPERATING_ROUND_2;
     }
 
     getNextPhase() {
