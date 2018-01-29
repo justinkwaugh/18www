@@ -34,10 +34,24 @@ class Game extends BaseGame {
         this.privateDraft = ko.observable();
         this.stockRound = ko.observable();
         this.operatingRound = ko.observable(new OperatingRound());
+        this.zoom = ko.observable(.8);
 
         this.activePanel = ko.observable(ActivePanelIDs.MAP);
         this.ActivePanelIDs = ActivePanelIDs;
     }
+
+    zoomIn() {
+        if(this.zoom() < 1.5) {
+            this.zoom(this.zoom()+.05);
+        }
+    }
+
+    zoomOut() {
+        if(this.zoom() > .1) {
+            this.zoom(this.zoom()-.05);
+        }
+    }
+
     setActivePanel(newPanel) {
         this.activePanel(newPanel);
     }

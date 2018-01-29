@@ -86,14 +86,30 @@
                             <!-- /ko -->
                             <div data-bind="template: { name: 'views/companies', data: $data.game().state() }"></div>
                         </div>
-                        <div class="mt-2" style="position:relative;width:1836px;height:1186px;transform-origin:0 0;transform:scale(.817, .817)">
-                            <img style="width:1836px;height:1186px;" data-bind="attr: { src: 'images/1846-map.jpg' }"/>
-                            <div style="position:absolute;top:0px;left:36px;height:1083px;width:1370px;"
-                                 data-bind="template: {name:'views/grid', data: $data.game().grid()}"></div>
-                            <div style="position:absolute;top:358px;left:1411px;height:437px;width:397px;"
-                                 data-bind="template: {name:'views/market', data: $data.game().state()}"></div>
-                            <div style="position:absolute;top:934px;left:953px;height:212px;width:855px;"
-                                 data-bind="template: {name:'views/trains', data: $data.game().state()}"></div>
+                        <div style="position:relative;width:100%; overflow:scroll;">
+
+                            <div class="mt-2"
+                                 style="position:relative;transform-origin:0 0;transform:scale(.817)"
+                                 data-bind="style: { transform: 'scale(' + $data.game().zoom() + ')' }">
+                                <img style="width:1836px;height:1186px;"
+                                     data-bind="attr: { src: 'images/1846-map.jpg' }"/>
+                                <div style="position:absolute;top:0px;left:36px;height:1083px;width:1370px;"
+                                     data-bind="template: {name:'views/grid', data: $data.game().grid()}"></div>
+                                <div style="position:absolute;top:358px;left:1411px;height:437px;width:397px;"
+                                     data-bind="template: {name:'views/market', data: $data.game().state()}"></div>
+                                <div style="position:absolute;top:934px;left:953px;height:212px;width:855px;"
+                                     data-bind="template: {name:'views/trains', data: $data.game().state()}"></div>
+                            </div>
+                            <div class="zoom btn-group" role="group" style="position: absolute; top:20px; left:10px;">
+                                <button type="button"
+                                        class="btn btn-sm btn-dark font-weight-bold "
+                                        data-bind="click: function() { $data.game().zoomOut(); }"><span class="oi oi-zoom-out"></span>
+                                </button>
+                                <button type="button"
+                                        class="btn btn-sm btn-dark font-weight-bold"
+                                        data-bind="click: function() { $data.game().zoomIn(); }"><span class="oi oi-zoom-in"></span>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
