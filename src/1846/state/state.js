@@ -117,6 +117,10 @@ class State extends BaseState {
         return this.allCompaniesById[companyId];
     }
 
+    getOperatingCompanies() {
+        return _.map(this.operatingOrder, companyId=>this.getCompany(companyId));
+    }
+
     trySerialize() {
         console.log(this.serialize());
     }

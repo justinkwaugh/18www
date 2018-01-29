@@ -97,6 +97,14 @@ nav a, nav a:hover {
     transform: rotate(-300deg);
 }
 
+.bg-ms {
+    background-color: #F2F2F2 !important;
+}
+
+.bg-big4 {
+    background-color: #F2F2F2 !important;
+}
+
 .bg-gt {
     background-color: #f4801a !important;
 }

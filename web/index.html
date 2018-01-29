@@ -15,7 +15,11 @@
             <h2 class="mb-0 text-dark font-weight-light"
                 data-bind="text: $data.game().state().roundName() + ' - ' + ($data.game().state().currentCompanyId() ? $data.game().state().getCompany($root.game().state().currentCompanyId()).nickname + ' - ' : '') + $data.game().state().currentPlayer().user().username"></h2>
         </div>
-        <div><button type="button" class="btn btn-danger mr-2" data-bind="click: function() { $data.game().state().trySerialize();}">SERIALIZE</button></div>
+        <div>
+            <button type="button" class="btn btn-danger mr-2"
+                    data-bind="click: function() { $data.game().state().trySerialize();}">SERIALIZE
+            </button>
+        </div>
         <div data-bind="template: { name: 'views/players', data: $data.game().state()}"></div>
     </nav>
     <div class="border border-right-0 border-left-0 pl-3 pr-3 bg-light"
@@ -57,7 +61,8 @@
     <div data-bind="template: { name: 'views/privateDraft', data: $data.game().privateDraft() }, visible:$data.game().privateDraft()"></div>
     <div data-bind="visible:!$data.game().privateDraft()">
 
-        <div class="row" data-bind="visible: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP || $data.game().activePanel() === $data.game().ActivePanelIDs.MAP">
+        <div class="row"
+             data-bind="visible: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP || $data.game().activePanel() === $data.game().ActivePanelIDs.MAP">
             <div class="col">
                 <div data-bind="template: { name: 'views/priceTrack', data: $data.game().state() }"></div>
             </div>
@@ -71,21 +76,25 @@
         </div>
 
         <div data-bind="visible: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP">
-            <!--<div class="row">-->
-            <!--<div class="col">-->
-            <!--<div data-bind="template: { name: 'views/companies', data: $data.game().state() }"></div>-->
-            <!--</div>-->
-            <!--</div>-->
             <div class="row">
-                <div class="col">
-                    <div style="position:relative;width:1836px;height:1186px;transform-origin:0 0;transform:scale(.817, .817)">
-                        <img style="width:1836px;height:1186px;" data-bind="attr: { src: 'images/1846-map.jpg' }"/>
-                        <div style="position:absolute;top:0px;left:36px;height:1083px;width:1370px;"
-                             data-bind="template: {name:'views/grid', data: $data.game().grid()}"></div>
-                        <div style="position:absolute;top:358px;left:1411px;height:437px;width:397px;"
-                             data-bind="template: {name:'views/market', data: $data.game().state()}"></div>
-                        <div style="position:absolute;top:934px;left:953px;height:212px;width:855px;"
-                             data-bind="template: {name:'views/trains', data: $data.game().state()}"></div>
+                <div class="col bg-dark">
+                    <div class="d-flex">
+                        <div>
+                            <!-- ko if: $data.game().state().currentCompany() -->
+                            <div style="width:200px;min-width:200px;"
+                                 data-bind="template: {name:'views/operatingCompany', data: $data.game().state().currentCompany()}"></div>
+                            <!-- /ko -->
+                            <div data-bind="template: { name: 'views/companies', data: $data.game().state() }"></div>
+                        </div>
+                        <div class="mt-2" style="position:relative;width:1836px;height:1186px;transform-origin:0 0;transform:scale(.817, .817)">
+                            <img style="width:1836px;height:1186px;" data-bind="attr: { src: 'images/1846-map.jpg' }"/>
+                            <div style="position:absolute;top:0px;left:36px;height:1083px;width:1370px;"
+                                 data-bind="template: {name:'views/grid', data: $data.game().grid()}"></div>
+                            <div style="position:absolute;top:358px;left:1411px;height:437px;width:397px;"
+                                 data-bind="template: {name:'views/market', data: $data.game().state()}"></div>
+                            <div style="position:absolute;top:934px;left:953px;height:212px;width:855px;"
+                                 data-bind="template: {name:'views/trains', data: $data.game().state()}"></div>
+                        </div>
                     </div>
                 </div>
             </div>
