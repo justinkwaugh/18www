@@ -1,18 +1,8 @@
-<div class="text-center">
-    <div class="bg-dark p-2" style="width:100%">
+<div class="text-center pl-2 pr-2">
+    <div class="pb-2 pr-2 pl-2 pt-0 " style="width:100%" data-bind="css: 'bg-' + $data.id">
     <table class="table text-center bg-dark m-0">
-        <thead>
-        <tr>
-            <th colspan="2" scope="col" class="border-0 font-weight-normal pt-2 pb-2"
-                data-bind="css: 'bg-' + $data.id + ' text-' + $data.id"><h5 class="font-weight-normal mb-0"
-                                                                            data-bind="text:$data.name"></h5>
-            </th>
-        </tr>
-        </thead>
+
         <tbody>
-                <tr>
-            <th colspan="2" scope="col" style="height:8px;" class="p-0 border-0"></th>
-        </tr>
         <tr>
             <th colspan="2" scope="col" style="height:10px;" class="border-0 font-weight-normal p-0"
                 data-bind="css: 'bg-' + $data.id + ' text-' + $data.id">Player Shares
@@ -94,7 +84,7 @@
                     Tokens
                 </div>
             </th>
-            <td class="pt-1 pb-1 bg-light border-0" data-bind="text:$data.tokens() + '/'"></td>
+            <td class="pt-1 pb-1 bg-light border-0" data-bind="text:$data.tokens() + '/' + $data.startTokens"></td>
         </tr>
         </tbody>
     </table>

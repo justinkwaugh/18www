@@ -15,11 +15,11 @@
             <h2 class="mb-0 text-dark font-weight-light"
                 data-bind="text: $data.game().state().roundName() + ' - ' + ($data.game().state().currentCompanyId() ? $data.game().state().getCompany($root.game().state().currentCompanyId()).nickname + ' - ' : '') + $data.game().state().currentPlayer().user().username"></h2>
         </div>
-        <div>
-            <button type="button" class="btn btn-danger mr-2"
-                    data-bind="click: function() { $data.game().state().trySerialize();}">SERIALIZE
-            </button>
-        </div>
+        <!--<div>-->
+            <!--<button type="button" class="btn btn-danger mr-2"-->
+                    <!--data-bind="click: function() { $data.game().state().trySerialize();}">SERIALIZE-->
+            <!--</button>-->
+        <!--</div>-->
         <div data-bind="template: { name: 'views/players', data: $data.game().state()}"></div>
     </nav>
     <div class="border border-right-0 border-left-0 pl-3 pr-3 bg-light"
@@ -81,10 +81,10 @@
                     <div class="d-flex">
                         <div>
                             <!-- ko if: $data.game().state().currentCompany() -->
-                            <div style="width:200px;min-width:200px;"
-                                 data-bind="template: {name:'views/operatingCompany', data: $data.game().state().currentCompany()}"></div>
+                            <!--<div style="width:200px;min-width:200px;"-->
+                                 <!--data-bind="template: {name:'views/operatingCompany', data: $data.game().state().currentCompany()}"></div>-->
                             <!-- /ko -->
-                            <div data-bind="template: { name: 'views/companies', data: $data.game().state() }"></div>
+                            <div style="min-width:220px;" data-bind="template: { name: 'views/companies', data: $data.game().state() }"></div>
                         </div>
                         <div style="position:relative;width:100%; overflow:scroll;">
 

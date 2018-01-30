@@ -95,7 +95,7 @@ class State extends BaseState {
         });
 
         this.tilesByCellId = definition.tilesByCellId || {};
-        this.operatingOrder = definition.operatingOrder || [];
+        this.operatingOrder = ko.observable(definition.operatingOrder || []);
     }
 
     isOperatingRound() {
@@ -118,7 +118,7 @@ class State extends BaseState {
     }
 
     getOperatingCompanies() {
-        return _.map(this.operatingOrder, companyId=>this.getCompany(companyId));
+        return _.map(this.operatingOrder(), companyId=>this.getCompany(companyId));
     }
 
     trySerialize() {

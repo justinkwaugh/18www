@@ -50,42 +50,45 @@ class Sequence {
                 state.currentPlayerIndex(0);
                 game.privateDraft(null);
                 game.stockRound(new StockRound());
+                game.showOwnership();
             }
         }
         else if (currentRound.id === RoundIDs.STOCK_ROUND) {
             state.currentPlayerIndex(Sequence.nextPlayerIndex());
             if(state.firstPassIndex() === state.currentPlayerIndex()) {
                 state.roundHistory.commitRound();
-                state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_1, 1);
                 state.priorityDealIndex(state.firstPassIndex());
-                state.operatingOrder = state.stockBoard.getOperatingOrder(true);
-                state.currentCompanyId(state.operatingOrder[0]);
+                state.operatingOrder(state.stockBoard.getOperatingOrder(true));
+                state.currentCompanyId(state.operatingOrder()[0]);
                 state.currentRoundId(RoundIDs.OPERATING_ROUND_1);
+                state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_1, 1);
                 game.stockRound(null);
                 const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
                 state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
+                game.showMap();
             }
         }
         else if (currentRound.id === RoundIDs.OPERATING_ROUND_1) {
-            const companyIndex = _.indexOf(state.operatingOrder, state.currentCompanyId());
-            if(companyIndex < state.operatingOrder.length-1) {
-                state.currentCompanyId(state.operatingOrder[companyIndex+1]);
+            const companyIndex = _.indexOf(state.operatingOrder(), state.currentCompanyId());
+            if(companyIndex < state.operatingOrder().length-1) {
+                state.currentCompanyId(state.operatingOrder()[companyIndex+1]);
                 const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
                 state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
             }
             else {
                 const currentRoundNumber = state.roundHistory.currentRound().number;
                 state.roundHistory.commitRound();
-                state.currentCompanyId(state.operatingOrder[0]);
+                state.operatingOrder(state.stockBoard.getOperatingOrder(true));
+                state.currentCompanyId(state.operatingOrder()[0]);
                 state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_2, currentRoundNumber);
                 const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
                 state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
             }
         }
         else if (currentRound.id === RoundIDs.OPERATING_ROUND_2) {
-            const companyIndex = _.indexOf(state.operatingOrder, state.currentCompanyId());
-            if(companyIndex < state.operatingOrder.length-1) {
-                state.currentCompanyId(state.operatingOrder[companyIndex+1]);
+            const companyIndex = _.indexOf(state.operatingOrder(), state.currentCompanyId());
+            if(companyIndex < state.operatingOrder().length-1) {
+                state.currentCompanyId(state.operatingOrder()[companyIndex+1]);
                 const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
                 state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
             }

@@ -148,10 +148,10 @@ class RunRoutes extends Action {
         else if (revenue < currentPrice * 2) {
             return 1;
         }
-        else if (revenue < currentPrice * 3) {
+        else if (revenue < currentPrice * 3 || currentPrice < 165) {
             return 2;
         }
-        else if (currentPrice >= 165) {
+        else {
             return 3;
         }
     }

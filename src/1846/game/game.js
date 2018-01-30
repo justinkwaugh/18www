@@ -35,9 +35,19 @@ class Game extends BaseGame {
         this.stockRound = ko.observable();
         this.operatingRound = ko.observable(new OperatingRound());
         this.zoom = ko.observable(.8);
+        this.selectedCompany = ko.observable();
 
         this.activePanel = ko.observable(ActivePanelIDs.MAP);
         this.ActivePanelIDs = ActivePanelIDs;
+    }
+
+    selectCompany(companyId) {
+        if(this.selectedCompany() === companyId) {
+            this.selectedCompany(null);
+        }
+        else {
+            this.selectedCompany(companyId);
+        }
     }
 
     zoomIn() {
@@ -50,6 +60,14 @@ class Game extends BaseGame {
         if(this.zoom() > .1) {
             this.zoom(this.zoom()-.05);
         }
+    }
+
+    showMap() {
+        this.activePanel(ActivePanelIDs.MAP);
+    }
+
+    showOwnership() {
+        this.activePanel(ActivePanelIDs.OWNERSHIP);
     }
 
     setActivePanel(newPanel) {
@@ -131,12 +149,12 @@ class Game extends BaseGame {
     }
 
     saveLocalState() {
-        Store.set('49',this.state().serialize());
+        Store.set('52',this.state().serialize());
     }
 
     restoreLocalState() {
         let restored = false;
-        const storedState = Store.get('49');
+        const storedState = Store.get('52');
         if(storedState) {
             const state = Serializable.deserialize(storedState);
             this.updateState(state);

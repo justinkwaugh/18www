@@ -164,11 +164,15 @@ class Cell {
             const mc = this.isMichiganCentralLay();
             const lsl = this.isLSLLay();
 
+            if (this.id === 'B10') {
+                console.log('B10');
+            }
+
             if (!layingTrack && !oandi && !mc && !lsl) {
                 return false;
             }
 
-            if(!this.canLayMichiganCentral() || !this.canLayOhioIndiana()) {
+            if (!this.canLayMichiganCentral() && !this.canLayOhioIndiana()) {
                 return false;
             }
 
@@ -228,7 +232,7 @@ class Cell {
             }
 
             const neighbor = this.neighbors[edgeIndex];
-            if(!neighbor) {
+            if (!neighbor) {
                 return;
             }
 
@@ -254,12 +258,12 @@ class Cell {
 
     canLayMichiganCentral() {
         const michiganCentral = CurrentGame().state().getCompany(CompanyIDs.MICHIGAN_CENTRAL);
-        return !michiganCentral || (this.id !== 'B10' && this.id !== 'B12') || michiganCentral.used();
+        return michiganCentral && (this.id === 'B10' || this.id === 'B12') && !michiganCentral.used();
     }
 
     canLayOhioIndiana() {
         const ohioIndiana = CurrentGame().state().getCompany(CompanyIDs.OHIO_INDIANA);
-        return !ohioIndiana || (this.id !== 'F14' && this.id !== 'F16') || ohioIndiana.used();
+        return ohioIndiana && (this.id === 'F14' || this.id === 'F16') && !ohioIndiana.used();
     }
 
     getConnectedCompanies() {
@@ -277,8 +281,8 @@ class Cell {
     }
 
     getUpgradeTiles() {
-        if (this.isOhioIndianaLay()) {
-            return this.getOhioIndianaTiles();
+        if (this.isOhioIndianaLay() || this.isMichiganCentralLay()) {
+            return this.getOhioIndianaOrMichiganCentralTiles();
         }
 
         if (CurrentGame().operatingRound().hasLaidTwoTrackThisTurn()) {
@@ -288,7 +292,7 @@ class Cell {
         const phase = CurrentGame().state().currentPhaseId();
         return _.filter(CurrentGame().state().manifest.getUpgradesForTile(this.tile().id) || [], (upgrade) => {
 
-            if ( upgrade.tile.colorId !== TileColorIDs.YELLOW && (phase === PhaseIDs.PHASE_I || !this.canUpgrade()) ) {
+            if (upgrade.tile.colorId !== TileColorIDs.YELLOW && (phase === PhaseIDs.PHASE_I || !this.canUpgrade())) {
                 return false;
             }
 
@@ -309,7 +313,7 @@ class Cell {
 
     }
 
-    getOhioIndianaTiles() {
+    getOhioIndianaOrMichiganCentralTiles() {
         return _.filter(CurrentGame().state().manifest.getUpgradesForTile(this.tile().id) || [], (upgrade) => {
             if (upgrade.tile.colorId !== TileColorIDs.YELLOW) {
                 return false;
@@ -324,9 +328,9 @@ class Cell {
         let cost = 80;
         if (ReservedTokens[this.id] === company.id) {
             cost = 40;
-            if(company.id === CompanyIDs.BALTIMORE_OHIO || company.id === CompanyIDs.PENNSYLVANIA) {
+            if (company.id === CompanyIDs.BALTIMORE_OHIO || company.id === CompanyIDs.PENNSYLVANIA) {
                 const connected = this.isConnectedToStation(company.id);
-                if(!connected) {
+                if (!connected) {
                     cost = company.id === CompanyIDs.BALTIMORE_OHIO ? 100 : 60;
                 }
             }
@@ -335,7 +339,7 @@ class Cell {
     }
 
     getBaseCost(oldTile) {
-        if(!oldTile.map) {
+        if (!oldTile.map) {
             return 20;
         }
 
@@ -357,6 +361,7 @@ class Cell {
 
         const neighbor = this.neighbors[neighborEdge];
         return _(_.range(0, 6)).map((pos) => {
+            const connections = this.getConnectionsForPosition(newTileId, pos);
             if (neighbor.tile().colorId === TileColorIDs.YELLOW) {
                 const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(neighborEdge);
                 const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
@@ -364,14 +369,29 @@ class Cell {
                     return false;
                 }
 
-                const connectsToNeighbor = _.find(this.getConnectionsForPosition(newTileId, pos), connection => {
+
+                const connectsToNeighbor = _.find(connections, connection => {
                     return connection[0] === neighborEdge || connection[1] === neighborEdge;
                 });
                 if (!connectsToNeighbor) {
                     return false;
                 }
-            }
 
+
+            }
+            const connectionOffMap = _.find(connections, (connection) => {
+                if (connection[0] < 7 && !this.neighbors[connection[0]]) {
+                    return true;
+                }
+
+                if (connection[1] < 7 && !this.neighbors[connection[1]]) {
+                    return true;
+                }
+            });
+
+            if (connectionOffMap) {
+                return null;
+            }
             return {
                 position: pos,
                 cost: 0
@@ -414,7 +434,8 @@ class Cell {
             const addedConnectionIds = _.difference(newConnectionsIds, oldConnectionsIds);
             const addedConnections = _(this.getConnectionsForPosition(newTileId, pos)).filter(
                 connection => {
-                    return this.tile().hasCity() || _.indexOf(addedConnectionIds, this.getConnectionId(connection)) >= 0;
+                    return this.tile().hasCity() || _.indexOf(addedConnectionIds,
+                                                              this.getConnectionId(connection)) >= 0;
                 }).value();
 
 
@@ -434,10 +455,12 @@ class Cell {
             }
 
             // Check for connection costs
-            const existingConnectionPoints = _(this.getConnectionsForPosition(oldTile.id, oldTile.position())).flatten().uniq().value();
-            const connectionCosts = _(addedConnections).flatten().uniq().difference(existingConnectionPoints).sumBy(edgeIndex => {
-                return this.getConnectionCost(edgeIndex);
-            });
+            const existingConnectionPoints = _(
+                this.getConnectionsForPosition(oldTile.id, oldTile.position())).flatten().uniq().value();
+            const connectionCosts = _(addedConnections).flatten().uniq().difference(existingConnectionPoints).sumBy(
+                edgeIndex => {
+                    return this.getConnectionCost(edgeIndex);
+                });
 
             // Check new track for a path back to station
             // console.log('Checking tile ' + this.id + ' for valid neighbor connections for new tile id ' + newTileId + ' and position ' + pos);
@@ -519,14 +542,14 @@ class Cell {
     isConnectedToStation(companyId) {
         const connections = this.getConnectionsForPosition(this.tile().id, this.tile().position());
         const visited = {};
-        return _.find(connections, connection=> {
+        return _.find(connections, connection => {
             let connected = false;
 
-            if(connection[0] < 7) {
+            if (connection[0] < 7) {
                 connected = this.checkNeighborConnection(companyId, connection[0], visited);
             }
 
-            if(!connected && connection[1] < 7) {
+            if (!connected && connection[1] < 7) {
                 connected = this.checkNeighborConnection(companyId, connection[1], visited);
             }
             return connected;
@@ -537,7 +560,7 @@ class Cell {
     checkNeighborConnection(companyId, edgeIndex, visited, companies) {
 
         const hasLocalStation = this.tile().hasTokenForCompany(companyId);
-        if(hasLocalStation) {
+        if (hasLocalStation) {
             return true;
         }
 
@@ -553,7 +576,7 @@ class Cell {
         }
 
         return neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint,
-                                                                      visited, companies);
+                                                   visited, companies);
     }
 
     depthFirstSearchForStation(companyId, connectionStart, visited, companies) {
@@ -652,7 +675,7 @@ class Cell {
     }
 
     getConnectionsToCell(cell) {
-        return _(this.neighbors).map((neighbor, index)=> {
+        return _(this.neighbors).map((neighbor, index) => {
             if (!neighbor || neighbor.id !== cell.id) {
                 return;
             }
@@ -668,7 +691,7 @@ class Cell {
         const edgeOne = this.getConnectionEdgeToCell(neighborOne);
         const edgeTwo = this.getConnectionEdgeToCell(neighborTwo);
 
-        if(_.keys(this.tile().cities).length > 0) {
+        if (_.keys(this.tile().cities).length > 0) {
             return _.compact([this.getConnectionToEdges(edgeOne, 7), this.getConnectionToEdges(edgeTwo, 7)]);
 
         }
@@ -758,13 +781,6 @@ class Cell {
     }
 
     commitPreview() {
-        // const previewTile = this.preview();
-        // const existingTile = this.tile() || {};
-        // const newTile = CurrentGame().state().manifest.getTile(previewTile.id, existingTile.id);
-        // newTile.position(previewTile.position());
-        // newTile.tokens(_.clone(existingTile.tokens()));
-        // this.tile(newTile);
-        // this.cancelPreview();
         const previewTile = this.preview();
         const privateId = this.isMichiganCentralLay() ? CompanyIDs.MICHIGAN_CENTRAL : this.isOhioIndianaLay() ? CompanyIDs.OHIO_INDIANA : null;
         const layTrack = new LayTrack({
@@ -774,7 +790,8 @@ class Cell {
                                           position: previewTile.position(),
                                           cost: this.allowedPreviewPositionData()[previewTile.position()].cost,
                                           privateId,
-                                          privateDone: privateId && CurrentGame().operatingRound().hasPrivateLaidTrack()
+                                          privateDone: privateId && CurrentGame().operatingRound().numPrivateTrackLays(
+                                              privateId) === 1
                                       });
         layTrack.execute(CurrentGame().state());
         CurrentGame().saveLocalState();

@@ -98,11 +98,11 @@ nav a, nav a:hover {
 }
 
 .bg-ms {
-    background-color: #F2F2F2 !important;
+    background-color: #777 !important;
 }
 
 .bg-big4 {
-    background-color: #F2F2F2 !important;
+    background-color: #777 !important;
 }
 
 .bg-gt {
@@ -206,6 +206,14 @@ nav a, nav a:hover {
     right: -5px;
     border: 5px #888 solid;
     border-radius: 4px;
+}
+
+.text-ms {
+    color: white;
+}
+
+.text-big4 {
+    color: white;
 }
 
 .text-gt {

@@ -10,6 +10,7 @@ import Prices from '1846/config/prices';
 import Allocations from '1846/config/allocations';
 import RunRoutes from '1846/actions/runRoutes';
 import BuyTrains from '1846/actions/buyTrains';
+import SkipSecondPrivateLay from '1846/actions/skipSecondPrivateLay';
 import Events from 'common/util/events';
 import TrainDefinitions from '1846/config/trainDefinitions';
 import CompanyTypes from 'common/model/companyTypes';
@@ -138,7 +139,7 @@ class OperatingRound {
             const numAvailable = state.bank.trainsByPhase()[trainPhase];
             const numCanBuy = state.trainLimit() - state.currentCompany().trains().length;
 
-            return _.map(availableTrains, trainType=> {
+            return _.map(availableTrains, trainType => {
                 const trainDefinition = TrainDefinitions[trainType];
                 return {
                     type: trainType,
@@ -169,6 +170,10 @@ class OperatingRound {
                 return false;
             }
 
+            if (this.isMiddleOfPrivateLays()) {
+                return false;
+            }
+
             return CurrentGame().state().currentPlayer().getPrivates().length > 0 && CurrentGame().state().currentCompany().cash() > 0;
         });
 
@@ -189,7 +194,11 @@ class OperatingRound {
                 return false;
             }
 
-            return !this.hasRunRoutesThisTurn() && !this.hasLaidTrackOrTokenedThisTurn() && !this.hasIssuedThisTurn() && !this.hasRedeemedThisTurn() && this.getNumCanIssue() > 0;
+            if (this.isMiddleOfPrivateLays()) {
+                return false;
+            }
+
+            return !this.hasRunRoutesThisTurn() && !this.hasIssuedThisTurn() && !this.hasRedeemedThisTurn() && this.getNumCanIssue() > 0;
         });
 
         this.canRedeem = ko.computed(() => {
@@ -201,7 +210,11 @@ class OperatingRound {
                 return false;
             }
 
-            return !this.hasRunRoutesThisTurn() && !this.hasLaidTrackOrTokenedThisTurn() && !this.hasRedeemedThisTurn() && !this.hasIssuedThisTurn() && this.getNumCanRedeem() > 0;
+            if (this.isMiddleOfPrivateLays()) {
+                return false;
+            }
+
+            return !this.hasRunRoutesThisTurn() && !this.hasRedeemedThisTurn() && !this.hasIssuedThisTurn() && this.getNumCanRedeem() > 0;
         });
 
         this.canLayTrackOrToken = ko.computed(() => {
@@ -210,6 +223,10 @@ class OperatingRound {
             }
 
             if (this.hasRunRoutesThisTurn()) {
+                return false;
+            }
+
+            if (this.isMiddleOfPrivateLays()) {
                 return false;
             }
 
@@ -224,6 +241,10 @@ class OperatingRound {
             }
 
             if (this.hasRunRoutesThisTurn()) {
+                return false;
+            }
+
+            if (this.isMiddleOfPrivateLays()) {
                 return false;
             }
 
@@ -289,24 +310,38 @@ class OperatingRound {
                 //                           cost: this.companyTrainPurchasePrice()
                 //                       });
             }
-            else if (this.selectedAction() === Actions.BUY_TRAINS && this.selectedTrainSource() === 'bank' && _.keys(this.selectedBankTrainsForPurchase()).length > 0) {
+            else if (this.selectedAction() === Actions.BUY_TRAINS && this.selectedTrainSource() === 'bank' && _.keys(
+                    this.selectedBankTrainsForPurchase()).length > 0) {
                 return new BuyTrains({
-                                          companyId: CurrentGame().state().currentCompanyId(),
-                                          trains: this.selectedBankTrainsForPurchase(),
-                                          source: this.selectedTrainSource()
-                                      });
+                                         companyId: CurrentGame().state().currentCompanyId(),
+                                         trains: this.selectedBankTrainsForPurchase(),
+                                         source: this.selectedTrainSource()
+                                     });
             }
         });
 
         Events.on('undo', () => {
             if (CurrentGame().state().isOperatingRound()) {
                 this.reset();
+                this.checkInMiddlePrivateLay();
             }
         });
 
         Events.on('turnEnd', () => {
             this.reset();
         });
+
+        Events.on('stateUpdated', () => {
+            this.checkInMiddlePrivateLay();
+        });
+    }
+
+    checkInMiddlePrivateLay() {
+        const privateId = this.isMiddleOfPrivateLays();
+            if(privateId) {
+                this.selectAction(Actions.USE_PRIVATES);
+                this.selectPrivate(privateId);
+            }
     }
 
     calculateStockMovement(revenue) {
@@ -318,10 +353,10 @@ class OperatingRound {
         else if (revenue < currentPrice * 2) {
             return 1;
         }
-        else if (revenue < currentPrice * 3) {
+        else if (revenue < currentPrice * 3 || currentPrice < 165) {
             return 2;
         }
-        else if (currentPrice >= 165) {
+        else {
             return 3;
         }
     }
@@ -354,6 +389,21 @@ class OperatingRound {
     isLSLAbility() {
         return this.selectedAction() === Actions.USE_PRIVATES
                && this.selectedPrivateId() === CompanyIDs.LAKE_SHORE_LINE;
+    }
+
+    isMiddleOfPrivateLays() {
+        return _([CompanyIDs.OHIO_INDIANA, CompanyIDs.MICHIGAN_CENTRAL]).find(privateId=> {
+            return this.numPrivateTrackLays(privateId) === 1 && !CurrentGame().state().getCompany(privateId).used()
+        });
+    }
+
+    skipSecondPrivateLay() {
+        const skipAction = new SkipSecondPrivateLay({
+                                          companyId: CurrentGame().state().currentCompanyId(),
+                                          privateId: this.selectedPrivateId()
+                                      });
+        skipAction.execute(CurrentGame().state());
+        CurrentGame().saveLocalState();
     }
 
     getCompaniesWithTrains() {
@@ -441,13 +491,11 @@ class OperatingRound {
         });
     }
 
-    hasPrivateLaidTrack() {
-        if (this.isOhioIndianaAbility()) {
-            const turn = CurrentGame().state().turnHistory.currentTurn();
-            return _.find(turn.getActions(), action => {
-                return action.getTypeName() === 'LayTrack' && action.privateId === CompanyIDs.OHIO_INDIANA;
-            });
-        }
+    numPrivateTrackLays(privateId) {
+        const turn = CurrentGame().state().turnHistory.currentTurn();
+        return _.filter(turn.getActions(), action => {
+            return action.getTypeName() === 'LayTrack' && action.privateId === privateId;
+        }).length;
     }
 
     hasUpgradedTrackThisTurn() {
@@ -476,8 +524,8 @@ class OperatingRound {
         }
 
         return _.filter(turn.getActions(), action => {
-            return action.getTypeName() === 'LayTrack' && !action.privateId;
-        }).length === 2;
+                return action.getTypeName() === 'LayTrack' && !action.privateId;
+            }).length === 2;
     }
 
     selectAction(actionId) {
@@ -503,7 +551,7 @@ class OperatingRound {
                 this.selectTrain(_.first(this.companyTrains()));
             }
 
-            if(company.type === CompanyTypes.INDEPENDANT) {
+            if (company.type === CompanyTypes.INDEPENDANT) {
                 this.selectedAllocation(Allocations.HALF);
             }
 
@@ -551,7 +599,7 @@ class OperatingRound {
 
     selectBankTrainForPurchase(trainType, amount) {
         this.selectedBankTrainsForPurchase.valueWillMutate();
-        if(this.selectedBankTrainsForPurchase()[trainType] === amount) {
+        if (this.selectedBankTrainsForPurchase()[trainType] === amount) {
             delete this.selectedBankTrainsForPurchase()[trainType];
         }
         else {
