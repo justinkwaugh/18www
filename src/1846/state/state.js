@@ -37,8 +37,6 @@ class State extends BaseState {
             return this.players()[this.currentPlayerIndex()];
         });
         this.currentPhaseId = ko.observable(definition.currentPhaseId || PhaseIds.PHASE_I);
-        this.currentRoundId = ko.observable(definition.currentRoundId);
-        this.currentRoundNumber = ko.observable(definition.currentRoundNumber || 0);
         this.currentCompanyId = ko.observable(definition.currentCompanyId);
 
         this.firstPassIndex = ko.observable(definition.firstPassIndex);
@@ -92,6 +90,15 @@ class State extends BaseState {
             }
 
             return currentRound.id;
+        });
+
+        this.roundNumber = ko.computed(() => {
+            const currentRound = this.roundHistory.getCurrentRound();
+            if (!currentRound) {
+                return '';
+            }
+
+            return currentRound.number;
         });
 
         this.tilesByCellId = definition.tilesByCellId || {};

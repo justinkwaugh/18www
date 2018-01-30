@@ -92,6 +92,14 @@ class Company extends Serializable {
         return _.sumBy(this.trains(), train=> train.route.revenue());
     }
 
+    useToken() {
+        this.tokens(this.tokens()-1);
+    }
+
+    returnToken() {
+        this.tokens(this.tokens()+1);
+    }
+
 }
 
 Company.registerClass();

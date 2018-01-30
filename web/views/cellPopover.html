@@ -7,6 +7,16 @@
         <!-- /ko -->
     </div>
     <!-- /ko -->
+    <!-- ko if: $data.canPlaceMeat() -->
+    <div class="d-flex justify-content-center bg-light">
+        <button type="button" class="btn btn-sm btn-secondary" data-bind="click: function() { $data.placeMeat(); }">Place Meat Packing</button>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: $data.canPlaceSteamboat() -->
+    <div class="d-flex justify-content-center bg-light">
+        <button type="button" class="btn btn-sm btn-secondary" data-bind="click: function() { $data.placeSteamboat();}">Place Steamboat</button>
+    </div>
+    <!-- /ko -->
     <div class="d-flex flex-wrap m-auto">
         <!-- ko foreach: $data.upgradeTiles() -->
         <div class="position-relative" style="cursor:pointer" data-bind="click: function() { $parent.previewTile($data.tile.id); }">

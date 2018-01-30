@@ -9,22 +9,10 @@ import Events from 'common/util/events';
 import CurrentGame from 'common/game/currentGame';
 import TerrainTypes from '1846/config/terrainTypes';
 import CompanyIDs from '1846/config/companyIds';
+import OffBoardIds from '1846/config/offBoardIds';
 
 const RowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
 
-const OffBoardIds = {
-    CHICAGO_CONNECTIONS: 'chicago_connections',
-    ST_LOUIS: 'st_louis',
-    HOLLAND: 'holland',
-    SARNIA: 'sarnia',
-    WINDSOR: 'windsor',
-    LOUISVILLE: 'louisville',
-    CHARLESTON: 'charleston',
-    BUFFALO: 'buffalo',
-    BINGHAMTON: 'binghamton',
-    PITTSBURGH: 'pittsburgh',
-    CUMBERLAND: 'cumberland'
-};
 
 const SpecialTiles = {
     A15: MapTileIDs.A15,
@@ -502,8 +490,13 @@ class Grid extends BaseGrid {
 
         // Find connections in the current cell which are available for routing
         const connectionsToLastCellInRoute = cell.getConnectionsToCell(lastCellInRoute);
+        if(connectionsToLastCellInRoute.length === 0) {
+            return;
+        }
+
+        const isOpenCity = cell.tile().hasCity() && !cell.tile().isBlockedForCompany(CurrentGame().state().currentCompanyId(),_.max(_.flatten(connectionsToLastCellInRoute)));
         const usedCurrentConnectionPoints = {};
-        const routeableConnectionsToPrior = _.reject(connectionsToLastCellInRoute, connection => {
+        const routeableConnectionsToPrior = _.reject(isOpenCity ? cell.tile().connections: connectionsToLastCellInRoute, connection => {
             const connectionPoint = connection[0] >= 0 && connection[0] < 7 ? connection[0] : connection[1];
             if (usedCurrentConnectionPoints[connectionPoint]) {
                 return true;

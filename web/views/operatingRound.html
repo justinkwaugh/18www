@@ -95,11 +95,19 @@
     <!-- ko if: $data.selectedPrivateId() === 'oandi' -->
     <h4 class="mt-3 text-center font-weight-light alert-heading">Use the map below to lay up to two O&I tiles (F14
         and/or F16)</h4>
-
     <!-- /ko -->
     <!-- ko if: $data.selectedPrivateId() === 'mc' -->
     <h4 class="mt-3 text-center font-weight-light alert-heading">Use the map below to lay up to two MC tiles (B10
         and/or B12)</h4>
+    <!-- /ko -->
+    <!-- ko if: $data.selectedPrivateId() === 'lsl' -->
+    <h4 class="mt-3 text-center font-weight-light alert-heading">Use the map below to upgrade Toledo (D14) or Cleveland (E17)</h4>
+    <!-- /ko -->
+    <!-- ko if: $data.selectedPrivateId() === 'meat' -->
+    <h4 class="mt-3 text-center font-weight-light alert-heading">Use the map below to place the Meat Packing token in Chicago (D6) or St Louis</h4>
+    <!-- /ko -->
+    <!-- ko if: $data.selectedPrivateId() === 'boat' -->
+    <h4 class="mt-3 text-center font-weight-light alert-heading">Use the map below to place the Steamboat token in Holland, Chicago Connections, St Louis, Toledo (D14) or Wheeling (G19)</h4>
     <!-- /ko -->
     <!-- ko if: $data.isMiddleOfPrivateLays() -->
     <div class="d-flex justify-content-center mt-3">

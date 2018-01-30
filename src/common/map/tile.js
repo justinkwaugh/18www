@@ -49,6 +49,10 @@ class Tile extends Serializable {
         this.position = ko.observable(data.position || 0);
         this.tokens = ko.observableArray(data.tokens || []);
         this.reservedTokens = ko.observableArray(data.reservedTokens);
+
+        this.hasMeat = ko.observable(data.hasMeat);
+        this.hasSteamboat = ko.observable(data.hasSteamboat);
+
         this.tokensPerCity = ko.computed(() => {
             const tokensPerCity = {};
             _.each(this.tokens(), token => {
@@ -74,31 +78,42 @@ class Tile extends Serializable {
         this.routedConnectionsById = ko.observable(data.routedConnectionsById || {});
     }
 
+    copyToTile(newTile) {
+        newTile.tokens(_.clone(this.tokens()));
+        newTile.reservedTokens(this.reservedTokens());
+        newTile.hasMeat(this.hasMeat());
+    }
+
     toJSON() {
         const plainObject = super.toJSON();
         delete plainObject.routedConnectionsById;
         return plainObject;
     }
 
-    getRevenue() {
+    getRevenue(companyId) {
+        let revenue = 0;
+        if(this.hasMeat() && this.hasMeat() === companyId) {
+            revenue += 30;
+        }
         if (_.isArray(this.revenue)) {
             const phaseId = CurrentGame().state().currentPhaseId();
             if (phaseId === PhaseIDs.PHASE_I) {
-                return this.revenue[0];
+                revenue += this.revenue[0];
             }
             else if (phaseId === PhaseIDs.PHASE_II) {
-                return this.revenue[1];
+                revenue += this.revenue[1];
             }
             else if (phaseId === PhaseIDs.PHASE_III) {
-                return this.revenue[2];
+                revenue += this.revenue[2];
             }
             else if (phaseId === PhaseIDs.PHASE_IV) {
-                return this.revenue[3];
+                revenue += this.revenue[3];
             }
         }
         else {
-            return this.revenue;
+            revenue += this.revenue;
         }
+        return revenue;
     }
 
     getTokensForCity(cityId) {

@@ -24,9 +24,6 @@ const Actions = {
     BUY_TRAINS: 'buy_trains',
     USE_PRIVATES: 'use_privates',
     // Private actions
-    // O&I = Lay 2 tiles
-    // MC = Lay 2 tiles
-    // LSL = Upgrade tile
     // MEAT = Place token
     // STEAMBOAT = Place token
     // C&WI = Place token
@@ -80,7 +77,17 @@ class OperatingRound {
                 return [];
             }
             return _(CurrentGame().state().currentCompany().getPrivates()).filter(
-                privateCompany => privateCompany.hasAbility && !privateCompany.used()).value();
+                privateCompany => {
+                    if(!privateCompany.hasAbility || privateCompany.used()) {
+                        return false;
+                    }
+
+                    if(privateCompany.id === CompanyIDs.STEAMBOAT_COMPANY && this.hasPlacedSteamboatThisTurn()) {
+                        return false;
+                    }
+
+                    return true;
+                }).value();
         });
 
         this.useablePrivates.subscribe((value) => {
@@ -338,10 +345,10 @@ class OperatingRound {
 
     checkInMiddlePrivateLay() {
         const privateId = this.isMiddleOfPrivateLays();
-            if(privateId) {
-                this.selectAction(Actions.USE_PRIVATES);
-                this.selectPrivate(privateId);
-            }
+        if (privateId) {
+            this.selectAction(Actions.USE_PRIVATES);
+            this.selectPrivate(privateId);
+        }
     }
 
     calculateStockMovement(revenue) {
@@ -391,17 +398,27 @@ class OperatingRound {
                && this.selectedPrivateId() === CompanyIDs.LAKE_SHORE_LINE;
     }
 
+    isMeatPackingAbility() {
+        return this.selectedAction() === Actions.USE_PRIVATES
+               && this.selectedPrivateId() === CompanyIDs.MEAT_PACKING_COMPANY;
+    }
+
+    isSteamboatAbility() {
+        return this.selectedAction() === Actions.USE_PRIVATES
+               && this.selectedPrivateId() === CompanyIDs.STEAMBOAT_COMPANY;
+    }
+
     isMiddleOfPrivateLays() {
-        return _([CompanyIDs.OHIO_INDIANA, CompanyIDs.MICHIGAN_CENTRAL]).find(privateId=> {
+        return _([CompanyIDs.OHIO_INDIANA, CompanyIDs.MICHIGAN_CENTRAL]).find(privateId => {
             return this.numPrivateTrackLays(privateId) === 1 && !CurrentGame().state().getCompany(privateId).used()
         });
     }
 
     skipSecondPrivateLay() {
         const skipAction = new SkipSecondPrivateLay({
-                                          companyId: CurrentGame().state().currentCompanyId(),
-                                          privateId: this.selectedPrivateId()
-                                      });
+                                                        companyId: CurrentGame().state().currentCompanyId(),
+                                                        privateId: this.selectedPrivateId()
+                                                    });
         skipAction.execute(CurrentGame().state());
         CurrentGame().saveLocalState();
     }
@@ -493,6 +510,9 @@ class OperatingRound {
 
     numPrivateTrackLays(privateId) {
         const turn = CurrentGame().state().turnHistory.currentTurn();
+        if (!turn) {
+            return false;
+        }
         return _.filter(turn.getActions(), action => {
             return action.getTypeName() === 'LayTrack' && action.privateId === privateId;
         }).length;
@@ -509,7 +529,7 @@ class OperatingRound {
         }
 
         return _.find(turn.getActions(), action => {
-            return action.getTypeName() === 'LayTrack' && action.upgrade;
+            return action.getTypeName() === 'LayTrack' && action.upgrade && !action.privateId;
         });
     }
 
@@ -526,6 +546,21 @@ class OperatingRound {
         return _.filter(turn.getActions(), action => {
                 return action.getTypeName() === 'LayTrack' && !action.privateId;
             }).length === 2;
+    }
+
+    hasPlacedSteamboatThisTurn() {
+        if (!CurrentGame()) {
+            return false;
+        }
+
+        const turn = CurrentGame().state().turnHistory.currentTurn();
+        if (!turn) {
+            return false;
+        }
+
+        return _.find(turn.getActions(), action => {
+            return action.getTypeName() === 'PlaceSteamboat';
+        });
     }
 
     selectAction(actionId) {

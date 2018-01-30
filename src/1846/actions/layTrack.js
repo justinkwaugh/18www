@@ -29,8 +29,7 @@ class LayTrack extends Action {
         this.upgrade = _.indexOf([TileColorIDs.YELLOW, TileColorIDs.GREEN, TileColorIDs.BROWN], oldTile.colorId) >= 0;
         const newTile = state.manifest.getTile(this.tileId, this.oldTileId);
         newTile.position(this.position);
-        newTile.tokens(_.clone(oldTile.tokens()));
-        newTile.reservedTokens(oldTile.reservedTokens());
+        oldTile.copyToTile(newTile);
         state.tilesByCellId[this.cellId] = newTile;
 
         company.removeCash(this.cost);
@@ -50,8 +49,7 @@ class LayTrack extends Action {
         const newTile = state.tilesByCellId[this.cellId];
         const oldTile = state.manifest.getTile(this.oldTileId, this.tileId);
         oldTile.position(this.oldTilePosition);
-        oldTile.tokens(_.clone(newTile.tokens()));
-        oldTile.reservedTokens(newTile.reservedTokens());
+        newTile.copyToTile(oldTile);
         state.tilesByCellId[this.cellId] = oldTile;
 
         if(this.privateId && this.privateDone) {

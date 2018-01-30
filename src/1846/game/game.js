@@ -142,6 +142,10 @@ class Game extends BaseGame {
                         });
     }
 
+    reset() {
+        Store.remove('61');
+    }
+
     updateState(newState) {
         this.state(newState);
         Sequence.restore();
@@ -149,12 +153,12 @@ class Game extends BaseGame {
     }
 
     saveLocalState() {
-        Store.set('52',this.state().serialize());
+        Store.set('61',this.state().serialize());
     }
 
     restoreLocalState() {
         let restored = false;
-        const storedState = Store.get('52');
+        const storedState = Store.get('61');
         if(storedState) {
             const state = Serializable.deserialize(storedState);
             this.updateState(state);

@@ -38,7 +38,7 @@ class BuyPrivate extends Action {
 
         if (this.privateId === CompanyIDs.CHICAGO_WESTERN_INDIANA) {
             const tile = state.tilesByCellId['D6'];
-            tile.reservedToken(null);
+            tile.removeReservedToken(this.privateId, 9);
             if(!tile.hasTokenForCompany(this.companyId)) {
                 tile.addToken(this.companyId, 9);
                 this.addedToken = true;

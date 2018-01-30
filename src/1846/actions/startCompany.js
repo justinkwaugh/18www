@@ -1,7 +1,7 @@
 import Action from 'common/game/action';
 import Prices from '1846/config/prices';
+import CompanyIDs from '1846/config/companyIds'
 import ValidationError from 'common/game/validationError';
-import _ from 'lodash';
 
 class StartCompany extends Action {
 
@@ -17,7 +17,8 @@ class StartCompany extends Action {
     doExecute(state) {
         const player = state.playersById()[this.playerId];
         const company = state.publicCompaniesById[this.companyId];
-        const cash = Prices.price(this.startIndex)*2;
+        const price = Prices.price(this.startIndex);
+        const cash = price * 2;
         this.firstPassIndex = state.firstPassIndex();
 
         // validate things
@@ -36,9 +37,11 @@ class StartCompany extends Action {
         company.opened(true);
         state.stockBoard.addCompany(company);
         player.removeCash(cash);
-        company.addCash(cash);
+        company.addCash(cash + (this.companyId === CompanyIDs.ILLINOIS_CENTRAL ? price : 0));
+
 
         const tile = state.tilesByCellId[company.homeCellId];
+        company.useToken();
         tile.addToken(company.id);
         tile.removeReservedToken(company.id);
 
@@ -52,13 +55,15 @@ class StartCompany extends Action {
     doUndo(state) {
         const player = state.playersById()[this.playerId];
         const company = state.publicCompaniesById[this.companyId];
-        const cash = Prices.price(this.startIndex)*2;
+        const price = Prices.price(this.startIndex);
+        const cash = price*2;
 
         const tile = state.tilesByCellId[company.homeCellId];
         tile.removeToken(company.id);
         tile.addReservedToken(company.id);
+        company.returnToken();
 
-        company.removeCash(cash);
+        company.removeCash(cash + (this.companyId === CompanyIDs.ILLINOIS_CENTRAL ? price : 0));
         player.addCash(cash);
 
         state.stockBoard.removeCompany(company.id);

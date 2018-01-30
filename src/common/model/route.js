@@ -97,7 +97,7 @@ class Route extends Serializable {
 
     addCell(id, connections) {
         const tile = CurrentGame().state().tilesByCellId[id];
-        if (tile.getRevenue() > 0) {
+        if (tile.getRevenue(CurrentGame().state().currentCompanyId()) > 0) {
             this.numStops += 1;
         }
         this.cells.push({id, connections});

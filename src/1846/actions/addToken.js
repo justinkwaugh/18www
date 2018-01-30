@@ -21,12 +21,14 @@ class AddToken extends Action {
             this.reserved = true;
             tile.removeReservedToken(this.companyId);
         }
+        company.useToken();
         company.removeCash(this.cost);
         state.bank.addCash(this.cost);
     }
 
     doUndo(state) {
         const company = state.getCompany(this.companyId);
+        company.returnToken();
         const tile = state.tilesByCellId[this.cellId];
         tile.removeToken(this.companyId, this.cityId);
         if(this.reserved) {

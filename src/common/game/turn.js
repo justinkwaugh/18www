@@ -14,8 +14,8 @@ class Turn extends ActionGroup {
         this.number = definition.number;
         this.playerId = definition.playerId || state.currentPlayerId();
         this.phaseId = definition.phaseId || state.currentPhaseId();
-        this.roundId = definition.roundId || state.currentRoundId();
-        this.roundNumber = definition.roundNumber || state.currentRoundNumber();
+        this.roundId = definition.roundId || state.roundId();
+        this.roundNumber = definition.roundNumber || state.roundNumber();
         this.actionGroups = [];
         this.inProgress = [];
         this.actionStartIndex = _.isUndefined(definition.actionStartIndex) ? state.actionHistory.currentIndex() : definition.actionStartIndex;

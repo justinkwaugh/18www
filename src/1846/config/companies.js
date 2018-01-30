@@ -106,8 +106,7 @@ const PrivateCompanyDefinitions = {
         type: CompanyTypes.PRIVATE,
         cost: 60,
         maxBuyInPrice: 60,
-        income: 10,
-        hasAbility: true
+        income: 10
     },
     [CompanyIDs.OHIO_INDIANA]: {
         id: CompanyIDs.OHIO_INDIANA,

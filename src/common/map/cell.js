@@ -9,8 +9,11 @@ import RoundIDs from '1846/config/roundIds';
 import CompanyIDs from '1846/config/companyIds';
 import LayTrack from '1846/actions/layTrack';
 import AddToken from '1846/actions/addToken';
+import PlaceMeat from '1846/actions/placeMeat';
+import PlaceSteamboat from '1846/actions/placeSteamboat';
 import Events from 'common/util/events';
 import TerrainTypes from '1846/config/terrainTypes';
+import OffBoardIds from '1846/config/offBoardIds';
 
 const CellCosts = {
     C15: 40,
@@ -86,6 +89,10 @@ class Cell {
                 return false;
             }
 
+            if (!CurrentGame().state().isOperatingRound()) {
+                return false;
+            }
+
             if (!this.tile()) {
                 return [];
             }
@@ -128,6 +135,11 @@ class Cell {
                 return false;
             }
 
+            const company = CurrentGame().state().currentCompany();
+            if (!company.tokens()) {
+                return false;
+            }
+
             const hasTokened = _.find(turn.getActions(), action => {
                 return action.getTypeName() === 'AddToken';
             });
@@ -141,7 +153,7 @@ class Cell {
                 return false;
             }
 
-            const company = CurrentGame().state().currentCompany();
+
             const cost = this.getTokenCost();
             if (company.cash() < cost) {
                 return false;
@@ -163,20 +175,18 @@ class Cell {
             const oandi = this.isOhioIndianaLay();
             const mc = this.isMichiganCentralLay();
             const lsl = this.isLSLLay();
+            const meat = this.canPlaceMeat();
+            const steamboat = this.canPlaceSteamboat();
 
-            if (this.id === 'B10') {
-                console.log('B10');
-            }
-
-            if (!layingTrack && !oandi && !mc && !lsl) {
+            if (!layingTrack && !oandi && !mc && !lsl && !meat && !steamboat) {
                 return false;
             }
 
-            if (!this.canLayMichiganCentral() && !this.canLayOhioIndiana()) {
+            if ((this.isMichiganCentralLay() && !this.canLayMichiganCentral()) || (this.isOhioIndianaLay() && !this.canLayOhioIndiana())) {
                 return false;
             }
 
-            return this.upgradeTiles().length > 0 || this.canToken();
+            return this.upgradeTiles().length > 0 || this.canToken() || meat || steamboat;
         });
 
         this.canRoute = ko.computed(() => {
@@ -254,6 +264,14 @@ class Cell {
 
     canUpgrade() {
         return !CurrentGame().operatingRound().hasUpgradedTrackThisTurn();
+    }
+
+    canPlaceMeat() {
+        return CurrentGame().operatingRound().isMeatPackingAbility() && (this.id === 'D6' || this.id === OffBoardIds.ST_LOUIS);
+    }
+
+    canPlaceSteamboat() {
+        return CurrentGame().operatingRound().isSteamboatAbility() && (this.id === 'D14' || this.id === 'G19' || this.id === OffBoardIds.HOLLAND || this.id === OffBoardIds.CHICAGO_CONNECTIONS || this.id === OffBoardIds.ST_LOUIS);
     }
 
     canLayMichiganCentral() {
@@ -339,6 +357,10 @@ class Cell {
     }
 
     getBaseCost(oldTile) {
+        if (this.isLSLLay()) {
+            return 0;
+        }
+
         if (!oldTile.map) {
             return 20;
         }
@@ -353,6 +375,7 @@ class Cell {
         if (company.hasPrivate(CompanyIDs.TUNNEL_BLASTING_COMPANY) && FreeTunnelBlasterCells[this.id]) {
             cost = 0;
         }
+
 
         return cost;
     }
@@ -464,40 +487,42 @@ class Cell {
 
             // Check new track for a path back to station
             // console.log('Checking tile ' + this.id + ' for valid neighbor connections for new tile id ' + newTileId + ' and position ' + pos);
-            const connectionToStation = _.find(addedConnections,
-                                               (connection) => {
-                                                   const connectionStart = connection[0];
-                                                   const connectionEnd = connection[1];
-                                                   // console.log('connection: [' + connection[0] + ','+connection[1] + '] => [' + connectionStart + ',' + connectionEnd+']');
+            const connectionToStation = this.isLSLLay() || _.find(addedConnections,
+                                                                  (connection) => {
+                                                                      const connectionStart = connection[0];
+                                                                      const connectionEnd = connection[1];
+                                                                      // console.log('connection: [' + connection[0] + ','+connection[1] + '] => [' + connectionStart + ',' + connectionEnd+']');
 
-                                                   if (validEdges[connectionStart] || validEdges[connectionEnd]) {
-                                                       return true;
-                                                   }
+                                                                      if (validEdges[connectionStart] || validEdges[connectionEnd]) {
+                                                                          return true;
+                                                                      }
 
-                                                   if (connectionStart < 7) {
-                                                       const isEdgeValid = this.checkNeighborConnection(company.id,
-                                                                                                        connectionStart,
-                                                                                                        visited);
-                                                       if (isEdgeValid) {
-                                                           console.log('Connection found');
-                                                           validEdges[connectionStart] = true;
-                                                           return true;
-                                                       }
+                                                                      if (connectionStart < 7) {
+                                                                          const isEdgeValid = this.checkNeighborConnection(
+                                                                              company.id,
+                                                                              connectionStart,
+                                                                              visited);
+                                                                          if (isEdgeValid) {
+                                                                              console.log('Connection found');
+                                                                              validEdges[connectionStart] = true;
+                                                                              return true;
+                                                                          }
 
-                                                   }
+                                                                      }
 
-                                                   if (connectionEnd < 7) {
-                                                       const isEdgeValid = this.checkNeighborConnection(company.id,
-                                                                                                        connectionEnd,
-                                                                                                        visited);
-                                                       if (isEdgeValid) {
-                                                           console.log('Connection found');
-                                                           validEdges[connectionEnd] = true;
-                                                           return true;
-                                                       }
+                                                                      if (connectionEnd < 7) {
+                                                                          const isEdgeValid = this.checkNeighborConnection(
+                                                                              company.id,
+                                                                              connectionEnd,
+                                                                              visited);
+                                                                          if (isEdgeValid) {
+                                                                              console.log('Connection found');
+                                                                              validEdges[connectionEnd] = true;
+                                                                              return true;
+                                                                          }
 
-                                                   }
-                                               });
+                                                                      }
+                                                                  });
 
             if (!connectionToStation) {
                 return null;
@@ -782,7 +807,7 @@ class Cell {
 
     commitPreview() {
         const previewTile = this.preview();
-        const privateId = this.isMichiganCentralLay() ? CompanyIDs.MICHIGAN_CENTRAL : this.isOhioIndianaLay() ? CompanyIDs.OHIO_INDIANA : null;
+        const privateId = this.isLSLLay() ? CompanyIDs.LAKE_SHORE_LINE : this.isMichiganCentralLay() ? CompanyIDs.MICHIGAN_CENTRAL : this.isOhioIndianaLay() ? CompanyIDs.OHIO_INDIANA : null;
         const layTrack = new LayTrack({
                                           companyId: CurrentGame().state().currentCompanyId(),
                                           cellId: this.id,
@@ -790,8 +815,8 @@ class Cell {
                                           position: previewTile.position(),
                                           cost: this.allowedPreviewPositionData()[previewTile.position()].cost,
                                           privateId,
-                                          privateDone: privateId && CurrentGame().operatingRound().numPrivateTrackLays(
-                                              privateId) === 1
+                                          privateDone: privateId && (this.isLSLLay() || CurrentGame().operatingRound().numPrivateTrackLays(
+                                              privateId) === 1)
                                       });
         layTrack.execute(CurrentGame().state());
         CurrentGame().saveLocalState();
@@ -809,6 +834,27 @@ class Cell {
         CurrentGame().saveLocalState();
         this.cancelPreview();
 
+    }
+
+    placeMeat() {
+        const placeMeat = new PlaceMeat({
+                                            companyId: CurrentGame().state().currentCompanyId(),
+                                            privateId: CompanyIDs.MEAT_PACKING_COMPANY,
+                                            cellId: this.id,
+                                        });
+        placeMeat.execute(CurrentGame().state());
+        CurrentGame().saveLocalState();
+        this.cancelPreview();
+    }
+
+    placeSteamboat() {
+        const placeSteamboat = new PlaceSteamboat({
+                                            companyId: CurrentGame().state().currentCompanyId(),
+                                            cellId: this.id,
+                                        });
+        placeSteamboat.execute(CurrentGame().state());
+        CurrentGame().saveLocalState();
+        this.cancelPreview();
     }
 }
 
