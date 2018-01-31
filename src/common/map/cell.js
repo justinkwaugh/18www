@@ -717,8 +717,10 @@ class Cell {
         const edgeTwo = this.getConnectionEdgeToCell(neighborTwo);
 
         if (_.keys(this.tile().cities).length > 0) {
-            return _.compact([this.getConnectionToEdges(edgeOne, 7), this.getConnectionToEdges(edgeTwo, 7)]);
-
+            return _(this.tile().cities).map(city=> {
+                const results = [this.getConnectionToEdges(edgeOne, city.id), this.getConnectionToEdges(edgeTwo, city.id)];
+                return _.compact(results);
+            }).find(connections => connections.length === 2);
         }
         else {
             return [this.getConnectionToEdges(edgeOne, edgeTwo)];

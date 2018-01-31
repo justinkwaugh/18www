@@ -216,17 +216,18 @@ class Grid extends BaseGrid {
             Events.emit('gridRestored');
         });
 
-        Events.on('drawRoutes', (routes)=> {
-            _.each(routes, route=> {
-                _.each(route.cells(), cellData=> {
+        Events.on('drawRoutes', (routes) => {
+            _.each(routes, route => {
+                _.each(route.cells(), cellData => {
                     const tile = this.cellsById()[cellData.id].tile();
-                    _.each(cellData.connections, connection=> tile.addRoutedConnection(connection, route.color, route.id));
+                    _.each(cellData.connections,
+                           connection => tile.addRoutedConnection(connection, route.color, route.id));
                 });
             });
         });
 
-        Events.on('clearRoutes', ()=> {
-            _.each(this.cells(), cell=> cell.tile().clearRoutedConnections());
+        Events.on('clearRoutes', () => {
+            _.each(this.cells(), cell => cell.tile().clearRoutedConnections());
         })
     }
 
@@ -490,23 +491,43 @@ class Grid extends BaseGrid {
 
         // Find connections in the current cell which are available for routing
         const connectionsToLastCellInRoute = cell.getConnectionsToCell(lastCellInRoute);
-        if(connectionsToLastCellInRoute.length === 0) {
+        if (connectionsToLastCellInRoute.length === 0) {
             return;
         }
 
-        const isOpenCity = cell.tile().hasCity() && !cell.tile().isBlockedForCompany(CurrentGame().state().currentCompanyId(),_.max(_.flatten(connectionsToLastCellInRoute)));
-        const usedCurrentConnectionPoints = {};
-        const routeableConnectionsToPrior = _.reject(isOpenCity ? cell.tile().connections: connectionsToLastCellInRoute, connection => {
-            const connectionPoint = connection[0] >= 0 && connection[0] < 7 ? connection[0] : connection[1];
-            if (usedCurrentConnectionPoints[connectionPoint]) {
-                return true;
-            }
 
-            if (cell.tile().hasOtherRoutedConnection(connection, this.route.id)) {
-                usedCurrentConnectionPoints[connectionPoint] = true;
-                return true;
-            }
-        });
+
+        const usedCurrentConnectionPoints = {};
+        const routeableConnectionsToPrior = _.reject(connectionsToLastCellInRoute, connection => {
+                const connectionPoint = connection[0] >= 0 && connection[0] < 7 ? connection[0] : connection[1];
+                if (usedCurrentConnectionPoints[connectionPoint]) {
+                    return true;
+                }
+
+                if (cell.tile().hasOtherRoutedConnection(connection, this.route.id)) {
+                    usedCurrentConnectionPoints[connectionPoint] = true;
+                    return true;
+                }
+            });
+
+        const cityId =  _.max(_.flatten(connectionsToLastCellInRoute));
+        const isOpenCity = cell.tile().hasCity() && !cell.tile().isBlockedForCompany(
+                CurrentGame().state().currentCompanyId(), cityId);
+        const routeableConnectionsOnCurrent = isOpenCity ? _.reject(cell.tile().connections, connection => {
+                if(_.max(connection) !== cityId) {
+                    return true;
+                }
+
+                const connectionPoint = connection[0] >= 0 && connection[0] < 7 ? connection[0] : connection[1];
+                if (usedCurrentConnectionPoints[connectionPoint]) {
+                    return true;
+                }
+
+                if (cell.tile().hasOtherRoutedConnection(connection, this.route.id)) {
+                    usedCurrentConnectionPoints[connectionPoint] = true;
+                    return true;
+                }
+            }) : routeableConnectionsToPrior;
 
         const lastCellInRouteConnectionsToCurrent = lastCellInRoute.getConnectionsToCell(cell);
         const usedPriorConnectionPoints = {};
@@ -569,11 +590,11 @@ class Grid extends BaseGrid {
 
         // Now add the connections in our current tile
 
-        _.each(routeableConnectionsToPrior,
+        _.each(routeableConnectionsOnCurrent,
                connection => cell.tile().addRoutedConnection(connection, 0, this.route.id));
 
         // Add the cell to the route
-        this.route.addCell(cell.id, routeableConnectionsToPrior);
+        this.route.addCell(cell.id, routeableConnectionsOnCurrent);
 
         // Cap off the route if full
         if (this.route.isFull()) {
@@ -581,7 +602,8 @@ class Grid extends BaseGrid {
             const chicagoStation = cell.id === 'D6' && routeableConnectionsToPrior.length > 1;
             const connection = chicagoStation ? _.find(routeableConnectionsToPrior, connection => {
                 return cell.tile().hasTokenForCompany(CurrentGame().state().currentCompanyId(),
-                                                                 _.max(connection))}) : _.first(routeableConnectionsToPrior);
+                                                      _.max(connection))
+            }) : _.first(routeableConnectionsToPrior);
             cell.tile().clearRoutedConnections(this.route.id);
             cell.tile().addRoutedConnection(connection, 0, this.route.id);
             this.route.updateConnections(cell.id, [connection]);
@@ -645,8 +667,9 @@ class Grid extends BaseGrid {
 
                 const chicagoStation = lastCell.id === 'D6' && routeablePriorConnections.length > 1;
                 const connection = chicagoStation ? _.find(routeablePriorConnections, connection => {
-                return lastCell.tile().hasTokenForCompany(CurrentGame().state().currentCompanyId(),
-                                                                 _.max(connection))}) : _.first(routeablePriorConnections);
+                    return lastCell.tile().hasTokenForCompany(CurrentGame().state().currentCompanyId(),
+                                                              _.max(connection))
+                }) : _.first(routeablePriorConnections);
                 lastCell.tile().clearRoutedConnections(this.route.id);
                 lastCell.tile().addRoutedConnection(connection, this.route.color, this.route.id);
                 this.route.updateConnections(lastCell.id, [connection]);
