@@ -1,9 +1,11 @@
 import short from 'short-uuid';
 import Serializable from 'common/model/serializable';
+import Tile from 'common/map/tile';
 import TrainDefinitions from '1846/config/trainDefinitions';
 import _ from 'lodash';
 import ko from 'knockout';
 import CurrentGame from 'common/game/currentGame';
+import Events from 'common/util/events';
 
 class Route extends Serializable {
     constructor(definition) {
@@ -20,6 +22,13 @@ class Route extends Serializable {
         if (definition.trainType) {
             this.configureForTrain(definition.trainType);
         }
+
+        Events.on('tileUpgraded', data=> {
+            const upgradedCellId = _.find(this.cells(), cell=>cell.id === data.cellId);
+            if(upgradedCellId) {
+                this.upgradeConnections(data.cellId, data.oldTile, data.newTile);
+            }
+        });
     }
 
     configureForTrain(trainType) {
@@ -29,12 +38,12 @@ class Route extends Serializable {
     }
 
     calculateRevenue() {
-
+        const companyId = this.companyId || CurrentGame().state().currentCompanyId();
         const revenueData = _(this.cells()).map(cellData => {
             const tile = CurrentGame().state().tilesByCellId[cellData.id];
             return {
-                hasStation: tile.hasTokenForCompany(CurrentGame().state().currentCompanyId()),
-                revenue: tile.getRevenue()
+                hasStation: tile.hasTokenForCompany(companyId),
+                revenue: tile.getRevenue(companyId)
             }
         }).sortBy(cellData => {
             return (cellData.hasStation ? 'b' : 'c') + '-' + (999 - cellData.revenue);
@@ -46,14 +55,16 @@ class Route extends Serializable {
     }
 
     isValid() {
+
         if (this.cells().length < 2) {
             return false;
         }
 
         // count revenue cells
+        const companyId = this.companyId || CurrentGame().state().currentCompanyId();
         const revenueCells = _.filter(this.cells(), cellData => {
             const tile = CurrentGame().state().tilesByCellId[cellData.id];
-            return tile.getRevenue();
+            return tile.getRevenue(companyId);
         });
 
         if (revenueCells.length < 2) {
@@ -67,7 +78,7 @@ class Route extends Serializable {
                     return false;
                 }
                 const tile = CurrentGame().state().tilesByCellId[cellData.id];
-                return tile.isBlockedForCompany(CurrentGame().state().currentCompanyId(), cityId)
+                return tile.isBlockedForCompany(companyId, cityId)
             });
             if (blocked) {
                 return false;
@@ -77,7 +88,7 @@ class Route extends Serializable {
         return _.find(revenueCells, cellData => {
             const tile = CurrentGame().state().tilesByCellId[cellData.id];
             const cityId = _(cellData.connections).flatten().max();
-            return tile.hasTokenForCompany(CurrentGame().state().currentCompanyId(), cityId);
+            return tile.hasTokenForCompany(companyId, cityId);
         });
     }
 
@@ -96,8 +107,9 @@ class Route extends Serializable {
     }
 
     addCell(id, connections) {
+        const companyId = this.companyId || CurrentGame().state().currentCompanyId();
         const tile = CurrentGame().state().tilesByCellId[id];
-        if (tile.getRevenue(CurrentGame().state().currentCompanyId()) > 0) {
+        if (tile.getRevenue(companyId) > 0) {
             this.numStops += 1;
         }
         this.cells.push({id, connections});
@@ -172,6 +184,16 @@ class Route extends Serializable {
     updateConnections(cellId, connections) {
         const cell = this.getCell(cellId);
         cell.connections = connections;
+    }
+
+    upgradeConnections(cellId, oldTile, newTile) {
+        const upgradedConnectionsById = oldTile.getUpgradedConnections(newTile);
+        const cell = this.getCell(cellId);
+        cell.connections = _.map(cell.connections, connection=> {
+            const connectionId = Tile.getConnectionId(connection);
+            return upgradedConnectionsById[connectionId];
+        });
+        this.calculateRevenue(this.companyId);
     }
 }
 

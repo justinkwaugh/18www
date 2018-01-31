@@ -85,7 +85,7 @@ const PrivateCompanyDefinitions = {
         maxBuyInPrice: 60,
         cash: 80,
         homeCellId: 'C15',
-        trains: [new Train({type:TrainIDs.TRAIN_2})]
+        trains: [new Train({type:TrainIDs.TRAIN_2, companyId: CompanyIDs.MICHIGAN_SOUTHERN})]
     },
     [CompanyIDs.BIG_4]: {
         id: CompanyIDs.BIG_4,
@@ -98,7 +98,7 @@ const PrivateCompanyDefinitions = {
         maxBuyInPrice: 40,
         cash: 60,
         homeCellId: 'G9',
-        trains: [new Train({type:TrainIDs.TRAIN_2})]
+        trains: [new Train({type:TrainIDs.TRAIN_2, companyId: CompanyIDs.BIG_4})]
     },
     [CompanyIDs.CHICAGO_WESTERN_INDIANA]: {
         id: CompanyIDs.CHICAGO_WESTERN_INDIANA,

@@ -4,6 +4,7 @@ import Serializable from 'common/model/serializable';
 import CurrentGame from 'common/game/currentGame';
 import PhaseIDs from '1846/config/phaseIds';
 import RouteColors from '1846/config/routeColors';
+import TileManifest from '1846/config/tileManifest';
 
 const EdgeCoordinates = [
     '31,-53.69',
@@ -206,21 +207,48 @@ class Tile extends Serializable {
         return _.filter(this.connections, connection => connection[0] === point || connection[1] === point);
     }
 
-    getConnectionId(connection) {
+    static getConnectionId(connection) {
         return Math.min(connection[0], connection[1]) + '-' + Math.max(connection[0], connection[1]);
+    }
+
+    getUpgradedConnections(newTile) {
+        const oldConnectionsIds = Tile.getConnectionIdsForPosition(this.id, this.position());
+        const newConnectionsIds = Tile.getConnectionIdsForPosition(newTile.id, newTile.position());
+        const newConnectionsById = _.fromPairs(_.zip(newConnectionsIds, newTile.connections));
+        const originalConnectionIds = _.map(this.connections, connection=>Tile.getConnectionId(connection));
+        const upgradedConnections = _(oldConnectionsIds).map(connectionId=>newConnectionsById[connectionId]).value();
+        return _.zipObject(originalConnectionIds, upgradedConnections);
+    }
+
+    static getConnectionsForPosition(tileId, position) {
+        return _.map(TileManifest.getTileDefinition(tileId).connections, (connection) => {
+            const newStart = Tile.getOffsetIndexForPosition(connection[0], position);
+            const newEnd = Tile.getOffsetIndexForPosition(connection[1], position);
+            return [newStart, newEnd];
+        });
+    }
+
+    static getConnectionIdsForPosition(tileId, position) {
+        return _.map(Tile.getConnectionsForPosition(tileId, position), (connection) => {
+            return Tile.getConnectionId(connection);
+        });
+    }
+
+    static getOffsetIndexForPosition(index, position) {
+        return index < 7 ? (index + position) % 6 : index;
     }
 
     getRoutedCityColors(cityId) {
         cityId = cityId || 7;
         return _(this.getRoutedConnections()).filter(
             connection => Math.max(connection[0], connection[1]) === cityId).map(connection => {
-            const connectionId = this.getConnectionId(connection);
+            const connectionId = Tile.getConnectionId(connection);
             return RouteColors[this.routedConnectionsById()[connectionId].color];
         }).uniq().value();
     }
 
     getRoutedConnection(connection) {
-        const connectionId = this.getConnectionId(connection);
+        const connectionId = Tile.getConnectionId(connection);
         return this.routedConnectionsById()[connectionId];
     }
 
@@ -232,32 +260,32 @@ class Tile extends Serializable {
 
     getUnroutedConnections() {
         return _(this.connections).reject(connection => {
-            const connectionId = this.getConnectionId(connection);
+            const connectionId = Tile.getConnectionId(connection);
             return this.routedConnectionsById()[connectionId];
         }).value();
     }
 
     hasRoutedConnection(connection, routeId) {
-        const connectionId = this.getConnectionId(connection);
+        const connectionId = Tile.getConnectionId(connection);
         const routedConnection = this.routedConnectionsById()[connectionId];
         return routedConnection && (!routeId || routedConnection.routeId === routeId);
     }
 
     hasOtherRoutedConnection(connection, routeId) {
-        const connectionId = this.getConnectionId(connection);
+        const connectionId = Tile.getConnectionId(connection);
         const routedConnection = this.routedConnectionsById()[connectionId];
         return routedConnection && routedConnection.routeId !== routeId;
     }
 
     addRoutedConnection(connection, color, routeId) {
-        const connectionId = this.getConnectionId(connection);
+        const connectionId = Tile.getConnectionId(connection);
         this.routedConnectionsById.valueWillMutate();
         this.routedConnectionsById()[connectionId] = {color, routeId};
         this.routedConnectionsById.valueHasMutated();
     }
 
     removeRoutedConnection(connection) {
-        const connectionId = this.getConnectionId(connection);
+        const connectionId = Tile.getConnectionId(connection);
         this.routedConnectionsById.valueWillMutate();
         delete this.routedConnectionsById()[connectionId];
         this.routedConnectionsById.valueHasMutated();
@@ -294,13 +322,13 @@ class Tile extends Serializable {
     }
 
     getOuterStrokeColor(connection) {
-        const connectionId = this.getConnectionId(connection);
+        const connectionId = Tile.getConnectionId(connection);
         const connectionData = this.routedConnectionsById()[connectionId];
         return connectionData ? RouteColors[connectionData.color] : 'white';
     }
 
     getOuterStrokeWidth(connection) {
-        const connectionId = this.getConnectionId(connection);
+        const connectionId = Tile.getConnectionId(connection);
         return this.routedConnectionsById()[connectionId] ? 21 : 13;
     }
 
@@ -337,7 +365,7 @@ class Tile extends Serializable {
     getCityOuterStrokeColor(cityId) {
         const routedConnectionId = _(this.connections).filter(
             connection => connection[1] === cityId || connection[0] === cityId).map(
-            connection => this.getConnectionId(connection)).find(
+            connection => Tile.getConnectionId(connection)).find(
             connectionId => this.routedConnectionsById()[connectionId]);
         return routedConnectionId ? RouteColors[this.routedConnectionsById()[routedConnectionId].color] : 'white';
 
@@ -346,7 +374,7 @@ class Tile extends Serializable {
     getCityOuterStrokeWidth(cityId) {
         const routed = _(this.connections).filter(
             connection => connection[1] === cityId || connection[0] === cityId).map(
-            connection => this.getConnectionId(connection)).find(
+            connection => Tile.getConnectionId(connection)).find(
             connectionId => this.routedConnectionsById()[connectionId]);
         return routed ? 8 : 1;
     }

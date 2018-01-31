@@ -42,6 +42,9 @@ class LayTrack extends Action {
 
         Events.emit('tileUpdated.' + this.cellId);
         Events.emit('trackLaid');
+        if(this.upgrade) {
+            Events.emit('tileUpgraded', { cellId: this.cellId, oldTile, newTile });
+        }
     }
 
     doUndo(state) {
@@ -61,6 +64,9 @@ class LayTrack extends Action {
         state.bank.removeCash(this.cost);
         Events.emit('tileUpdated.' + this.cellId);
         Events.emit('trackLaid', this);
+        if(this.upgrade) {
+            Events.emit('tileUpgraded', { cellId: this.cellId, newTile: oldTile, oldTile: newTile });
+        }
     }
 
     summary(state) {

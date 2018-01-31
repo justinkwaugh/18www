@@ -1,5 +1,6 @@
 import ko from 'knockout';
 import _ from 'lodash';
+import Tile from 'common/map/tile';
 import TileManifest from '1846/config/tileManifest';
 import MapTileIDs from '1846/config/mapTileIds';
 import CurrentGame from 'common/game/currentGame';
@@ -384,7 +385,7 @@ class Cell {
 
         const neighbor = this.neighbors[neighborEdge];
         return _(_.range(0, 6)).map((pos) => {
-            const connections = this.getConnectionsForPosition(newTileId, pos);
+            const connections = Tile.getConnectionsForPosition(newTileId, pos);
             if (neighbor.tile().colorId === TileColorIDs.YELLOW) {
                 const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(neighborEdge);
                 const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
@@ -447,15 +448,15 @@ class Cell {
 
         return _(_.range(0, 6)).map((pos) => {
             // Check against existing tile connections
-            const oldConnectionsIds = this.getConnectionIdsForPosition(oldTile.id, oldTile.position());
-            const newConnectionsIds = this.getConnectionIdsForPosition(newTileId, pos);
+            const oldConnectionsIds = Tile.getConnectionIdsForPosition(oldTile.id, oldTile.position());
+            const newConnectionsIds = Tile.getConnectionIdsForPosition(newTileId, pos);
 
             if (_.difference(oldConnectionsIds, newConnectionsIds).length > 0) {
                 return null;
             }
 
             const addedConnectionIds = _.difference(newConnectionsIds, oldConnectionsIds);
-            const addedConnections = _(this.getConnectionsForPosition(newTileId, pos)).filter(
+            const addedConnections = _(Tile.getConnectionsForPosition(newTileId, pos)).filter(
                 connection => {
                     return this.tile().hasCity() || _.indexOf(addedConnectionIds,
                                                               this.getConnectionId(connection)) >= 0;
@@ -479,7 +480,7 @@ class Cell {
 
             // Check for connection costs
             const existingConnectionPoints = _(
-                this.getConnectionsForPosition(oldTile.id, oldTile.position())).flatten().uniq().value();
+                Tile.getConnectionsForPosition(oldTile.id, oldTile.position())).flatten().uniq().value();
             const connectionCosts = _(addedConnections).flatten().uniq().difference(existingConnectionPoints).sumBy(
                 edgeIndex => {
                     return this.getConnectionCost(edgeIndex);
@@ -565,7 +566,7 @@ class Cell {
     }
 
     isConnectedToStation(companyId) {
-        const connections = this.getConnectionsForPosition(this.tile().id, this.tile().position());
+        const connections = Tile.getConnectionsForPosition(this.tile().id, this.tile().position());
         const visited = {};
         return _.find(connections, connection => {
             let connected = false;
@@ -639,7 +640,7 @@ class Cell {
                 found = this.depthFirstSearchForStation(companyId, connection[1], visited, companies);
             }
             else {
-                const connectionEnd = Cell.getOffsetIndexForPosition(connection[1], this.tile().position());
+                const connectionEnd = Tile.getOffsetIndexForPosition(connection[1], this.tile().position());
                 const neighbor = this.neighbors[connectionEnd];
                 if (!neighbor) {
                     return;
@@ -669,19 +670,7 @@ class Cell {
 
     }
 
-    getConnectionsForPosition(tileId, position) {
-        return _.map(TileManifest.getTileDefinition(tileId).connections, (connection) => {
-            const newStart = Cell.getOffsetIndexForPosition(connection[0], position);
-            const newEnd = Cell.getOffsetIndexForPosition(connection[1], position);
-            return [newStart, newEnd];
-        });
-    }
 
-    getConnectionIdsForPosition(tileId, position) {
-        return _.map(this.getConnectionsForPosition(tileId, position), (connection) => {
-            return this.getConnectionId(connection);
-        });
-    }
 
     getConnectionId(connection) {
         return Math.min(connection[0], connection[1]) + '-' + Math.max(connection[0], connection[1]);
@@ -689,11 +678,11 @@ class Cell {
 
     hasConnectionAtIndex(index) {
         return _.find(TileManifest.getTileDefinition(this.tile().id).connections, (connection) => {
-            if (Cell.getOffsetIndexForPosition(connection[0], this.tile().position()) === index) {
+            if (Tile.getOffsetIndexForPosition(connection[0], this.tile().position()) === index) {
                 return true;
             }
 
-            if (Cell.getOffsetIndexForPosition(connection[1], this.tile().position()) === index) {
+            if (Tile.getOffsetIndexForPosition(connection[1], this.tile().position()) === index) {
                 return true;
             }
         });
@@ -729,8 +718,8 @@ class Cell {
 
     getConnectionToEdges(start, end) {
         return _.find(TileManifest.getTileDefinition(this.tile().id).connections, (connection) => {
-            const offsetStart = Cell.getOffsetIndexForPosition(connection[0], this.tile().position());
-            const offsetEnd = Cell.getOffsetIndexForPosition(connection[1], this.tile().position());
+            const offsetStart = Tile.getOffsetIndexForPosition(connection[0], this.tile().position());
+            const offsetEnd = Tile.getOffsetIndexForPosition(connection[1], this.tile().position());
             return (offsetStart === start || offsetStart === end ) && (offsetEnd === start || offsetEnd === end);
         });
     }
@@ -738,7 +727,7 @@ class Cell {
     getConnectionPointAtIndex(neighbor, index) {
         const connection = this.hasConnectionAtIndex(index);
         if (connection) {
-            return Cell.getOffsetIndexForPosition(connection[0],
+            return Tile.getOffsetIndexForPosition(connection[0],
                                                   this.tile().position()) === index ? connection[0] : connection[1];
         }
         return -1;
@@ -746,11 +735,11 @@ class Cell {
 
     getConnectionsToIndex(neighbor, index) {
         return _.filter(TileManifest.getTileDefinition(this.tile().id).connections, (connection) => {
-            if (Cell.getOffsetIndexForPosition(connection[0], this.tile().position()) === index) {
+            if (Tile.getOffsetIndexForPosition(connection[0], this.tile().position()) === index) {
                 return true;
             }
 
-            if (Cell.getOffsetIndexForPosition(connection[1], this.tile().position()) === index) {
+            if (Tile.getOffsetIndexForPosition(connection[1], this.tile().position()) === index) {
                 return true;
             }
         });
@@ -758,11 +747,11 @@ class Cell {
 
     getConnectionsToPoint(neighbor, index) {
         return _.filter(TileManifest.getTileDefinition(this.tile().id).connections, (connection) => {
-            if (Cell.getOffsetIndexForPosition(connection[0], 0) === index) {
+            if (Tile.getOffsetIndexForPosition(connection[0], 0) === index) {
                 return true;
             }
 
-            if (Cell.getOffsetIndexForPosition(connection[1], 0) === index) {
+            if (Tile.getOffsetIndexForPosition(connection[1], 0) === index) {
                 return true;
             }
         });
@@ -770,10 +759,6 @@ class Cell {
 
     static getNeighboringConnectionIndex(index) {
         return (index + 3) % 6;
-    }
-
-    static getOffsetIndexForPosition(index, position) {
-        return index < 7 ? (index + position) % 6 : index;
     }
 
     addToCurrentRoute() {

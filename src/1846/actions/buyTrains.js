@@ -31,6 +31,7 @@ class BuyTrains extends Action {
                 const newTrains = _(_.range(0, amount)).map(value => new Train({type})).value();
                 _.each(newTrains, newTrain => {
                     newTrain.route.color = company.getAvailableRouteColor();
+                    newTrain.route.companyId = company.id;
                     company.addTrain(newTrain);
                     this.trainIds.push(newTrain.id);
                 });

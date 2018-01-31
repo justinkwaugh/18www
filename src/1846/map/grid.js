@@ -228,6 +228,7 @@ class Grid extends BaseGrid {
 
         Events.on('clearRoutes', () => {
             _.each(this.cells(), cell => cell.tile().clearRoutedConnections());
+            this.route = null;
         })
     }
 
@@ -616,8 +617,7 @@ class Grid extends BaseGrid {
 
     }
 
-    onMouseOut(cell) {
-        //console.log('mouse leaving cell ' + cell.id);
+    onMouseOut(target) {
     }
 
     startRoute(cell) {
@@ -635,7 +635,11 @@ class Grid extends BaseGrid {
         }
     }
 
-    onMouseUp(cell) {
+    onMouseUp() {
+        this.finishRoute();
+    }
+
+    finishRoute() {
         if (!this.routing) {
             return;
         }

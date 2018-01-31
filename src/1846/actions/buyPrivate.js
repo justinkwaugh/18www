@@ -25,6 +25,7 @@ class BuyPrivate extends Action {
             privateCompany.closed(true);
             const train = privateCompany.trains()[0].clone();
             train.route.color = company.getAvailableRouteColor();
+            train.route.companyId = company.id;
             train.route.clear();
             company.addTrain(train);
             const cellId = privateCompany.id === CompanyIDs.MICHIGAN_SOUTHERN ? 'C15' : 'G9';
