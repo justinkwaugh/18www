@@ -33,7 +33,7 @@ class RunRoutes extends Action {
 
         // Update and pay company
         company.lastRun(this.revenue);
-        company.trains(_.map(this.trains, train => train.clone()));
+        company.updateTrains(_.map(this.trains, train => train.clone()));
         state.bank.removeCash(companyIncome);
         company.addCash(companyIncome);
 

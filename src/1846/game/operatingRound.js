@@ -576,7 +576,8 @@ class OperatingRound {
         }
         else if (this.selectedAction() === Actions.RUN_ROUTES) {
             const company = CurrentGame().state().currentCompany();
-            this.companyTrains(_.map(company.trains(), train => train.clone()));
+            const trains = _(company.trains()).reject(train=>train.purchased).map(train => train.clone()).value();
+            this.companyTrains(trains);
             Events.emit('drawRoutes', _.map(this.companyTrains(), train => train.route));
 
             if (this.companyTrains().length === 0) {

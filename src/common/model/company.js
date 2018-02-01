@@ -83,6 +83,17 @@ class Company extends Serializable {
         return this.trains.remove(train=> train.id === trainId);
     }
 
+    updateTrains(trains) {
+        this.trains.valueWillMutate();
+        _.each(trains, train=> {
+            const index = _.findIndex(this.trains(), oldTrain=>oldTrain.id === train.id);
+            if(index >= 0) {
+                this.trains()[index] = train;
+            }
+        });
+        this.trains.valueHasMutated();
+    }
+
     getAvailableRouteColor() {
         const currentColors = _.map(this.trains(), train=> train.route.color);
         return _(_.range(1,5)).difference(currentColors).first();

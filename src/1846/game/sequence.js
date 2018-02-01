@@ -95,6 +95,12 @@ class Sequence {
 
     static onOperatingRoundEnd(game, currentRoundId) {
         const state = game.state();
+        _.each(state.publicCompanies, company => {
+            _.each(company.trains(), train=> {
+                train.purchased = false;
+            });
+        });
+
         if (currentRoundId === RoundIDs.OPERATING_ROUND_1) {
             state.roundHistory.commitRound();
             new SetOperatingOrder({operatingOrder: state.stockBoard.getOperatingOrder()}).execute(state);

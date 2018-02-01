@@ -11,6 +11,7 @@ class Train extends Serializable{
         this.type = data.type;
         this.lastRoute = data.lastRoute;
         this.route = data.route || new Route({trainType: this.type, color: 1, companyId: data.companyId});
+        this.purchased = data.purchased;
         this.phasedOut = data.phasedOut;
     }
     getName() {

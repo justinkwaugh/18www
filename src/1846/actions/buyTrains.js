@@ -32,6 +32,7 @@ class BuyTrains extends Action {
                 _.each(newTrains, newTrain => {
                     newTrain.route.color = company.getAvailableRouteColor();
                     newTrain.route.companyId = company.id;
+                    newTrain.purchased = true;
                     company.addTrain(newTrain);
                     this.trainIds.push(newTrain.id);
                 });
