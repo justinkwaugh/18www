@@ -43,6 +43,7 @@ class LayTrack extends Action {
         Events.emit('tileUpdated.' + this.cellId);
         Events.emit('trackLaid');
         if(this.upgrade) {
+            // Probably need to actually just iterate through companies for this on backend.
             Events.emit('tileUpgraded', { cellId: this.cellId, oldTile, newTile });
         }
     }

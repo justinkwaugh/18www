@@ -701,14 +701,34 @@ class Cell {
         return _.findIndex(this.neighbors, neighbor => neighbor && neighbor.id === cell.id);
     }
 
-    getConnectionsFromNeighborToNeighbor(neighborOne, neighborTwo) {
+    getAllConnectionEdgesToCell(cell) {
+        return _(this.neighbors).map((neighbor,index)=>(neighbor && neighbor.id === cell.id) ? index: null).reject(index=>_.isNull(index)).value();
+    }
+
+    getConnectionsFromNeighborToNeighbor(neighborOne, neighborTwo, invalidConnectionIds) {
         const edgeOne = this.getConnectionEdgeToCell(neighborOne);
         const edgeTwo = this.getConnectionEdgeToCell(neighborTwo);
 
         if (_.keys(this.tile().cities).length > 0) {
+            let edgePairs = [[edgeOne,edgeTwo]];
+            if(neighborTwo.offboard) {
+                const edges = this.getAllConnectionEdgesToCell(neighborTwo);
+                if(edges.length > 1) {
+                    edgePairs = _.map(edges, edge=> [edgeOne,edge]);
+                }
+            }
+            else if(neighborOne.offboard) {
+                const edges = this.getAllConnectionEdgesToCell(neighborOne);
+                if(edges.length > 1) {
+                    edgePairs = _.map(edges, edge=> [edge,edgeTwo]);
+                }
+            }
+
             return _(this.tile().cities).map(city=> {
-                const results = [this.getConnectionToEdges(edgeOne, city.id), this.getConnectionToEdges(edgeTwo, city.id)];
-                return _.compact(results);
+                return _(edgePairs).map(edgePair=>_.compact([ this.getConnectionToEdges(edgePair[0], city.id), this.getConnectionToEdges(edgePair[1], city.id)])).reject(result=> {
+                    const resultConnectionIds = _.map(result, connection=> Tile.getConnectionId(connection));
+                    return _.intersection(resultConnectionIds, invalidConnectionIds).length > 0;
+                }).first();
             }).find(connections => connections.length === 2);
         }
         else {

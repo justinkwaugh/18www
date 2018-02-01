@@ -258,6 +258,12 @@ class Tile extends Serializable {
         }).value();
     }
 
+    getOtherRoutedConnections(routeId) {
+        return _(this.connections).filter(connection => {
+            return this.hasOtherRoutedConnection(connection, routeId);
+        }).value();
+    }
+
     getUnroutedConnections() {
         return _(this.connections).reject(connection => {
             const connectionId = Tile.getConnectionId(connection);

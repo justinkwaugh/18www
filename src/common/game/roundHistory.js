@@ -12,6 +12,7 @@ class RoundHistory extends Serializable {
     }
 
     startRound(id, number) {
+        number = number || _.last(this.rounds()).number;
         this.currentRound(new Round({
             id: id,
             number: number

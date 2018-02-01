@@ -17,6 +17,7 @@ class RunRoutes extends Action {
         this.allocation = args.allocation;
         this.oldLastRun = args.oldLastRun;
         this.oldPriceIndex = args.oldPriceIndex;
+        this.oldCompaniesForPriceIndex= args.oldCompaniesForPriceIndex;
         this.oldTrains = args.oldTrains;
     }
 
@@ -25,6 +26,7 @@ class RunRoutes extends Action {
         const player = state.playersById()[this.playerId];
         this.oldTrains = _.map(company.trains(), train => train.clone());
         this.oldPriceIndex = company.priceIndex();
+        this.oldCompaniesForPriceIndex = state.stockBoard.getCompaniesForPriceIndex(this.oldPriceIndex);
         this.oldLastRun = company.lastRun();
         const companyIncome = this.calculateCompanyIncome(company, this.revenue, this.allocation);
         const payout = this.calculatePayout(this.revenue, this.allocation);
@@ -77,6 +79,7 @@ class RunRoutes extends Action {
                 state.bank.addCash(cash);
                 player.removeCash(cash);
             });
+            state.stockBoard.setCompaniesForPriceIndex(this.oldPriceIndex, this.oldCompaniesForPriceIndex);
         }
 
         // Update and unpay company

@@ -42,7 +42,7 @@ class RedeemShares extends Action {
     confirmation(state) {
         const company = state.getCompany(this.companyId);
         const index = company.priceIndex();
-        const price = Prices.leftPrice(index);
+        const price = Prices.rightPrice(index);
         return 'Confirm redeem ' + this.count + ' shares at $' + price;
     }
 }

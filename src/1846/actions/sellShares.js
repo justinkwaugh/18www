@@ -15,6 +15,7 @@ class SellShares extends Action {
         this.forced = args.forced;
         this.newPresidentId = args.newPresidentId;
         this.firstPassIndex = args.firstPassIndex;
+        this.oldCompaniesForPriceIndex= args.oldCompaniesForPriceIndex;
     }
 
     doExecute(state) {
@@ -22,6 +23,7 @@ class SellShares extends Action {
         const company = state.publicCompaniesById[this.companyId];
         const isPresident = company.president() === this.playerId;
         this.startIndex = company.priceIndex();
+        this.oldCompaniesForPriceIndex = state.stockBoard.getCompaniesForPriceIndex(this.startIndex);
 
         // validate things
         // company has operated or is pres
@@ -83,6 +85,7 @@ class SellShares extends Action {
         state.bank.addCash(cash);
         player.removeCash(cash);
         company.priceIndex(this.startIndex);
+        state.stockBoard.setCompaniesForPriceIndex(this.startIndex, this.oldCompaniesForPriceIndex);
 
     }
 

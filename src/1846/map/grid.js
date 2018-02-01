@@ -499,7 +499,7 @@ class Grid extends BaseGrid {
 
 
         const usedCurrentConnectionPoints = {};
-        const routeableConnectionsToPrior = _.reject(connectionsToLastCellInRoute, connection => {
+        let routeableConnectionsToPrior = _.reject(connectionsToLastCellInRoute, connection => {
                 const connectionPoint = connection[0] >= 0 && connection[0] < 7 ? connection[0] : connection[1];
                 if (usedCurrentConnectionPoints[connectionPoint]) {
                     return true;
@@ -510,6 +510,10 @@ class Grid extends BaseGrid {
                     return true;
                 }
             });
+
+        if(cell.offboard && routeableConnectionsToPrior.length > 1) {
+            routeableConnectionsToPrior = [_.first(routeableConnectionsToPrior)];
+        }
 
         const cityId =  _.max(_.flatten(connectionsToLastCellInRoute));
         const isOpenCity = cell.tile().hasCity() && !cell.tile().isBlockedForCompany(
@@ -562,8 +566,9 @@ class Grid extends BaseGrid {
         let lastCellConnections = [];
         if (this.route.numCells() > 1) {
             // Not a terminus for the route
+            const invalidConnectionIds = _.map(lastCellInRoute.tile().getOtherRoutedConnections(this.route.id), connection=>Tile.getConnectionId(connection));
             const nextToLastCellInRoute = this.cellsById()[this.route.nextToLastCell().id];
-            lastCellConnections = lastCellInRoute.getConnectionsFromNeighborToNeighbor(cell, nextToLastCellInRoute);
+            lastCellConnections = lastCellInRoute.getConnectionsFromNeighborToNeighbor(cell, nextToLastCellInRoute, invalidConnectionIds);
         }
         else if (lastCellInRoute.id === 'D6') {
             // Chicago is special with the many cities to one

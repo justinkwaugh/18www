@@ -80,7 +80,7 @@
     <!-- ko if: $data.selectedAction() === $data.Actions.USE_PRIVATES -->
     <!-- ko if: $data.useablePrivates().length > 1 && !$data.isMiddleOfPrivateLays() -->
     <h5 class="mt-3 text-center font-weight-light alert-heading"
-        data-bind="html: $data.useablePrivates().length > 1 ? '&nbsp;': 'Choose a private:"></h5>
+        data-bind="html: $data.useablePrivates().length > 1 ? 'Choose a private:' : '&nbsp;'"></h5>
     <div class="d-flex justify-content-center">
         <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
             <!-- ko foreach: $data.useablePrivates() -->

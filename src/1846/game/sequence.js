@@ -3,6 +3,9 @@ import PrivateDraft from '1846/game/privateDraft';
 import StockRound from '1846/game/stockRound';
 import CompanyIDs from '1846/config/companyIds';
 import OperatingRound from '1846/game/operatingRound';
+import SetPriorityDeal from '1846/actions/setPriorityDeal';
+import SetOperatingOrder from '1846/actions/setOperatingOrder';
+import AdjustStockPrices from '1846/actions/adjustStockPrices';
 import CurrentGame from 'common/game/currentGame';
 import Events from 'common/util/events';
 
@@ -37,77 +40,96 @@ class Sequence {
             game.privateDraft(new PrivateDraft());
         }
         else if (currentRound.id === RoundIDs.PRIVATE_DRAFT) {
-            if(state.undraftedPrivateIds().length > 0) {
+            if (state.undraftedPrivateIds().length > 0) {
                 state.currentPlayerIndex(Sequence.nextPlayerIndex(true));
                 game.privateDraft(new PrivateDraft());
             }
             else {
-                state.roundHistory.commitRound();
-                state.roundHistory.startRound(RoundIDs.STOCK_ROUND, 1);
-                state.currentPlayerIndex(0);
-                game.privateDraft(null);
-                game.stockRound(new StockRound());
-                game.showOwnership();
+                Sequence.onPrivateDraftEnd(game);
             }
         }
         else if (currentRound.id === RoundIDs.STOCK_ROUND) {
-            state.currentPlayerIndex(Sequence.nextPlayerIndex());
-            if(state.firstPassIndex() === state.currentPlayerIndex()) {
-                const currentRoundNumber = state.roundNumber();
-                state.roundHistory.commitRound();
-                state.priorityDealIndex(state.firstPassIndex());
-                state.operatingOrder(state.stockBoard.getOperatingOrder(currentRoundNumber === 1));
-                state.currentCompanyId(state.operatingOrder()[0]);
-                state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_1);
-                game.stockRound(null);
-                const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
-                state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
-                game.showMap();
-            }
-        }
-        else if (currentRound.id === RoundIDs.OPERATING_ROUND_1) {
-            const companyIndex = _.indexOf(state.operatingOrder(), state.currentCompanyId());
-            if(companyIndex < state.operatingOrder().length-1) {
-                state.currentCompanyId(state.operatingOrder()[companyIndex+1]);
-                const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
-                state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
+            const nextPlayer = Sequence.nextPlayerIndex();
+            if (state.firstPassIndex() === nextPlayer) {
+                Sequence.onStockRoundEnd(game);
             }
             else {
-                state.roundHistory.commitRound();
-                state.operatingOrder(state.stockBoard.getOperatingOrder());
-                state.currentCompanyId(state.operatingOrder()[0]);
-                state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_2);
-                const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
-                state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
+                state.currentPlayerIndex(nextPlayer);
             }
         }
-        else if (currentRound.id === RoundIDs.OPERATING_ROUND_2) {
-            const companyIndex = _.indexOf(state.operatingOrder(), state.currentCompanyId());
-            if(companyIndex < state.operatingOrder().length-1) {
-                state.currentCompanyId(state.operatingOrder()[companyIndex+1]);
-                const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
-                state.currentPlayerIndex(_.findIndex(state.players(), player=>player.id === presidentPlayerId));
+        else if (currentRound.id === RoundIDs.OPERATING_ROUND_1 || currentRound.id === RoundIDs.OPERATING_ROUND_2) {
+            const nextCompanyIndex = Sequence.getNextCompanyIndex(state);
+            if (nextCompanyIndex < state.operatingOrder().length) {
+                Sequence.setNextCompanyAndPlayer(state, nextCompanyIndex);
             }
             else {
-                const currentRoundNumber = state.roundNumber();
-                state.roundHistory.commitRound();
-                state.roundHistory.startRound(RoundIDs.STOCK_ROUND, currentRoundNumber+1);
-                state.currentCompanyId(null);
-                state.currentPlayerIndex(state.priorityDealIndex());
-                game.stockRound(new StockRound());
-                game.showOwnership();
+                Sequence.onOperatingRoundEnd(game, currentRound.id);
             }
         }
         state.turnHistory.startTurn();
     }
 
+    static onPrivateDraftEnd(game) {
+        const state = game.state();
+        state.roundHistory.commitRound();
+        state.currentPlayerIndex(0);
+        game.privateDraft(null);
+        game.stockRound(new StockRound());
+        state.roundHistory.startRound(RoundIDs.STOCK_ROUND, 1);
+        game.showOwnership();
+    }
+
+    static onStockRoundEnd(game) {
+        const state = game.state();
+        const currentRoundNumber = state.roundNumber();
+        state.roundHistory.commitRound();
+        game.stockRound(null);
+        new SetPriorityDeal({playerIndex: state.firstPassIndex()}).execute(state);
+        new SetOperatingOrder({operatingOrder: state.stockBoard.getOperatingOrder(currentRoundNumber === 1)}).execute(
+            state);
+        new AdjustStockPrices({}).execute(state);
+        Sequence.setNextCompanyAndPlayer(state, 0);
+        state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_1);
+        game.showMap();
+    }
+
+    static onOperatingRoundEnd(game, currentRoundId) {
+        const state = game.state();
+        if (currentRoundId === RoundIDs.OPERATING_ROUND_1) {
+            state.roundHistory.commitRound();
+            new SetOperatingOrder({operatingOrder: state.stockBoard.getOperatingOrder()}).execute(state);
+            Sequence.setNextCompanyAndPlayer(state, 0);
+            state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_2);
+        }
+        else {
+            const currentRoundNumber = state.roundNumber();
+            state.roundHistory.commitRound();
+            state.currentCompanyId(null);
+            state.currentPlayerIndex(state.priorityDealIndex());
+            state.roundHistory.startRound(RoundIDs.STOCK_ROUND, currentRoundNumber + 1);
+            game.stockRound(new StockRound());
+            game.showOwnership();
+        }
+    }
+
+    static getNextCompanyIndex(state) {
+        return _.indexOf(state.operatingOrder(), state.currentCompanyId()) + 1;
+    }
+
+    static setNextCompanyAndPlayer(state, companyIndex) {
+        state.currentCompanyId(state.operatingOrder()[companyIndex]);
+        const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
+        const nextPresidentIndex = _.findIndex(state.players(), player => player.id === presidentPlayerId);
+        state.currentPlayerIndex(nextPresidentIndex);
+    }
+
     static nextPlayerIndex(reverse) {
         const state = CurrentGame().state();
-        let nextPlayerIndex = state.currentPlayerIndex() + (reverse ?  -1 : 1);
+        let nextPlayerIndex = state.currentPlayerIndex() + (reverse ? -1 : 1);
         if (nextPlayerIndex < 0) {
             nextPlayerIndex = state.players().length - 1;
         }
-        else if(nextPlayerIndex === state.players().length) {
+        else if (nextPlayerIndex === state.players().length) {
             nextPlayerIndex = 0;
         }
         return nextPlayerIndex;
@@ -120,7 +142,7 @@ class Sequence {
         if (currentRound.id === RoundIDs.PRIVATE_DRAFT) {
             game.privateDraft(new PrivateDraft());
         }
-        else if(currentRound.id === RoundIDs.STOCK_ROUND) {
+        else if (currentRound.id === RoundIDs.STOCK_ROUND) {
             game.stockRound(new StockRound());
         }
     }

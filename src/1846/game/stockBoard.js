@@ -41,6 +41,10 @@ class StockBoard extends Serializable {
         return plainObject;
     }
 
+    restoreEntries(stockBoard) {
+
+    }
+
     addCompany(company) {
         this.addToEntry(company);
         this.subscribeToCompany(company);
@@ -66,6 +70,24 @@ class StockBoard extends Serializable {
 
     addToEntry(company) {
         this.stockBoard()[company.priceIndex()].companies.push(company.id);
+    }
+
+    getCompaniesForPriceIndex(priceIndex) {
+        return _.clone(this.stockBoard()[priceIndex].companies());
+    }
+
+    setCompaniesForPriceIndex(priceIndex,companies) {
+        this.stockBoard()[priceIndex].companies(_.clone(companies));
+    }
+
+    getPopulatedStockboardCompanies() {
+        return _(this.stockBoard()).pickBy(entry=> entry.companies().length > 0).mapValues(entry=>_.clone(entry.companies())).value();
+    }
+
+    restoreStockboardCompanies(stockboardData) {
+        _.each(stockboardData, (companies, index)=> {
+            this.stockBoard()[index] = _.clone(companies);
+        });
     }
 
     getOperatingOrder(reverse) {
