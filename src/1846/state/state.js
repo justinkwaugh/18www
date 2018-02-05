@@ -41,8 +41,9 @@ class State extends BaseState {
 
         this.firstPassIndex = ko.observable(definition.firstPassIndex);
         this.priorityDealIndex = ko.observable(definition.priorityDealIndex);
-        this.certLimit = ko.observable(
-            definition.certLimit || (this.players().length === 3 ? 14 : this.players().length === 4 ? 12 : 11));
+        this.certLimit = ko.computed(() => {
+            return this.calculateCertLimit();
+        });
         this.trainLimit = ko.observable(definition.trainLimit || 4);
 
         this.publicCompanies = definition.publicCompanies || [];
@@ -50,8 +51,11 @@ class State extends BaseState {
         this.privateCompanies = definition.privateCompanies || [];
         this.privateCompaniesById = _.keyBy(this.privateCompanies, 'id');
         this.allCompaniesById = _(this.publicCompanies).concat(this.privateCompanies).keyBy('id').value();
+        this.openCompanies = ko.computed(()=> {
+            return _.reject(this.publicCompanies, company=>company.closed());
+        });
 
-        this.currentCompany = ko.computed(()=> {
+        this.currentCompany = ko.computed(() => {
             return this.currentCompanyId() ? this.getCompany(this.currentCompanyId()) : null;
         });
 
@@ -105,12 +109,26 @@ class State extends BaseState {
         this.operatingOrder = ko.observable(definition.operatingOrder || []);
     }
 
+    calculateCertLimit() {
+        const numOpenCompanies = _.filter(this.publicCompanies, publicCompany=>!publicCompany.closed()).length;
+        const numPlayers = this.players().length;
+        if(numPlayers === 3) {
+            return numOpenCompanies > 4 ? 14 : 11;
+        }
+        else if(numPlayers === 4) {
+            return numOpenCompanies > 5 ? 12 : numOpenCompanies > 4 ? 10 : 8;
+        }
+        else {
+            return numOpenCompanies > 6 ? 11 : numOpenCompanies > 5 ? 10 : numOpenCompanies > 4 ? 8 : 6;
+        }
+    }
+
     isOperatingRound() {
         return this.roundId() === RoundIds.OPERATING_ROUND_1 || this.roundId() === RoundIds.OPERATING_ROUND_2;
     }
 
     getNextPhase() {
-        if(this.currentPhaseId() === PhaseIds.PHASE_I) {
+        if (this.currentPhaseId() === PhaseIds.PHASE_I) {
             return PhaseIds.PHASE_II;
         }
         else if (this.currentPhaseId() === PhaseIds.PHASE_II) {
@@ -125,7 +143,7 @@ class State extends BaseState {
     }
 
     getOperatingCompanies() {
-        return _.map(this.operatingOrder(), companyId=>this.getCompany(companyId));
+        return _.map(this.operatingOrder(), companyId => this.getCompany(companyId));
     }
 
     trySerialize() {

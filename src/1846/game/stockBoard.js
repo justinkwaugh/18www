@@ -96,9 +96,9 @@ class StockBoard extends Serializable {
             entries = _.reverse(entries);
         }
 
-        const minors = _([CompanyIDs.MICHIGAN_SOUTHERN, CompanyIDs.BIG_4]).reject(companyId=>CurrentGame().state().getCompany(companyId).closed()).value();
+        const minors = [CompanyIDs.MICHIGAN_SOUTHERN, CompanyIDs.BIG_4];
         const majors = _(entries).map(entry => entry.companies()).flatten().compact().value();
-        return _.concat(minors, majors);
+        return _.reject(_.concat(minors, majors), companyId=>CurrentGame().state().getCompany(companyId).closed());
     }
 
 }

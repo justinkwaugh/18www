@@ -1,4 +1,5 @@
 import Action from 'common/game/action';
+import CompanyTypes from 'common/model/companyTypes';
 import Prices from '1846/config/prices';
 import _ from 'lodash';
 
@@ -11,8 +12,14 @@ class AdjustStockPrices extends Action {
 
     doExecute(state) {
         this.oldStockboardCompanies = state.stockBoard.getPopulatedStockboardCompanies;
+        const operatingOrder = state.stockBoard.getOperatingOrder();
         // Handle company closing
-        _.each(state.publicCompanies, company=> {
+        _.each(operatingOrder, companyId=> {
+            const company = state.getCompany(companyId);
+            if(!company.type === CompanyTypes.PUBLIC) {
+                return;
+            }
+
             if(!company.opened()) {
                 return;
             }

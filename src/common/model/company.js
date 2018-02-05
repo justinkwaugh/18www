@@ -1,6 +1,7 @@
 import ko from 'knockout';
 import _ from 'lodash';
 import CurrentGame from 'common/game/currentGame';
+import CompanyIDs from '1846/config/companyIds';
 import StartCompany from '1846/actions/startCompany';
 import Prices from '1846/config/prices';
 import Serializable from 'common/model/serializable';
@@ -17,7 +18,7 @@ class Company extends Serializable {
         this.homeCellId = definition.homeCellId;
 
         this.certificates = ko.observableArray(definition.certificates);
-        this.shares = ko.computed(()=> {
+        this.shares = ko.computed(() => {
             return _.sumBy(this.certificates(), 'shares');
         });
         this.cash = ko.observable(definition.cash || 0);
@@ -55,7 +56,7 @@ class Company extends Serializable {
     }
 
     removeCerts(count) {
-        return this.certificates.splice(0,count);
+        return this.certificates.splice(0, count);
     }
 
     getPrivates() {
@@ -63,7 +64,7 @@ class Company extends Serializable {
     }
 
     hasPrivate(id) {
-        return _.find(this.privates(), cert=> cert.companyId === id);
+        return _.find(this.privates(), cert => cert.companyId === id);
     }
 
     addPrivate(cert) {
@@ -71,7 +72,7 @@ class Company extends Serializable {
     }
 
     removePrivate(id) {
-        const privates = this.privates.remove(cert=> cert.companyId === id);
+        const privates = this.privates.remove(cert => cert.companyId === id);
         return privates.length > 0 ? privates[0] : null;
     }
 
@@ -80,14 +81,14 @@ class Company extends Serializable {
     }
 
     removeTrainById(trainId) {
-        return this.trains.remove(train=> train.id === trainId);
+        return this.trains.remove(train => train.id === trainId);
     }
 
     updateTrains(trains) {
         this.trains.valueWillMutate();
-        _.each(trains, train=> {
-            const index = _.findIndex(this.trains(), oldTrain=>oldTrain.id === train.id);
-            if(index >= 0) {
+        _.each(trains, train => {
+            const index = _.findIndex(this.trains(), oldTrain => oldTrain.id === train.id);
+            if (index >= 0) {
                 this.trains()[index] = train;
             }
         });
@@ -95,20 +96,91 @@ class Company extends Serializable {
     }
 
     getAvailableRouteColor() {
-        const currentColors = _.map(this.trains(), train=> train.route.color);
-        return _(_.range(1,5)).difference(currentColors).first();
+        const currentColors = _.map(this.trains(), train => train.route.color);
+        return _(_.range(1, 5)).difference(currentColors).first();
     }
 
     calculateRevenue() {
-        return _.sumBy(this.trains(), train=> train.route.revenue());
+        return _.sumBy(this.trains(), train => train.route.revenue());
     }
 
     useToken() {
-        this.tokens(this.tokens()-1);
+        this.tokens(this.tokens() - 1);
     }
 
     returnToken() {
-        this.tokens(this.tokens()+1);
+        this.tokens(this.tokens() + 1);
+    }
+
+    close() {
+
+        // remove from operating order
+        const state = CurrentGame().state();
+        const playerCerts = _(CurrentGame().state().players()).map(player => {
+            return [player.id, player.removeAllCertsForCompany(this.id)];
+        }).fromPairs().value();
+
+        const bankCerts = state.bank.removeAllCertsForCompany(this.id);
+        const tokens = _(CurrentGame().state().tilesByCellId).map(tile => {
+            if (tile.hasTokenForCompany(this.id)) {
+                return [tile.id, tile.removeToken(this.id)]
+            }
+            return null;
+        }).compact().fromPairs().value();
+        state.bank.addCash(this.cash());
+        let meatTileId = null;
+        if (this.hasPrivate(CompanyIDs.MEAT_PACKING_COMPANY)) {
+            const tile = _.find(CurrentGame().state().tilesByCellId, tile => {
+                return tile.hasMeat();
+            });
+            tile.hasMeat(false);
+            meatTileId = tile.id;
+        }
+
+        let steamboatTileId = null;
+        if (this.hasPrivate(CompanyIDs.STEAMBOAT_COMPANY)) {
+            const tile = _.find(CurrentGame().state().tilesByCellId, tile => {
+                return tile.hasSteamboat();
+            });
+            tile.hasSteamboat(false);
+            steamboatTileId = tile.id;
+        }
+
+        this.closed(true);
+
+        return {
+            playerCerts,
+            bankCerts,
+            tokens,
+            meatTileId,
+            steamboatTileId
+        }
+    }
+
+    unclose(closeData) {
+        debugger;
+        const state = CurrentGame().state();
+        _.each(closeData.playerCerts, (certs, playerId) => {
+            const player = state.playersById()[playerId];
+            player.addCerts(certs);
+        });
+
+        state.bank.addCerts(closeData.bankCerts);
+        _.each(CurrentGame().state().tilesByCellId, tile => {
+            const token = closeData.tokens[tile.id];
+            if (token) {
+                const splitToken = token.split('|');
+                tile.addToken(splitToken[1], splitToken[0]);
+            }
+            if (closeData.meatTileId === tile.id) {
+                tile.hasMeat(true);
+            }
+            if (closeData.steamboatTileId === tile.id) {
+                tile.hasSteamboat(true);
+            }
+        });
+        state.bank.removeCash(this.cash());
+        this.closed(false);
     }
 
 }

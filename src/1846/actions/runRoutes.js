@@ -19,6 +19,7 @@ class RunRoutes extends Action {
         this.oldPriceIndex = args.oldPriceIndex;
         this.oldCompaniesForPriceIndex= args.oldCompaniesForPriceIndex;
         this.oldTrains = args.oldTrains;
+        this.closeData = args.closeData;
     }
 
     doExecute(state) {
@@ -58,6 +59,10 @@ class RunRoutes extends Action {
                 player.addCash(cash);
             });
         }
+
+        if(company.priceIndex() === 0) {
+            this.closeData = company.close();
+        }
     }
 
     doUndo(state) {
@@ -65,6 +70,10 @@ class RunRoutes extends Action {
         const player = state.playersById()[this.playerId];
         const companyIncome = this.calculateCompanyIncome(company, this.revenue, this.allocation);
         const payout = this.calculatePayout(this.revenue, this.allocation);
+
+        if(this.closeData) {
+            company.unclose(this.closeData);
+        }
 
         // Unpay players
         if (company.type === CompanyTypes.INDEPENDANT) {

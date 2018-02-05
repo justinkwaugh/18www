@@ -93,6 +93,12 @@ class Bank extends Serializable {
             return _.indexOf(certIdsToRemove, cert.id) >= 0;
         });
     }
+
+    removeAllCertsForCompany(companyId) {
+        return this.certificates.remove(cert=> {
+            return cert.companyId === companyId;
+        });
+    }
 }
 
 Bank.registerClass();

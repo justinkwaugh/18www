@@ -174,6 +174,9 @@ class Player extends BasePlayer {
         else if (company.shares() === 0 && CurrentGame().state().bank.numSharesOwnedOfCompany(companyId) === 0) {
             return false;
         }
+        else if (this.numSharesOwnedOfCompany(companyId) === 6) {
+            return false;
+        }
 
         return true;
     }

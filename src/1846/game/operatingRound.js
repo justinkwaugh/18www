@@ -459,8 +459,9 @@ class OperatingRound {
 
     getNumCanIssue() {
         const company = CurrentGame().state().currentCompany();
-        return Math.min(company.shares(),
-                        10 - company.shares() - CurrentGame().state().bank.numSharesOwnedOfCompany(company.id));
+        const numBankShares = CurrentGame().state().bank.numSharesOwnedOfCompany(company.id);
+        const playerShares = 10 - company.shares() - numBankShares;
+        return _.min([company.shares(), 5-numBankShares, playerShares]);
     }
 
     hasIssuedThisTurn() {

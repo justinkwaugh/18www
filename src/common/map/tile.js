@@ -156,13 +156,9 @@ class Tile extends Serializable {
     }
 
     removeToken(companyId, cityId) {
-        if (!cityId) {
-            const cities = _.values(this.cities);
-            if (cities.length === 1) {
-                cityId = cities[0].id;
-            }
-        }
-        this.tokens.remove(cityId + '|' + companyId);
+        const token = cityId ? cityId + '|' + companyId : this.getTokenForCompany(companyId);
+        const removed = this.tokens.remove(token);
+        return removed.length > 0 ? removed[0] : null;
     }
 
     hasCity() {
@@ -192,6 +188,11 @@ class Tile extends Serializable {
         else {
             return _(this.tokensPerCity()).values().flatten().indexOf(companyId) >= 0;
         }
+    }
+
+    getTokenForCompany(companyId) {
+        const cityId = _.findKey(this.tokensPerCity(), tokens=>_.indexOf(tokens, companyId) >= 0);
+        return cityId ? cityId + '|' + companyId : null;
     }
 
     isBlockedForCompany(companyId, cityId) {

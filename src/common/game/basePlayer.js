@@ -86,6 +86,12 @@ class BasePlayer extends Serializable {
         })[0];
     }
 
+    removeAllCertsForCompany(companyId) {
+        return this.certificates.remove(cert=> {
+            return cert.companyId === companyId;
+        });
+    }
+
     removePrivate(id) {
         const privates = this.certificates.remove(cert=> cert.companyId === id);
         return privates.length > 0 ? privates[0] : null;
