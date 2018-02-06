@@ -127,6 +127,18 @@ class State extends BaseState {
         return this.roundId() === RoundIds.OPERATING_ROUND_1 || this.roundId() === RoundIds.OPERATING_ROUND_2;
     }
 
+    getPriorPhase() {
+        if (this.currentPhaseId() === PhaseIds.PHASE_IV) {
+            return PhaseIds.PHASE_III;
+        }
+        else if (this.currentPhaseId() === PhaseIds.PHASE_III) {
+            return PhaseIds.PHASE_II;
+        }
+
+        return PhaseIds.PHASE_I;
+    }
+
+
     getNextPhase() {
         if (this.currentPhaseId() === PhaseIds.PHASE_I) {
             return PhaseIds.PHASE_II;

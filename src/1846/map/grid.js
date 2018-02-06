@@ -442,7 +442,7 @@ class Grid extends BaseGrid {
 
         const charleston = this.cellsById()[OffBoardIds.CHARLESTON];
         const i15 = this.cellsById()['I15'];
-        i15.neighbors[1] = charleston
+        i15.neighbors[1] = charleston;
         charleston.neighbors = [i15];
 
         const louisville = this.cellsById()[OffBoardIds.LOUISVILLE];

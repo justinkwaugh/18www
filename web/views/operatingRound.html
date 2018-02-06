@@ -215,7 +215,7 @@
         <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
             <!-- ko foreach: $data.availableBankTrains() -->
             <li>
-                <div>
+                <div data-bind="style: { opacity: num <= 0 ? .2 : 1 }">
                     <div class="card mb-0 d-inline-flex bg-route-train"
                          data-bind="style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(/images/trains/' + $data.type + '.png)' }">
                         <div class="bg-route-train-border"

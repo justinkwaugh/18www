@@ -78,11 +78,11 @@ class OperatingRound {
             }
             return _(CurrentGame().state().currentCompany().getPrivates()).filter(
                 privateCompany => {
-                    if(!privateCompany.hasAbility || privateCompany.used()) {
+                    if (!privateCompany.hasAbility || privateCompany.used()) {
                         return false;
                     }
 
-                    if(privateCompany.id === CompanyIDs.STEAMBOAT_COMPANY && this.hasPlacedSteamboatThisTurn()) {
+                    if (privateCompany.id === CompanyIDs.STEAMBOAT_COMPANY && this.hasPlacedSteamboatThisTurn()) {
                         return false;
                     }
 
@@ -122,39 +122,61 @@ class OperatingRound {
             return this.calculateStockMovementDisplay(this.calculateStockMovement(revenue));
         });
 
-        this.numAvailableBankTrains = ko.computed(() => {
-            if (this.selectedTrainSource() !== 'bank') {
-                return 0;
-            }
-            const state = CurrentGame().state();
-            const currentPhase = state.currentPhaseId();
-            return state.bank.trainsByPhase()[currentPhase] || state.bank.trainsByPhase()[state.getNextPhase()];
-        });
-
         this.availableBankTrains = ko.computed(() => {
             if (this.selectedTrainSource() !== 'bank') {
                 return [];
             }
             const state = CurrentGame().state();
 
-            const companyCash = state.currentCompany().cash();
+            const numCanBuy = state.trainLimit() - (state.currentCompany().numTrainsForLimit() + this.numSelectedBankTrainsForPurchase());
+
+            const cashAllocated = _.reduce(this.selectedBankTrainsForPurchase(), (sum, amount, type) => {
+                const trainDefinition = TrainDefinitions[type];
+                return sum + amount * trainDefinition.cost;
+            }, 0);
+            const cashAvailable = state.currentCompany().cash() - cashAllocated;
+
+            const priorPhase = state.getPriorPhase();
             const currentPhase = state.currentPhaseId();
+            const nextPhase = state.getNextPhase();
 
-            const numTrains = state.bank.trainsByPhase()[currentPhase];
-            const trainPhase = numTrains ? currentPhase : state.getNextPhase();
-            const availableTrains = state.bank.getTrainsForPhase(trainPhase);
-            const numAvailable = state.bank.trainsByPhase()[trainPhase];
-            const numCanBuy = state.trainLimit() - state.currentCompany().trains().length;
+            const availablePhases = [];
+            const numPriorAvailable = state.bank.getAvailableTrainsForPhase(priorPhase);
+            if (priorPhase !== currentPhase && numPriorAvailable > 0) {
+                availablePhases.push({phase: priorPhase, available: numPriorAvailable});
+            }
 
-            return _.map(availableTrains, trainType => {
-                const trainDefinition = TrainDefinitions[trainType];
+            const numCurrentAvailable = state.bank.getAvailableTrainsForPhase(currentPhase);
+            if (numCurrentAvailable > 0 || numCurrentAvailable === -1) {
+                availablePhases.push({phase: currentPhase, available: numCurrentAvailable});
+            }
+
+            if (nextPhase !== currentPhase) {
+                const numNextAvailable = state.bank.getAvailableTrainsForPhase(nextPhase);
+                availablePhases.push({phase: nextPhase, available: numNextAvailable});
+            }
+
+            return _(availablePhases).map(phaseData => {
+                return _.map(state.bank.getTrainsForPhase(phaseData.phase), trainType => {
+                    return {phase: phaseData.phase, trainType, available: phaseData.available};
+                });
+            }).flatten().map(trainTypeData => {
+                const trainDefinition = TrainDefinitions[trainTypeData.trainType];
+                const numOfTypeSelected = this.selectedBankTrainsForPurchase()[trainTypeData.trainType] || 0;
+                const numOfPhaseSelected = this.numSelectedBankTrainsForPhaseForPurchase(trainTypeData.phase);
+                const numAffordable = Math.floor((cashAvailable + (numOfTypeSelected * trainDefinition.cost))/ trainDefinition.cost);
+                const numAllowed = numCanBuy + numOfTypeSelected;
+                const currentPhaseFullySelected = (numCurrentAvailable - this.numSelectedBankTrainsForPhaseForPurchase(
+                    currentPhase)) <= 0;
+                const phaseAllowed = trainTypeData.phase !== nextPhase || numCurrentAvailable === 0 || currentPhaseFullySelected;
+                const numAvailable = phaseAllowed ? (trainTypeData.available - numOfPhaseSelected) + numOfTypeSelected : 0;
                 return {
-                    type: trainType,
+                    type: trainDefinition.id,
                     cost: trainDefinition.cost,
-                    num: _.min([numAvailable, numCanBuy, Math.floor(companyCash / trainDefinition.cost)]),
-                    available: numAvailable
+                    num: _.min([numAvailable, numAllowed, numAffordable]),
+                    available: trainTypeData.available - numOfPhaseSelected
                 }
-            })
+            }).value();
         });
 
         this.availableCompanyTrains = ko.computed(() => {
@@ -271,7 +293,7 @@ class OperatingRound {
                 return false;
             }
 
-            if (CurrentGame().state().currentCompany().trains().length >= CurrentGame().state().trainLimit()) {
+            if (CurrentGame().state().currentCompany().numTrainsForLimit() >= CurrentGame().state().trainLimit()) {
                 return false;
             }
 
@@ -461,7 +483,7 @@ class OperatingRound {
         const company = CurrentGame().state().currentCompany();
         const numBankShares = CurrentGame().state().bank.numSharesOwnedOfCompany(company.id);
         const playerShares = 10 - company.shares() - numBankShares;
-        return _.min([company.shares(), 5-numBankShares, playerShares]);
+        return _.min([company.shares(), 5 - numBankShares, playerShares]);
     }
 
     hasIssuedThisTurn() {
@@ -577,7 +599,7 @@ class OperatingRound {
         }
         else if (this.selectedAction() === Actions.RUN_ROUTES) {
             const company = CurrentGame().state().currentCompany();
-            const trains = _(company.trains()).reject(train=>train.purchased).map(train => train.clone()).value();
+            const trains = _(company.trains()).reject(train => train.purchased).map(train => train.clone()).value();
             this.companyTrains(trains);
             Events.emit('drawRoutes', _.map(this.companyTrains(), train => train.route));
 
@@ -617,10 +639,10 @@ class OperatingRound {
     selectCompanyTrainForPurchase(selectedTrain) {
         const selectingTrain = !_.find(this.selectedCompanyTrainsForPurchase(), train => train.id === selectedTrain.id);
         if (selectingTrain) {
-            const numTrainsOwned = CurrentGame().state().currentCompany().trains().length;
+            const numTrains = CurrentGame().state().currentCompany().numTrainsForLimit();
             const trainLimit = CurrentGame().state().trainLimit();
             const numSelected = this.selectedCompanyTrainsForPurchase().length;
-            const numLeft = trainLimit - (numSelected + numTrainsOwned);
+            const numLeft = trainLimit - (numSelected + numTrains);
             if (numLeft > 0) {
                 this.selectedCompanyTrainsForPurchase.push(selectedTrain);
             }
@@ -647,6 +669,18 @@ class OperatingRound {
 
     isBankTrainSelectedForPurchase(trainType, amount) {
         return this.selectedBankTrainsForPurchase()[trainType] === amount;
+    }
+
+    numSelectedBankTrainsForPhaseForPurchase(phaseId) {
+        const state = CurrentGame().state();
+        const trainsForPhase = state.bank.getTrainsForPhase(phaseId);
+        return _.reduce(trainsForPhase, (sum, trainType) => {
+            return sum + (this.selectedBankTrainsForPurchase()[trainType] || 0);
+        }, 0);
+    }
+
+    numSelectedBankTrainsForPurchase() {
+        return _(this.selectedBankTrainsForPurchase()).values().sum();
     }
 
 

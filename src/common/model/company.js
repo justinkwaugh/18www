@@ -95,6 +95,10 @@ class Company extends Serializable {
         this.trains.valueHasMutated();
     }
 
+    numTrainsForLimit() {
+        return _.filter(this.trains(), train => !train.phasedOut() && !train.rusted()).length;
+    }
+
     getAvailableRouteColor() {
         const currentColors = _.map(this.trains(), train => train.route.color);
         return _(_.range(1, 5)).difference(currentColors).first();
@@ -113,7 +117,6 @@ class Company extends Serializable {
     }
 
     close() {
-
         // remove from operating order
         const state = CurrentGame().state();
         const playerCerts = _(CurrentGame().state().players()).map(player => {
@@ -121,12 +124,20 @@ class Company extends Serializable {
         }).fromPairs().value();
 
         const bankCerts = state.bank.removeAllCertsForCompany(this.id);
+
         const tokens = _(CurrentGame().state().tilesByCellId).map(tile => {
             if (tile.hasTokenForCompany(this.id)) {
                 return [tile.id, tile.removeToken(this.id)]
             }
             return null;
         }).compact().fromPairs().value();
+        const reservedTokens = _(CurrentGame().state().tilesByCellId).map(tile => {
+            if (tile.hasReservedTokenForCompany(this.id)) {
+                return [tile.id, tile.removeReservedToken(this.id)]
+            }
+            return null;
+        }).compact().fromPairs().value();
+
         state.bank.addCash(this.cash());
         let meatTileId = null;
         if (this.hasPrivate(CompanyIDs.MEAT_PACKING_COMPANY)) {
@@ -149,16 +160,17 @@ class Company extends Serializable {
         this.closed(true);
 
         return {
+            id: this.id,
             playerCerts,
             bankCerts,
             tokens,
+            reservedTokens,
             meatTileId,
             steamboatTileId
         }
     }
 
     unclose(closeData) {
-        debugger;
         const state = CurrentGame().state();
         _.each(closeData.playerCerts, (certs, playerId) => {
             const player = state.playersById()[playerId];
@@ -172,6 +184,12 @@ class Company extends Serializable {
                 const splitToken = token.split('|');
                 tile.addToken(splitToken[1], splitToken[0]);
             }
+            const reservedToken = closeData.reservedTokens[tile.id];
+            if (reservedToken) {
+                const splitToken = reservedToken.split('|');
+                tile.addReservedToken(splitToken[1], splitToken[0]);
+            }
+
             if (closeData.meatTileId === tile.id) {
                 tile.hasMeat(true);
             }
@@ -182,6 +200,43 @@ class Company extends Serializable {
         state.bank.removeCash(this.cash());
         this.closed(false);
     }
+
+    phaseOut(phase) {
+        const phasedOutTrains = CurrentGame().state().bank.getTrainsForPhase(phase);
+        _.each(this.trains(), train => {
+            if (_.indexOf(phasedOutTrains, train.type) >= 0) {
+                train.phasedOut(true);
+            }
+        });
+    }
+
+    unphaseOut(phase) {
+        const phasedOutTrains = CurrentGame().state().bank.getTrainsForPhase(phase);
+        _.each(this.trains(), train => {
+            if (_.indexOf(phasedOutTrains, train.type) >= 0) {
+                train.phasedOut(false);
+            }
+        });
+    }
+
+    rust(phase) {
+        const rustedTrains = CurrentGame().state().bank.getTrainsForPhase(phase);
+        _.each(this.trains(), train => {
+            if (_.indexOf(rustedTrains, train.type) >= 0) {
+                train.rusted(true);
+            }
+        });
+    }
+
+    unrust(phase) {
+        const rustedTrains = CurrentGame().state().bank.getTrainsForPhase(phase);
+        _.each(this.trains(), train => {
+            if (_.indexOf(rustedTrains, train.type) >= 0) {
+                train.rusted(false);
+            }
+        });
+    }
+
 
 }
 

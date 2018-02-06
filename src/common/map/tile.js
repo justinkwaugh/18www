@@ -125,6 +125,20 @@ class Tile extends Serializable {
         return this.reservedTokensPerCity()[cityId] || [];
     }
 
+    getReservedTokenForCompany(companyId) {
+        const cityId = _.findKey(this.reservedTokensPerCity(), tokens=>_.indexOf(tokens, companyId) >= 0);
+        return cityId ? cityId + '|' + companyId : null;
+    }
+
+    hasReservedTokenForCompany(companyId, cityId) {
+        if (cityId) {
+            return _.indexOf(this.getReservedTokensForCity(cityId), companyId) >= 0;
+        }
+        else {
+            return _(this.reservedTokensPerCity()).values().flatten().indexOf(companyId) >= 0;
+        }
+    }
+
     addReservedToken(companyId, cityId) {
         if (!cityId) {
             const cities = _.values(this.cities);
@@ -136,13 +150,9 @@ class Tile extends Serializable {
     }
 
     removeReservedToken(companyId, cityId) {
-        if (!cityId) {
-            const cities = _.values(this.cities);
-            if (cities.length === 1) {
-                cityId = cities[0].id;
-            }
-        }
-        this.reservedTokens.remove(cityId + '|' + companyId);
+        const token = cityId ? cityId + '|' + companyId : this.getReservedTokenForCompany(companyId);
+        const removed = this.reservedTokens.remove(token);
+        return removed.length > 0 ? removed[0] : null;
     }
 
     addToken(companyId, cityId) {

@@ -32,6 +32,10 @@ class Bank extends Serializable {
         }
     }
 
+    getAvailableTrainsForPhase(phase) {
+        return phase === PhaseIDs.PHASE_IV ? 99 : this.trainsByPhase()[phase];
+    }
+
     removeTrains(type, count) {
         this.trainsByPhase.valueWillMutate();
         if(type === TrainIDs.TRAIN_2) {
