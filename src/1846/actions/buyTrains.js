@@ -21,11 +21,11 @@ class BuyTrains extends Action {
         this.closedCompanyData = args.closedCompanyData;
         this.meatTileId = args.meatTileId;
         this.steamboatTileId = args.steamboatTileId;
+        this.cost = args.cost;
     }
 
     doExecute(state) {
         const company = state.getCompany(this.companyId);
-        this.trainIds = [];
         if (this.source === 'bank') {
             _.each(this.trains, (amount, type) => {
                 const trainDefinition = TrainDefinitions[type];
@@ -50,6 +50,18 @@ class BuyTrains extends Action {
                 }
             });
         }
+        else {
+            const sellingCompany = state.getCompany(this.source);
+            this.trains = _(sellingCompany.removeTrainsById(this.trainIds)).map(train => train.clone()).sortBy(train=>train.type).value();
+            const trainsToAdd = _.map(this.trains, train=> {
+                const newTrain = train.clone();
+                newTrain.purchased=true;
+                return newTrain;
+            });
+            company.addTrains(trainsToAdd);
+            sellingCompany.addCash(this.cost);
+            company.removeCash(this.cost);
+        }
     }
 
     doUndo(state) {
@@ -72,6 +84,13 @@ class BuyTrains extends Action {
                 state.currentPhaseId(this.oldPhase);
             }
         }
+        else {
+            const sellingCompany = state.getCompany(this.source);
+            company.removeTrainsById(this.trainIds);
+            sellingCompany.addTrains(_.map(this.trains, train => train.clone()));
+            sellingCompany.removeCash(this.cost);
+            company.addCash(this.cost);
+        }
     }
 
     doPhaseChange(state, newPhase) {
@@ -81,10 +100,11 @@ class BuyTrains extends Action {
             _.each(state.publicCompanies, company => {
                 company.phaseOut(PhaseIDs.PHASE_I);
             });
-            _.each(state.privateCompanies, company=> {
+            _.each(state.privateCompanies, company => {
                 closedCompanyData.push(company.close());
             });
             this.closedCompanyData = closedCompanyData;
+            state.trainLimit(3);
         }
         else if (newPhase === PhaseIDs.PHASE_IV) {
             _.each(state.publicCompanies, company => {
@@ -95,7 +115,7 @@ class BuyTrains extends Action {
                 return tile.hasMeat();
             });
 
-            if(meatTile) {
+            if (meatTile) {
                 meatTile.hasMeat(false);
                 this.meatTileId = meatTile.id;
             }
@@ -103,10 +123,11 @@ class BuyTrains extends Action {
                 return tile.hasSteamboat();
             });
 
-            if(steamBoatTile) {
+            if (steamBoatTile) {
                 steamBoatTile.hasSteamboat(false);
                 this.steamboatTileId = steamBoatTile.id;
             }
+            state.trainLimit(2);
         }
     }
 
@@ -115,10 +136,11 @@ class BuyTrains extends Action {
             _.each(state.publicCompanies, company => {
                 company.unphaseOut(PhaseIDs.PHASE_I);
             });
-            _.each((this.closedCompanyData || []), closeData=> {
+            _.each((this.closedCompanyData || []), closeData => {
                 const company = state.getCompany(closeData.id);
                 company.unclose(closeData);
             });
+            state.trainLimit(4);
         }
         else if (newPhase === PhaseIDs.PHASE_IV) {
             _.each(state.publicCompanies, company => {
@@ -126,15 +148,16 @@ class BuyTrains extends Action {
                 company.unrust(PhaseIDs.PHASE_I);
             });
 
-            if(this.meatTileId) {
+            if (this.meatTileId) {
                 const tile = state.tilesByCellId[this.meatTileId];
                 tile.hasMeat(true);
             }
 
-            if(this.steamboatTileId) {
+            if (this.steamboatTileId) {
                 const tile = state.tilesByCellId[this.steamboatTileId];
                 tile.hasSteamboat(true);
             }
+            state.trainLimit(3);
         }
     }
 
@@ -154,30 +177,56 @@ class BuyTrains extends Action {
 
     summary(state) {
         const company = state.getCompany(this.companyId);
-        const data = _.reduce(this.trains, (accumulator, amount, type) => {
-            const trainDefinition = TrainDefinitions[type];
-            const cost = amount * trainDefinition.cost;
-            accumulator.desc.push(NumberWords[amount] + ' ' + trainDefinition.name + 'T');
-            accumulator.cost += cost;
-            return accumulator;
-        }, {desc: [], cost: 0});
+        const descData = this.getTrainDescriptionsAndCost(state, true);
         const source = this.source === 'bank' ? 'the bank' : state.getCompany(this.source).nickname;
-        return company.nickname + ' bought ' + _.join(data.desc, ', ') + ' from ' + source + ' for $' + data.cost;
+        return company.nickname + ' bought ' + _.join(descData.desc, ', ') + ' from ' + source + ' for $' + descData.cost;
     }
 
     confirmation(state) {
         const prefix = 'Confirm buy ';
-        const data = _.reduce(this.trains, (accumulator, amount, type) => {
-            const trainDefinition = TrainDefinitions[type];
-            const cost = amount * trainDefinition.cost;
-            accumulator.desc.push(NumberWords[amount] + ' ' + trainDefinition.name + 'T');
-            accumulator.cost += cost;
-            return accumulator;
-        }, {desc: [], cost: 0});
+        const descData = this.getTrainDescriptionsAndCost(state);
         const source = this.source === 'bank' ? 'the bank' : state.getCompany(this.source).nickname;
-        return prefix + _.join(data.desc, ', ') + ' from ' + source + ' for $' + data.cost;
+        return prefix + _.join(descData.desc, ', ') + ' from ' + source + ' for $' + descData.cost;
     }
 
+    getTrainDescriptionsAndCost(state, summary) {
+        const result = {
+            desc: [],
+            cost: 0
+        };
+        if (this.source === 'bank') {
+            const data = _.reduce(this.trains, (accumulator, amount, type) => {
+                const trainDefinition = TrainDefinitions[type];
+                const cost = amount * trainDefinition.cost;
+                accumulator.desc.push(NumberWords[amount] + ' ' + trainDefinition.name + 'T');
+                accumulator.cost += cost;
+                return accumulator;
+            }, {desc: [], cost: 0});
+            result.desc = data.desc;
+            result.cost = data.cost;
+        }
+        else {
+            if(!summary) {
+                const sellingCompany = state.getCompany(this.source);
+                result.desc = _.map(this.trainIds, trainId => {
+                    const train = sellingCompany.getTrainById(trainId);
+                    if (!train) {
+                        return '';
+                    }
+                    const trainDefinition = TrainDefinitions[train.type];
+                    return trainDefinition.name + 'T';
+                });
+            }
+            else {
+                result.desc = _.map(this.trains, train => {
+                    const trainDefinition = TrainDefinitions[train.type];
+                    return trainDefinition.name + 'T';
+                });
+            }
+            result.cost = this.cost;
+        }
+        return result;
+    }
 }
 
 BuyTrains.registerClass();

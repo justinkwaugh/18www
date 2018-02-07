@@ -100,10 +100,12 @@
                                      data-bind="template: {name:'views/grid', data: $data.game().grid()}"></div>
                                 <div style="position:absolute;top:358px;left:1411px;height:437px;width:397px;"
                                      data-bind="template: {name:'views/market', data: $data.game().state()}"></div>
+                                <div style="position:absolute;top:39px;left:47px;height:124px;width:257px;"
+                                     data-bind="template: {name:'views/limits', data: $data.game().state()}"></div>
                                 <div style="position:absolute;top:934px;left:953px;height:212px;width:855px;"
                                      data-bind="template: {name:'views/trains', data: $data.game().state()}"></div>
                             </div>
-                            <div class="zoom btn-group" role="group" style="position: absolute; top:20px; left:10px;">
+                            <div class="zoom btn-group" role="group" style="position: absolute; top:10px; left:2px;">
                                 <button type="button"
                                         class="btn btn-sm btn-dark font-weight-bold "
                                         data-bind="click: function() { $data.game().zoomOut(); }"><span class="oi oi-zoom-out"></span>

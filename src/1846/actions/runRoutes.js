@@ -34,7 +34,14 @@ class RunRoutes extends Action {
 
         // Update and pay company
         company.lastRun(this.revenue);
+
         company.updateTrains(_.map(this.trains, train => train.clone()));
+        _.each(company.trains(), train=>{
+            if (train.phasedOut()) {
+                train.phasedOut(false);
+                train.rusted(true);
+            }
+        });
         state.bank.removeCash(companyIncome);
         company.addCash(companyIncome);
 
@@ -60,7 +67,7 @@ class RunRoutes extends Action {
             });
         }
 
-        if(company.priceIndex() === 0) {
+        if(company.type === CompanyTypes.PUBLIC && company.priceIndex() === 0) {
             this.closeData = company.close();
         }
     }

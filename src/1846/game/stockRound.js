@@ -94,6 +94,11 @@ class StockRound {
 
     }
 
+    getParRange() {
+        const cash = CurrentGame().state().currentPlayer().cash() ;
+        return _([40,50,60,70,80,90,100,112,124,137,150]).filter(par=>(par*2) <= cash).value();
+    }
+
     selectAction(actionId) {
         this.reset();
         this.selectedAction(actionId);

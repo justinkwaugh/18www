@@ -515,11 +515,13 @@ class Grid extends BaseGrid {
             routeableConnectionsToPrior = [_.first(routeableConnectionsToPrior)];
         }
 
-        const cityId =  _.max(_.flatten(connectionsToLastCellInRoute));
-        const isOpenCity = cell.tile().hasCity() && !cell.tile().isBlockedForCompany(
-                CurrentGame().state().currentCompanyId(), cityId);
-        const routeableConnectionsOnCurrent = isOpenCity ? _.reject(cell.tile().connections, connection => {
-                if(_.max(connection) !== cityId) {
+        const cities = _(connectionsToLastCellInRoute).flatten().filter(cityId=> cityId >6).uniq().value();
+        const hasOpenCity = _.find(cities, cityId=> {
+            return !cell.tile().isBlockedForCompany(CurrentGame().state().currentCompanyId(), cityId);
+        });
+
+        const routeableConnectionsOnCurrent = hasOpenCity ? _.reject(cell.tile().connections, connection => {
+                if(_.indexOf(cities, _.max(connection)) < 0) {
                     return true;
                 }
 

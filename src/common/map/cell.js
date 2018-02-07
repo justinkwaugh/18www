@@ -264,7 +264,7 @@ class Cell {
     }
 
     canUpgrade() {
-        return !CurrentGame().operatingRound().hasUpgradedTrackThisTurn();
+        return this.isLSLLay() || !CurrentGame().operatingRound().hasUpgradedTrackThisTurn();
     }
 
     canPlaceMeat() {
@@ -304,7 +304,7 @@ class Cell {
             return this.getOhioIndianaOrMichiganCentralTiles();
         }
 
-        if (CurrentGame().operatingRound().hasLaidTwoTrackThisTurn()) {
+        if (!this.isLSLLay() && CurrentGame().operatingRound().hasLaidTwoTrackThisTurn()) {
             return false;
         }
 

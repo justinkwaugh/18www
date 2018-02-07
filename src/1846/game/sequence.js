@@ -85,9 +85,9 @@ class Sequence {
         state.roundHistory.commitRound();
         game.stockRound(null);
         new SetPriorityDeal({playerIndex: state.firstPassIndex()}).execute(state);
+        new AdjustStockPrices({}).execute(state);
         new SetOperatingOrder({operatingOrder: state.stockBoard.getOperatingOrder(currentRoundNumber === 1)}).execute(
             state);
-        new AdjustStockPrices({}).execute(state);
         Sequence.setNextCompanyAndPlayer(state, 0);
         state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_1);
         game.showMap();
@@ -96,7 +96,7 @@ class Sequence {
     static onOperatingRoundEnd(game, currentRoundId) {
         const state = game.state();
         _.each(state.publicCompanies, company => {
-            _.each(company.trains(), train=> {
+            _.each(company.trains(), train => {
                 train.purchased = false;
             });
         });

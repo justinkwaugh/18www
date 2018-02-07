@@ -80,8 +80,20 @@ class Company extends Serializable {
         this.trains.push(train);
     }
 
+    addTrains(trains) {
+        this.trains.push.apply(this.trains, trains);
+    }
+
+    getTrainById(trainId) {
+        return _.find(this.trains(), train=>train.id === trainId);
+    }
+
     removeTrainById(trainId) {
         return this.trains.remove(train => train.id === trainId);
+    }
+
+    removeTrainsById(trainIds) {
+        return this.trains.remove(train => _.indexOf(trainIds, train.id) >= 0);
     }
 
     updateTrains(trains) {
@@ -96,11 +108,27 @@ class Company extends Serializable {
     }
 
     numTrainsForLimit() {
-        return _.filter(this.trains(), train => !train.phasedOut() && !train.rusted()).length;
+        return this.getNonPhasedOutTrains().length;
+    }
+
+    getRunnableTrains() {
+        return _.filter(this.trains(), train=> !train.purchased && !train.rusted());
+    }
+
+    getNonPhasedOutTrains() {
+        return _(this.trains()).filter(train=> !train.phasedOut() && !train.rusted()).sortBy(train=>train.type).value();
+    }
+
+    getPhasedOutTrains() {
+        return _.filter(this.trains(), train=> train.phasedOut() && !train.rusted());
+    }
+
+    getNonRustedTrains() {
+        return _.filter(this.trains(), train=> !train.rusted());
     }
 
     getAvailableRouteColor() {
-        const currentColors = _.map(this.trains(), train => train.route.color);
+        const currentColors = _.map(this.getNonRustedTrains(), train => train.route.color);
         return _(_.range(1, 5)).difference(currentColors).first();
     }
 
@@ -231,7 +259,7 @@ class Company extends Serializable {
     unrust(phase) {
         const rustedTrains = CurrentGame().state().bank.getTrainsForPhase(phase);
         _.each(this.trains(), train => {
-            if (_.indexOf(rustedTrains, train.type) >= 0) {
+            if (_.indexOf(rustedTrains, train.type) >= 0 && train.phasedOut(true)) {
                 train.rusted(false);
             }
         });
