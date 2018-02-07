@@ -79,6 +79,14 @@ class Cell {
                 return [];
             }
 
+            if (!CurrentGame().state().isOperatingRound()) {
+                return [];
+            }
+
+            if (!CurrentGame().state().currentCompany()) {
+                return [];
+            }
+
             return this.getUpgradeTiles();
         });
 
@@ -87,11 +95,15 @@ class Cell {
         this.tokenableCities = ko.computed(() => {
 
             if (!CurrentGame()) {
-                return false;
+                return [];
             }
 
             if (!CurrentGame().state().isOperatingRound()) {
-                return false;
+                return [];
+            }
+
+            if (!CurrentGame().state().currentCompany()) {
+                return [];
             }
 
             if (!this.tile()) {
@@ -124,6 +136,10 @@ class Cell {
             }
 
             if (!CurrentGame().state().isOperatingRound()) {
+                return false;
+            }
+
+            if (!CurrentGame().state().currentCompany()) {
                 return false;
             }
 
@@ -169,6 +185,10 @@ class Cell {
             }
 
             if (!CurrentGame().state().isOperatingRound()) {
+                return false;
+            }
+
+            if (!CurrentGame().state().currentCompany()) {
                 return false;
             }
 

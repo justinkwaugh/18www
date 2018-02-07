@@ -16,7 +16,7 @@ class BuyTrains extends Action {
         this.companyId = args.companyId;
         this.trains = args.trains;
         this.source = args.source;
-        this.trainIds = args.trainIds;
+        this.trainIds = args.trainIds || [];
         this.oldPhase = args.oldPhase;
         this.closedCompanyData = args.closedCompanyData;
         this.meatTileId = args.meatTileId;
@@ -55,6 +55,8 @@ class BuyTrains extends Action {
             this.trains = _(sellingCompany.removeTrainsById(this.trainIds)).map(train => train.clone()).sortBy(train=>train.type).value();
             const trainsToAdd = _.map(this.trains, train=> {
                 const newTrain = train.clone();
+                newTrain.route.color = company.getAvailableRouteColor();
+                newTrain.route.companyId = company.id;
                 newTrain.purchased=true;
                 return newTrain;
             });

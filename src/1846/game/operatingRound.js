@@ -101,13 +101,20 @@ class OperatingRound {
                 return 0;
             }
 
-            return _.sumBy(this.companyTrains(), train => train.route.revenue());
+            let revenue = _.sumBy(this.companyTrains(), train => train.route.revenue());
+            const company = CurrentGame().state().currentCompany();
+            if (company.hasPrivate(CompanyIDs.MAIL_CONTRACT)) {
+                revenue += (_(this.companyTrains()).map(train => train.route.numStops()).max() || 0) * 10;
+            }
+
+            return revenue;
         });
 
         this.halfPayResult = ko.computed(() => {
-            if (!this.selectedTrain()) {
-                return 0;
+            if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+                return '';
             }
+
             const halfRevenue = this.runRevenue() / 2;
             const remainder = halfRevenue % 10;
             const payout = halfRevenue + remainder;
@@ -115,9 +122,10 @@ class OperatingRound {
         });
 
         this.fullPayResult = ko.computed(() => {
-            if (!this.selectedTrain()) {
-                return 0;
+            if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+                return '';
             }
+
             const revenue = this.runRevenue();
             return this.calculateStockMovementDisplay(this.calculateStockMovement(revenue));
         });
@@ -378,8 +386,10 @@ class OperatingRound {
 
     calculateStockMovement(revenue) {
         const currentPrice = CurrentGame().state().currentCompany().price();
-
-        if (revenue < currentPrice) {
+        if (revenue === 0) {
+            return -1;
+        }
+        else if (revenue < currentPrice) {
             return 0;
         }
         else if (revenue < currentPrice * 2) {
@@ -394,7 +404,10 @@ class OperatingRound {
     }
 
     calculateStockMovementDisplay(movement) {
-        if (movement === 0) {
+        if (movement === -1) {
+            return '\u21E0 price';
+        }
+        else if (movement === 0) {
             return 'no change';
         }
         else if (movement === 1) {
@@ -640,7 +653,8 @@ class OperatingRound {
     }
 
     selectCompanyTrainForPurchase(selectedTrain) {
-        const selectingTrain = !_.find(this.selectedCompanyTrainsForPurchase(), trainId => trainId === selectedTrain.id);
+        const selectingTrain = !_.find(this.selectedCompanyTrainsForPurchase(),
+                                       trainId => trainId === selectedTrain.id);
         if (selectingTrain) {
             const numTrains = CurrentGame().state().currentCompany().numTrainsForLimit();
             const trainLimit = CurrentGame().state().trainLimit();

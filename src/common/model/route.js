@@ -16,7 +16,7 @@ class Route extends Serializable {
         this.companyId = definition.companyId;
         this.maxStops = definition.maxStops;
         this.revenueStops = definition.revenueStops;
-        this.numStops = definition.numStops;
+        this.numStops = ko.observable(definition.numStops || 0);
         this.cells = ko.observableArray(definition.cells || []);
         this.revenue = ko.observable(definition.revenue || 0);
         if (definition.trainType) {
@@ -97,11 +97,11 @@ class Route extends Serializable {
     }
 
     isFull() {
-        return this.numStops === this.maxStops;
+        return this.numStops() === this.maxStops;
     }
 
     clear() {
-        this.numStops = 0;
+        this.numStops(0);
         this.cells([]);
         this.calculateRevenue();
     }
@@ -110,7 +110,7 @@ class Route extends Serializable {
         const companyId = this.companyId || CurrentGame().state().currentCompanyId();
         const tile = CurrentGame().state().tilesByCellId[id];
         if (tile.getRevenue(companyId) > 0) {
-            this.numStops += 1;
+            this.numStops(this.numStops()+1);
         }
         this.cells.push({id, connections});
         this.calculateRevenue();
@@ -126,7 +126,7 @@ class Route extends Serializable {
         _.each(cells, cell => {
             const tile = CurrentGame().state().tilesByCellId[cell.id];
             if (tile.getRevenue() > 0) {
-                this.numStops -= 1;
+                this.numStops(this.numStops()-1);
             }
         });
         this.cells(_.take(this.cells(), index + 1));

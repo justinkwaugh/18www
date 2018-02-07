@@ -6,6 +6,7 @@ import OperatingRound from '1846/game/operatingRound';
 import SetPriorityDeal from '1846/actions/setPriorityDeal';
 import SetOperatingOrder from '1846/actions/setOperatingOrder';
 import AdjustStockPrices from '1846/actions/adjustStockPrices';
+import PrivateIncome from '1846/actions/privateIncome';
 import CurrentGame from 'common/game/currentGame';
 import Events from 'common/util/events';
 
@@ -81,15 +82,17 @@ class Sequence {
 
     static onStockRoundEnd(game) {
         const state = game.state();
-        const currentRoundNumber = state.roundNumber();
-        state.roundHistory.commitRound();
-        game.stockRound(null);
         new SetPriorityDeal({playerIndex: state.firstPassIndex()}).execute(state);
         new AdjustStockPrices({}).execute(state);
+        const currentRoundNumber = state.roundNumber();
+        state.roundHistory.commitRound();
+
+        game.stockRound(null);
+        state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_1);
+        new PrivateIncome({}).execute(state);
         new SetOperatingOrder({operatingOrder: state.stockBoard.getOperatingOrder(currentRoundNumber === 1)}).execute(
             state);
         Sequence.setNextCompanyAndPlayer(state, 0);
-        state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_1);
         game.showMap();
     }
 
@@ -103,9 +106,12 @@ class Sequence {
 
         if (currentRoundId === RoundIDs.OPERATING_ROUND_1) {
             state.roundHistory.commitRound();
+
+            state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_2);
+            new PrivateIncome({}).execute(state);
             new SetOperatingOrder({operatingOrder: state.stockBoard.getOperatingOrder()}).execute(state);
             Sequence.setNextCompanyAndPlayer(state, 0);
-            state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_2);
+
         }
         else {
             const currentRoundNumber = state.roundNumber();
@@ -150,6 +156,7 @@ class Sequence {
         }
         else if (currentRound.id === RoundIDs.STOCK_ROUND) {
             game.stockRound(new StockRound());
+            game.showOwnership();
         }
     }
 }

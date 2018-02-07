@@ -1,5 +1,6 @@
 import Action from 'common/game/action';
 import CompanyTypes from 'common/model/companyTypes';
+import CompanyIDs from '1846/config/companyIds';
 import TrainNames from '1846/config/trainNames';
 import Allocations from '1846/config/allocations';
 import Prices from '1846/config/prices';
@@ -29,6 +30,7 @@ class RunRoutes extends Action {
         this.oldPriceIndex = company.priceIndex();
         this.oldCompaniesForPriceIndex = state.stockBoard.getCompaniesForPriceIndex(this.oldPriceIndex);
         this.oldLastRun = company.lastRun();
+        this.revenue = this.calculateRevenue(state);
         const companyIncome = this.calculateCompanyIncome(company, this.revenue, this.allocation);
         const payout = this.calculatePayout(this.revenue, this.allocation);
 
@@ -120,7 +122,17 @@ class RunRoutes extends Action {
     }
 
     confirmation(state) {
-        return 'Confirm run trains for $' + this.revenue + ' and ' + this.getAllocationText(this.allocation);
+        const revenue = this.calculateRevenue(state);
+        return 'Confirm run trains for $' + revenue + ' and ' + this.getAllocationText(this.allocation);
+    }
+
+    calculateRevenue(state) {
+        const company = state.getCompany(this.companyId);
+        let revenue =_.sumBy(this.trains, train=>train.route.revenue());
+        if(company.hasPrivate(CompanyIDs.MAIL_CONTRACT)) {
+            revenue += (_(this.trains).map(train=>train.route.numStops()).max() || 0)*10;
+        }
+        return revenue;
     }
 
     calculateCompanyIncome(company, revenue, allocation) {
