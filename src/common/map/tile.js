@@ -45,6 +45,8 @@ class Tile extends Serializable {
         this.cities = data.cities || {};
         this.upgrades = data.upgrades || [];
         this.revenue = data.revenue || 0;
+        this.direction = data.direction || '';
+        this.ewBonus = data.ewBonus || 0;
 
         // Dynamic data
         this.position = ko.observable(data.position || 0);
@@ -91,7 +93,7 @@ class Tile extends Serializable {
         return plainObject;
     }
 
-    getRevenue(companyId) {
+    getRevenue(companyId, ewBonus) {
         let revenue = 0;
         if(this.hasMeat() && this.hasMeat() === companyId) {
             revenue += 30;
@@ -114,6 +116,11 @@ class Tile extends Serializable {
         else {
             revenue += this.revenue;
         }
+
+        if(ewBonus) {
+            revenue += this.ewBonus || 0;
+        }
+
         return revenue;
     }
 

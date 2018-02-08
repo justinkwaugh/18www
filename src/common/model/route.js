@@ -39,18 +39,30 @@ class Route extends Serializable {
 
     calculateRevenue() {
         const companyId = this.companyId || CurrentGame().state().currentCompanyId();
+        let ewBonus = false;
+        if (this.numStops() >= 2) {
+            const firstStop = CurrentGame().state().tilesByCellId[this.firstCell().id];
+            const lastStop = CurrentGame().state().tilesByCellId[this.lastCell().id];
+
+            if (_([firstStop,lastStop]).map('direction').sort().join('') === 'ew') {
+                ewBonus = true;
+            }
+        }
         const revenueData = _(this.cells()).map(cellData => {
             const tile = CurrentGame().state().tilesByCellId[cellData.id];
             return {
                 hasStation: tile.hasTokenForCompany(companyId),
-                revenue: tile.getRevenue(companyId)
+                revenue: tile.getRevenue(companyId, ewBonus)
             }
         }).sortBy(cellData => {
             return (cellData.hasStation ? 'b' : 'c') + '-' + (999 - cellData.revenue);
         }).value();
 
-        const revenue = revenueData.length > 0 ? _.first(revenueData).revenue + _(revenueData).tail(revenueData).sortBy(
+        let revenue = revenueData.length > 0 ? _.first(revenueData).revenue + _(revenueData).tail(revenueData).sortBy(
                 'revenue').reverse().take(this.revenueStops - 1).sumBy('revenue') : 0;
+
+
+
         this.revenue(revenue);
     }
 

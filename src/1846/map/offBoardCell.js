@@ -8,7 +8,6 @@ class OffBoardCell extends Cell {
         this.offboard = true;
         this.connectionsToNeighborIndex = definition.connectionsToNeighborIndex || {};
         this.direction = definition.direction;
-        this.ewBonus = definition.bonus;
     }
 
     getConnectionPointAtIndex(neighbor, index) {
@@ -17,11 +16,6 @@ class OffBoardCell extends Cell {
 
         return _.isNumber(point) ? point : -1;
     }
-    //
-    // hasConnectionAtIndex(index) {
-    //     return _.indexOf(this.connections, index) >= 0;
-    // }
-
 }
 
 export default OffBoardCell;

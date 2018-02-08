@@ -55,7 +55,6 @@ class Cell {
 
         console.log('creating cell id ' + data.id + ' at ' + data.top + ',' + data.left);
         this.id = data.id;
-        this.upgradeable = data.upgradeable || true;
         this.top = data.top || 0;
         this.left = data.left || 0;
         this.row = data.row || 0;

@@ -13,6 +13,8 @@ const TileDefinitions = {
         template: 'chicagoConnections',
         connections: [[-1, 0]],
         map: true,
+        direction: 'w',
+        ewBonus: 50,
         revenue: [20,20,40,40]
     },
     [MapTileIDs.ST_LOUIS]: {
@@ -21,6 +23,8 @@ const TileDefinitions = {
         template: 'stLouis',
         connections: [[-1, 0],[-1, 1]],
         map: true,
+        direction: 'w',
+        ewBonus: 20,
         revenue: [50,50,70,70]
     },
     [MapTileIDs.HOLLAND]: {
@@ -37,6 +41,8 @@ const TileDefinitions = {
         colorId: TileColorIDs.INVISIBLE,
         template: 'sarnia',
         connections: [[-1, 0]],
+        direction: 'e',
+        ewBonus: 20,
         revenue: [30,30,50,50]
     },
     [MapTileIDs.WINDSOR]: {
@@ -45,6 +51,8 @@ const TileDefinitions = {
         colorId: TileColorIDs.INVISIBLE,
         template: 'windsor',
         connections: [[-1, 0]],
+        direction: 'e',
+        ewBonus: 30,
         revenue: [40,40,60,60]
     },
     [MapTileIDs.LOUISVILLE]: {
@@ -61,6 +69,8 @@ const TileDefinitions = {
         colorId: TileColorIDs.INVISIBLE,
         template: 'charleston',
         connections: [[-1, 0]],
+        direction: 'e',
+        ewBonus: 20,
         revenue: [20,20,50,50]
     },
     [MapTileIDs.BUFFALO]: {
@@ -69,6 +79,8 @@ const TileDefinitions = {
         colorId: TileColorIDs.INVISIBLE,
         template: 'buffalo',
         connections: [[-1, 0],[-1,1]],
+        direction: 'e',
+        ewBonus: 30,
         revenue: [30,30,60,60]
     },
     [MapTileIDs.BINGHAMTON]: {
@@ -77,6 +89,8 @@ const TileDefinitions = {
         colorId: TileColorIDs.INVISIBLE,
         template: 'binghamton',
         connections: [[-1, 0]],
+        direction: 'e',
+        ewBonus: 30,
         revenue: [20,20,50,50]
     },
     [MapTileIDs.PITTSBURGH]: {
@@ -85,6 +99,8 @@ const TileDefinitions = {
         colorId: TileColorIDs.INVISIBLE,
         template: 'pittsburgh',
         connections: [[-1, 0],[-1,1],[-1,2]],
+        direction: 'e',
+        ewBonus: 20,
         revenue: [30,30,70,70]
     },
     [MapTileIDs.CUMBERLAND]: {
@@ -93,6 +109,8 @@ const TileDefinitions = {
         colorId: TileColorIDs.INVISIBLE,
         template: 'cumberland',
         connections: [[-1, 0]],
+        direction: 'e',
+        ewBonus: 30,
         revenue: [20,20,40,40]
     },
     [MapTileIDs.BLANK]: {

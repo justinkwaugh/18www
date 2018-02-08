@@ -92,6 +92,8 @@ const OffBoardDefinitions = {
         col: 0,
         width: 126,
         height: 254,
+        direction: 'w',
+        ewbonus: 20,
         outline: '-63,-127 3,-91, 1, -19 63,17 63,89 1,127 -63, 127',
         connectionsToNeighborIndex: {'H2|0': 0, 'I3|1': 1}
     },
@@ -113,6 +115,8 @@ const OffBoardDefinitions = {
         col: 0,
         width: 128,
         height: 128,
+        direction: 'e',
+        ewbonus: 20,
         outline: '-64,-8 0,-64 64,-64 64,64 -64,64',
         connectionsToNeighborIndex: {'B16|4': 0},
         connectionCosts: ConnectionCosts[OffBoardIds.SARNIA]
@@ -125,6 +129,8 @@ const OffBoardDefinitions = {
         col: 0,
         width: 188,
         height: 144,
+        direction: 'e',
+        ewbonus: 30,
         outline: '-94,-36 -31,-72 94,-72 -75,50 -94,41 ',
         connectionsToNeighborIndex: {'C15|4': 0},
         connectionCosts: ConnectionCosts[OffBoardIds.WINDSOR]
@@ -147,6 +153,8 @@ const OffBoardDefinitions = {
         col: 0,
         width: 126,
         height: 130,
+        direction: 'e',
+        ewbonus: 20,
         outline: '-63,10 0,-23 0, -65 63,-65, 63,65 -63, 65',
         connections: ['I15|4', 0]
     },
@@ -158,6 +166,8 @@ const OffBoardDefinitions = {
         col: 0,
         width: 174,
         height: 144,
+        direction: 'e',
+        ewbonus: 30,
         outline: '-87,-26 -43,-72 87,-72 87,72 -40,72 -40,1 ',
         connectionsToNeighborIndex: {'D20|3': 0, 'D20|4': 1}
     },
@@ -169,6 +179,8 @@ const OffBoardDefinitions = {
         col: 0,
         width: 126,
         height: 144,
+        direction: 'e',
+        ewbonus: 30,
         outline: '-63,-72 63,-72 63,72 -63,72 0,35 0,-35',
         connectionsToNeighborIndex: {'E21|4': 0}
     },
@@ -180,6 +192,8 @@ const OffBoardDefinitions = {
         col: 0,
         width: 188,
         height: 178,
+        direction: 'e',
+        ewbonus: 20,
         outline: '-94,17 -32,-19 -32,-89 94, -89 94,89 -94, 89',
         connectionsToNeighborIndex: {'F20|4': 0, 'F20|5': 1, 'G19|4': 2},
         connectionCosts: ConnectionCosts[OffBoardIds.PITTSBURGH]
@@ -192,6 +206,8 @@ const OffBoardDefinitions = {
         col: 0,
         width: 250,
         height: 122,
+        direction: 'e',
+        ewbonus: 30,
         outline: '-125,-24 -62,-61 125, -61 125,61 -125, 61',
         connectionsToNeighborIndex: {'G19|5': 0}
     }
@@ -488,6 +504,12 @@ class Grid extends BaseGrid {
             return;
         }
 
+        // No E/E routes
+        const firstCellInRoute = this.cellsById()[this.route.firstCell().id];
+        if(firstCellInRoute.direction === 'e' && cell.direction === 'e') {
+            return;
+        }
+
         const lastCellInRoute = this.cellsById()[this.route.lastCell().id];
 
         // Find connections in the current cell which are available for routing
@@ -495,8 +517,6 @@ class Grid extends BaseGrid {
         if (connectionsToLastCellInRoute.length === 0) {
             return;
         }
-
-
 
         const usedCurrentConnectionPoints = {};
         let routeableConnectionsToPrior = _.reject(connectionsToLastCellInRoute, connection => {
@@ -687,7 +707,6 @@ class Grid extends BaseGrid {
             }
         }
 
-        console.log(JSON.stringify(this.route))
         this.routing = false;
     }
 }
