@@ -59,6 +59,18 @@ class Company extends Serializable {
         return this.certificates.splice(0, count);
     }
 
+    numCanIssue() {
+        const numBankShares = CurrentGame().state().bank.numSharesOwnedOfCompany(this.id);
+        const playerShares = 10 - this.shares() - numBankShares;
+        return _.max([0, _.min([this.shares(), playerShares - numBankShares])]);
+    }
+
+    cashFromForcedIssues(numIssued) {
+        return _.reduce(_.range(1, numIssued + 1), (sum, value) => {
+            return sum + Prices.leftPrice(this.priceIndex(), value);
+        }, 0);
+    }
+
     getPrivates() {
         return _(this.privates()).map(cert => CurrentGame().state().getCompany(cert.companyId)).sortBy('name').value();
     }

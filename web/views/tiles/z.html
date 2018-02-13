@@ -8,7 +8,7 @@
         <!-- ko foreach: $data.connections -->
         <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
               d=""
-              data-bind="attr: { d: $parent.getDrawingInstructions($data)}"></path>
+              data-bind="attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }"></path>
         <!-- /ko -->
 
         <!-- ko if: $data.cities[7].maxTokens === 1 -->
@@ -17,9 +17,7 @@
 
         <!-- ko if: $data.cities[7].maxTokens === 2 -->
         <g fill-opacity="1" visibility="inherit" transform="rotate(30 0 0)">
-            <circle cx="-23" cy="0" r="26" fill="white" stroke-width="1"></circle>
-            <circle cx="23" cy="0" r="26" fill="white" stroke-width="1"></circle>
-            <rect x="-26" y="-26" width="52" height="52" fill="white"></rect>
+            <rect x="-50" y="-26" width="100" height="52" rx="26" ry="26" fill="white"></rect>
         </g>
         <!-- /ko -->
 
@@ -72,7 +70,11 @@
 
         <!-- ko if: $data.cities[7].maxTokens === 1 -->
         <circle cx="0" cy="0" r="23" fill="white" stroke="black" stroke-width="1"></circle>
-        <!-- ko if: $data.getTokensForCity(7).length > 0 -->
+        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->
+        <image xlink:href="" x="-20" y="-20" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->
         <image xlink:href="" x="-20" y="-20" height="40px" width="40px"
                data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
         <!-- /ko -->
@@ -85,6 +87,26 @@
             <circle cx="23" cy="0" r="23" fill="white" stroke="black" stroke-width="1"></circle>
         </g>
 
+        <!-- ko if: $data.getReservedTokensForCity(7).length > 0 -->
+        <g transform="translate(-40, -31)">
+            <image xlink:href="" x="0" y="0" height="40px" width="40px"
+                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+        </g>
+        <!-- ko if: $data.getReservedTokensForCity(7).length > 1 -->
+        <g transform="translate(40, -31)">
+            <image xlink:href="" x="0" y="0" height="40px" width="40px"
+                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getReservedTokensForCity(7)[1] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+        </g>
+        <!-- /ko -->
+        <!-- ko if: $data.getTokensForCity(7).length > 0 -->
+        <g transform="translate(0, -8)">
+            <image xlink:href="" x="0" y="0" height="40px" width="40px"
+                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+        </g>
+        <!-- /ko -->
+        <!-- /ko -->
+
+        <!-- ko if: $data.getReservedTokensForCity(7).length === 0 -->
         <!-- ko if: $data.getTokensForCity(7).length > 0 -->
         <g transform="translate(-40, -31)">
             <image xlink:href="" x="0" y="0" height="40px" width="40px"
@@ -93,10 +115,11 @@
         <!-- /ko -->
 
         <!-- ko if: $data.getTokensForCity(7).length > 1 -->
-        <g transform="translate(40, 31)">
+        <g transform="translate(0, -8)">
             <image xlink:href="" x="0" y="0" height="40px" width="40px"
                    data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
         </g>
+        <!-- /ko -->
         <!-- /ko -->
         <!-- /ko -->
 

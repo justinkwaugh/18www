@@ -10,6 +10,8 @@ class Player extends BasePlayer {
         definition = definition || {};
         super(definition);
 
+        this.bankrupt = ko.observable(false);
+
         this.sharesCanSell = ko.computed(() => {
             if (!CurrentGame()) {
                 return {};
@@ -143,6 +145,9 @@ class Player extends BasePlayer {
             return 0;
         }
         const company = CurrentGame().state().publicCompaniesById[companyId];
+        if(!company) {
+            return 0;
+        }
         const ownedShares = this.numSharesOwnedOfCompany(companyId);
         let maxAllowedSales = Math.min(ownedShares, 5 - CurrentGame().state().bank.numSharesOwnedOfCompany(companyId));
         if(maxAllowedSales > 0) {

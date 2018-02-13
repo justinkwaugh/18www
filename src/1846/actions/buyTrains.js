@@ -43,7 +43,7 @@ class BuyTrains extends Action {
             if (this.numIssued) {
                 const certs = company.removeCerts(this.numIssued);
                 state.bank.addCerts(certs);
-                company.addCash(this.cashFromForcedIssues(company, this.numIssued));
+                company.addCash(company.cashFromForcedIssues(this.numIssued));
                 company.priceIndex(Prices.leftIndex(company.priceIndex(), this.numIssued));
             }
 
@@ -74,6 +74,7 @@ class BuyTrains extends Action {
                 state.currentPhaseId(newPhase);
                 this.doPhaseChange(state, newPhase);
             }
+            throw new Exception('hi');
         }
         else if (this.source === 'bank') {
             _.each(this.trains, (amount, type) => {
@@ -167,12 +168,6 @@ class BuyTrains extends Action {
             sellingCompany.removeCash(this.cost);
             company.addCash(this.cost);
         }
-    }
-
-    cashFromForcedIssues(company, numIssued) {
-        return _.reduce(_.range(1, numIssued + 1), (sum, value) => {
-            return sum + Prices.leftPrice(company.priceIndex(), value);
-        }, 0);
     }
 
     doPhaseChange(state, newPhase) {
@@ -276,11 +271,15 @@ class BuyTrains extends Action {
     }
 
     getSuffix(company, summary) {
+        let text = '';
         if (!this.forced) {
-            return '';
+            return text;
         }
-        return (summary ? ' issuing ' : ' issued ') + this.numIssued + ' share' + (this.numIssued === 1 ? '' : 's') + ' - stock drops to $' + Prices.leftPrice(
+        if(this.numIssued > 0) {
+            text += (summary ? ' issuing ' : ' issued ') + this.numIssued + ' share' + (this.numIssued === 1 ? '' : 's') + ' - stock drops to $' + Prices.leftPrice(
                 company.priceIndex(), this.numIssued);
+        }
+        return text;
 
     }
 

@@ -14,6 +14,7 @@ import SkipSecondPrivateLay from '1846/actions/skipSecondPrivateLay';
 import Events from 'common/util/events';
 import TrainDefinitions from '1846/config/trainDefinitions';
 import CompanyTypes from 'common/model/companyTypes';
+import DeclareBankruptcy from '1846/actions/declareBankruptcy';
 
 const Actions = {
     ISSUE_SHARES: 'issue',
@@ -24,7 +25,8 @@ const Actions = {
     BUY_TRAINS: 'buy_trains',
     USE_PRIVATES: 'use_privates',
     EMERGENCY_BUY: 'emergency_buy',
-    BANKRUPT: 'bankrupt'
+    BANKRUPT: 'bankrupt',
+    CLOSE_COMPANY: 'close_company'
 };
 
 const PrivateActions = {
@@ -310,7 +312,7 @@ class OperatingRound {
 
 
         this.canDoAnything = ko.computed(() => {
-            return this.canBuyPrivates() || this.canUsePrivates() || this.canIssue() || this.canRedeem() || this.canLayTrackOrToken() || this.canRunRoutes() || this.canBuyTrains() || this.canEmergencyBuy();
+            return this.canBuyPrivates() || this.canUsePrivates() || this.canIssue() || this.canRedeem() || this.canLayTrackOrToken() || this.canRunRoutes() || this.canBuyTrains() || this.canCloseCompany() || this.canEmergencyBuy() || this.canGoBankrupt();
         });
 
         this.action = ko.computed(() => {
@@ -365,9 +367,16 @@ class OperatingRound {
                                          companyId: CurrentGame().state().currentCompanyId(),
                                          trains: [this.selectedForcedTrainForPurchase()],
                                          source: this.selectedTrainSource(),
-                                         numIssued: this.numIssuedForForceBuy( CurrentGame().state().currentCompany(), this.selectedForcedTrainForPurchase() ),
+                                         numIssued: this.numIssuedForForceBuy(CurrentGame().state().currentCompany(),
+                                                                              this.selectedForcedTrainForPurchase()),
                                          forced: true
                                      });
+            }
+            else if (this.selectedAction() === Actions.BANKRUPT) {
+                return new DeclareBankruptcy({
+                                                 playerId: CurrentGame().state().currentPlayerId(),
+                                                 companyId: CurrentGame().state().currentCompanyId()
+                                             })
             }
         });
 
@@ -508,9 +517,7 @@ class OperatingRound {
 
     getNumCanIssue() {
         const company = CurrentGame().state().currentCompany();
-        const numBankShares = CurrentGame().state().bank.numSharesOwnedOfCompany(company.id);
-        const playerShares = 10 - company.shares() - numBankShares;
-        return _.max([0, _.min([company.shares(), playerShares - numBankShares])]);
+        return company.numCanIssue();
     }
 
     hasIssuedThisTurn() {
@@ -654,14 +661,7 @@ class OperatingRound {
         }
 
         const company = CurrentGame().state().currentCompany();
-        return company.numTrainsForLimit() === 0 && !this.canBuyTrainFromBank();
-    }
-
-    cashFromForcedIssues(company) {
-        const numCanIssue = this.getNumCanIssue();
-        return _.reduce(_.range(1, numCanIssue + 1), (sum, value) => {
-            return sum + Prices.leftPrice(company.priceIndex(), value);
-        }, 0);
+        return company.numTrainsForLimit() === 0 && !this.canBuyTrainFromBank() && !this.willGoBankrupt();
     }
 
     numIssuedForForceBuy(company, trainType) {
@@ -686,9 +686,45 @@ class OperatingRound {
         }, 0);
     }
 
+    maximumForcedIssues() {
+        if(this.willGoBankrupt()) {
+            return this.getNumCanIssue();
+        }
+
+        if(this.canEmergencyBuy()) {
+
+        }
+        return 0;
+    }
+
+    canCloseCompany() {
+        if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+            return false;
+        }
+        const company = CurrentGame().state().currentCompany();
+        const numIssuable = this.maximumForcedIssues();
+        return Prices.leftIndex(company.priceIndex(), numIssuable) === 0;
+    }
+
+    canGoBankrupt() {
+        return this.willGoBankrupt() && !this.canCloseCompany();
+    }
+
     willGoBankrupt() {
+        if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+            return false;
+        }
         const company = CurrentGame().state().currentCompany();
         const player = CurrentGame().state().currentPlayer();
+
+        if (company.numTrainsForLimit() > 0) {
+            return false;
+        }
+
+        if (!this.hasRunRoutesThisTurn()) {
+            return false;
+        }
+
         const cheapestBankTrain = CurrentGame().state().bank.getCheapestTrainCost();
         if (company.cash() > cheapestBankTrain) {
             return false;
@@ -697,7 +733,7 @@ class OperatingRound {
         let moneyNeeded = cheapestBankTrain - company.cash();
 
         // Check share issues:
-        moneyNeeded -= this.cashFromForcedIssues(company);
+        moneyNeeded -= company.cashFromForcedIssues(company.numCanIssue());
         if (moneyNeeded <= 0) {
             return false;
         }
@@ -721,27 +757,28 @@ class OperatingRound {
         const state = CurrentGame().state();
         const company = state.currentCompany();
         const player = CurrentGame().state().currentPlayer();
-        const availableTrains = _(state.bank.getFirstAvailablePhaseTrains()).map(trainType=> {
+        const availableTrains = _(state.bank.getFirstAvailablePhaseTrains()).map(trainType => {
             const trainDefinition = TrainDefinitions[trainType];
             return {
                 type: trainDefinition.id,
                 cost: trainDefinition.cost,
                 num: 1,
-                available:1
+                available: 1
             }
         }).value();
 
         // If we can force issue to buy one, give the options
-        const cashAfterForcedIssue = company.cash() + this.cashFromForcedIssues(company);
-        const affordableTrainsTreasuryOnly = _.filter(availableTrains, trainData=>cashAfterForcedIssue >= trainData.cost);
-        if(affordableTrainsTreasuryOnly.length > 0) {
+        const cashAfterForcedIssue = company.cash() + company.cashFromForcedIssues(company.numCanIssue());
+        const affordableTrainsTreasuryOnly = _.filter(availableTrains,
+                                                      trainData => cashAfterForcedIssue >= trainData.cost);
+        if (affordableTrainsTreasuryOnly.length > 0) {
             return affordableTrainsTreasuryOnly;
         }
 
         // Otherwise everything can go to pay
-        const cashAfterEverything = cashAfterForcedIssue + player.cash() + this.cashFromStockSales(company,player);
-        const affordableTrains = _.filter(availableTrains, trainData=>cashAfterEverything >= trainData.cost);
-        if(affordableTrains.length > 0) {
+        const cashAfterEverything = cashAfterForcedIssue + player.cash() + this.cashFromStockSales(company, player);
+        const affordableTrains = _.filter(availableTrains, trainData => cashAfterEverything >= trainData.cost);
+        if (affordableTrains.length > 0) {
             return affordableTrains;
         }
     }

@@ -27,14 +27,14 @@ const TrainDefinitions = {
         name: '4/6',
         stops: 6,
         payingStops: 4,
-        cost: 400
+        cost: 450
     },
     [TrainIDs.TRAIN_5]: {
         id: TrainIDs.TRAIN_5,
         name: '5',
         stops: 5,
         payingStops: 5,
-        cost: 450
+        cost: 500
     },
     [TrainIDs.TRAIN_6]: {
         id: TrainIDs.TRAIN_6,

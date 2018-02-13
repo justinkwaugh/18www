@@ -44,12 +44,18 @@
         </button>
         <!-- /ko -->
         <!-- ko if: $data.canBuyTrains() -->
-        <button class="btn btn-sm "
+        <button class="btn btn-sm mr-2"
                 data-bind="click: function() { $data.selectAction($data.Actions.BUY_TRAINS); },css: $data.selectedAction() === $data.Actions.BUY_TRAINS ? 'active btn-secondary' : 'btn-light' ">
             Buy Trains
         </button>
         <!-- /ko -->
-        <!-- ko if: $data.willGoBankrupt() -->
+        <!-- ko if: $data.canCloseCompany() -->
+        <button class="btn btn-sm "
+                data-bind="click: function() { $data.selectAction($data.Actions.CLOSE_COMPANY); },css: $data.selectedAction() === $data.Actions.CLOSE_COMPANY ? 'active btn-secondary' : 'btn-light' ">
+            Close Company
+        </button>
+        <!-- /ko -->
+        <!-- ko if: $data.canGoBankrupt() -->
         <button class="btn btn-sm "
                 data-bind="click: function() { $data.selectAction($data.Actions.BANKRUPT); },css: $data.selectedAction() === $data.Actions.BANKRUPT ? 'active btn-secondary' : 'btn-light' ">
             Declare Bankruptcy

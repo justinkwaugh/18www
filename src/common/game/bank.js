@@ -72,7 +72,7 @@ class Bank extends Serializable {
             return 160;
         }
         else if (phaseId === PhaseIDs.PHASE_III) {
-            return 400;
+            return 450;
         }
         else if (phaseId === PhaseIDs.PHASE_IV) {
             return 800;
