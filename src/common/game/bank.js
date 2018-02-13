@@ -64,6 +64,39 @@ class Bank extends Serializable {
         this.trainsByPhase.valueHasMutated();
     }
 
+    cheapestCostForTrainPhase(phaseId) {
+        if(phaseId === PhaseIDs.PHASE_I) {
+            return 80;
+        }
+        else if (phaseId === PhaseIDs.PHASE_II) {
+            return 160;
+        }
+        else if (phaseId === PhaseIDs.PHASE_III) {
+            return 400;
+        }
+        else if (phaseId === PhaseIDs.PHASE_IV) {
+            return 800;
+        }
+    }
+
+    getCheapestTrainCost() {
+        return _(PhaseIDs).values().map(phaseId => {
+            const trains = this.trainsByPhase()[phaseId];
+            if(trains > 0 || trains === -1) {
+                return this.cheapestCostForTrainPhase(phaseId);
+            }
+            return null;
+        }).compact().min();
+    }
+
+    getFirstAvailablePhaseTrains() {
+        const phase =  _(PhaseIDs).values().find(phaseId => {
+            const trains = this.trainsByPhase()[phaseId];
+            return trains > 0 || trains === -1;
+        });
+        return this.getTrainsForPhase(phase);
+    }
+
     addCash(amount) {
         this.cash(this.cash() + amount);
     }

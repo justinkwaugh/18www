@@ -13,7 +13,7 @@
         </ul>
         <div class="ml-auto d-flex flex-nowrap">
             <button type="button" class="btn btn-sm btn-danger mr-1" data-bind="click: function() { $root.sequence.undoLastAction(); }">Undo</button>
-            <!-- ko if: !$data.isOperatingRound() || $root.game().operatingRound().hasRunRoutesThisTurn() -->
+            <!-- ko if: !$data.isOperatingRound() || $root.game().operatingRound().canEndTurn() -->
             <button type="button" class="btn btn-sm btn-success" data-bind="click: function() { $root.sequence.finishTurn(); }">End Turn</button>
             <!-- /ko -->
         </div>

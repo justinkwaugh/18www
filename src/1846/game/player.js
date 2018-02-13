@@ -138,7 +138,7 @@ class Player extends BasePlayer {
         return company.opened() === false && this.cash() >= 80;
     }
 
-    getMaximumAllowedSalesOfCompany(companyId) {
+    getMaximumAllowedSalesOfCompany(companyId, disallowPresidentChange) {
         if (this.hasSoldThisTurn(companyId))  {
             return 0;
         }
@@ -146,9 +146,12 @@ class Player extends BasePlayer {
         const ownedShares = this.numSharesOwnedOfCompany(companyId);
         let maxAllowedSales = Math.min(ownedShares, 5 - CurrentGame().state().bank.numSharesOwnedOfCompany(companyId));
         if(maxAllowedSales > 0) {
-            if (this.isPresidentOfCompany(companyId) && _(CurrentGame().state().players()).reject(
+            const maxOwnedByOtherPlayers = _(CurrentGame().state().players()).reject(
                     player => player.id === this.id).map(
-                    player => player.numSharesOwnedOfCompany(companyId)).max() < 2) {
+                    player => player.numSharesOwnedOfCompany(companyId)).max();
+            const canSellPresidentShare = !disallowPresidentChange && maxOwnedByOtherPlayers >= 2;
+
+            if (this.isPresidentOfCompany(companyId) && !canSellPresidentShare) {
                 maxAllowedSales = Math.max(ownedShares - 2, 0);
             }
 

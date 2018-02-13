@@ -16,8 +16,15 @@ class Prices {
         return PriceList[priceIndex];
     }
 
-    static leftPrice(priceIndex) {
-        return PriceList[this.leftIndex(priceIndex)];
+    static leftPrice(priceIndex, count) {
+        return PriceList[this.leftIndex(priceIndex, count)];
+    }
+
+    static leftIndex(priceIndex, count) {
+        if(!_.isNumber(count)) {
+            count = 1;
+        }
+        return Math.max(0, priceIndex-count)
     }
 
     static rightPrice(priceIndex, count) {
@@ -31,9 +38,7 @@ class Prices {
         return Math.min(PriceList.length -1, priceIndex+count);
     }
 
-    static leftIndex(priceIndex) {
-        return Math.max(0, priceIndex-1)
-    }
+
 }
 
 export default Prices;

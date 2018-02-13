@@ -3,7 +3,7 @@ import Train from 'common/model/train';
 import TrainDefinitions from '1846/config/trainDefinitions';
 import TrainIDs from '1846/config/trainIds';
 import PhaseIDs from '1846/config/phaseIds';
-
+import Prices from '1846/config/prices';
 import _ from 'lodash';
 
 const NumberWords = ['zero', 'one', 'two', 'three', 'four'];
@@ -14,6 +14,7 @@ class BuyTrains extends Action {
         super(args);
 
         this.companyId = args.companyId;
+        this.playerId = args.playerId;
         this.trains = args.trains;
         this.source = args.source;
         this.trainIds = args.trainIds || [];
@@ -22,11 +23,59 @@ class BuyTrains extends Action {
         this.meatTileId = args.meatTileId;
         this.steamboatTileId = args.steamboatTileId;
         this.cost = args.cost;
+        this.forced = args.forced;
+        this.numIssued = args.numIssued;
+        this.oldCompanyCash = args.oldCompanyCash;
+        this.oldPriceIndex = args.oldPriceIndex;
+        this.stockSales = args.stockSales;
     }
 
     doExecute(state) {
         const company = state.getCompany(this.companyId);
-        if (this.source === 'bank') {
+        if (this.forced) {
+            const player = state.playersById()[this.playerId];
+            const trainDefinition = TrainDefinitions[this.trains[0]];
+            const trainType = this.trains[0];
+            const cost = trainDefinition.cost;
+            this.oldCompanyCash = company.cash();
+            this.oldPriceIndex = company.priceIndex();
+            this.oldPlayerCash = player.cash();
+            if (this.numIssued) {
+                const certs = company.removeCerts(this.numIssued);
+                state.bank.addCerts(certs);
+                company.addCash(this.cashFromForcedIssues(company, this.numIssued));
+                company.priceIndex(Prices.leftIndex(company.priceIndex(), this.numIssued));
+            }
+
+            if(this.stockSales) {
+                // Sell and add cash to player
+            }
+
+            const playerCashNeeded = cost - company.cash();
+            if(playerCashNeeded) {
+                player.removeCash(playerCashNeeded);
+                company.addCash(playerCashNeeded);
+            }
+
+            company.removeCash(cost);
+            state.bank.addCash(cost);
+            state.bank.removeTrains(trainType, 1);
+
+            const newTrain = new Train({type: trainType});
+            newTrain.route.color = company.getAvailableRouteColor();
+            newTrain.route.companyId = company.id;
+            newTrain.purchased = true;
+            company.addTrain(newTrain);
+            this.trainIds.push(newTrain.id);
+
+            const newPhase = this.getNewPhase(state, trainType);
+            if (newPhase) {
+                this.oldPhase = state.currentPhaseId();
+                state.currentPhaseId(newPhase);
+                this.doPhaseChange(state, newPhase);
+            }
+        }
+        else if (this.source === 'bank') {
             _.each(this.trains, (amount, type) => {
                 const trainDefinition = TrainDefinitions[type];
                 const cost = amount * trainDefinition.cost;
@@ -52,12 +101,13 @@ class BuyTrains extends Action {
         }
         else {
             const sellingCompany = state.getCompany(this.source);
-            this.trains = _(sellingCompany.removeTrainsById(this.trainIds)).map(train => train.clone()).sortBy(train=>train.type).value();
-            const trainsToAdd = _.map(this.trains, train=> {
+            this.trains = _(sellingCompany.removeTrainsById(this.trainIds)).map(train => train.clone()).sortBy(
+                train => train.type).value();
+            const trainsToAdd = _.map(this.trains, train => {
                 const newTrain = train.clone();
                 newTrain.route.color = company.getAvailableRouteColor();
                 newTrain.route.companyId = company.id;
-                newTrain.purchased=true;
+                newTrain.purchased = true;
                 return newTrain;
             });
             company.addTrains(trainsToAdd);
@@ -68,7 +118,31 @@ class BuyTrains extends Action {
 
     doUndo(state) {
         const company = state.getCompany(this.companyId);
-        if (this.source === 'bank') {
+        if (this.forced) {
+            const player = state.playersById()[this.playerId];
+            const trainDefinition = TrainDefinitions[this.trains[0]];
+            const trainType = this.trains[0];
+            const cost = trainDefinition.cost;
+            player.cash(this.oldPlayerCash);
+            company.cash(this.oldCompanyCash);
+            if(this.numIssued) {
+                const certs = state.bank.removeNonPresidentCertsForCompany(this.numIssued, this.companyId);
+                company.addCerts(certs);
+                company.priceIndex(this.oldPriceIndex);
+            }
+            state.bank.removeCash(cost);
+            state.bank.addTrains(trainType, 1);
+            _.each(this.trainIds, id => {
+                company.removeTrainById(id);
+            });
+
+            if (this.oldPhase) {
+                const currentPhase = state.currentPhaseId();
+                this.undoPhaseChange(state, currentPhase);
+                state.currentPhaseId(this.oldPhase);
+            }
+        }
+        else if (this.source === 'bank') {
             _.each(this.trains, (amount, type) => {
                 const trainDefinition = TrainDefinitions[type];
                 const cost = amount * trainDefinition.cost;
@@ -93,6 +167,12 @@ class BuyTrains extends Action {
             sellingCompany.removeCash(this.cost);
             company.addCash(this.cost);
         }
+    }
+
+    cashFromForcedIssues(company, numIssued) {
+        return _.reduce(_.range(1, numIssued + 1), (sum, value) => {
+            return sum + Prices.leftPrice(company.priceIndex(), value);
+        }, 0);
     }
 
     doPhaseChange(state, newPhase) {
@@ -181,14 +261,27 @@ class BuyTrains extends Action {
         const company = state.getCompany(this.companyId);
         const descData = this.getTrainDescriptionsAndCost(state, true);
         const source = this.source === 'bank' ? 'the bank' : state.getCompany(this.source).nickname;
-        return company.nickname + ' bought ' + _.join(descData.desc, ', ') + ' from ' + source + ' for $' + descData.cost;
+        const suffix = this.getSuffix(company, true);
+        return company.nickname + ' bought ' + _.join(descData.desc,
+                                                      ', ') + ' from ' + source + ' for $' + descData.cost + suffix;
     }
 
     confirmation(state) {
         const prefix = 'Confirm buy ';
+        const company = state.getCompany(this.companyId);
         const descData = this.getTrainDescriptionsAndCost(state);
         const source = this.source === 'bank' ? 'the bank' : state.getCompany(this.source).nickname;
-        return prefix + _.join(descData.desc, ', ') + ' from ' + source + ' for $' + descData.cost;
+        const suffix = this.getSuffix(company, true);
+        return prefix + _.join(descData.desc, ', ') + ' from ' + source + ' for $' + descData.cost + suffix;
+    }
+
+    getSuffix(company, summary) {
+        if (!this.forced) {
+            return '';
+        }
+        return (summary ? ' issuing ' : ' issued ') + this.numIssued + ' share' + (this.numIssued === 1 ? '' : 's') + ' - stock drops to $' + Prices.leftPrice(
+                company.priceIndex(), this.numIssued);
+
     }
 
     getTrainDescriptionsAndCost(state, summary) {
@@ -196,7 +289,12 @@ class BuyTrains extends Action {
             desc: [],
             cost: 0
         };
-        if (this.source === 'bank') {
+        if (this.forced) {
+            const trainDefinition = TrainDefinitions[this.trains[0]];
+            result.desc = ['a ' + trainDefinition.name + 'T'];
+            result.cost = trainDefinition.cost;
+        }
+        else if (this.source === 'bank') {
             const data = _.reduce(this.trains, (accumulator, amount, type) => {
                 const trainDefinition = TrainDefinitions[type];
                 const cost = amount * trainDefinition.cost;
@@ -208,7 +306,7 @@ class BuyTrains extends Action {
             result.cost = data.cost;
         }
         else {
-            if(!summary) {
+            if (!summary) {
                 const sellingCompany = state.getCompany(this.source);
                 result.desc = _.map(this.trainIds, trainId => {
                     const train = sellingCompany.getTrainById(trainId);
