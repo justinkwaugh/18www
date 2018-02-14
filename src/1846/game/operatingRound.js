@@ -15,6 +15,7 @@ import Events from 'common/util/events';
 import TrainDefinitions from '1846/config/trainDefinitions';
 import CompanyTypes from 'common/model/companyTypes';
 import DeclareBankruptcy from '1846/actions/declareBankruptcy';
+import ForceIssueCloseCompany from '1846/actions/forceIssueCloseCompany';
 
 const Actions = {
     ISSUE_SHARES: 'issue',
@@ -372,6 +373,13 @@ class OperatingRound {
                                          forced: true
                                      });
             }
+            else if (this.selectedAction() === Actions.CLOSE_COMPANY) {
+                return new ForceIssueCloseCompany({
+                                                 playerId: CurrentGame().state().currentPlayerId(),
+                                                 companyId: CurrentGame().state().currentCompanyId(),
+                                                 count: this.maximumForcedIssues()
+                                             })
+            }
             else if (this.selectedAction() === Actions.BANKRUPT) {
                 return new DeclareBankruptcy({
                                                  playerId: CurrentGame().state().currentPlayerId(),
@@ -687,13 +695,45 @@ class OperatingRound {
     }
 
     maximumForcedIssues() {
-        if(this.willGoBankrupt()) {
-            return this.getNumCanIssue();
+        const numCanIssue = this.getNumCanIssue();
+
+        if (this.willGoBankrupt()) {
+            return numCanIssue;
         }
 
-        if(this.canEmergencyBuy()) {
-
+        if (this.canEmergencyBuy()) {
+            const state = CurrentGame().state();
+            const availableTrains = _(state.bank.getFirstAvailablePhaseTrains()).map(trainType => {
+                const trainDefinition = TrainDefinitions[trainType];
+                return {
+                    type: trainDefinition.id,
+                    cost: trainDefinition.cost,
+                    num: 1,
+                    available: 1
+                }
+            }).value();
+            const company = CurrentGame().state().currentCompany();
+            const cashAfterFullForcedIssue = company.cash() + company.cashFromForcedIssues(numCanIssue);
+            const affordableTrainsTreasuryOnly = _.filter(availableTrains,
+                                                          trainData => cashAfterFullForcedIssue >= trainData.cost);
+            if (affordableTrainsTreasuryOnly.length > 0) {
+                const maxCost = _(affordableTrainsTreasuryOnly).map(train=>train.cost ).max();
+                let maxIssue = 0;
+                _.each(_.rangeRight(1,numCanIssue+1), value=> {
+                    if(company.cash() + company.cashFromForcedIssues(value) > maxCost) {
+                        maxIssue = value;
+                    }
+                    else {
+                        return false;
+                    }
+                });
+                return maxIssue;
+            }
+            else {
+                return numCanIssue;
+            }
         }
+
         return 0;
     }
 
