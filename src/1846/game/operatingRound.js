@@ -138,8 +138,20 @@ class OperatingRound {
                 return [];
             }
             const state = CurrentGame().state();
+            const company = state.currentCompany();
+            const presidentless = !company.president();
 
-            const numCanBuy = state.trainLimit() - (state.currentCompany().numTrainsForLimit() + this.numSelectedBankTrainsForPurchase());
+            if(presidentless) {
+                const cheapestTrain = this.getSingleCheapestTrain();
+                if(company.cash() >= cheapestTrain.cost) {
+                    return [cheapestTrain];
+                }
+                else {
+                    return [];
+                }
+            }
+
+            let numCanBuy = state.trainLimit() - (state.currentCompany().numTrainsForLimit() + this.numSelectedBankTrainsForPurchase());
 
             const cashAllocated = _.reduce(this.selectedBankTrainsForPurchase(), (sum, amount, type) => {
                 const trainDefinition = TrainDefinitions[type];
@@ -205,7 +217,12 @@ class OperatingRound {
                 return false;
             }
 
-            if (CurrentGame().state().currentCompany().type !== CompanyTypes.PUBLIC) {
+            const company = CurrentGame().state().currentCompany();
+            if (company.type !== CompanyTypes.PUBLIC) {
+                return false;
+            }
+
+            if (!company.president()) {
                 return false;
             }
 
@@ -213,7 +230,7 @@ class OperatingRound {
                 return false;
             }
 
-            return CurrentGame().state().currentPlayer().getPrivates().length > 0 && CurrentGame().state().currentCompany().cash() > 0;
+            return CurrentGame().state().currentPlayer().getPrivates().length > 0 && company.cash() > 0;
         });
 
         this.canUsePrivates = ko.computed(() => {
@@ -229,7 +246,12 @@ class OperatingRound {
                 return false;
             }
 
-            if (CurrentGame().state().currentCompany().type !== CompanyTypes.PUBLIC) {
+            const company = CurrentGame().state().currentCompany();
+            if (company.type !== CompanyTypes.PUBLIC) {
+                return false;
+            }
+
+            if (!company.president()) {
                 return false;
             }
 
@@ -245,7 +267,12 @@ class OperatingRound {
                 return false;
             }
 
-            if (CurrentGame().state().currentCompany().type !== CompanyTypes.PUBLIC) {
+            const company = CurrentGame().state().currentCompany();
+            if (company.type !== CompanyTypes.PUBLIC) {
+                return false;
+            }
+
+            if (!company.president()) {
                 return false;
             }
 
@@ -261,6 +288,11 @@ class OperatingRound {
                 return false;
             }
 
+            const company = CurrentGame().state().currentCompany();
+            if (!company.president()) {
+                return false;
+            }
+
             if (this.hasRunRoutesThisTurn()) {
                 return false;
             }
@@ -269,9 +301,7 @@ class OperatingRound {
                 return false;
             }
 
-            const company = CurrentGame().state().currentCompany();
-            return company.cash() >= 20;
-            // IC free spots
+            return true;
         });
 
         this.canRunRoutes = ko.computed(() => {
@@ -490,6 +520,9 @@ class OperatingRound {
     }
 
     getCompaniesWithTrains() {
+        if(!CurrentGame().state().currentCompany().president()) {
+            return [];
+        }
 
         return _(CurrentGame().state().currentPlayer().presidentCompanyIds()).reject(
             companyId => companyId === CurrentGame().state().currentCompany().id).map(
@@ -498,7 +531,7 @@ class OperatingRound {
     }
 
     canAllocateRevenue() {
-        return CurrentGame().state().currentCompany().type !== CompanyTypes.INDEPENDANT;
+        return CurrentGame().state().currentCompany().type !== CompanyTypes.INDEPENDANT && CurrentGame().state().currentCompany().president();
     }
 
     getNumCanRedeem() {
@@ -628,23 +661,21 @@ class OperatingRound {
         });
     }
 
-    canEndTurn() {
+    hasGoneBankrupt() {
         if (!CurrentGame()) {
             return false;
         }
 
-        if (!this.hasRunRoutesThisTurn()) {
+        const turn = CurrentGame().state().turnHistory.currentTurn();
+        if (!turn) {
             return false;
         }
 
-        // Also check bankruptcy
-        const company = CurrentGame().state().currentCompany();
-        if (company.trains().length === 0) {
-            return false;
-        }
-
-        return true;
+        return _.find(turn.getActions(), action => {
+            return action.getTypeName() === 'DeclareBankruptcy';
+        });
     }
+
 
     canBuyTrainFromBank() {
         if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
@@ -669,6 +700,10 @@ class OperatingRound {
         }
 
         const company = CurrentGame().state().currentCompany();
+        if(!company.president()) {
+            return false;
+        }
+
         return company.numTrainsForLimit() === 0 && !this.canBuyTrainFromBank() && !this.willGoBankrupt();
     }
 
@@ -692,6 +727,19 @@ class OperatingRound {
             return sum + companyToSell.price() * player.getMaximumAllowedSalesOfCompany(companyId,
                                                                                         companyId === company.id);
         }, 0);
+    }
+
+    getSingleCheapestTrain() {
+        const state = CurrentGame().state();
+        return _(state.bank.getFirstAvailablePhaseTrains()).map(trainType => {
+                const trainDefinition = TrainDefinitions[trainType];
+                return {
+                    type: trainDefinition.id,
+                    cost: trainDefinition.cost,
+                    num: 1,
+                    available: 1
+                }
+            }).minBy(train=>'cost');
     }
 
     maximumForcedIssues() {
@@ -742,12 +790,16 @@ class OperatingRound {
             return false;
         }
         const company = CurrentGame().state().currentCompany();
+        if(company.closed()) {
+            return false;
+        }
+
         const numIssuable = this.maximumForcedIssues();
         return Prices.leftIndex(company.priceIndex(), numIssuable) === 0;
     }
 
     canGoBankrupt() {
-        return this.willGoBankrupt() && !this.canCloseCompany();
+        return this.willGoBankrupt() && !this.hasGoneBankrupt() && !this.canCloseCompany();
     }
 
     willGoBankrupt() {
@@ -755,6 +807,10 @@ class OperatingRound {
             return false;
         }
         const company = CurrentGame().state().currentCompany();
+        if(company.closed()) {
+            return false;
+        }
+
         const player = CurrentGame().state().currentPlayer();
 
         if (company.numTrainsForLimit() > 0) {
@@ -766,7 +822,7 @@ class OperatingRound {
         }
 
         const cheapestBankTrain = CurrentGame().state().bank.getCheapestTrainCost();
-        if (company.cash() > cheapestBankTrain) {
+        if (company.cash() >= cheapestBankTrain) {
             return false;
         }
 
@@ -788,6 +844,21 @@ class OperatingRound {
         moneyNeeded -= this.cashFromStockSales(company, player);
 
         return moneyNeeded > 0;
+    }
+
+    noPresidentAndCannotBuyTrain() {
+        const company = CurrentGame().state().currentCompany();
+        const cheapestBankTrain = CurrentGame().state().bank.getCheapestTrainCost();
+        return !company.president() && company.cash() < cheapestBankTrain;
+    }
+
+    canEndTurn() {
+        const state = CurrentGame().state();
+        if(!state.isOperatingRound()) {
+            return true;
+        }
+        const company = state.currentCompany();
+        return this.hasRunRoutesThisTurn() && (company.numTrainsForLimit() > 0 || this.hasGoneBankrupt() || this.noPresidentAndCannotBuyTrain());
     }
 
     getTrainsAvailableToForceBuy() {
@@ -826,6 +897,7 @@ class OperatingRound {
     selectAction(actionId) {
         this.reset();
         this.selectedAction(actionId);
+        const company = CurrentGame().state().currentCompany();
         if (this.selectedAction() === Actions.BUY_PRIVATES) {
 
         }
@@ -835,16 +907,19 @@ class OperatingRound {
             }
         }
         else if (this.selectedAction() === Actions.RUN_ROUTES) {
-            const company = CurrentGame().state().currentCompany();
+
             const trains = _(company.getRunnableTrains()).map(train => train.clone()).value();
             this.companyTrains(trains);
             Events.emit('drawRoutes', _.map(this.companyTrains(), train => train.route));
 
             if (this.companyTrains().length === 0) {
-                this.selectedAllocation(Allocations.FULL);
+                this.selectedAllocation(Allocations.NONE);
             }
             else {
                 this.selectTrain(_.first(this.companyTrains()));
+                if(!company.president()) {
+                    this.selectedAllocation(Allocations.NONE);
+                }
             }
 
             if (company.type === CompanyTypes.INDEPENDANT) {
@@ -856,6 +931,9 @@ class OperatingRound {
             if (this.getCompaniesWithTrains().length === 0) {
                 this.selectedTrainSource('bank');
             }
+        }
+        else if (this.selectedAction() === Actions.BANKRUPT) {
+            this.commit();
         }
     }
 

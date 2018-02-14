@@ -1,4 +1,4 @@
-<!-- ko if: $data && $data.canDoAnything() -->
+<!-- ko if: $root.game() && $root.game().state().isOperatingRound() && $data && $data.canDoAnything() -->
 <div class="alert alert-dark rounded-0 border-top-0 border-right-0 border-left-0 m-0 p-3 d-flex flex-column justify-content-center"
      role="alert">
 
@@ -57,7 +57,7 @@
         <!-- /ko -->
         <!-- ko if: $data.canGoBankrupt() -->
         <button class="btn btn-sm "
-                data-bind="click: function() { $data.selectAction($data.Actions.BANKRUPT); },css: $data.selectedAction() === $data.Actions.BANKRUPT ? 'active btn-secondary' : 'btn-light' ">
+                data-bind="click: function() { $data.selectAction($data.Actions.BANKRUPT); },css: $data.selectedAction() === $data.Actions.BANKRUPT ? 'active btn-danger' : 'btn-danger' ">
             Declare Bankruptcy
         </button>
         <!-- /ko -->

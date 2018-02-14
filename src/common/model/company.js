@@ -178,7 +178,10 @@ class Company extends Serializable {
             return null;
         }).compact().fromPairs().value();
 
-        state.bank.addCash(this.cash());
+        const cash = this.cash();
+        state.bank.addCash(cash);
+        this.cash(0);
+
         let meatTileId = null;
         if (this.hasPrivate(CompanyIDs.MEAT_PACKING_COMPANY)) {
             const tile = _.find(CurrentGame().state().tilesByCellId, tile => {
@@ -197,6 +200,8 @@ class Company extends Serializable {
             steamboatTileId = tile.id;
         }
 
+
+
         this.closed(true);
 
         return {
@@ -206,7 +211,8 @@ class Company extends Serializable {
             tokens,
             reservedTokens,
             meatTileId,
-            steamboatTileId
+            steamboatTileId,
+            cash
         }
     }
 
@@ -237,7 +243,8 @@ class Company extends Serializable {
                 tile.hasSteamboat(true);
             }
         });
-        state.bank.removeCash(this.cash());
+        state.bank.removeCash(closeData.cash);
+        this.cash(closeData.cash);
         this.closed(false);
     }
 

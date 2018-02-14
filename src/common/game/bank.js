@@ -124,6 +124,12 @@ class Bank extends Serializable {
         return _(this.certificatesById()[companyId] || []).sumBy('shares');
     }
 
+    removeCertsById(ids) {
+        return this.certificates.remove(cert=>{
+            return _.indexOf(ids, cert.id) >= 0;
+        });
+    }
+
     removeNonPresidentCertsForCompany(count, companyId) {
         const certIdsToRemove = _(this.certificatesById()[companyId]).sortBy('president').reverse().take(count).map('id').value();
         return this.certificates.remove(cert=>{

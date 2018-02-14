@@ -26,7 +26,7 @@ class LayTrack extends Action {
         const oldTile = state.tilesByCellId[this.cellId];
         this.oldTileId = oldTile.id;
         this.oldTilePosition = oldTile.position();
-        this.upgrade = _.indexOf([TileColorIDs.YELLOW, TileColorIDs.GREEN, TileColorIDs.BROWN], oldTile.colorId) >= 0;
+        this.upgrade = _.indexOf([TileColorIDs.INVISIBLE, TileColorIDs.YELLOW, TileColorIDs.GREEN, TileColorIDs.BROWN], oldTile.colorId) >= 0;
         const newTile = state.manifest.getTile(this.tileId, this.oldTileId);
         newTile.position(this.position);
         oldTile.copyToTile(newTile);
@@ -43,8 +43,7 @@ class LayTrack extends Action {
         Events.emit('tileUpdated.' + this.cellId);
         Events.emit('trackLaid');
         if(this.upgrade) {
-            // Probably need to actually just iterate through companies for this on backend.
-            Events.emit('tileUpgraded', { cellId: this.cellId, oldTile, newTile });
+            this.upgradeRoutes(state, this.cellId, oldTile, newTile);
         }
     }
 
@@ -66,8 +65,19 @@ class LayTrack extends Action {
         Events.emit('tileUpdated.' + this.cellId);
         Events.emit('trackLaid', this);
         if(this.upgrade) {
-            Events.emit('tileUpgraded', { cellId: this.cellId, newTile: oldTile, oldTile: newTile });
+            this.upgradeRoutes(state, this.cellId, newTile, oldTile);
         }
+    }
+
+    upgradeRoutes(state, cellId, oldTile, newTile) {
+        _.each(state.allCompaniesById, company=> {
+                if(company.closed()) {
+                    return;
+                }
+                _.each(company.getRunnableTrains(), train=>{
+                    train.route.upgradeConnections(this.cellId, oldTile, newTile);
+                });
+            });
     }
 
     summary(state) {

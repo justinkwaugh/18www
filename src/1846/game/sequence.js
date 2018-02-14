@@ -42,7 +42,7 @@ class Sequence {
         }
         else if (currentRound.id === RoundIDs.PRIVATE_DRAFT) {
             if (state.undraftedPrivateIds().length > 0) {
-                state.currentPlayerIndex(Sequence.nextPlayerIndex(true));
+                state.currentPlayerIndex(Sequence.nextPlayerIndex(null,true));
                 game.privateDraft(new PrivateDraft());
             }
             else {
@@ -119,6 +119,7 @@ class Sequence {
             state.currentCompanyId(null);
             state.currentPlayerIndex(state.priorityDealIndex());
             state.roundHistory.startRound(RoundIDs.STOCK_ROUND, currentRoundNumber + 1);
+            state.firstPassIndex(null);
             game.stockRound(new StockRound());
             game.showOwnership();
         }
@@ -130,20 +131,32 @@ class Sequence {
 
     static setNextCompanyAndPlayer(state, companyIndex) {
         state.currentCompanyId(state.operatingOrder()[companyIndex]);
-        const presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
+        let presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
+        if(!presidentPlayerId) {
+            presidentPlayerId = _(state.players()).reject(player=>player.bankrupt()).sample().id;
+        }
         const nextPresidentIndex = _.findIndex(state.players(), player => player.id === presidentPlayerId);
         state.currentPlayerIndex(nextPresidentIndex);
     }
 
-    static nextPlayerIndex(reverse) {
+    static nextPlayerIndex(fromIndex, reverse) {
         const state = CurrentGame().state();
-        let nextPlayerIndex = state.currentPlayerIndex() + (reverse ? -1 : 1);
-        if (nextPlayerIndex < 0) {
-            nextPlayerIndex = state.players().length - 1;
+        if(!_.isNumber(fromIndex)) {
+            fromIndex = state.currentPlayerIndex();
         }
-        else if (nextPlayerIndex === state.players().length) {
-            nextPlayerIndex = 0;
-        }
+
+        let nextPlayerIndex = 0;
+        do {
+            nextPlayerIndex = fromIndex + (reverse ? -1 : 1);
+            if (nextPlayerIndex < 0) {
+                nextPlayerIndex = state.players().length - 1;
+            }
+            else if (nextPlayerIndex === state.players().length) {
+                nextPlayerIndex = 0;
+            }
+            fromIndex = nextPlayerIndex;
+        } while(state.players()[nextPlayerIndex].bankrupt());
+
         return nextPlayerIndex;
     }
 

@@ -173,7 +173,10 @@ class Player extends BasePlayer {
         }
 
         const company = CurrentGame().state().publicCompaniesById[companyId];
-        if (!company.opened() && !this.canStartCompany(companyId)) {
+        if(company.closed()) {
+            return false;
+        }
+        else if (!company.opened() && !this.canStartCompany(companyId)) {
             return false;
         }
         else if (this.cash() < Prices.price(company.priceIndex())) {

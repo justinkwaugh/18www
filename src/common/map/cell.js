@@ -523,7 +523,7 @@ class Cell {
                                                                               connectionStart,
                                                                               visited);
                                                                           if (isEdgeValid) {
-                                                                              console.log('Connection found');
+                                                                              // console.log('Connection found');
                                                                               validEdges[connectionStart] = true;
                                                                               return true;
                                                                           }
@@ -536,7 +536,7 @@ class Cell {
                                                                               connectionEnd,
                                                                               visited);
                                                                           if (isEdgeValid) {
-                                                                              console.log('Connection found');
+                                                                              // console.log('Connection found');
                                                                               validEdges[connectionEnd] = true;
                                                                               return true;
                                                                           }
@@ -645,7 +645,7 @@ class Cell {
 
                 // check for city / token
                 if (companyId && this.tile().hasTokenForCompany(companyId, connection[1])) {
-                    console.log('Found token!');
+                    // console.log('Found token!');
                     found = true;
                     return false;
                 }

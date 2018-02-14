@@ -108,6 +108,7 @@ class BuyTrains extends Action {
                 const newTrain = train.clone();
                 newTrain.route.color = company.getAvailableRouteColor();
                 newTrain.route.companyId = company.id;
+                newTrain.route.clear();
                 newTrain.purchased = true;
                 return newTrain;
             });

@@ -18,6 +18,7 @@ class RunRoutes extends Action {
         this.allocation = args.allocation;
         this.oldLastRun = args.oldLastRun;
         this.oldPriceIndex = args.oldPriceIndex;
+        this.newPriceIndex = args.newPriceIndex;
         this.oldCompaniesForPriceIndex= args.oldCompaniesForPriceIndex;
         this.oldTrains = args.oldTrains;
         this.closeData = args.closeData;
@@ -37,13 +38,7 @@ class RunRoutes extends Action {
         // Update and pay company
         company.lastRun(this.revenue);
 
-        company.updateTrains(_.map(this.trains, train => train.clone()));
-        _.each(company.trains(), train=>{
-            if (train.phasedOut()) {
-                train.phasedOut(false);
-                train.rusted(true);
-            }
-        });
+
         state.bank.removeCash(companyIncome);
         company.addCash(companyIncome);
 
@@ -54,7 +49,7 @@ class RunRoutes extends Action {
         }
         else {
             if (this.allocation === Allocations.NONE || this.revenue === 0) {
-                company.priceIndex(Prices.leftIndex(this.oldPriceIndex));
+                company.priceIndex(Prices.leftIndex(this.oldPriceIndex, company.numTrainsForLimit() === 0 ? 2 : 1));
             }
             else {
                 company.priceIndex(
@@ -69,9 +64,19 @@ class RunRoutes extends Action {
             });
         }
 
+        company.updateTrains(_.map(this.trains, train => train.clone()));
+        _.each(company.trains(), train=>{
+            if (train.phasedOut()) {
+                train.phasedOut(false);
+                train.rusted(true);
+            }
+        });
+
         if(company.type === CompanyTypes.PUBLIC && company.priceIndex() === 0) {
             this.closeData = company.close();
         }
+
+        this.newPriceIndex = company.priceIndex();
     }
 
     doUndo(state) {
@@ -112,18 +117,19 @@ class RunRoutes extends Action {
         const payout = this.calculatePayout(this.revenue, this.allocation);
         const movement = (this.revenue === 0 || this.allocation === Allocations.NONE) ? -1 : this.calculateStockMovement(
             payout, Prices.price(this.oldPriceIndex));
-        const newPrice = Prices.rightPrice(this.oldPriceIndex, movement);
+        const newPrice = Prices.price(this.newPriceIndex);
+        const allocationText = this.revenue > 0 ? ' and ' + this.getAllocationText(this.allocation, true): '';
         const trainText = this.trains.length === 0 ? 'no trains' : 'its ' + _(this.trains).map(
                 train => TrainNames[train.type]).join(
-                ',') + ' train' + (this.trains.length > 1 ? 's' : '') + ' for $' + this.revenue + ' and ' + this.getAllocationText(
-                this.allocation, true);
+                ',') + ' train' + (this.trains.length > 1 ? 's' : '') + ' for $' + this.revenue + allocationText;
         const stockText = company.type === CompanyTypes.INDEPENDANT ? '' : ' - share price ' + this.getMovementText(movement) + ' $' + newPrice;
         return company.nickname + ' ran ' + trainText + stockText;
     }
 
     confirmation(state) {
         const revenue = this.calculateRevenue(state);
-        return 'Confirm run trains for $' + revenue + ' and ' + this.getAllocationText(this.allocation);
+        const allocationText = this.revenue > 0 ? ' and ' + this.getAllocationText(this.allocation): '';
+        return 'Confirm run trains for $' + revenue + allocationText;
     }
 
     calculateRevenue(state) {

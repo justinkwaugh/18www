@@ -1004,7 +1004,6 @@ class TileManifest extends Serializable {
     }
 
     getTemplateName(id) {
-        console.log("Get template name: " + id)
         return TileManifest.getTileDefinition(id).template || 'common';
     }
 

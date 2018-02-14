@@ -22,13 +22,6 @@ class Route extends Serializable {
         if (definition.trainType) {
             this.configureForTrain(definition.trainType);
         }
-
-        Events.on('tileUpgraded', data=> {
-            const upgradedCellId = _.find(this.cells(), cell=>cell.id === data.cellId);
-            if(upgradedCellId) {
-                this.upgradeConnections(data.cellId, data.oldTile, data.newTile);
-            }
-        });
     }
 
     configureForTrain(trainType) {
@@ -199,8 +192,12 @@ class Route extends Serializable {
     }
 
     upgradeConnections(cellId, oldTile, newTile) {
-        const upgradedConnectionsById = oldTile.getUpgradedConnections(newTile);
         const cell = this.getCell(cellId);
+        if(!cell) {
+            return;
+        }
+        const upgradedConnectionsById = oldTile.getUpgradedConnections(newTile);
+
         cell.connections = _.map(cell.connections, connection=> {
             const connectionId = Tile.getConnectionId(connection);
             return upgradedConnectionsById[connectionId];
