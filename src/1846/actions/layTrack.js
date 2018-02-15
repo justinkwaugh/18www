@@ -26,7 +26,7 @@ class LayTrack extends Action {
         const oldTile = state.tilesByCellId[this.cellId];
         this.oldTileId = oldTile.id;
         this.oldTilePosition = oldTile.position();
-        this.upgrade = _.indexOf([TileColorIDs.INVISIBLE, TileColorIDs.YELLOW, TileColorIDs.GREEN, TileColorIDs.BROWN], oldTile.colorId) >= 0;
+        this.upgrade = _.indexOf([TileColorIDs.YELLOW, TileColorIDs.GREEN, TileColorIDs.BROWN], oldTile.colorId) >= 0;
         const newTile = state.manifest.getTile(this.tileId, this.oldTileId);
         newTile.position(this.position);
         oldTile.copyToTile(newTile);

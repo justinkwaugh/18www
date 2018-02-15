@@ -19,15 +19,20 @@ class BuyTrains extends Action {
         this.source = args.source;
         this.trainIds = args.trainIds || [];
         this.oldPhase = args.oldPhase;
-        this.closedCompanyData = args.closedCompanyData;
+        this.closedPrivatesData = args.closedPrivatesData;
         this.meatTileId = args.meatTileId;
         this.steamboatTileId = args.steamboatTileId;
         this.cost = args.cost;
         this.forced = args.forced;
         this.numIssued = args.numIssued;
-        this.oldCompanyCash = args.oldCompanyCash;
-        this.oldPriceIndex = args.oldPriceIndex;
         this.stockSales = args.stockSales;
+        this.closedCompanies = args.closedCompanies || {};
+        this.presidentChanges = args.presidentChanges || {};
+        this.oldCompanyCash = args.oldCompanyCash;
+        this.oldCompanyPriceIndices = args.oldCompanyPriceIndices || {};
+        this.oldPlayerCerts = args.oldPlayerCerts || [];
+        this.oldPlayerCash = args.oldPlayerCash;
+        this.oldBankCash = args.oldBankCash;
     }
 
     doExecute(state) {
@@ -38,8 +43,10 @@ class BuyTrains extends Action {
             const trainType = this.trains[0];
             const cost = trainDefinition.cost;
             this.oldCompanyCash = company.cash();
-            this.oldPriceIndex = company.priceIndex();
+            this.oldCompanyPriceIndices[this.companyId] = company.priceIndex();
             this.oldPlayerCash = player.cash();
+            this.oldBankCash = state.bank.cash();
+
             if (this.numIssued) {
                 const certs = company.removeCerts(this.numIssued);
                 state.bank.addCerts(certs);
@@ -47,12 +54,56 @@ class BuyTrains extends Action {
                 company.priceIndex(Prices.leftIndex(company.priceIndex(), this.numIssued));
             }
 
-            if(this.stockSales) {
-                // Sell and add cash to player
+            if (this.stockSales) {
+                _.each(this.stockSales, (amount, companyId) => {
+                    const ownedCompany = state.getCompany(companyId);
+                    const isPresident = player.isPresidentOfCompany(companyId);
+                    const closing = isPresident && Prices.leftIndex(company.priceIndex()) === 0;
+
+                    if (closing) {
+                        this.closedCompanies[companyId] = ownedCompany.close();
+                    }
+                    else {
+                        const cashForShares = company.price() * amount;
+                        player.addCash(cashForShares);
+                        state.bank.removeCash(cashForShares);
+
+                        if (isPresident) {
+                            if (player.sharesPerCompany()[this.companyId] - amount < 2) {
+                                const target = _(state.players()).filter(
+                                    otherPlayer => player.id !== otherPlayer.id && otherPlayer.sharesPerCompany()[companyId] >= 2).sortBy(
+                                    otherPlayer => {
+                                        return otherPlayer.order() > player.order() ? otherPlayer.order() : otherPlayer.order() + 10;
+                                    }).first();
+
+                                if (target) {
+                                    const nonPresidentCerts = target.removeNonPresidentCertsForCompany(2, companyId);
+                                    const presidentCert = player.removePresidentCertForCompany(companyId);
+
+                                    target.addCert(presidentCert);
+                                    player.addCerts(nonPresidentCerts);
+                                    company.president(target.id);
+                                    this.presidentChanges[companyId] = target.id;
+                                }
+                            }
+
+                            if (companyId !== this.companyId) {
+                                this.oldCompanyPriceIndices[companyId] = ownedCompany.priceIndex();
+                            }
+
+                            ownedCompany.priceIndex(Prices.leftIndex(ownedCompany.priceIndex()))
+                        }
+
+
+                        const certs = player.removeNonPresidentCertsForCompany(amount, companyId);
+                        this.oldPlayerCerts.push.apply(this.oldPlayerCerts, _.map(certs, 'id'));
+                        state.bank.addCerts(certs);
+                    }
+                });
             }
 
             const playerCashNeeded = cost - company.cash();
-            if(playerCashNeeded) {
+            if (playerCashNeeded) {
                 player.removeCash(playerCashNeeded);
                 company.addCash(playerCashNeeded);
             }
@@ -74,7 +125,7 @@ class BuyTrains extends Action {
                 state.currentPhaseId(newPhase);
                 this.doPhaseChange(state, newPhase);
             }
-            throw new Exception('hi');
+
         }
         else if (this.source === 'bank') {
             _.each(this.trains, (amount, type) => {
@@ -122,17 +173,8 @@ class BuyTrains extends Action {
         const company = state.getCompany(this.companyId);
         if (this.forced) {
             const player = state.playersById()[this.playerId];
-            const trainDefinition = TrainDefinitions[this.trains[0]];
             const trainType = this.trains[0];
-            const cost = trainDefinition.cost;
-            player.cash(this.oldPlayerCash);
-            company.cash(this.oldCompanyCash);
-            if(this.numIssued) {
-                const certs = state.bank.removeNonPresidentCertsForCompany(this.numIssued, this.companyId);
-                company.addCerts(certs);
-                company.priceIndex(this.oldPriceIndex);
-            }
-            state.bank.removeCash(cost);
+
             state.bank.addTrains(trainType, 1);
             _.each(this.trainIds, id => {
                 company.removeTrainById(id);
@@ -143,6 +185,42 @@ class BuyTrains extends Action {
                 this.undoPhaseChange(state, currentPhase);
                 state.currentPhaseId(this.oldPhase);
             }
+
+            _.each(this.stockSales, (amount, companyId) => {
+                const certs = state.bank.removeNonPresidentCertsForCompany(amount, companyId);
+                player.addCerts(certs);
+            });
+
+            _.each(this.presidentChanges, (otherPlayerId, companyId) => {
+                if (otherPlayerId) {
+                    const otherPresident = state.playersById()[otherPlayerId];
+                    const nonPresidentCerts = player.removeNonPresidentCertsForCompany(2, companyId);
+                    const presidentCert = otherPresident.removePresidentCertForCompany(companyId);
+
+                    player.addCert(presidentCert);
+                    otherPresident.addCerts(nonPresidentCerts);
+                }
+                company.president(player.id);
+            });
+
+            _.each(this.closedCompanies, (closeData, companyId) => {
+                const closedCompany = state.getCompany(companyId);
+                closedCompany.unclose(closeData);
+            });
+
+            if (this.numIssued) {
+                const certs = state.bank.removeNonPresidentCertsForCompany(this.numIssued, this.companyId);
+                company.addCerts(certs);
+            }
+
+            _.each(this.oldCompanyPriceIndices, (index, companyId) => {
+                const otherCompany = state.getCompany(companyId);
+                otherCompany.priceIndex(index);
+            });
+
+            player.cash(this.oldPlayerCash);
+            company.cash(this.oldCompanyCash);
+            state.bank.cash(this.oldBankCash);
         }
         else if (this.source === 'bank') {
             _.each(this.trains, (amount, type) => {
@@ -174,14 +252,14 @@ class BuyTrains extends Action {
     doPhaseChange(state, newPhase) {
 
         if (newPhase === PhaseIDs.PHASE_III) {
-            const closedCompanyData = [];
+            const closedPrivatesData = [];
             _.each(state.publicCompanies, company => {
                 company.phaseOut(PhaseIDs.PHASE_I);
             });
             _.each(state.privateCompanies, company => {
-                closedCompanyData.push(company.close());
+                closedPrivatesData.push(company.close());
             });
-            this.closedCompanyData = closedCompanyData;
+            this.closedPrivatesData = closedPrivatesData;
             state.trainLimit(3);
         }
         else if (newPhase === PhaseIDs.PHASE_IV) {
@@ -214,7 +292,7 @@ class BuyTrains extends Action {
             _.each(state.publicCompanies, company => {
                 company.unphaseOut(PhaseIDs.PHASE_I);
             });
-            _.each((this.closedCompanyData || []), closeData => {
+            _.each((this.closedPrivatesData || []), closeData => {
                 const company = state.getCompany(closeData.id);
                 company.unclose(closeData);
             });
@@ -276,9 +354,9 @@ class BuyTrains extends Action {
         if (!this.forced) {
             return text;
         }
-        if(this.numIssued > 0) {
+        if (this.numIssued > 0) {
             text += (summary ? ' issuing ' : ' issued ') + this.numIssued + ' share' + (this.numIssued === 1 ? '' : 's') + ' - stock drops to $' + Prices.leftPrice(
-                company.priceIndex(), this.numIssued);
+                    company.priceIndex(), this.numIssued);
         }
         return text;
 

@@ -22,6 +22,7 @@ class RunRoutes extends Action {
         this.oldCompaniesForPriceIndex= args.oldCompaniesForPriceIndex;
         this.oldTrains = args.oldTrains;
         this.closeData = args.closeData;
+        this.oldOperated = args.oldOperated;
     }
 
     doExecute(state) {
@@ -31,6 +32,7 @@ class RunRoutes extends Action {
         this.oldPriceIndex = company.priceIndex();
         this.oldCompaniesForPriceIndex = state.stockBoard.getCompaniesForPriceIndex(this.oldPriceIndex);
         this.oldLastRun = company.lastRun();
+        this.oldOperated = company.operated();
         this.revenue = this.calculateRevenue(state);
         const companyIncome = this.calculateCompanyIncome(company, this.revenue, this.allocation);
         const payout = this.calculatePayout(this.revenue, this.allocation);
@@ -49,7 +51,7 @@ class RunRoutes extends Action {
         }
         else {
             if (this.allocation === Allocations.NONE || this.revenue === 0) {
-                company.priceIndex(Prices.leftIndex(this.oldPriceIndex, company.numTrainsForLimit() === 0 ? 2 : 1));
+                company.priceIndex(Prices.leftIndex(this.oldPriceIndex, (!company.president() && company.numTrainsForLimit() === 0) ? 2 : 1));
             }
             else {
                 company.priceIndex(
@@ -75,7 +77,7 @@ class RunRoutes extends Action {
         if(company.type === CompanyTypes.PUBLIC && company.priceIndex() === 0) {
             this.closeData = company.close();
         }
-
+        company.operated(true);
         this.newPriceIndex = company.priceIndex();
     }
 
@@ -110,6 +112,7 @@ class RunRoutes extends Action {
         company.removeCash(companyIncome);
         company.trains(_.map(this.oldTrains, train => train.clone()));
         company.lastRun(this.oldLastRun);
+        company.operated(this.oldOperated);
     }
 
     summary(state) {

@@ -48,6 +48,11 @@ class DeclareBankruptcy extends Action {
                 this.closedCompanies[companyId] = ownedCompany.close();
             }
             else {
+                const numShares = player.numSharesOwnedOfCompany();
+                const cashForShares = company.price() * numShares;
+                player.addCash(cashForShares);
+                state.bank.removeCash(cashForShares);
+
                 if (isPresident) {
                     const target = _(state.players()).filter(
                         otherPlayer => player.id !== otherPlayer.id && otherPlayer.sharesPerCompany()[companyId] >= 2).sortBy(
@@ -73,11 +78,6 @@ class DeclareBankruptcy extends Action {
                     }
                     ownedCompany.priceIndex(Prices.leftIndex(ownedCompany.priceIndex()))
                 }
-
-                const numShares = player.numSharesOwnedOfCompany();
-                const cashForShares = company.price() * numShares;
-                player.addCash(cashForShares);
-                state.bank.removeCash(cashForShares);
 
                 const certs = player.removeAllCertsForCompany(companyId);
                 this.oldPlayerCerts.push.apply(this.oldPlayerCerts, _.map(certs, 'id'));

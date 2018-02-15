@@ -137,7 +137,7 @@ const TileDefinitions = {
     [MapTileIDs.CHICAGO]: {
         id: MapTileIDs.CHICAGO,
         map: true,
-        colorId: TileColorIDs.INVISIBLE,
+        colorId: TileColorIDs.YELLOW,
         revenue: 10,
         template: 'mapChicago',
         connections: [[0, 7], [1, 8], [2, 9], [3, 10]],
@@ -172,7 +172,7 @@ const TileDefinitions = {
     [MapTileIDs.DETROIT]: {
         id: MapTileIDs.DETROIT,
         map: true,
-        colorId: TileColorIDs.INVISIBLE,
+        colorId: TileColorIDs.YELLOW,
         revenue: 40,
         template: 'mapDoubleCity',
         connections: [[0, 7], [4, 7]],
@@ -183,7 +183,7 @@ const TileDefinitions = {
     [MapTileIDs.ERIE]: {
         id: MapTileIDs.ERIE,
         map: true,
-        colorId: TileColorIDs.INVISIBLE,
+        colorId: TileColorIDs.YELLOW,
         revenue: 10,
         template: 'mapDoubleCity',
         connections: [[0, 7], [3, 7], [4, 7]],
@@ -226,7 +226,7 @@ const TileDefinitions = {
     [MapTileIDs.WHEELING]: {
         id: MapTileIDs.WHEELING,
         map: true,
-        colorId: TileColorIDs.INVISIBLE,
+        colorId: TileColorIDs.YELLOW,
         revenue: 10,
         template: 'wheeling',
         connections: [[2, 7]],

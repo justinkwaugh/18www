@@ -56,6 +56,7 @@ class OperatingRound {
         this.selectedCompanyTrainsForPurchase = ko.observableArray(definition.selectedCompanyTrainsForPurchase);
         this.selectedBankTrainsForPurchase = ko.observable(definition.selectedBankTrainsForPurchase || {});
         this.selectedForcedTrainForPurchase = ko.observable(definition.selectedForcedTrainForPurchase);
+        this.selectedStocksForSale = ko.observable(definition.selectedStocksForSale || {});
 
         this.maxPrivateCost = ko.computed(() => {
             if (!this.selectedPrivateId()) {
@@ -141,9 +142,9 @@ class OperatingRound {
             const company = state.currentCompany();
             const presidentless = !company.president();
 
-            if(presidentless) {
+            if (presidentless) {
                 const cheapestTrain = this.getSingleCheapestTrain();
-                if(company.cash() >= cheapestTrain.cost) {
+                if (company.cash() >= cheapestTrain.cost) {
                     return [cheapestTrain];
                 }
                 else {
@@ -202,6 +203,33 @@ class OperatingRound {
                 }
             }).value();
         });
+
+        this.sharesForSale = ko.computed(() => {
+            if (!this.selectedForcedTrainForPurchase()) {
+                return [];
+            }
+            const company = CurrentGame().state().currentCompany();
+            const player = CurrentGame().state().currentPlayer();
+            const cashRaised = _.reduce(this.selectedStocksForSale(), (sum, amount, companyId) => {
+                const companyForSale = CurrentGame().state().getCompany(companyId);
+                return sum + (amount * companyForSale.price());
+            }, 0);
+            const moneyNeeded = this.getMoneyNeededFromStockSales() - cashRaised;
+
+            return _(player.ownedCompanyIds()).map(companyId => {
+                const companyToSell = CurrentGame().state().getCompany(companyId);
+                const numOfTypeSelected = this.selectedStocksForSale()[companyId] || 0;
+                const maxAvailable = player.getMaximumAllowedSalesOfCompany(companyId, companyId === company.id);
+                const numNeeded = Math.ceil(moneyNeeded / companyToSell.price());
+                const numAllowed = moneyNeeded <= 0 ? numOfTypeSelected : Math.min(numOfTypeSelected + numNeeded, maxAvailable);
+                return {
+                    company: companyToSell,
+                    available: maxAvailable,
+                    num: numAllowed
+                }
+            }).reject({available: 0}).sortBy(company => company.nickname).value();
+        });
+
 
         this.availableCompanyTrains = ko.computed(() => {
             if (!this.selectedTrainSource() || this.selectedTrainSource() === 'bank') {
@@ -393,22 +421,26 @@ class OperatingRound {
                                      });
             }
             else if (this.selectedAction() === Actions.BUY_TRAINS && this.selectedTrainSource() === 'bank' && this.selectedForcedTrainForPurchase()) {
-                return new BuyTrains({
-                                         playerId: CurrentGame().state().currentPlayerId(),
-                                         companyId: CurrentGame().state().currentCompanyId(),
-                                         trains: [this.selectedForcedTrainForPurchase()],
-                                         source: this.selectedTrainSource(),
-                                         numIssued: this.numIssuedForForceBuy(CurrentGame().state().currentCompany(),
-                                                                              this.selectedForcedTrainForPurchase()),
-                                         forced: true
-                                     });
+                if (!this.needsStockSales() || this.hasEnoughStockSales()) {
+                    return new BuyTrains({
+                                             playerId: CurrentGame().state().currentPlayerId(),
+                                             companyId: CurrentGame().state().currentCompanyId(),
+                                             trains: [this.selectedForcedTrainForPurchase()],
+                                             source: this.selectedTrainSource(),
+                                             numIssued: this.numIssuedForForceBuy(
+                                                 CurrentGame().state().currentCompany(),
+                                                 this.selectedForcedTrainForPurchase()),
+                                             stockSales: this.selectedStocksForSale(),
+                                             forced: true
+                                         });
+                }
             }
             else if (this.selectedAction() === Actions.CLOSE_COMPANY) {
                 return new ForceIssueCloseCompany({
-                                                 playerId: CurrentGame().state().currentPlayerId(),
-                                                 companyId: CurrentGame().state().currentCompanyId(),
-                                                 count: this.maximumForcedIssues()
-                                             })
+                                                      playerId: CurrentGame().state().currentPlayerId(),
+                                                      companyId: CurrentGame().state().currentCompanyId(),
+                                                      count: this.maximumForcedIssues()
+                                                  })
             }
             else if (this.selectedAction() === Actions.BANKRUPT) {
                 return new DeclareBankruptcy({
@@ -520,7 +552,7 @@ class OperatingRound {
     }
 
     getCompaniesWithTrains() {
-        if(!CurrentGame().state().currentCompany().president()) {
+        if (!CurrentGame().state().currentCompany().president()) {
             return [];
         }
 
@@ -700,7 +732,7 @@ class OperatingRound {
         }
 
         const company = CurrentGame().state().currentCompany();
-        if(!company.president()) {
+        if (!company.president()) {
             return false;
         }
 
@@ -732,14 +764,14 @@ class OperatingRound {
     getSingleCheapestTrain() {
         const state = CurrentGame().state();
         return _(state.bank.getFirstAvailablePhaseTrains()).map(trainType => {
-                const trainDefinition = TrainDefinitions[trainType];
-                return {
-                    type: trainDefinition.id,
-                    cost: trainDefinition.cost,
-                    num: 1,
-                    available: 1
-                }
-            }).minBy(train=>'cost');
+            const trainDefinition = TrainDefinitions[trainType];
+            return {
+                type: trainDefinition.id,
+                cost: trainDefinition.cost,
+                num: 1,
+                available: 1
+            }
+        }).minBy(train => 'cost');
     }
 
     maximumForcedIssues() {
@@ -765,10 +797,10 @@ class OperatingRound {
             const affordableTrainsTreasuryOnly = _.filter(availableTrains,
                                                           trainData => cashAfterFullForcedIssue >= trainData.cost);
             if (affordableTrainsTreasuryOnly.length > 0) {
-                const maxCost = _(affordableTrainsTreasuryOnly).map(train=>train.cost ).max();
+                const maxCost = _(affordableTrainsTreasuryOnly).map(train => train.cost).max();
                 let maxIssue = 0;
-                _.each(_.rangeRight(1,numCanIssue+1), value=> {
-                    if(company.cash() + company.cashFromForcedIssues(value) > maxCost) {
+                _.each(_.rangeRight(1, numCanIssue + 1), value => {
+                    if (company.cash() + company.cashFromForcedIssues(value) > maxCost) {
                         maxIssue = value;
                     }
                     else {
@@ -790,7 +822,11 @@ class OperatingRound {
             return false;
         }
         const company = CurrentGame().state().currentCompany();
-        if(company.closed()) {
+        if (company.closed()) {
+            return false;
+        }
+
+        if (company.numTrainsForLimit() > 0 || this.canBuyTrainFromBank()) {
             return false;
         }
 
@@ -802,12 +838,40 @@ class OperatingRound {
         return this.willGoBankrupt() && !this.hasGoneBankrupt() && !this.canCloseCompany();
     }
 
+    getMoneyNeededFromStockSales() {
+        const trainType = this.selectedForcedTrainForPurchase();
+        const cost = TrainDefinitions[trainType].cost;
+        const company = CurrentGame().state().currentCompany();
+        const player = CurrentGame().state().currentPlayer();
+        return cost - (company.cash() + company.cashFromForcedIssues(company.numCanIssue()) + player.cash())
+    }
+
+    needsStockSales() {
+        if (!this.canEmergencyBuy()) {
+            return false;
+        }
+        return this.getMoneyNeededFromStockSales() > 0;
+    }
+
+    moneyNeededAfterCurrentStockSales() {
+        const cashRaised = _.reduce(this.selectedStocksForSale(), (sum, amount, companyId) => {
+            const companyForSale = CurrentGame().state().getCompany(companyId);
+            return sum + (amount * companyForSale.price());
+        }, 0);
+        return this.getMoneyNeededFromStockSales() - cashRaised;
+    }
+
+    hasEnoughStockSales() {
+        return this.moneyNeededAfterCurrentStockSales() <= 0;
+    }
+
+
     willGoBankrupt() {
         if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
             return false;
         }
         const company = CurrentGame().state().currentCompany();
-        if(company.closed()) {
+        if (company.closed()) {
             return false;
         }
 
@@ -854,7 +918,7 @@ class OperatingRound {
 
     canEndTurn() {
         const state = CurrentGame().state();
-        if(!state.isOperatingRound()) {
+        if (!state.isOperatingRound()) {
             return true;
         }
         const company = state.currentCompany();
@@ -917,7 +981,7 @@ class OperatingRound {
             }
             else {
                 this.selectTrain(_.first(this.companyTrains()));
-                if(!company.president()) {
+                if (!company.president()) {
                     this.selectedAllocation(Allocations.NONE);
                 }
             }
@@ -1003,6 +1067,21 @@ class OperatingRound {
         this.selectedForcedTrainForPurchase(selectedTrain.type);
     }
 
+    selectStockForSale(companyId, amount) {
+        this.selectedStocksForSale.valueWillMutate();
+        if (this.selectedStocksForSale()[companyId] === amount) {
+            delete this.selectedStocksForSale()[companyId];
+        }
+        else {
+            this.selectedStocksForSale()[companyId] = amount;
+        }
+        this.selectedStocksForSale.valueHasMutated();
+    }
+
+    isStockSelectedForSale(companyId, amount) {
+        return this.selectedStocksForSale()[companyId] === amount;
+    }
+
     reset() {
         this.selectedAction(null);
         this.numberOfShares(0);
@@ -1014,6 +1093,7 @@ class OperatingRound {
         this.selectedBankTrainsForPurchase({});
         this.selectedCompanyTrainsForPurchase([]);
         this.selectedForcedTrainForPurchase(null);
+        this.selectedStocksForSale({});
         Events.emit('clearRoutes');
     }
 

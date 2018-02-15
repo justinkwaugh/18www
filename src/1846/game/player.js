@@ -10,7 +10,7 @@ class Player extends BasePlayer {
         definition = definition || {};
         super(definition);
 
-        this.bankrupt = ko.observable(false);
+        this.bankrupt = ko.observable(this.bankrupt || false);
 
         this.sharesCanSell = ko.computed(() => {
             if (!CurrentGame()) {
