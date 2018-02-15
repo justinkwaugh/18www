@@ -1,7 +1,6 @@
 import ko from 'knockout';
 import _ from 'lodash';
 import CurrentGame from 'common/game/currentGame';
-import Sequence from '1846/game/sequence';
 import CompanyIDs from '1846/config/companyIds';
 import IssueShares from '1846/actions/issueShares';
 import RedeemShares from '1846/actions/redeemShares';
@@ -16,6 +15,7 @@ import TrainDefinitions from '1846/config/trainDefinitions';
 import CompanyTypes from 'common/model/companyTypes';
 import DeclareBankruptcy from '1846/actions/declareBankruptcy';
 import ForceIssueCloseCompany from '1846/actions/forceIssueCloseCompany';
+import ReturnTrain from '1846/actions/returnTrain';
 
 const Actions = {
     ISSUE_SHARES: 'issue',
@@ -27,7 +27,8 @@ const Actions = {
     USE_PRIVATES: 'use_privates',
     EMERGENCY_BUY: 'emergency_buy',
     BANKRUPT: 'bankrupt',
-    CLOSE_COMPANY: 'close_company'
+    CLOSE_COMPANY: 'close_company',
+    RETURN_TRAIN: 'return_train'
 };
 
 const PrivateActions = {
@@ -57,6 +58,7 @@ class OperatingRound {
         this.selectedBankTrainsForPurchase = ko.observable(definition.selectedBankTrainsForPurchase || {});
         this.selectedForcedTrainForPurchase = ko.observable(definition.selectedForcedTrainForPurchase);
         this.selectedStocksForSale = ko.observable(definition.selectedStocksForSale || {});
+        this.selectedTrainToReturn = ko.observable(definition.selectedTrainToReturn);
 
         this.maxPrivateCost = ko.computed(() => {
             if (!this.selectedPrivateId()) {
@@ -221,7 +223,8 @@ class OperatingRound {
                 const numOfTypeSelected = this.selectedStocksForSale()[companyId] || 0;
                 const maxAvailable = player.getMaximumAllowedSalesOfCompany(companyId, companyId === company.id);
                 const numNeeded = Math.ceil(moneyNeeded / companyToSell.price());
-                const numAllowed = moneyNeeded <= 0 ? numOfTypeSelected : Math.min(numOfTypeSelected + numNeeded, maxAvailable);
+                const numAllowed = moneyNeeded <= 0 ? numOfTypeSelected : Math.min(numOfTypeSelected + numNeeded,
+                                                                                   maxAvailable);
                 return {
                     company: companyToSell,
                     available: maxAvailable,
@@ -236,6 +239,15 @@ class OperatingRound {
                 return [];
             }
             const company = CurrentGame().state().getCompany(this.selectedTrainSource());
+            return company.getNonPhasedOutTrains();
+
+        });
+
+        this.currentCompanyTrains = ko.computed(() => {
+            if (this.selectedAction() !== Actions.RETURN_TRAIN) {
+                return [];
+            }
+            const company = CurrentGame().state().currentCompany();
             return company.getNonPhasedOutTrains();
 
         });
@@ -371,7 +383,7 @@ class OperatingRound {
 
 
         this.canDoAnything = ko.computed(() => {
-            return this.canBuyPrivates() || this.canUsePrivates() || this.canIssue() || this.canRedeem() || this.canLayTrackOrToken() || this.canRunRoutes() || this.canBuyTrains() || this.canCloseCompany() || this.canEmergencyBuy() || this.canGoBankrupt();
+            return this.canBuyPrivates() || this.canUsePrivates() || this.canIssue() || this.canRedeem() || this.canLayTrackOrToken() || this.canRunRoutes() || this.canBuyTrains() || this.canCloseCompany() || this.canEmergencyBuy() || this.canGoBankrupt() || this.mustReturnTrain();
         });
 
         this.action = ko.computed(() => {
@@ -440,13 +452,19 @@ class OperatingRound {
                                                       playerId: CurrentGame().state().currentPlayerId(),
                                                       companyId: CurrentGame().state().currentCompanyId(),
                                                       count: this.maximumForcedIssues()
-                                                  })
+                                                  });
             }
             else if (this.selectedAction() === Actions.BANKRUPT) {
                 return new DeclareBankruptcy({
                                                  playerId: CurrentGame().state().currentPlayerId(),
                                                  companyId: CurrentGame().state().currentCompanyId()
-                                             })
+                                             });
+            }
+            else if (this.selectedAction() === Actions.RETURN_TRAIN && this.selectedTrainToReturn()) {
+                return new ReturnTrain({
+                                           companyId: CurrentGame().state().currentCompanyId(),
+                                           trainId: this.selectedTrainToReturn()
+                                       });
             }
         });
 
@@ -958,6 +976,15 @@ class OperatingRound {
         }
     }
 
+    mustReturnTrain() {
+        if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+            return false;
+        }
+        const state = CurrentGame().state();
+        const company = state.currentCompany();
+        return company.hasTooManyTrains();
+    }
+
     selectAction(actionId) {
         this.reset();
         this.selectedAction(actionId);
@@ -1082,6 +1109,22 @@ class OperatingRound {
         return this.selectedStocksForSale()[companyId] === amount;
     }
 
+    selectTrainToReturn(selectedTrain) {
+        this.selectedTrainToReturn(selectedTrain.id);
+    }
+
+    interruptionNeeded() {
+        if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+            return false;
+        }
+
+        const trainLimitIssue = _.find(CurrentGame().state().publicCompanies, company=> {
+            return company.hasTooManyTrains();
+        });
+
+        return trainLimitIssue;
+    }
+
     reset() {
         this.selectedAction(null);
         this.numberOfShares(0);
@@ -1094,6 +1137,7 @@ class OperatingRound {
         this.selectedCompanyTrainsForPurchase([]);
         this.selectedForcedTrainForPurchase(null);
         this.selectedStocksForSale({});
+        this.selectedTrainToReturn();
         Events.emit('clearRoutes');
     }
 

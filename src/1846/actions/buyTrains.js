@@ -182,8 +182,8 @@ class BuyTrains extends Action {
 
             if (this.oldPhase) {
                 const currentPhase = state.currentPhaseId();
-                this.undoPhaseChange(state, currentPhase);
                 state.currentPhaseId(this.oldPhase);
+                this.undoPhaseChange(state, currentPhase);
             }
 
             _.each(this.stockSales, (amount, companyId) => {
@@ -236,8 +236,9 @@ class BuyTrains extends Action {
 
             if (this.oldPhase) {
                 const currentPhase = state.currentPhaseId();
-                this.undoPhaseChange(state, currentPhase);
                 state.currentPhaseId(this.oldPhase);
+                this.undoPhaseChange(state, currentPhase);
+
             }
         }
         else {
@@ -257,10 +258,13 @@ class BuyTrains extends Action {
                 company.phaseOut(PhaseIDs.PHASE_I);
             });
             _.each(state.privateCompanies, company => {
-                closedPrivatesData.push(company.close());
+                if(!company.closed()) {
+                    closedPrivatesData.push(company.close());
+                }
             });
             this.closedPrivatesData = closedPrivatesData;
             state.trainLimit(3);
+            this.recalculateRouteRevenue(state);
         }
         else if (newPhase === PhaseIDs.PHASE_IV) {
             _.each(state.publicCompanies, company => {
@@ -297,6 +301,7 @@ class BuyTrains extends Action {
                 company.unclose(closeData);
             });
             state.trainLimit(4);
+            this.recalculateRouteRevenue(state);
         }
         else if (newPhase === PhaseIDs.PHASE_IV) {
             _.each(state.publicCompanies, company => {
@@ -316,6 +321,18 @@ class BuyTrains extends Action {
             state.trainLimit(3);
         }
     }
+
+    recalculateRouteRevenue(state) {
+        _.each(state.allCompaniesById, company=> {
+                if(company.closed()) {
+                    return;
+                }
+                _.each(company.getRunnableTrains(), train=>{
+                    train.route.calculateRevenue();
+                });
+            });
+    }
+
 
     getNewPhase(state, type) {
         const currentPhase = state.currentPhaseId();

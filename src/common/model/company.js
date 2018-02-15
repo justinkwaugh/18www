@@ -101,7 +101,8 @@ class Company extends Serializable {
     }
 
     removeTrainById(trainId) {
-        return this.trains.remove(train => train.id === trainId);
+        const removed = this.trains.remove(train => train.id === trainId);
+        return removed.length > 0 ? removed[0] : null;
     }
 
     removeTrainsById(trainIds) {
@@ -121,6 +122,10 @@ class Company extends Serializable {
 
     numTrainsForLimit() {
         return this.getNonPhasedOutTrains().length;
+    }
+
+    hasTooManyTrains() {
+        return this.numTrainsForLimit() > CurrentGame().state().trainLimit();
     }
 
     getRunnableTrains() {

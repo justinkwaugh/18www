@@ -245,7 +245,15 @@ class Grid extends BaseGrid {
         Events.on('clearRoutes', () => {
             _.each(this.cells(), cell => cell.tile().clearRoutedConnections());
             this.route = null;
-        })
+        });
+
+        Events.on('global:mouseup', () => {
+            this.finishRoute();
+        });
+
+        Events.on('global:mouseout', () => {
+            this.finishRoute();
+        });
     }
 
     createCells(state) {
@@ -450,6 +458,7 @@ class Grid extends BaseGrid {
 
         const g19 = this.cellsById()['G19'];
         g19.neighbors[1] = pittsburgh;
+        g19.neighbors[0] = null;
         pittsburgh.neighbors = [f20, f20, g19];
 
         const cumberland = this.cellsById()[OffBoardIds.CUMBERLAND];
@@ -468,6 +477,15 @@ class Grid extends BaseGrid {
         const i11 = this.cellsById()['I11'];
         i11.neighbors[3] = louisville;
         louisville.neighbors = [i9, i11];
+
+        const j6 = this.cellsById()['J6'];
+        j6.neighbors[5] = null;
+
+        const h4 = this.cellsById()['H4'];
+        h4.neighbors[2] = null;
+
+        const c9 = this.cellsById()['C9'];
+        c9.neighbors[4] = null;
     }
 
     static costForCell(id) {
@@ -660,10 +678,6 @@ class Grid extends BaseGrid {
             this.startRoute(cell);
             this.routing = true;
         }
-    }
-
-    onMouseUp() {
-        this.finishRoute();
     }
 
     finishRoute() {

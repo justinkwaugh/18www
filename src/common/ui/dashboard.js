@@ -6,6 +6,7 @@ import Sequence from '1846/game/sequence';
 import 'common/util/knockoutBootstrapBindings';
 import _ from 'lodash';
 import 'knockout-delegated-events';
+import Events from 'common/util/events';
 
 class Dashboard {
     constructor() {
@@ -26,6 +27,14 @@ class Dashboard {
         if(!this.game().restoreLocalState()) {
             Sequence.nextRoundPhaseAndTurn();
         }
+    }
+
+    onMouseUp() {
+        Events.emit('global:mouseup');
+    }
+
+    onMouseOut() {
+        Events.emit('global:mouseout');
     }
 }
 
