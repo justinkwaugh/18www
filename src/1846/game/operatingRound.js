@@ -16,6 +16,7 @@ import CompanyTypes from 'common/model/companyTypes';
 import DeclareBankruptcy from '1846/actions/declareBankruptcy';
 import ForceIssueCloseCompany from '1846/actions/forceIssueCloseCompany';
 import ReturnTrain from '1846/actions/returnTrain';
+import PhaseIDs from '1846/config/phaseIds';
 
 const Actions = {
     ISSUE_SHARES: 'issue',
@@ -59,6 +60,7 @@ class OperatingRound {
         this.selectedForcedTrainForPurchase = ko.observable(definition.selectedForcedTrainForPurchase);
         this.selectedStocksForSale = ko.observable(definition.selectedStocksForSale || {});
         this.selectedTrainToReturn = ko.observable(definition.selectedTrainToReturn);
+        this.useCWIToken = ko.observable(definition.useCWIToken);
 
         this.maxPrivateCost = ko.computed(() => {
             if (!this.selectedPrivateId()) {
@@ -84,11 +86,15 @@ class OperatingRound {
             }
             return _(CurrentGame().state().currentCompany().getPrivates()).filter(
                 privateCompany => {
-                    if (!privateCompany.hasAbility || privateCompany.used()) {
+                    if (!privateCompany.hasAbility || privateCompany.used() || privateCompany.closed()) {
                         return false;
                     }
 
                     if (privateCompany.id === CompanyIDs.STEAMBOAT_COMPANY && this.hasPlacedSteamboatThisTurn()) {
+                        return false;
+                    }
+
+                    if (privateCompany.id === CompanyIDs.LAKE_SHORE_LINE && CurrentGame().state().currentPhaseId() === PhaseIDs.PHASE_I) {
                         return false;
                     }
 
@@ -404,7 +410,8 @@ class OperatingRound {
                                           playerId: CurrentGame().state().currentPlayerId(),
                                           companyId: CurrentGame().state().currentCompanyId(),
                                           privateId: this.selectedPrivateId(),
-                                          price: this.privatePrice()
+                                          price: this.privatePrice(),
+                                          ignoreToken: !this.useCWIToken()
                                       });
             }
             else if (this.selectedAction() === Actions.RUN_ROUTES && this.selectedAllocation()) {
@@ -990,7 +997,7 @@ class OperatingRound {
         this.selectedAction(actionId);
         const company = CurrentGame().state().currentCompany();
         if (this.selectedAction() === Actions.BUY_PRIVATES) {
-
+            this.useCWIToken(true);
         }
         else if (this.selectedAction() === Actions.USE_PRIVATES) {
             if (this.useablePrivates().length === 1) {
@@ -1150,6 +1157,7 @@ class OperatingRound {
         this.selectedForcedTrainForPurchase(null);
         this.selectedStocksForSale({});
         this.selectedTrainToReturn(null);
+        this.useCWIToken(false);
         Events.emit('clearRoutes');
     }
 

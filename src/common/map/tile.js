@@ -5,6 +5,7 @@ import CurrentGame from 'common/game/currentGame';
 import PhaseIDs from '1846/config/phaseIds';
 import RouteColors from '1846/config/routeColors';
 import TileManifest from '1846/config/tileManifest';
+import OffBoardIDs from '1846/config/offBoardIds';
 
 const EdgeCoordinates = [
     '31,-53.69',
@@ -93,11 +94,16 @@ class Tile extends Serializable {
         return plainObject;
     }
 
-    getRevenue(companyId, ewBonus) {
+    getRevenue(cellId, companyId, ewBonus) {
         let revenue = 0;
         if(this.hasMeat() && this.hasMeat() === companyId) {
             revenue += 30;
         }
+
+        if(this.hasSteamboat() && this.hasSteamboat() === companyId) {
+            revenue += (cellId === 'G19' || cellId === OffBoardIDs.HOLLAND) ? 40 : 20;
+        }
+
         if (_.isArray(this.revenue)) {
             const phaseId = CurrentGame().state().currentPhaseId();
             if (phaseId === PhaseIDs.PHASE_I) {

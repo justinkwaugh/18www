@@ -129,6 +129,19 @@
         </div>
     </div>
     <!-- /ko -->
+    <!-- ko if: $data.selectedPrivateId() === 'cwi' && $data.privatePrice() -->
+    <h5 class="mt-3 text-center font-weight-light alert-heading">Take over the token?</h5>
+    <div class="d-flex justify-content-center">
+        <div class="btn-group" role="group">
+            <button type="button" class="btn"
+                    data-bind="css: $data.useCWIToken() ? 'btn-warning' : 'btn-secondary', click: function() { $data.useCWIToken(true) }">Yes</button>
+            <button type="button" class="btn"
+                    data-bind="css: !$data.useCWIToken() ? 'btn-warning' : 'btn-secondary', click: function() { $data.useCWIToken(false) }">No</button>
+        </div>
+    </div>
+    <!-- /ko -->
+
+
     <!-- /ko -->
 
     <!-- ko if: $data.selectedAction() === $data.Actions.USE_PRIVATES -->

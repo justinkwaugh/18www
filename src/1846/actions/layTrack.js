@@ -74,7 +74,7 @@ class LayTrack extends Action {
                 if(company.closed()) {
                     return;
                 }
-                _.each(company.getRunnableTrains(), train=>{
+                _.each(company.getNonRustedTrains(), train=>{
                     train.route.upgradeConnections(this.cellId, oldTile, newTile);
                 });
             });

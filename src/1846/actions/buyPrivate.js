@@ -13,6 +13,7 @@ class BuyPrivate extends Action {
         this.companyId = args.companyId;
         this.price = args.price;
         this.addedToken = args.addedToken;
+        this.ignoreToken = args.ignoreToken;
     }
 
     doExecute(state) {
@@ -41,7 +42,7 @@ class BuyPrivate extends Action {
         if (this.privateId === CompanyIDs.CHICAGO_WESTERN_INDIANA) {
             const tile = state.tilesByCellId['D6'];
             tile.removeReservedToken(this.privateId, 9);
-            if(!tile.hasTokenForCompany(this.companyId)) {
+            if(!tile.hasTokenForCompany(this.companyId) && !this.ignoreToken) {
                 tile.addToken(this.companyId, 9);
                 this.addedToken = true;
             }
@@ -76,7 +77,7 @@ class BuyPrivate extends Action {
             if(this.addedToken) {
                 tile.removeToken(this.companyId, 9);
             }
-            tile.reservedToken(this.privateId);
+            tile.addReservedToken(this.privateId);
         }
 
 

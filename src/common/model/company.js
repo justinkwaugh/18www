@@ -76,7 +76,13 @@ class Company extends Serializable {
     }
 
     hasPrivate(id) {
-        return _.find(this.privates(), cert => cert.companyId === id);
+        const privateCert = _.find(this.privates(), cert => cert.companyId === id);
+        if(!privateCert) {
+            return false;
+        }
+
+        const privateCo = CurrentGame().state().getCompany(privateCert.companyId);
+        return !privateCo.closed() || privateCo.id === CompanyIDs.MAIL_CONTRACT;
     }
 
     addPrivate(cert) {

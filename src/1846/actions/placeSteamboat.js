@@ -13,6 +13,7 @@ class PlaceSteamboat extends Action {
 
     constructor(args) {
         super(args);
+        this.playerId = args.playerId;
         this.companyId = args.companyId;
         this.cellId = args.cellId;
     }

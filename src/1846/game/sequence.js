@@ -176,6 +176,12 @@ class Sequence {
     }
 
     static getNextCompanyIndex(state) {
+        // In case of bankruptcy causing change of presidency but still no train...
+        const company = state.currentCompany();
+        if(company && company.president() && company.getNonPhasedOutTrains().length === 0) {
+            return _.indexOf(state.operatingOrder(), state.currentCompanyId());
+        }
+
         return _.indexOf(state.operatingOrder(), state.currentCompanyId()) + 1;
     }
 

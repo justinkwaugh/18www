@@ -45,7 +45,7 @@ class Route extends Serializable {
             const tile = CurrentGame().state().tilesByCellId[cellData.id];
             return {
                 hasStation: tile.hasTokenForCompany(companyId),
-                revenue: tile.getRevenue(companyId, ewBonus)
+                revenue: tile.getRevenue(cellData.id, companyId, ewBonus)
             }
         }).sortBy(cellData => {
             return (cellData.hasStation ? 'b' : 'c') + '-' + (999 - cellData.revenue);
@@ -69,7 +69,7 @@ class Route extends Serializable {
         const companyId = this.companyId || CurrentGame().state().currentCompanyId();
         const revenueCells = _.filter(this.cells(), cellData => {
             const tile = CurrentGame().state().tilesByCellId[cellData.id];
-            return tile.getRevenue(companyId);
+            return tile.getRevenue(cellData.id, companyId);
         });
 
         if (revenueCells.length < 2) {
@@ -114,7 +114,7 @@ class Route extends Serializable {
     addCell(id, connections) {
         const companyId = this.companyId || CurrentGame().state().currentCompanyId();
         const tile = CurrentGame().state().tilesByCellId[id];
-        if (tile.getRevenue(companyId) > 0) {
+        if (tile.getRevenue(id, companyId) > 0) {
             this.numStops(this.numStops()+1);
         }
         this.cells.push({id, connections});
