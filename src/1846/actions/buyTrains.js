@@ -263,6 +263,7 @@ class BuyTrains extends Action {
                 }
             });
             this.closedPrivatesData = closedPrivatesData;
+            console.log('setting train limit to 3');
             state.trainLimit(3);
             this.recalculateRouteRevenue(state);
         }
@@ -300,6 +301,7 @@ class BuyTrains extends Action {
                 const company = state.getCompany(closeData.id);
                 company.unclose(closeData);
             });
+            console.log('setting train limit to 4');
             state.trainLimit(4);
             this.recalculateRouteRevenue(state);
         }

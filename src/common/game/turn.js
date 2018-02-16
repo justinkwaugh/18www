@@ -13,8 +13,8 @@ class Turn extends ActionGroup {
 
         this.number = definition.number;
         this.playerId = definition.playerId || state.currentPlayerId();
-        this.actionGroups = [];
-        this.inProgress = [];
+        this.actionGroups = definition.actionGroups || [];
+        this.inProgress = ko.observableArray(definition.inProgress || []);
         this.actionStartIndex = _.isUndefined(definition.actionStartIndex) ? state.actionHistory.currentIndex() : definition.actionStartIndex;
         this.context = definition.context || {};
     }
@@ -24,7 +24,7 @@ class Turn extends ActionGroup {
     }
 
     commitActionGroup() {
-        console.log('Committing ' + type );
+        console.log('Committing ' + _.last(this.inProgress()).type );
         const actionGroup = this.inProgress.pop();
         actionGroup.actionEndIndex = CurrentGame().state().actionHistory.currentIndex();
         this.actionGroups.push(actionGroup);
@@ -50,6 +50,12 @@ class Turn extends ActionGroup {
         });
         this.inProgress.push(actionGroup);
     }
+
+    getCurrentSummaries() {
+        const inProgress = _.last(this.inProgress());
+        return inProgress ? inProgress.getSummaries() : this.getSummaries();
+    }
+
 }
 
 Turn.registerClass();

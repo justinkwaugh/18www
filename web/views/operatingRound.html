@@ -2,6 +2,24 @@
 <div class="alert alert-dark rounded-0 border-top-0 border-right-0 border-left-0 m-0 p-3 d-flex flex-column justify-content-center"
      role="alert">
 
+    <!-- ko if: $data.interruptionNeeded() -->
+    <div class="d-flex justify-content-center">
+        <div class="alert alert-warning" role="alert">
+            <h3 class="text-center font-weight-light alert-heading">Warning</h3>
+            <h5 class="mb-1 text-center font-weight-light">This company's turn must be interrupted so other companies can remove trains.</h5><div class=" text-center font-weight-light">
+            (When they are done this turn
+            will resume but you will not be able to undo your previous actions)</div>
+            <div class="d-flex justify-content-center mt-3">
+                <button type="button" class="btn btn-sm btn-success"
+                        data-bind="click: function() { $root.sequence.interruptTurn($data.interruptionNeeded()); }">
+                    Interrupt Turn
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- /ko -->
+
+    <!-- ko if: !$data.interruptionNeeded() -->
     <!-- ko if: !$data.isMiddleOfPrivateLays() -->
     <h5 class="text-center font-weight-light alert-heading">Choose an action</h5>
     <!-- /ko -->
@@ -262,9 +280,11 @@
                          data-bind="style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(/images/trains/' + $data.type + '.png)' }">
                         <div class="bg-route-train-border"
                              data-bind="css: 'bg-route-border-0 bg-route-train-small-border'"></div>
-                        <div style="border-radius:4px; padding:0 5px;position:absolute;top:0px;right:0px;color:black"><span
-                                style="font-size:16px;font-weight:600"
-                                data-bind="text: '$' + $data.cost"></span></div>
+                    <div class="bg-route-0"
+                         style="border-radius:4px; padding:0 5px;position:absolute;top:-5px;right:-5px;color:white"><span
+                            style="font-size:16px;font-weight:600"
+                            data-bind="text: '$' + $data.cost"></span>
+                    </div>
                     </div>
                     <div class="mb-2">
                         <span style="font-size:14px" data-bind="text: $data.available + ' remaining'"></span>
@@ -299,24 +319,26 @@
         </ul>
     </div>
     <!-- ko if: $data.canEmergencyBuy() && $data.selectedForcedTrainForPurchase() && $data.needsStockSales() -->
-    <h5 class="mt-3 mb-2 text-center font-weight-light alert-heading" data-bind="text: 'Sell Shares' + ($data.moneyNeededAfterCurrentStockSales() > 0 ? ' - $' + $data.moneyNeededAfterCurrentStockSales() + ' needed' : '')">Sell Shares</h5>
+    <h5 class="mt-3 mb-2 text-center font-weight-light alert-heading"
+        data-bind="text: 'Sell Shares' + ($data.moneyNeededAfterCurrentStockSales() > 0 ? ' - $' + $data.moneyNeededAfterCurrentStockSales() + ' needed' : '')">
+        Sell Shares</h5>
     <div class="d-flex justify-content-center">
         <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
             <!-- ko foreach: $data.sharesForSale() -->
             <li>
                 <div class="mr-2" data-bind="style: { opacity: num <= 0 ? .2 : 1 }">
-                <div class="rounded pl-3 pr-3 pt-1 pb-1 m-0 mb-2" style="cursor:pointer;"
-                     data-bind="style: { opacity: 1 }, css: 'bg-' + $data.company.id + ' text-' + $data.company.id">
-                    <strong class="h5" data-bind="text: $data.company.nickname"></strong>
-                    <div data-bind="text: '$' + $data.company.price()"></div>
-                </div>
-                <div>
-                    <!-- ko foreach: _.range(1, $data.num+1) -->
-                    <button type="button" class="btn"
-                            data-bind="text: $data, css: $parents[1].isStockSelectedForSale($parent.company.id, $data) ? 'btn-warning' : 'btn-secondary', click: function() { $parents[1].selectStockForSale($parent.company.id, $data)}"></button>
-                    <!-- /ko -->
-                </div>
+                    <div class="rounded pl-3 pr-3 pt-1 pb-1 m-0 mb-2" style="cursor:pointer;"
+                         data-bind="style: { opacity: 1 }, css: 'bg-' + $data.company.id + ' text-' + $data.company.id">
+                        <strong class="h5" data-bind="text: $data.company.nickname"></strong>
+                        <div data-bind="text: '$' + $data.company.price()"></div>
                     </div>
+                    <div>
+                        <!-- ko foreach: _.range(1, $data.num+1) -->
+                        <button type="button" class="btn"
+                                data-bind="text: $data, css: $parents[1].isStockSelectedForSale($parent.company.id, $data) ? 'btn-warning' : 'btn-secondary', click: function() { $parents[1].selectStockForSale($parent.company.id, $data)}"></button>
+                        <!-- /ko -->
+                    </div>
+                </div>
             </li>
             <!-- /ko -->
         </ul>
@@ -363,6 +385,6 @@
         <button type="button" class="btn btn-sm btn-danger mr-1" data-bind="click: $data.reset">Cancel</button>
     </div>
     <!-- /ko -->
-
+    <!-- /ko -->
 </div>
 <!-- /ko -->

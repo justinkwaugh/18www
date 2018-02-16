@@ -28,8 +28,8 @@ class State extends BaseState {
 
         this.lastPlayerId = ko.observable(definition.currentPlayerId);
 
-        this.interruptedCompanyId = ko.observable();
-        this.interruptionType = ko.observable();
+        this.interruptedCompanyId = ko.observable(definition.interruptedCompanyId);
+        this.interruptionType = ko.observable(definition.interruptionType);
 
         this.currentPlayerIndex = ko.observable(definition.currentPlayerIndex || 0);
         this.currentPlayerId = ko.computed(() => {

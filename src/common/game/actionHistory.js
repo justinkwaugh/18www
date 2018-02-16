@@ -9,10 +9,15 @@ class ActionHistory extends Serializable {
         super();
 
         this.actions = ko.observableArray(definition.actions || []);
+        this.lastCommittedIndex = ko.observable(definition.lastCommittedIndex || 0);
     }
 
     addAction(action) {
         this.actions.push(action);
+    }
+
+    canUndo() {
+        return this.currentIndex() > this.lastCommittedIndex();
     }
 
     undo() {
@@ -39,6 +44,10 @@ class ActionHistory extends Serializable {
         _.each(_.range(start,actualEnd), () => {
             this.undo();
         });
+    }
+
+    commit() {
+        this.lastCommittedIndex(this.currentIndex());
     }
 }
 

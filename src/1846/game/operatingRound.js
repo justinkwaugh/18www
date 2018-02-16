@@ -253,7 +253,7 @@ class OperatingRound {
         });
 
         this.canBuyPrivates = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany() || !CurrentGame().state().currentPlayer()) {
+            if (!CurrentGame() || !CurrentGame().state().currentCompany() || !CurrentGame().state().currentPlayer() || this.midInterruption()) {
                 return false;
             }
 
@@ -274,7 +274,7 @@ class OperatingRound {
         });
 
         this.canUsePrivates = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+            if (!CurrentGame() || !CurrentGame().state().currentCompany() || this.midInterruption()) {
                 return false;
             }
 
@@ -282,7 +282,7 @@ class OperatingRound {
         });
 
         this.canIssue = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+            if (!CurrentGame() || !CurrentGame().state().currentCompany() || this.midInterruption()) {
                 return false;
             }
 
@@ -303,7 +303,7 @@ class OperatingRound {
         });
 
         this.canRedeem = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+            if (!CurrentGame() || !CurrentGame().state().currentCompany() || this.midInterruption()) {
                 return false;
             }
 
@@ -324,7 +324,7 @@ class OperatingRound {
         });
 
         this.canLayTrackOrToken = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+            if (!CurrentGame() || !CurrentGame().state().currentCompany() || this.midInterruption()) {
                 return false;
             }
 
@@ -345,7 +345,7 @@ class OperatingRound {
         });
 
         this.canRunRoutes = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+            if (!CurrentGame() || !CurrentGame().state().currentCompany() || this.midInterruption()) {
                 return false;
             }
 
@@ -361,7 +361,7 @@ class OperatingRound {
         });
 
         this.canBuyTrains = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+            if (!CurrentGame() || !CurrentGame().state().currentCompany() || this.midInterruption()) {
                 return false;
             }
             const currentCompany = CurrentGame().state().currentCompany();
@@ -383,7 +383,7 @@ class OperatingRound {
 
 
         this.canDoAnything = ko.computed(() => {
-            return this.canBuyPrivates() || this.canUsePrivates() || this.canIssue() || this.canRedeem() || this.canLayTrackOrToken() || this.canRunRoutes() || this.canBuyTrains() || this.canCloseCompany() || this.canEmergencyBuy() || this.canGoBankrupt() || this.mustReturnTrain();
+            return this.canBuyPrivates() || this.canUsePrivates() || this.canIssue() || this.canRedeem() || this.canLayTrackOrToken() || this.canRunRoutes() || this.canBuyTrains() || this.canCloseCompany() || this.canEmergencyBuy() || this.canGoBankrupt() || this.mustReturnTrain() || this.interruptionNeeded();
         });
 
         this.action = ko.computed(() => {
@@ -1118,11 +1118,23 @@ class OperatingRound {
             return false;
         }
 
+        if(this.midInterruption()) {
+            return false;
+        }
+
+        if(this.mustReturnTrain()) {
+            return false;
+        }
+
         const trainLimitIssue = _.find(CurrentGame().state().publicCompanies, company=> {
             return company.hasTooManyTrains();
         });
 
-        return trainLimitIssue;
+        return trainLimitIssue ? 'trainLimit' : null;
+    }
+
+    midInterruption() {
+        return CurrentGame().state().interruptionType();
     }
 
     reset() {
@@ -1137,7 +1149,7 @@ class OperatingRound {
         this.selectedCompanyTrainsForPurchase([]);
         this.selectedForcedTrainForPurchase(null);
         this.selectedStocksForSale({});
-        this.selectedTrainToReturn();
+        this.selectedTrainToReturn(null);
         Events.emit('clearRoutes');
     }
 

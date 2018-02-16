@@ -21,25 +21,36 @@ class Sequence {
         Events.emit('turnEnd');
         const game = CurrentGame();
         const state = game.state();
-        CurrentGame().state().turnHistory.currentTurn().startActionGroup(interruptionType);
         state.interruptionType(interruptionType);
-        state.interruptedCompanyId(state.currentCompany());
+        state.interruptedCompanyId(state.currentCompanyId());
 
         //commit to server
 
         // if local
+        state.actionHistory.commit();
         this.nextOutOfTurn();
         CurrentGame().saveLocalState();
     }
 
     static finishTurn() {
-        CurrentGame().state().turnHistory.commitTurn();
-        Events.emit('turnEnd');
+        const state = CurrentGame().state();
+        if(state.interruptionType()) {
+            state.turnHistory.currentTurn().commitActionGroup();
 
-        //commit to server
+            //commit to server
+            state.actionHistory.commit();
+            this.nextOutOfTurn();
+        }
+        else {
+            state.turnHistory.commitTurn();
+            Events.emit('turnEnd');
 
-        // if local
-        this.nextRoundPhaseAndTurn();
+            //commit to server
+
+            // if local
+            state.actionHistory.commit();
+            this.nextRoundPhaseAndTurn();
+        }
         CurrentGame().saveLocalState();
     }
 
@@ -47,22 +58,23 @@ class Sequence {
         const game = CurrentGame();
         const state = game.state();
 
+
         // Train limit checks
         const companyWithTooManyTrains = _.find(state.publicCompanies, company => {
             return company.hasTooManyTrains();
         });
 
         if (companyWithTooManyTrains) {
+            state.turnHistory.currentTurn().startActionGroup(state.interruptionType());
             state.currentCompanyId(companyWithTooManyTrains.id);
         }
         else {
             state.currentCompanyId(state.interruptedCompanyId());
             state.interruptionType(null);
             state.interruptedCompanyId(null);
-            CurrentGame().state().turnHistory.currentTurn().commitActionGroup();
         }
 
-        const presidentPlayerId = state.currentCompanyId().president();
+        const presidentPlayerId = state.currentCompany().president();
         const nextPresidentIndex = _.findIndex(state.players(), player => player.id === presidentPlayerId);
         state.currentPlayerIndex(nextPresidentIndex);
     }
