@@ -14,6 +14,7 @@ class PlaceMeat extends Action {
         privateCompany.used(true);
         const tile = state.tilesByCellId[this.cellId];
         tile.hasMeat(this.companyId);
+        this.recalculateRouteRevenue(state)
     }
 
     doUndo(state) {
@@ -21,6 +22,18 @@ class PlaceMeat extends Action {
         privateCompany.used(false);
         const tile = state.tilesByCellId[this.cellId];
         tile.hasMeat(null);
+        this.recalculateRouteRevenue(state)
+    }
+
+    recalculateRouteRevenue(state) {
+        _.each(state.allCompaniesById, company => {
+            if (company.closed()) {
+                return;
+            }
+            _.each(company.getNonRustedTrains(), train => {
+                train.route.calculateRevenue();
+            });
+        });
     }
 
     summary(state) {

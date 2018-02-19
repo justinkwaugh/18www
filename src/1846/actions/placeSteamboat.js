@@ -21,12 +21,27 @@ class PlaceSteamboat extends Action {
     doExecute(state) {
         const tile = state.tilesByCellId[this.cellId];
         tile.hasSteamboat(this.companyId);
+        this.recalculateRouteRevenue(state);
     }
 
     doUndo(state) {
         const tile = state.tilesByCellId[this.cellId];
         tile.hasSteamboat(null);
+        this.recalculateRouteRevenue(state);
     }
+
+
+    recalculateRouteRevenue(state) {
+        _.each(state.allCompaniesById, company => {
+            if (company.closed()) {
+                return;
+            }
+            _.each(company.getNonRustedTrains(), train => {
+                train.route.calculateRevenue();
+            });
+        });
+    }
+
 
     summary(state) {
         const company = state.getCompany(this.companyId);

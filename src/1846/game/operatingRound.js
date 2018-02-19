@@ -227,7 +227,8 @@ class OperatingRound {
             return _(player.ownedCompanyIds()).map(companyId => {
                 const companyToSell = CurrentGame().state().getCompany(companyId);
                 const numOfTypeSelected = this.selectedStocksForSale()[companyId] || 0;
-                const maxAvailable = player.getMaximumAllowedSalesOfCompany(companyId, companyId === company.id);
+                const isCurrentCompany = companyId === company.id;
+                const maxAvailable = player.getMaximumAllowedSalesOfCompany(companyId, isCurrentCompany) - (isCurrentCompany ? company.numCanIssue() : 0);
                 const numNeeded = Math.ceil(moneyNeeded / companyToSell.price());
                 const numAllowed = moneyNeeded <= 0 ? numOfTypeSelected : Math.min(numOfTypeSelected + numNeeded,
                                                                                    maxAvailable);
@@ -777,12 +778,13 @@ class OperatingRound {
         }, {remaining: neededCash, issued: 0}).issued;
     }
 
-    cashFromStockSales(company, player) {
+    cashFromStockSales(company, player, numIssued) {
         const state = CurrentGame().state();
         return _.reduce(player.ownedCompanyIds(), (sum, companyId) => {
             const companyToSell = state.getCompany(companyId);
-            return sum + companyToSell.price() * player.getMaximumAllowedSalesOfCompany(companyId,
-                                                                                        companyId === company.id);
+            const isCurrentCompany = companyId === company.id;
+            const numToSell = player.getMaximumAllowedSalesOfCompany(companyId, isCurrentCompany) - (isCurrentCompany ? numIssued : 0)
+            return sum + companyToSell.price() * numToSell;
         }, 0);
     }
 
@@ -930,7 +932,7 @@ class OperatingRound {
         }
 
         // Check stock sales:
-        moneyNeeded -= this.cashFromStockSales(company, player);
+        moneyNeeded -= this.cashFromStockSales(company, player, company.numCanIssue());
 
         return moneyNeeded > 0;
     }
@@ -976,7 +978,7 @@ class OperatingRound {
         }
 
         // Otherwise everything can go to pay
-        const cashAfterEverything = cashAfterForcedIssue + player.cash() + this.cashFromStockSales(company, player);
+        const cashAfterEverything = cashAfterForcedIssue + player.cash() + this.cashFromStockSales(company, player, company.numCanIssue());
         const affordableTrains = _.filter(availableTrains, trainData => cashAfterEverything >= trainData.cost);
         if (affordableTrains.length > 0) {
             return affordableTrains;
@@ -1125,15 +1127,15 @@ class OperatingRound {
             return false;
         }
 
-        if(this.midInterruption()) {
+        if (this.midInterruption()) {
             return false;
         }
 
-        if(this.mustReturnTrain()) {
+        if (this.mustReturnTrain()) {
             return false;
         }
 
-        const trainLimitIssue = _.find(CurrentGame().state().publicCompanies, company=> {
+        const trainLimitIssue = _.find(CurrentGame().state().publicCompanies, company => {
             return company.hasTooManyTrains();
         });
 

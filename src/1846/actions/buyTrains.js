@@ -64,7 +64,7 @@ class BuyTrains extends Action {
                         this.closedCompanies[companyId] = ownedCompany.close();
                     }
                     else {
-                        const cashForShares = company.price() * amount;
+                        const cashForShares = ownedCompany.price() * amount;
                         player.addCash(cashForShares);
                         state.bank.removeCash(cashForShares);
 
@@ -82,7 +82,7 @@ class BuyTrains extends Action {
 
                                     target.addCert(presidentCert);
                                     player.addCerts(nonPresidentCerts);
-                                    company.president(target.id);
+                                    ownedCompany.president(target.id);
                                     this.presidentChanges[companyId] = target.id;
                                 }
                             }
@@ -329,7 +329,7 @@ class BuyTrains extends Action {
                 if(company.closed()) {
                     return;
                 }
-                _.each(company.getRunnableTrains(), train=>{
+                _.each(company.getNonRustedTrains(), train=>{
                     train.route.calculateRevenue();
                 });
             });

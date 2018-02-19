@@ -49,7 +49,7 @@ class DeclareBankruptcy extends Action {
             }
             else {
                 const numShares = player.numSharesOwnedOfCompany();
-                const cashForShares = company.price() * numShares;
+                const cashForShares = ownedCompany.price() * numShares;
                 player.addCash(cashForShares);
                 state.bank.removeCash(cashForShares);
 
@@ -66,11 +66,11 @@ class DeclareBankruptcy extends Action {
 
                         target.addCert(presidentCert);
                         player.addCerts(nonPresidentCerts);
-                        company.president(target.id);
+                        ownedCompany.president(target.id);
                         this.presidentChanges[companyId] = target.id;
                     }
                     else {
-                        company.president(null);
+                        ownedCompany.president(null);
                         this.presidentChanges[companyId] = null;
                     }
                     if(companyId !== this.companyId) {

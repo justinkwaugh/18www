@@ -86,6 +86,7 @@ class Tile extends Serializable {
         newTile.tokens(_.clone(this.tokens()));
         newTile.reservedTokens(this.reservedTokens());
         newTile.hasMeat(this.hasMeat());
+        newTile.hasSteamboat(this.hasSteamboat());
     }
 
     toJSON() {
