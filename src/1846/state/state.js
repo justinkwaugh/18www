@@ -18,6 +18,7 @@ class State extends BaseState {
         this.version = definition.version || 0;
         this.local = definition.local;
 
+        this.winner = ko.observable(definition.winner);
         this.players = ko.observableArray(definition.players || []);
         this.playersById = ko.computed(() => {
             return _.keyBy(this.players(), 'id');
@@ -126,7 +127,11 @@ class State extends BaseState {
     }
 
     isOperatingRound() {
-        return this.roundId() === RoundIds.OPERATING_ROUND_1 || this.roundId() === RoundIds.OPERATING_ROUND_2;
+        return !this.winner() && this.roundId() === RoundIds.OPERATING_ROUND_1 || this.roundId() === RoundIds.OPERATING_ROUND_2;
+    }
+
+    isStockRound() {
+        return !this.winner() && this.roundId() === RoundIds.STOCK_ROUND;
     }
 
     getPriorPhase() {

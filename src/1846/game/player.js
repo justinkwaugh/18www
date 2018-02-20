@@ -63,6 +63,26 @@ class Player extends BasePlayer {
         this.canSell = ko.computed(() => {
             return !this.hasPassedThisTurn() && !this.hasBoughtThisTurn() && this.hasSharesToSell();
         });
+
+    }
+
+    getNetWorth() {
+        if (!CurrentGame()) {
+            return 0;
+        }
+
+        return this.cash() + _.reduce(this.sharesPerCompany(), (sum, num, companyId) => {
+                const company = CurrentGame().state().getCompany(companyId);
+                if (company.closed()) {
+                    return sum;
+                }
+                if (company.type === CompanyTypes.PUBLIC) {
+                    return sum + (num * company.price());
+                }
+
+                return sum + company.maxBuyInPrice;
+
+            }, 0);
     }
 
     isOverCertLimit() {
@@ -150,7 +170,7 @@ class Player extends BasePlayer {
             return 0;
         }
 
-        if(!company.president()) {
+        if (!company.president()) {
             return 0;
         }
 
@@ -204,7 +224,7 @@ class Player extends BasePlayer {
     }
 
     hasPrivate(id) {
-        const privateCert = this.certificatesById()[id]||[];
+        const privateCert = this.certificatesById()[id] || [];
         if (privateCert.length === 0) {
             return false;
         }

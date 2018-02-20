@@ -106,7 +106,7 @@
             </th>
             <!-- ko foreach: $data.openCompanies() -->
             <td class="table-col-spacer p-0 border-0">&nbsp;</td>
-            <td class="pt-1 pb-1 bg-light border-0" data-bind="text: _.join(_.map($data.trains(), train=>train.getName()).sort(), ' ')"></td>
+            <td class="pt-1 pb-1 bg-light border-0" data-bind="text: _.join(_.map($data.getNonPhasedOutTrains(), train=>train.getName()).sort(), ' ')"></td>
             <!-- /ko -->
         </tr>
         <tr>

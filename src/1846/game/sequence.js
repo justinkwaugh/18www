@@ -50,9 +50,20 @@ class Sequence {
 
             // if local
             state.actionHistory.commit();
-            this.nextRoundPhaseAndTurn();
+            if(Sequence.isGameOverDueToBankruptcy()) {
+                this.endGame()
+            }
+            else {
+                this.nextRoundPhaseAndTurn();
+            }
         }
         CurrentGame().saveLocalState();
+    }
+
+    static endGame() {
+        const state = CurrentGame().state();
+        state.roundHistory.commitRound();
+        state.winner(_.maxBy(state.players(), player=>player.getNetWorth()).id);
     }
 
     static nextOutOfTurn() {
@@ -167,14 +178,19 @@ class Sequence {
             }
         }
         else {
-            const currentRoundNumber = state.roundNumber();
-            state.roundHistory.commitRound();
-            state.currentCompanyId(null);
-            state.currentPlayerIndex(state.priorityDealIndex());
-            state.roundHistory.startRound(RoundIDs.STOCK_ROUND, currentRoundNumber + 1);
-            state.firstPassIndex(null);
-            game.stockRound(new StockRound());
-            game.showOwnership();
+            if(Sequence.isGameOverDueToBankBreaking()) {
+                this.endGame();
+            }
+            else {
+                const currentRoundNumber = state.roundNumber();
+                state.roundHistory.commitRound();
+                state.currentCompanyId(null);
+                state.currentPlayerIndex(state.priorityDealIndex());
+                state.roundHistory.startRound(RoundIDs.STOCK_ROUND, currentRoundNumber + 1);
+                state.firstPassIndex(null);
+                game.stockRound(new StockRound());
+                game.showOwnership();
+            }
         }
     }
 
@@ -235,6 +251,9 @@ class Sequence {
         const game = CurrentGame();
         const state = game.state();
         const currentRound = state.roundHistory.getCurrentRound();
+        if(!currentRound) {
+            return;
+        }
         if (currentRound.id === RoundIDs.PRIVATE_DRAFT) {
             game.privateDraft(new PrivateDraft());
         }
@@ -248,6 +267,14 @@ class Sequence {
         return _.find(CurrentGame().state().players(), player => {
             return player.hasPrivate(CompanyIDs.STEAMBOAT_COMPANY);
         });
+    }
+
+    static isGameOverDueToBankBreaking() {
+        return CurrentGame().state().bank.cash() <= 0;
+    }
+
+    static isGameOverDueToBankruptcy() {
+        return _.filter(CurrentGame().state().players(), player=>!player.bankrupt()).length === 1;
     }
 }
 
