@@ -319,7 +319,7 @@ class Cell {
 
     ohioIndianaBlocked() {
         const ohioIndiana = CurrentGame().state().getCompany(CompanyIDs.OHIO_INDIANA);
-        return ohioIndiana && this.isOhioIndianaTiles() && (ohioIndiana.closed() || ohioIndiana.used());
+        return ohioIndiana && this.isOhioIndianaTiles() && !ohioIndiana.closed() && !ohioIndiana.used();
     }
 
     getConnectedCompanies() {

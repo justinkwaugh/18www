@@ -35,7 +35,13 @@ class StockRound {
         this.chosenShareSource = ko.observable(definition.chosenShareSource);
 
         this.bankShares = ko.computed(() => {
-            return CurrentGame().state().bank.numSharesOwnedOfCompany(this.selectedCompanyId());
+            if (!CurrentGame().state().currentPlayer() || !this.selectedCompanyId()) {
+                return false;
+            }
+            const player = CurrentGame().state().currentPlayer();
+            const company = CurrentGame().state().getCompany(this.selectedCompanyId());
+            const bankruptcyPrevention = !company.president() && player.numSharesOwnedOfCompany(this.selectedCompanyId()) === 0 && CurrentGame().state().bank.numSharesOwnedOfCompany(this.selectedCompanyId()) === 2
+            return bankruptcyPrevention ? 0 : CurrentGame().state().bank.numSharesOwnedOfCompany(this.selectedCompanyId());
         });
 
         this.treasuryShares = ko.computed(() => {
@@ -80,9 +86,9 @@ class StockRound {
             }
             else if (this.selectedAction() === Actions.SELL && this.selectedCompanyId() && this.numberOfShares()) {
                 return new SellShares({
-                    playerId: CurrentGame().state().currentPlayerId(),
-                    companyId: this.selectedCompanyId(),
-                    count: this.numberOfShares()
+                                          playerId: CurrentGame().state().currentPlayerId(),
+                                          companyId: this.selectedCompanyId(),
+                                          count: this.numberOfShares()
                                       });
             }
             else if (this.selectedAction() === Actions.PASS) {
@@ -95,17 +101,18 @@ class StockRound {
     }
 
     getParRange() {
-        const cash = CurrentGame().state().currentPlayer().cash() ;
-        return _([40,50,60,70,80,90,100,112,124,137,150]).filter(par=>(par*2) <= cash).value();
+        const cash = CurrentGame().state().currentPlayer().cash();
+        return _([40, 50, 60, 70, 80, 90, 100, 112, 124, 137, 150]).filter(par => (par * 2) <= cash).value();
     }
 
     selectAction(actionId) {
         this.reset();
         this.selectedAction(actionId);
-        if(this.selectedAction() === Actions.PASS) {
+        if (this.selectedAction() === Actions.PASS) {
             this.commit();
         }
-        else if(this.selectedAction() === Actions.SELL && _.values(CurrentGame().state().currentPlayer().sharesCanSell()).length ===1) {
+        else if (this.selectedAction() === Actions.SELL && _.values(
+                CurrentGame().state().currentPlayer().sharesCanSell()).length === 1) {
             this.selectCompany(_.keys(CurrentGame().state().currentPlayer().sharesCanSell())[0]);
         }
     }

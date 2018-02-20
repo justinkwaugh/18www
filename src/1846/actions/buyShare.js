@@ -36,19 +36,29 @@ class BuyShare extends Action {
         }
         else {
             state.bank.cash(state.bank.cash() - cash);
-            cert = state.bank.removeCert(this.companyId);
+            // Only pres share in bank, buying from bank
+            if (!company.president() && player.sharesPerCompany()[this.companyId] === 1 && state.bank.numSharesOwnedOfCompany(this.companyId) === 2) {
+                const nonPresidentCerts = player.removeNonPresidentCertsForCompany(1, this.companyId);
+                cert = state.bank.removePresidentCertForCompany(this.companyId);
+                state.bank.addCerts(nonPresidentCerts);
+                this.oldPresidentId = 'bank';
+                company.president(player.id);
+            }
+            else {
+                cert = state.bank.removeNonPresidentCertsForCompany(1, this.companyId)[0];
+            }
         }
         player.certificates.push(cert);
 
-        const currentPresident = state.playersById()[company.president()];
-        if (currentPresident.sharesPerCompany()[this.companyId] < player.sharesPerCompany()[this.companyId]) {
+        const currentPresident = !company.president() ? state.bank : state.playersById()[company.president()];
+        if ((!company.president() && player.sharesPerCompany()[this.companyId] === 2) || (company.president() && currentPresident.sharesPerCompany()[this.companyId] < player.sharesPerCompany()[this.companyId])) {
             const nonPresidentCerts = player.removeNonPresidentCertsForCompany(2, this.companyId);
             const presidentCert = currentPresident.removePresidentCertForCompany(this.companyId);
 
             player.addCert(presidentCert);
             currentPresident.addCerts(nonPresidentCerts);
 
-            this.oldPresidentId = currentPresident.id;
+            this.oldPresidentId = !company.president() ? 'bank' : currentPresident.id;
             company.president(player.id);
         }
 
@@ -63,15 +73,27 @@ class BuyShare extends Action {
 
         state.firstPassIndex(this.firstPassIndex);
 
-        if(this.oldPresidentId) {
-            const oldPresident = state.playersById()[this.oldPresidentId];
+        // Was only pres share in bank, buying from bank
+        if(this.oldPresidentId === 'bank' && !this.treasury && state.bank.numSharesOwnedOfCompany(this.companyId) === 1) {
+            state.bank.removeCash(cash);
+            player.addCash(cash);
+            const presidentCert = player.removePresidentCertForCompany(this.companyId);
+            const nonPresidentCerts = state.bank.removeNonPresidentCertsForCompany(1, this.companyId);
+            state.bank.addCert(presidentCert);
+            player.addCerts(nonPresidentCerts);
+            company.president(null);
+            return;
+        }
+
+        if (this.oldPresidentId ) {
+            const oldPresident = this.oldPresidentId === 'bank' ? state.bank : state.playersById()[this.oldPresidentId];
             const nonPresidentCerts = oldPresident.removeNonPresidentCertsForCompany(2, this.companyId);
             const presidentCert = player.removePresidentCertForCompany(this.companyId);
 
             oldPresident.addCert(presidentCert);
             player.addCerts(nonPresidentCerts);
 
-            company.president(oldPresident.id);
+            company.president(this.oldPresidentId === 'bank' ? null : oldPresident.id);
         }
 
         const cert = player.removeNonPresidentCertsForCompany(1, this.companyId)[0];

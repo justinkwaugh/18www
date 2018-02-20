@@ -105,7 +105,7 @@ class OperatingRound {
         });
 
         this.useablePrivates.subscribe((value) => {
-            if (value.length === 0 && this.selectedPrivateId()) {
+            if (this.selectedPrivateId()) {
                 this.reset();
             }
         });

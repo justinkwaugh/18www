@@ -149,6 +149,11 @@ class Player extends BasePlayer {
         if (!company) {
             return 0;
         }
+
+        if(!company.president()) {
+            return 0;
+        }
+
         const ownedShares = this.numSharesOwnedOfCompany(companyId);
         let maxAllowedSales = Math.min(ownedShares, 5 - CurrentGame().state().bank.numSharesOwnedOfCompany(companyId));
         if (maxAllowedSales > 0) {
