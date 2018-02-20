@@ -4,6 +4,7 @@ import _ from 'lodash';
 import ko from 'knockout';
 import CurrentGame from 'common/game/currentGame';
 import CompanyTypes from 'common/model/companyTypes';
+import CompanyIDs from '1846/config/companyIds';
 
 class Player extends BasePlayer {
     constructor(definition) {
@@ -117,8 +118,8 @@ class Player extends BasePlayer {
             return false;
         }
         return _.find(round.getActions(), action => {
-                return action.getTypeName() === 'SellShares' && action.companyId === companyId;
-            });
+            return action.getTypeName() === 'SellShares' && action.companyId === companyId;
+        });
     }
 
     hasPassedThisTurn() {
@@ -141,19 +142,19 @@ class Player extends BasePlayer {
     }
 
     getMaximumAllowedSalesOfCompany(companyId, disallowPresidentChange) {
-        if (this.hasSoldThisTurn(companyId))  {
+        if (this.hasSoldThisTurn(companyId)) {
             return 0;
         }
         const company = CurrentGame().state().publicCompaniesById[companyId];
-        if(!company) {
+        if (!company) {
             return 0;
         }
         const ownedShares = this.numSharesOwnedOfCompany(companyId);
         let maxAllowedSales = Math.min(ownedShares, 5 - CurrentGame().state().bank.numSharesOwnedOfCompany(companyId));
-        if(maxAllowedSales > 0) {
+        if (maxAllowedSales > 0) {
             const maxOwnedByOtherPlayers = _(CurrentGame().state().players()).reject(
-                    player => player.id === this.id).map(
-                    player => player.numSharesOwnedOfCompany(companyId)).max();
+                player => player.id === this.id).map(
+                player => player.numSharesOwnedOfCompany(companyId)).max();
             const canSellPresidentShare = !disallowPresidentChange && maxOwnedByOtherPlayers >= 2;
 
             if (this.isPresidentOfCompany(companyId) && !canSellPresidentShare) {
@@ -173,7 +174,7 @@ class Player extends BasePlayer {
         }
 
         const company = CurrentGame().state().publicCompaniesById[companyId];
-        if(company.closed()) {
+        if (company.closed()) {
             return false;
         }
         else if (!company.opened() && !this.canStartCompany(companyId)) {
@@ -193,7 +194,18 @@ class Player extends BasePlayer {
     }
 
     getPrivates() {
-        return _(this.certificatesById()).keys().map(companyId => CurrentGame().state().getCompany(companyId)).reject({type : CompanyTypes.PUBLIC}).reject(company=> company.closed()).sortBy('name').value();
+        return _(this.certificatesById()).keys().map(companyId => CurrentGame().state().getCompany(companyId)).reject(
+            {type: CompanyTypes.PUBLIC}).reject(company => company.closed()).sortBy('name').value();
+    }
+
+    hasPrivate(id) {
+        const privateCert = this.certificatesById()[id]||[];
+        if (privateCert.length === 0) {
+            return false;
+        }
+
+        const privateCo = CurrentGame().state().getCompany(privateCert[0].companyId);
+        return !privateCo.closed() || privateCo.id === CompanyIDs.MAIL_CONTRACT;
     }
 }
 

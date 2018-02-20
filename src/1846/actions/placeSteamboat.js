@@ -44,8 +44,9 @@ class PlaceSteamboat extends Action {
 
 
     summary(state) {
+        const player = state.playersById()[this.playerId];
         const company = state.getCompany(this.companyId);
-        return company.nickname + ' placed steamboat token in ' + LocationNames[this.cellId];
+        return (player ? player.name() : company.nickname) + ' placed steamboat token' + (player ? ' assigned to ' + company.nickname : '') + ' in ' + LocationNames[this.cellId];
     }
 }
 

@@ -7,6 +7,7 @@ import AdjustStockPrices from '1846/actions/adjustStockPrices';
 import PrivateIncome from '1846/actions/privateIncome';
 import CurrentGame from 'common/game/currentGame';
 import Events from 'common/util/events';
+import CompanyIDs from '1846/config/companyIds';
 
 import _ from 'lodash';
 class Sequence {
@@ -34,7 +35,7 @@ class Sequence {
 
     static finishTurn() {
         const state = CurrentGame().state();
-        if(state.interruptionType()) {
+        if (state.interruptionType()) {
             state.turnHistory.currentTurn().commitActionGroup();
 
             //commit to server
@@ -139,10 +140,12 @@ class Sequence {
 
         game.stockRound(null);
         state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_1);
-        new PrivateIncome({}).execute(state);
         new SetOperatingOrder({operatingOrder: state.stockBoard.getOperatingOrder(currentRoundNumber === 1)}).execute(
             state);
-        Sequence.setNextCompanyAndPlayer(state, 0);
+        new PrivateIncome({}).execute(state);
+        if(!Sequence.doSteamboat(state)) {
+            Sequence.setNextCompanyAndPlayer(state, 0);
+        }
         game.showMap();
     }
 
@@ -156,12 +159,12 @@ class Sequence {
 
         if (currentRoundId === RoundIDs.OPERATING_ROUND_1) {
             state.roundHistory.commitRound();
-
             state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_2);
-            new PrivateIncome({}).execute(state);
             new SetOperatingOrder({operatingOrder: state.stockBoard.getOperatingOrder()}).execute(state);
-            Sequence.setNextCompanyAndPlayer(state, 0);
-
+            new PrivateIncome({}).execute(state);
+            if(!Sequence.doSteamboat(state)) {
+                Sequence.setNextCompanyAndPlayer(state, 0);
+            }
         }
         else {
             const currentRoundNumber = state.roundNumber();
@@ -178,11 +181,22 @@ class Sequence {
     static getNextCompanyIndex(state) {
         // In case of bankruptcy causing change of presidency but still no train...
         const company = state.currentCompany();
-        if(company && company.president() && company.getNonPhasedOutTrains().length === 0) {
+        if (company && company.president() && company.getNonPhasedOutTrains().length === 0) {
             return _.indexOf(state.operatingOrder(), state.currentCompanyId());
         }
 
-        return _.indexOf(state.operatingOrder(), state.currentCompanyId()) + 1;
+        return company ? _.indexOf(state.operatingOrder(), state.currentCompanyId()) + 1 : 0;
+    }
+
+    static doSteamboat(state) {
+        const steamboatOwner = Sequence.getSteamboatOwner();
+        if(steamboatOwner) {
+            const steamboatOwnerIndex = _.findIndex(state.players(), player => player.id === steamboatOwner.id);
+            state.currentCompanyId(null);
+            state.currentPlayerIndex(steamboatOwnerIndex);
+            return true;
+        }
+        return false;
     }
 
     static setNextCompanyAndPlayer(state, companyIndex) {
@@ -228,6 +242,12 @@ class Sequence {
             game.stockRound(new StockRound());
             game.showOwnership();
         }
+    }
+
+    static getSteamboatOwner() {
+        return _.find(CurrentGame().state().players(), player => {
+            return player.hasPrivate(CompanyIDs.STEAMBOAT_COMPANY);
+        });
     }
 }
 

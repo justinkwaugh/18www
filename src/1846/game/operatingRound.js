@@ -29,7 +29,8 @@ const Actions = {
     EMERGENCY_BUY: 'emergency_buy',
     BANKRUPT: 'bankrupt',
     CLOSE_COMPANY: 'close_company',
-    RETURN_TRAIN: 'return_train'
+    RETURN_TRAIN: 'return_train',
+    PLAYER_STEAMBOAT: 'player_steamboat'
 };
 
 const PrivateActions = {
@@ -60,6 +61,7 @@ class OperatingRound {
         this.selectedForcedTrainForPurchase = ko.observable(definition.selectedForcedTrainForPurchase);
         this.selectedStocksForSale = ko.observable(definition.selectedStocksForSale || {});
         this.selectedTrainToReturn = ko.observable(definition.selectedTrainToReturn);
+        this.selectedSteamboatCompany = ko.observable(definition.selectedSteamboatCompany);
         this.useCWIToken = ko.observable(definition.useCWIToken);
 
         this.maxPrivateCost = ko.computed(() => {
@@ -228,7 +230,8 @@ class OperatingRound {
                 const companyToSell = CurrentGame().state().getCompany(companyId);
                 const numOfTypeSelected = this.selectedStocksForSale()[companyId] || 0;
                 const isCurrentCompany = companyId === company.id;
-                const maxAvailable = player.getMaximumAllowedSalesOfCompany(companyId, isCurrentCompany) - (isCurrentCompany ? company.numCanIssue() : 0);
+                const maxAvailable = Math.max(player.getMaximumAllowedSalesOfCompany(companyId,
+                                                                                     isCurrentCompany) - (isCurrentCompany ? company.numCanIssue() : 0));
                 const numNeeded = Math.ceil(moneyNeeded / companyToSell.price());
                 const numAllowed = moneyNeeded <= 0 ? numOfTypeSelected : Math.min(numOfTypeSelected + numNeeded,
                                                                                    maxAvailable);
@@ -257,140 +260,6 @@ class OperatingRound {
             const company = CurrentGame().state().currentCompany();
             return company.getNonPhasedOutTrains();
 
-        });
-
-        this.canBuyPrivates = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany() || !CurrentGame().state().currentPlayer() || this.midInterruption()) {
-                return false;
-            }
-
-            const company = CurrentGame().state().currentCompany();
-            if (company.type !== CompanyTypes.PUBLIC) {
-                return false;
-            }
-
-            if (!company.president()) {
-                return false;
-            }
-
-            if (this.isMiddleOfPrivateLays()) {
-                return false;
-            }
-
-            return CurrentGame().state().currentPlayer().getPrivates().length > 0 && company.cash() > 0;
-        });
-
-        this.canUsePrivates = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany() || this.midInterruption()) {
-                return false;
-            }
-
-            return this.useablePrivates().length > 0;
-        });
-
-        this.canIssue = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany() || this.midInterruption()) {
-                return false;
-            }
-
-            const company = CurrentGame().state().currentCompany();
-            if (company.type !== CompanyTypes.PUBLIC) {
-                return false;
-            }
-
-            if (!company.president()) {
-                return false;
-            }
-
-            if (this.isMiddleOfPrivateLays()) {
-                return false;
-            }
-
-            return !this.hasRunRoutesThisTurn() && !this.hasIssuedThisTurn() && !this.hasRedeemedThisTurn() && this.getNumCanIssue() > 0;
-        });
-
-        this.canRedeem = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany() || this.midInterruption()) {
-                return false;
-            }
-
-            const company = CurrentGame().state().currentCompany();
-            if (company.type !== CompanyTypes.PUBLIC) {
-                return false;
-            }
-
-            if (!company.president()) {
-                return false;
-            }
-
-            if (this.isMiddleOfPrivateLays()) {
-                return false;
-            }
-
-            return !this.hasRunRoutesThisTurn() && !this.hasRedeemedThisTurn() && !this.hasIssuedThisTurn() && this.getNumCanRedeem() > 0;
-        });
-
-        this.canLayTrackOrToken = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany() || this.midInterruption()) {
-                return false;
-            }
-
-            const company = CurrentGame().state().currentCompany();
-            if (!company.president()) {
-                return false;
-            }
-
-            if (this.hasRunRoutesThisTurn()) {
-                return false;
-            }
-
-            if (this.isMiddleOfPrivateLays()) {
-                return false;
-            }
-
-            return true;
-        });
-
-        this.canRunRoutes = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany() || this.midInterruption()) {
-                return false;
-            }
-
-            if (this.hasRunRoutesThisTurn()) {
-                return false;
-            }
-
-            if (this.isMiddleOfPrivateLays()) {
-                return false;
-            }
-
-            return true;
-        });
-
-        this.canBuyTrains = ko.computed(() => {
-            if (!CurrentGame() || !CurrentGame().state().currentCompany() || this.midInterruption()) {
-                return false;
-            }
-            const currentCompany = CurrentGame().state().currentCompany();
-
-            if (currentCompany.type !== CompanyTypes.PUBLIC) {
-                return false;
-            }
-
-            if (!this.hasRunRoutesThisTurn()) {
-                return false;
-            }
-
-            if (currentCompany.numTrainsForLimit() >= CurrentGame().state().trainLimit()) {
-                return false;
-            }
-
-            return this.canBuyTrainFromCompany() || this.canBuyTrainFromBank() || this.canEmergencyBuy();
-        });
-
-
-        this.canDoAnything = ko.computed(() => {
-            return this.canBuyPrivates() || this.canUsePrivates() || this.canIssue() || this.canRedeem() || this.canLayTrackOrToken() || this.canRunRoutes() || this.canBuyTrains() || this.canCloseCompany() || this.canEmergencyBuy() || this.canGoBankrupt() || this.mustReturnTrain() || this.interruptionNeeded();
         });
 
         this.action = ko.computed(() => {
@@ -492,6 +361,151 @@ class OperatingRound {
         });
     }
 
+    canDoPlayerSteamboat() {
+        if (CurrentGame().state().currentCompany() || !CurrentGame().state().currentPlayer()) {
+            return false;
+        }
+
+        if(this.hasPlacedSteamboatThisTurn()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    canBuyPrivates() {
+        if (!CurrentGame().state().currentCompany() || !CurrentGame().state().currentPlayer() || this.midInterruption()) {
+            return false;
+        }
+
+        const company = CurrentGame().state().currentCompany();
+        if (company.type !== CompanyTypes.PUBLIC) {
+            return false;
+        }
+
+        if (!company.president()) {
+            return false;
+        }
+
+        if (this.isMiddleOfPrivateLays()) {
+            return false;
+        }
+
+        return CurrentGame().state().currentPlayer().getPrivates().length > 0 && company.cash() > 0;
+    }
+
+    canUsePrivates() {
+        if (!CurrentGame().state().currentCompany() || this.midInterruption()) {
+            return false;
+        }
+
+        return this.useablePrivates().length > 0;
+    }
+
+    canIssue() {
+        if (!CurrentGame().state().currentCompany() || this.midInterruption()) {
+            return false;
+        }
+
+        const company = CurrentGame().state().currentCompany();
+        if (company.type !== CompanyTypes.PUBLIC) {
+            return false;
+        }
+
+        if (!company.president()) {
+            return false;
+        }
+
+        if (this.isMiddleOfPrivateLays()) {
+            return false;
+        }
+
+        return !this.hasRunRoutesThisTurn() && !this.hasIssuedThisTurn() && !this.hasRedeemedThisTurn() && this.getNumCanIssue() > 0;
+    }
+
+    canRedeem() {
+        if (!CurrentGame().state().currentCompany() || this.midInterruption()) {
+            return false;
+        }
+
+        const company = CurrentGame().state().currentCompany();
+        if (company.type !== CompanyTypes.PUBLIC) {
+            return false;
+        }
+
+        if (!company.president()) {
+            return false;
+        }
+
+        if (this.isMiddleOfPrivateLays()) {
+            return false;
+        }
+
+        return !this.hasRunRoutesThisTurn() && !this.hasRedeemedThisTurn() && !this.hasIssuedThisTurn() && this.getNumCanRedeem() > 0;
+    }
+
+    canLayTrackOrToken() {
+        if (!CurrentGame().state().currentCompany() || this.midInterruption()) {
+            return false;
+        }
+
+        const company = CurrentGame().state().currentCompany();
+        if (!company.president()) {
+            return false;
+        }
+
+        if (this.hasRunRoutesThisTurn()) {
+            return false;
+        }
+
+        if (this.isMiddleOfPrivateLays()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    canRunRoutes() {
+        if (!CurrentGame().state().currentCompany() || this.midInterruption()) {
+            return false;
+        }
+
+        if (this.hasRunRoutesThisTurn()) {
+            return false;
+        }
+
+        if (this.isMiddleOfPrivateLays()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    canBuyTrains() {
+        if (!CurrentGame().state().currentCompany() || this.midInterruption()) {
+            return false;
+        }
+        const currentCompany = CurrentGame().state().currentCompany();
+
+        if (currentCompany.type !== CompanyTypes.PUBLIC) {
+            return false;
+        }
+
+        if (!this.hasRunRoutesThisTurn()) {
+            return false;
+        }
+
+        if (currentCompany.numTrainsForLimit() >= CurrentGame().state().trainLimit()) {
+            return false;
+        }
+
+        return this.canBuyTrainFromCompany() || this.canBuyTrainFromBank() || this.canEmergencyBuy();
+    }
+
+    canDoAnything() {
+        return this.canDoPlayerSteamboat() || this.canBuyPrivates() || this.canUsePrivates() || this.canIssue() || this.canRedeem() || this.canLayTrackOrToken() || this.canRunRoutes() || this.canBuyTrains() || this.canCloseCompany() || this.canEmergencyBuy() || this.canGoBankrupt() || this.mustReturnTrain() || this.interruptionNeeded();
+    }
+
     checkInMiddlePrivateLay() {
         const privateId = this.isMiddleOfPrivateLays();
         if (privateId) {
@@ -558,8 +572,8 @@ class OperatingRound {
     }
 
     isSteamboatAbility() {
-        return this.selectedAction() === Actions.USE_PRIVATES
-               && this.selectedPrivateId() === CompanyIDs.STEAMBOAT_COMPANY;
+        return (this.selectedAction() === Actions.PLAYER_STEAMBOAT && this.selectedSteamboatCompany()) || (this.selectedAction() === Actions.USE_PRIVATES
+               && this.selectedPrivateId() === CompanyIDs.STEAMBOAT_COMPANY);
     }
 
     isMiddleOfPrivateLays() {
@@ -591,6 +605,21 @@ class OperatingRound {
     canAllocateRevenue() {
         return CurrentGame().state().currentCompany().type !== CompanyTypes.INDEPENDANT && CurrentGame().state().currentCompany().president();
     }
+
+    getSteamboatCompanies() {
+        const state = CurrentGame().state();
+        const player = state.currentPlayer();
+        const companies = _.filter(state.publicCompanies,
+                                   company => company.president() === player.id);
+        if(player.hasPrivate(CompanyIDs.MICHIGAN_SOUTHERN)) {
+            companies.push(state.getCompany(CompanyIDs.MICHIGAN_SOUTHERN));
+        }
+        if(player.hasPrivate(CompanyIDs.BIG_4)) {
+            companies.push(state.getCompany(CompanyIDs.BIG_4));
+        }
+        return _.sortBy(companies, 'nickname');
+    }
+
 
     getNumCanRedeem() {
         const company = CurrentGame().state().currentCompany();
@@ -783,7 +812,8 @@ class OperatingRound {
         return _.reduce(player.ownedCompanyIds(), (sum, companyId) => {
             const companyToSell = state.getCompany(companyId);
             const isCurrentCompany = companyId === company.id;
-            const numToSell = player.getMaximumAllowedSalesOfCompany(companyId, isCurrentCompany) - (isCurrentCompany ? numIssued : 0)
+            const numToSell = Math.max(0, player.getMaximumAllowedSalesOfCompany(companyId,
+                                                                                 isCurrentCompany) - (isCurrentCompany ? numIssued : 0));
             return sum + companyToSell.price() * numToSell;
         }, 0);
     }
@@ -894,7 +924,7 @@ class OperatingRound {
 
 
     willGoBankrupt() {
-        if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
+        if (!CurrentGame().state().currentCompany()) {
             return false;
         }
         const company = CurrentGame().state().currentCompany();
@@ -949,7 +979,7 @@ class OperatingRound {
             return true;
         }
         const company = state.currentCompany();
-        return this.hasRunRoutesThisTurn() && (company.numTrainsForLimit() > 0 || this.hasGoneBankrupt() || this.noPresidentAndCannotBuyTrain());
+        return (!company && this.hasPlacedSteamboatThisTurn()) || (this.hasRunRoutesThisTurn() && (company.numTrainsForLimit() > 0 || this.hasGoneBankrupt() || this.noPresidentAndCannotBuyTrain()));
     }
 
     getTrainsAvailableToForceBuy() {
@@ -978,7 +1008,8 @@ class OperatingRound {
         }
 
         // Otherwise everything can go to pay
-        const cashAfterEverything = cashAfterForcedIssue + player.cash() + this.cashFromStockSales(company, player, company.numCanIssue());
+        const cashAfterEverything = cashAfterForcedIssue + player.cash() + this.cashFromStockSales(company, player,
+                                                                                                   company.numCanIssue());
         const affordableTrains = _.filter(availableTrains, trainData => cashAfterEverything >= trainData.cost);
         if (affordableTrains.length > 0) {
             return affordableTrains;
@@ -1160,6 +1191,7 @@ class OperatingRound {
         this.selectedStocksForSale({});
         this.selectedTrainToReturn(null);
         this.useCWIToken(false);
+        this.selectedSteamboatCompany(null);
         Events.emit('clearRoutes');
     }
 

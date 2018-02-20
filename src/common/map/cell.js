@@ -187,7 +187,9 @@ class Cell {
                 return false;
             }
 
-            if (!CurrentGame().state().currentCompany()) {
+            const steamboat = this.canPlaceSteamboat();
+
+            if (!CurrentGame().state().currentCompany() && !steamboat) {
                 return false;
             }
 
@@ -196,7 +198,7 @@ class Cell {
             const mc = this.isMichiganCentralLay();
             const lsl = this.isLSLLay();
             const meat = this.canPlaceMeat();
-            const steamboat = this.canPlaceSteamboat();
+
 
             if (!layingTrack && !oandi && !mc && !lsl && !meat && !steamboat) {
                 return false;
@@ -670,7 +672,7 @@ class Cell {
                 }
 
                 // Check blocked
-                if(this.tile().isBlockedForCompany(companyId, connection[1])) {
+                if (this.tile().isBlockedForCompany(companyId, connection[1])) {
                     return false;
                 }
 
@@ -709,7 +711,6 @@ class Cell {
     }
 
 
-
     getConnectionId(connection) {
         return Math.min(connection[0], connection[1]) + '-' + Math.max(connection[0], connection[1]);
     }
@@ -740,7 +741,8 @@ class Cell {
     }
 
     getAllConnectionEdgesToCell(cell) {
-        return _(this.neighbors).map((neighbor,index)=>(neighbor && neighbor.id === cell.id) ? index: null).reject(index=>_.isNull(index)).value();
+        return _(this.neighbors).map((neighbor, index) => (neighbor && neighbor.id === cell.id) ? index : null).reject(
+            index => _.isNull(index)).value();
     }
 
     getConnectionsFromNeighborToNeighbor(neighborOne, neighborTwo, invalidConnectionIds) {
@@ -748,25 +750,28 @@ class Cell {
         const edgeTwo = this.getConnectionEdgeToCell(neighborTwo);
 
         if (_.keys(this.tile().cities).length > 0) {
-            let edgePairs = [[edgeOne,edgeTwo]];
-            if(neighborTwo.offboard) {
+            let edgePairs = [[edgeOne, edgeTwo]];
+            if (neighborTwo.offboard) {
                 const edges = this.getAllConnectionEdgesToCell(neighborTwo);
-                if(edges.length > 1) {
-                    edgePairs = _.map(edges, edge=> [edgeOne,edge]);
+                if (edges.length > 1) {
+                    edgePairs = _.map(edges, edge => [edgeOne, edge]);
                 }
             }
-            else if(neighborOne.offboard) {
+            else if (neighborOne.offboard) {
                 const edges = this.getAllConnectionEdgesToCell(neighborOne);
-                if(edges.length > 1) {
-                    edgePairs = _.map(edges, edge=> [edge,edgeTwo]);
+                if (edges.length > 1) {
+                    edgePairs = _.map(edges, edge => [edge, edgeTwo]);
                 }
             }
 
-            return _(this.tile().cities).map(city=> {
-                return _(edgePairs).map(edgePair=>_.compact([ this.getConnectionToEdges(edgePair[0], city.id), this.getConnectionToEdges(edgePair[1], city.id)])).reject(result=> {
-                    const resultConnectionIds = _.map(result, connection=> Tile.getConnectionId(connection));
-                    return _.intersection(resultConnectionIds, invalidConnectionIds).length > 0;
-                }).first();
+            return _(this.tile().cities).map(city => {
+                return _(edgePairs).map(edgePair => _.compact(
+                    [this.getConnectionToEdges(edgePair[0], city.id), this.getConnectionToEdges(edgePair[1],
+                                                                                                city.id)])).reject(
+                    result => {
+                        const resultConnectionIds = _.map(result, connection => Tile.getConnectionId(connection));
+                        return _.intersection(resultConnectionIds, invalidConnectionIds).length > 0;
+                    }).first();
             }).find(connections => connections.length === 2);
         }
         else {
@@ -894,9 +899,10 @@ class Cell {
 
     placeSteamboat() {
         const placeSteamboat = new PlaceSteamboat({
-                                            companyId: CurrentGame().state().currentCompanyId(),
-                                            cellId: this.id,
-                                        });
+                                                      playerId: CurrentGame().state().currentCompanyId() ? null : CurrentGame().state().currentPlayerId(),
+                                                      companyId: CurrentGame().state().currentCompanyId() || CurrentGame().operatingRound().selectedSteamboatCompany(),
+                                                      cellId: this.id,
+                                                  });
         placeSteamboat.execute(CurrentGame().state());
         CurrentGame().saveLocalState();
         this.cancelPreview();
