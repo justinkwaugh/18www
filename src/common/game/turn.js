@@ -9,7 +9,7 @@ class Turn extends ActionGroup {
         definition.type = 'turn';
         super(definition);
 
-        const state = CurrentGame().state();
+        const state = definition.state;
 
         this.number = definition.number;
         this.playerId = definition.playerId || state.currentPlayerId();

@@ -1,0 +1,127 @@
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light border border-0 m-0 p-0">
+        <span class="navbar-brand ml-3">
+            <a href="/" class="h1 text-secondary">1846</a>
+        </span>
+        <div class="navbar-nav mr-auto">
+            <h2 class="mb-0 text-dark font-weight-light"
+                data-bind="text: $data.game().state().roundName() + ' - ' + ($data.game().state().currentCompanyId() ? $data.game().state().getCompany($root.game().state().currentCompanyId()).nickname + ' - ' : '') + $data.game().state().currentPlayer().user().username"></h2>
+        </div>
+        <div>
+            <button type="button" class="btn btn-danger mr-2"
+                    data-bind="click: function() { $data.game().state().trySerialize();}">SERIALIZE
+            </button>
+        </div>
+        <div data-bind="template: { name: 'views/players', data: $data.game().state()}"></div>
+    </nav>
+    <div class="border border-right-0 border-left-0 pl-3 pr-3 bg-light"
+         data-bind="visible:!$data.game().privateDraft()">
+        <ul class="nav">
+            <li class="nav-item"
+                data-bind="css: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP ? 'bg-active-nav' : ''">
+                <a
+                        href="#" class="nav-link "
+                        data-bind="click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.MAP)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP ? 'active text-white font-weight-bold' : 'text-secondary' ">Map</a>
+            </li>
+            <li class="nav-item"
+                data-bind="css: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP ? 'bg-active-nav' : ''">
+                <a
+                        href="#" class="nav-link"
+                        data-bind="click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.OWNERSHIP)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP ? 'active text-white font-weight-bold' : 'text-secondary' ">Ownership</a>
+            </li>
+            <li class="nav-item"
+                data-bind="css: $data.game().activePanel() === $data.game().ActivePanelIDs.TILE_MANIFEST ? 'bg-active-nav' : ''">
+                <a
+                        href="#" class="nav-link"
+                        data-bind="click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.TILE_MANIFEST)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.TILE_MANIFEST ? 'active text-white font-weight-bold' : 'text-secondary' ">Tile
+                    Manifest</a>
+            </li>
+            <li class="nav-item"
+                data-bind="css: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY ? 'bg-active-nav' : ''">
+                <a
+                        href="#" class="nav-link"
+                        data-bind="click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.HISTORY)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY ? 'active text-white font-weight-bold' : 'text-secondary' ">History</a>
+            </li>
+        </ul>
+    </div>
+    <!-- ko if: $data.game().state().winner() -->
+    <div data-bind="template: { name: 'views/winner', data: $data.game().state() }"></div>
+    <!-- /ko -->
+    <div data-bind="template: { name: 'views/turnsummary', data: $data.game().state() }, visible:!$data.game().privateDraft()"></div>
+    <div data-bind="template: { name: 'views/stockRound', data: $data.game().stockRound() }, visible:!$data.game().privateDraft()"></div>
+    <div data-bind="template: { name: 'views/operatingRound', data: $data.game().operatingRound() }, visible:$data.game().state().isOperatingRound()"></div>
+</header>
+<div class="container-fluid px-0">
+
+    <div data-bind="template: { name: 'views/privateDraft', data: $data.game().privateDraft() }, visible:$data.game().privateDraft()"></div>
+    <div data-bind="visible:!$data.game().privateDraft()">
+
+        <div class="row"
+             data-bind="visible: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP || $data.game().activePanel() === $data.game().ActivePanelIDs.MAP">
+            <div class="col">
+                <div data-bind="template: { name: 'views/priceTrack', data: $data.game().state() }"></div>
+            </div>
+        </div>
+        <div data-bind="visible: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP">
+            <div class="row">
+                <div class="col">
+                    <div data-bind="template: { name: 'views/ownership', data: $data.game().state() }"></div>
+                </div>
+            </div>
+        </div>
+
+        <div data-bind="visible: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP">
+            <div class="row">
+                <div class="col bg-dark">
+                    <div class="d-flex">
+                        <div>
+                            <div style="min-width:220px;" data-bind="template: { name: 'views/companies', data: $data.game().state() }"></div>
+                        </div>
+                        <div style="position:relative;width:100%; overflow:scroll;">
+
+                            <div class="mt-2"
+                                 style="position:relative;transform-origin:0 0;transform:scale(.817)"
+                                 data-bind="style: { transform: 'scale(' + $data.game().zoom() + ')' }">
+                                <img style="width:1836px;height:1186px;"
+                                     data-bind="attr: { src: 'images/1846-map.jpg' }"/>
+                                <div style="position:absolute;top:0px;left:36px;height:1083px;width:1370px;"
+                                     data-bind="template: {name:'views/grid', data: $data.game().grid()}"></div>
+                                <div style="position:absolute;top:358px;left:1411px;height:437px;width:397px;"
+                                     data-bind="template: {name:'views/market', data: $data.game().state()}"></div>
+                                <div style="position:absolute;top:39px;left:47px;height:124px;width:257px;"
+                                     data-bind="template: {name:'views/limits', data: $data.game().state()}"></div>
+                                <div style="position:absolute;top:934px;left:953px;height:212px;width:855px;"
+                                     data-bind="template: {name:'views/trains', data: $data.game().state()}"></div>
+                            </div>
+                            <div class="zoom btn-group" role="group" style="position: absolute; top:10px; left:2px;">
+                                <button type="button"
+                                        class="btn btn-sm btn-dark font-weight-bold "
+                                        data-bind="click: function() { $data.game().zoomOut(); }"><span class="oi oi-zoom-out"></span>
+                                </button>
+                                <button type="button"
+                                        class="btn btn-sm btn-dark font-weight-bold"
+                                        data-bind="click: function() { $data.game().zoomIn(); }"><span class="oi oi-zoom-in"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div data-bind="if: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY">
+            <div class="row">
+                <div class="col">
+                    <div data-bind="template: { name: 'views/turnHistory', data: $data.game().state() }"></div>
+                </div>
+            </div>
+        </div>
+        <div data-bind="if: $data.game().activePanel() === $data.game().ActivePanelIDs.TILE_MANIFEST">
+            <div class="row">
+                <div class="col">
+                    <div data-bind="template: { name: 'views/tileManifest', data: $data.game().state() }"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -53,7 +53,6 @@ class Cell {
     constructor(data) {
         data = data || {};
 
-        console.log('creating cell id ' + data.id + ' at ' + data.top + ',' + data.left);
         this.id = data.id;
         this.top = data.top || 0;
         this.left = data.left || 0;

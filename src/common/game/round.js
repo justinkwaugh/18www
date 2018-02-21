@@ -8,11 +8,9 @@ class Round extends ActionGroup {
         definition.type = 'round';
         super(definition);
 
-        const state = CurrentGame().state();
-
         this.id = definition.id;
         this.number = definition.number;
-        this.actionStartIndex = state.actionHistory.currentIndex();
+        this.actionStartIndex = CurrentGame() ? CurrentGame().state().actionHistory.currentIndex() : 0;
     }
 
     getRoundName() {

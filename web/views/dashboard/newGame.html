@@ -1,0 +1,39 @@
+<div class="d-flex justify-content-center mt-3" style="height:100%">
+    <div class="card" style="width:600px;box-shadow:3px 3px 10px #ccc">
+        <div class="card-body">
+            <h5 class="card-title">New Local Game</h5>
+
+            <form>
+                <div class="form-group">
+                    <label>Game</label>
+                    <input class="form-control" type="text" placeholder="1846" readonly data-bind="value: type">
+                </div>
+                <div class="form-group">
+                    <label>Name</label>
+                    <input class="form-control" type="text" placeholder="Game Name..." data-bind="value: name">
+                </div>
+                <div class="form-group">
+                    <label>Number of Players</label>
+                    <div>
+                    <div class="btn-group" role="group">
+                        <!-- ko foreach: _.range(3, 6) -->
+                        <button type="button" class="btn"
+                                data-bind="text: $data, css: $parent.numPlayers() === $data ? 'btn-warning' : 'btn-secondary', click: function() { $parent.setNumPlayers($data); }"></button>
+                        <!-- /ko -->
+                    </div>
+                        </div>
+                </div>
+                <div class="form-group">
+                    <label>Players</label>
+                    <input class="form-control mb-1" type="text" placeholder="Player Name..." data-bind="value: player1">
+                    <input class="form-control mb-1" type="text" placeholder="Player Name..." data-bind="value: player2">
+                    <input class="form-control mb-1" type="text" placeholder="Player Name..." data-bind="value: player4, visible: numPlayers() === 4 || numPlayers() === 5">
+                    <input class="form-control mb-1" type="text" placeholder="Player Name..." data-bind="value: player5, visible: numPlayers() === 5">
+                    <input class="form-control" type="text" placeholder="Player Name..." data-bind="value: player3">
+                </div>
+                <button type="submit" class="btn btn-primary mb-2" data-bind="click: createLocalGame">Create Game
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

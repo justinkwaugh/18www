@@ -10,11 +10,10 @@ import ko from 'knockout';
 import _ from 'lodash';
 import TileManifest from '1846/config/tileManifest';
 import StockBoard from '1846/game/stockBoard';
-import Serializable from 'common/model/serializable';
 import Events from 'common/util/events';
-import Store from 'store';
 import Sequence from '1846/game/sequence';
 import OperatingRound from '1846/game/operatingRound';
+import RoundIDs from '1846/config/roundIds';
 
 
 const ActivePanelIDs = {
@@ -29,6 +28,7 @@ class Game extends BaseGame {
         definition = definition || {};
         super(definition);
 
+        this.record = definition.record;
         this.state = ko.observable(definition.state);
         this.grid = ko.observable(new Grid(definition.state));
         this.privateDraft = ko.observable();
@@ -39,10 +39,11 @@ class Game extends BaseGame {
 
         this.activePanel = ko.observable(ActivePanelIDs.MAP);
         this.ActivePanelIDs = ActivePanelIDs;
+        this.sequence = Sequence;
     }
 
     selectCompany(companyId) {
-        if(this.selectedCompany() === companyId) {
+        if (this.selectedCompany() === companyId) {
             this.selectedCompany(null);
         }
         else {
@@ -51,14 +52,14 @@ class Game extends BaseGame {
     }
 
     zoomIn() {
-        if(this.zoom() < 1.5) {
-            this.zoom(this.zoom()+.05);
+        if (this.zoom() < 1.5) {
+            this.zoom(this.zoom() + .05);
         }
     }
 
     zoomOut() {
-        if(this.zoom() > .1) {
-            this.zoom(this.zoom()-.05);
+        if (this.zoom() > .1) {
+            this.zoom(this.zoom() - .05);
         }
     }
 
@@ -74,8 +75,7 @@ class Game extends BaseGame {
         this.activePanel(newPanel);
     }
 
-    static createGame(users) {
-
+    static createInitialState(users) {
         const publicCompanies = Companies.generatePublicCompanies();
         const privateCompanies = Companies.generatePrivateCompanies();
 
@@ -128,22 +128,20 @@ class Game extends BaseGame {
         const stockBoard = new StockBoard();
 
         const state = new State({
-                                    players,
-                                    publicCompanies,
-                                    privateCompanies,
-                                    bank,
-                                    manifest,
-                                    stockBoard
-                                });
+                             players,
+                             publicCompanies,
+                             privateCompanies,
+                             bank,
+                             manifest,
+                             stockBoard
+                         });
 
+        state.roundHistory.startRound(RoundIDs.PRIVATE_DRAFT, 1);
+        state.currentPlayerIndex(state.players().length - 1);
+        state.turnHistory.startTurn({state});
 
-        return new Game({
-                            state
-                        });
-    }
+        return state;
 
-    reset() {
-        Store.remove('61');
     }
 
     updateState(newState) {
@@ -153,24 +151,11 @@ class Game extends BaseGame {
     }
 
     saveLocalState() {
-        Store.set('61',this.state().serialize());
+        this.record.round = this.state().winner() ? 'Game End' : this.state().roundHistory.currentRound().getRoundName();
+        this.record.turn = this.state().currentPlayer().name();
+        this.record.save(this.state());
     }
 
-    restoreLocalState() {
-        let restored = false;
-        const storedState = Store.get('61');
-        if(storedState) {
-            const state = Serializable.deserialize(storedState);
-            this.updateState(state);
-            restored = true;
-        }
-        return restored;
-    }
-
-    tryDeserialize() {
-        const state = Serializable.deserialize(this.state().serialize());
-        this.updateState(state);
-    }
 }
 
 export default Game;

@@ -129,7 +129,7 @@ class Sequence {
                 Sequence.onOperatingRoundEnd(game, currentRound.id);
             }
         }
-        state.turnHistory.startTurn();
+        state.turnHistory.startTurn({state});
     }
 
     static onPrivateDraftEnd(game) {

@@ -34,7 +34,7 @@
             Place / Move Steamboat
         </button>
         <button type="button" class="btn btn-sm btn-danger mr-1"
-                data-bind="click: function() {$root.sequence.finishTurn();}">Skip
+                data-bind="click: function() {$root.game().sequence.finishTurn();}">Skip
         </button>
         <!-- /ko -->
         <!-- ko if: $data.canBuyPrivates() -->
