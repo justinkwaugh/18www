@@ -1,12 +1,24 @@
 <!-- ko foreach: $data.players() -->
-<div class="card d-inline-flex text-center pr-3 pl-3 pt-1 pb-1 text-white rounded-0" style="min-width:10rem;cursor:pointer;height:100%;" data-bind="css: { 'bg-secondary': $parent.currentPlayerId() !== $data.id, 'bg-info' : $parent.currentPlayerId() === $data.id }, popover: $data.popoverParams">
+<div class="card d-inline-flex text-center pr-3 pl-3 pt-1 pb-1 rounded-0 border-bottom-0 border-right-0"
+     style="min-width:10rem;cursor:pointer;height:100%;"
+     data-bind="css: $parent.currentPlayerId() !== $data.id ? 'bg-light text-dark' : 'bg-warning text-dark'">
     <h5 class="mb-0" data-bind="text: user().username"></h5>
-    <div class="d-flex justify-content-between">
-        <div class="mr-4" data-bind="text: '$' + cash() + '/' + getNetWorth()"></div>
-        <div data-bind="text: certificates().length + '/' + $parent.certLimit() + ' certs'"></div>
+    <div class="d-flex justify-content-between text-center mt-1">
+        <div class="mr-3">
+            <div style="font-size:10px;margin-bottom:-5px;">cash</div>
+            <div style="font-size:.9rem" data-bind="text: '$' + cash()"></div>
+        </div>
+        <div class="mr-3">
+            <div style="font-size:10px;margin-bottom:-5px;">certs</div>
+            <div style="font-size:.9rem" data-bind="text: certificates().length + '/' + $parent.certLimit()"></div>
+        </div>
+        <div >
+            <div style="font-size:10px;margin-bottom:-5px;">worth</div>
+            <div style="font-size:.9rem" data-bind="text: '$' + getNetWorth()"></div>
+        </div>
     </div>
 </div>
 <!-- ko if: $index() !== $parent.players().length -1 -->
-<div class="d-inline-flex" style="width:2px"></div>
+<div class="d-inline-flex" style="width:0px"></div>
 <!-- /ko -->
 <!-- /ko -->

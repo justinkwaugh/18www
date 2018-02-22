@@ -127,6 +127,22 @@ nav a, nav a:hover {
     transform: rotate(-300deg);
 }
 
+.bg-phase1 {
+    background-color: #ffe300;
+}
+
+.bg-phase2 {
+    background-color: #5fb479;
+}
+
+.bg-phase3 {
+    background-color: #c18157;
+}
+
+.bg-phase4 {
+    background-color: #d2d2d4;
+}
+
 .bg-ms {
     background-color: #777 !important;
 }
@@ -272,6 +288,22 @@ nav a, nav a:hover {
 
 .text-cando {
     color: #333;
+}
+
+.text-phase1 {
+    color: #333 !important;
+}
+
+.text-phase2 {
+    color: white !important;
+}
+
+.text-phase3 {
+    color: white !important;
+}
+
+.text-phase4 {
+    color: #333 !important;
 }
 
 .editable .tile .tile-border:hover {

@@ -2,7 +2,11 @@
 <div class="row d-flex justify-content-center text-center align-items-center bg-light" style="height:50vh;">
     <div class="col">
         <div class="col-lg-8 col-xl-7 mx-auto">
-            <div class=""><h2 class="font-weight-light p-2">Choose a private company</h2>
+            <div class=""><h2 class="font-weight-light p-2 pb-0 m-0">Choose a private company</h2>
+                <!-- ko if: $data.revealed() -->
+                <!-- ko if: $root.game().state().currentPlayer().getPrivateNames().length > 0 -->
+                <div class="font-weight-light text-dark mb-3" style="font-size:1.3rem" data-bind="text: 'Already chosen: ' + _.join($root.game().state().currentPlayer().getPrivateNames(), ', ')"></div>
+                <!-- /ko -->
                 <!-- ko foreach: $data.privatesOffered() -->
                 <div class="card d-inline-flex mb-3 mr-3"
                      style="overflow:hidden;background-size:contain;cursor:pointer;min-width:250px;min-height:160px;box-shadow:3px 3px 10px #ccc"
@@ -23,6 +27,10 @@
                         </button>
                     </div>
                 </div>
+                <!-- /ko -->
+                <!-- ko if: !$data.revealed() -->
+                <button class="btn btn-large" data-bind="click: function() {$data.revealed(true)}">Reveal Choices</button>
+                <!-- /ko -->
             </div>
         </div>
     </div>

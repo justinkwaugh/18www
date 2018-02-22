@@ -10,6 +10,7 @@ class PrivateDraft {
         definition = definition || {};
 
         this.privatesOffered = ko.observableArray(definition.privatesOffered);
+        this.revealed = ko.observable(false);
 
         if (!definition.privatesOffered) {
             const state = CurrentGame().state();

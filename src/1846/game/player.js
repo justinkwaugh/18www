@@ -232,6 +232,10 @@ class Player extends BasePlayer {
         const privateCo = CurrentGame().state().getCompany(privateCert[0].companyId);
         return !privateCo.closed() || privateCo.id === CompanyIDs.MAIL_CONTRACT;
     }
+
+    getPrivateNames() {
+        return _.map(this.getPrivates(), 'name' );
+    }
 }
 
 Player.registerClass();

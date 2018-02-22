@@ -937,7 +937,7 @@ class TileManifest extends Serializable {
             return _(TileDefinitions).map(definition => TileManifest.createTile(definition.id)).keyBy('id').value();
         });
         this.tilesByColor = ko.computed(() => {
-            return _(TileDefinitions).map((tileDefinition) => {
+            return _(TileDefinitions).reject(tileDefinition=>_.indexOf([MapTileIDs.CHICAGO,MapTileIDs.WHEELING,MapTileIDs.DETROIT,MapTileIDs.ERIE], tileDefinition.id)>= 0).map((tileDefinition) => {
                 return {
                     id: tileDefinition.id,
                     tile: this.displayTilesById()[tileDefinition.id],

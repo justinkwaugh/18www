@@ -3,14 +3,15 @@
         <span class="navbar-brand ml-3">
             <a href="/" class="h1 text-secondary">1846</a>
         </span>
-        <div class="navbar-nav mr-auto">
+        <div class="navbar-nav mr-auto d-flex">
             <h2 class="mb-0 text-dark font-weight-light"
-                data-bind="text: $data.game().state().roundName() + ' - ' + ($data.game().state().currentCompanyId() ? $data.game().state().getCompany($root.game().state().currentCompanyId()).nickname + ' - ' : '') + $data.game().state().currentPlayer().user().username"></h2>
-        </div>
-        <div>
-            <button type="button" class="btn btn-danger mr-2"
-                    data-bind="click: function() { $data.game().generateBugEmail();}">Report Bug
-            </button>
+                data-bind="text: $data.game().state().roundName() + '&nbsp;'"></h2>
+            <!-- ko if: $data.game().state().currentCompanyId() -->
+            <h2 class="mb-0 pl-2 pr-2 font-weight-light" style="border-radius:.7rem"
+                data-bind="css: 'bg-' + $root.game().state().currentCompanyId() + ' text-' + $root.game().state().currentCompanyId() , text: $data.game().state().getCompany($root.game().state().currentCompanyId()).nickname"></h2>
+            <!-- /ko -->
+            <!--<h2 class="mb-0 text-dark font-weight-light"-->
+            <!--data-bind="text:($data.game().state().currentCompanyId() ? '&nbsp;' : '') + $data.game().state().currentPlayer().user().username"></h2>-->
         </div>
         <div data-bind="template: { name: 'views/players', data: $data.game().state()}"></div>
     </nav>
@@ -41,6 +42,11 @@
                 <a
                         href="#" class="nav-link"
                         data-bind="click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.HISTORY)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY ? 'active text-white font-weight-bold' : 'text-secondary' ">History</a>
+            </li>
+            <li class="nav-item">
+                <a
+                        href="#" class="nav-link text-danger"
+                        data-bind="click: function() {$data.game().generateBugEmail();}">Report Bug</a>
             </li>
         </ul>
     </div>
@@ -75,7 +81,8 @@
                 <div class="col bg-dark">
                     <div class="d-flex">
                         <div>
-                            <div style="min-width:220px;" data-bind="template: { name: 'views/companies', data: $data.game().state() }"></div>
+                            <div style="min-width:220px;"
+                                 data-bind="template: { name: 'views/companies', data: $data.game().state() }"></div>
                         </div>
                         <div style="position:relative;width:100%; overflow:scroll;">
 
@@ -92,16 +99,19 @@
                                      data-bind="template: {name:'views/limits', data: $data.game().state()}"></div>
                                 <div style="position:absolute;top:934px;left:953px;height:212px;width:855px;"
                                      data-bind="template: {name:'views/trains', data: $data.game().state()}"></div>
-                                <div style="position:absolute;top:898px;left:723px;height:175px; width:175px;" data-bind="template: { name: 'views/rounds', data: $data.game().state() }"></div>
+                                <div style="position:absolute;top:898px;left:723px;height:175px; width:175px;"
+                                     data-bind="template: { name: 'views/rounds', data: $data.game().state() }"></div>
                             </div>
                             <div class="zoom btn-group" role="group" style="position: absolute; top:10px; left:2px;">
                                 <button type="button"
                                         class="btn btn-sm btn-dark font-weight-bold "
-                                        data-bind="click: function() { $data.game().zoomOut(); }"><span class="oi oi-zoom-out"></span>
+                                        data-bind="click: function() { $data.game().zoomOut(); }"><span
+                                        class="oi oi-zoom-out"></span>
                                 </button>
                                 <button type="button"
                                         class="btn btn-sm btn-dark font-weight-bold"
-                                        data-bind="click: function() { $data.game().zoomIn(); }"><span class="oi oi-zoom-in"></span>
+                                        data-bind="click: function() { $data.game().zoomIn(); }"><span
+                                        class="oi oi-zoom-in"></span>
                                 </button>
                             </div>
 

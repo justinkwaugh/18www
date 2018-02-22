@@ -72,7 +72,7 @@ class Company extends Serializable {
     }
 
     getPrivates() {
-        return _(this.privates()).map(cert => CurrentGame().state().getCompany(cert.companyId)).sortBy('name').value();
+        return _(this.privates()).map(cert => CurrentGame().state().getCompany(cert.companyId)).reject(company=>company.closed()).sortBy('name').value();
     }
 
     hasPrivate(id) {

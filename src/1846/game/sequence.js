@@ -217,6 +217,7 @@ class Sequence {
 
     static setNextCompanyAndPlayer(state, companyIndex) {
         state.currentCompanyId(state.operatingOrder()[companyIndex]);
+        CurrentGame().selectedCompany(state.currentCompanyId());
         let presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
         if (!presidentPlayerId) {
             presidentPlayerId = _(state.players()).reject(player => player.bankrupt()).sample().id;
@@ -260,6 +261,9 @@ class Sequence {
         else if (currentRound.id === RoundIDs.STOCK_ROUND) {
             game.stockRound(new StockRound());
             game.showOwnership();
+        }
+        else {
+            CurrentGame().selectedCompany(state.currentCompanyId());
         }
     }
 
