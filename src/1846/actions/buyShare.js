@@ -16,7 +16,7 @@ class BuyShare extends Action {
 
     doExecute(state) {
         const player = state.playersById()[this.playerId];
-        const company = state.publicCompaniesById[this.companyId];
+        const company = state.getCompany(this.companyId);
         this.startIndex = company.priceIndex();
         this.firstPassIndex = state.firstPassIndex();
 
@@ -68,7 +68,7 @@ class BuyShare extends Action {
 
     doUndo(state) {
         const player = state.playersById()[this.playerId];
-        const company = state.publicCompaniesById[this.companyId];
+        const company = state.getCompany(this.companyId);
         const cash = Prices.price(company.priceIndex());
 
         state.firstPassIndex(this.firstPassIndex);
@@ -109,13 +109,13 @@ class BuyShare extends Action {
     }
 
     summary(state) {
-        const company = state.publicCompaniesById[this.companyId];
+        const company = state.getCompany(this.companyId);
         return 'Bought 1 ' + company.nickname + ' for $' + Prices.price(
                 this.startIndex) + ' from ' + (this.treasury ? 'the treasury' : 'the market');
     }
 
     confirmation(state) {
-        const company = state.publicCompaniesById[this.companyId];
+        const company = state.getCompany(this.companyId);
         const startIndex = company.priceIndex();
         return 'Confirm Buy 1 ' + company.nickname + ' for $' + Prices.price(
                 startIndex) + ' from ' + (this.treasury ? 'the treasury' : 'the market');

@@ -11,7 +11,6 @@ class NewGameForm {
 
         this.type = ko.observable('1846');
         this.name = ko.observable();
-        this.users = ko.observableArray();
         this.numPlayers = ko.observable(3);
         this.player1 = ko.observable();
         this.player2 = ko.observable();
@@ -39,7 +38,7 @@ class NewGameForm {
         const state = Game.createInitialState(users);
         const gameRecord = new GameRecord({
                                               type: this.type(),
-                                              name: this.name(),
+                                              name: this.name() || 'New Game',
                                               location: 'local',
                                               startDate: new Date().toISOString(),
                                               players: users.length,

@@ -14,7 +14,7 @@ class PrivateDraft {
         if (!definition.privatesOffered) {
             const state = CurrentGame().state();
             this.privatesOffered(_(state.undraftedPrivateIds()).take(state.players().length + 2).map((id) => {
-                return _.startsWith(id, 'pass') ? state.passCardsById[id] : state.privateCompaniesById[id];
+                return _.startsWith(id, 'pass') ? state.passCardsById[id] : state.privateCompaniesById()[id];
             }).value());
         }
 

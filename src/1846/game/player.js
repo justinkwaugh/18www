@@ -22,7 +22,7 @@ class Player extends BasePlayer {
                 return {};
             }
 
-            return _(CurrentGame().state().publicCompaniesById).map((company, id) => {
+            return _(CurrentGame().state().publicCompaniesById()).map((company, id) => {
                 return {
                     id,
                     company,
@@ -48,7 +48,7 @@ class Player extends BasePlayer {
                 return [];
             }
 
-            return _(CurrentGame().state().publicCompaniesById).filter(
+            return _(CurrentGame().state().publicCompaniesById()).filter(
                 (company, id) => this.canBuyCompany(id)).values().value();
         });
 
@@ -157,7 +157,7 @@ class Player extends BasePlayer {
     }
 
     canStartCompany(companyId) {
-        const company = CurrentGame().state().publicCompaniesById[companyId];
+        const company = CurrentGame().state().getCompany(companyId);
         return company.opened() === false && this.cash() >= 80;
     }
 
@@ -165,7 +165,7 @@ class Player extends BasePlayer {
         if (this.hasSoldThisTurn(companyId)) {
             return 0;
         }
-        const company = CurrentGame().state().publicCompaniesById[companyId];
+        const company = CurrentGame().state().getCompany(companyId);
         if (!company) {
             return 0;
         }
@@ -198,7 +198,7 @@ class Player extends BasePlayer {
             return false;
         }
 
-        const company = CurrentGame().state().publicCompaniesById[companyId];
+        const company = CurrentGame().state().getCompany(companyId);
         if (company.closed()) {
             return false;
         }

@@ -27,7 +27,7 @@ class StockBoard extends Serializable {
         Events.on('stateUpdated', ()=>{
             _.each(this.stockBoard(), entry=> {
                 _.each(entry.companies(), (companyId) => {
-                    const company = CurrentGame().state().publicCompaniesById[companyId];
+                    const company = CurrentGame().state().getCompany(companyId);
                     this.subscribeToCompany(company);
                 });
             });

@@ -9,7 +9,7 @@
         </div>
         <div>
             <button type="button" class="btn btn-danger mr-2"
-                    data-bind="click: function() { $data.game().state().trySerialize();}">SERIALIZE
+                    data-bind="click: function() { $data.game().generateBugEmail();}">Report Bug
             </button>
         </div>
         <div data-bind="template: { name: 'views/players', data: $data.game().state()}"></div>
@@ -103,6 +103,7 @@
                                         data-bind="click: function() { $data.game().zoomIn(); }"><span class="oi oi-zoom-in"></span>
                                 </button>
                             </div>
+                            <div data-bind="template: { name: 'views/roundAndPhase', data: $data.game().state() }"></div>
                         </div>
                     </div>
                 </div>

@@ -160,7 +160,9 @@ class Tile extends Serializable {
                 cityId = cities[0].id;
             }
         }
-        this.reservedTokens.push(cityId +'|'+ companyId);
+        if(!this.hasReservedTokenForCompany(companyId, cityId)) {
+            this.reservedTokens.push(cityId + '|' + companyId);
+        }
     }
 
     removeReservedToken(companyId, cityId) {
@@ -176,7 +178,9 @@ class Tile extends Serializable {
                 cityId = cities[0].id;
             }
         }
-        this.tokens.push(cityId + '|' + companyId);
+        if(!this.hasTokenForCompany(companyId, cityId)) {
+            this.tokens.push(cityId + '|' + companyId);
+        }
     }
 
     removeToken(companyId, cityId) {

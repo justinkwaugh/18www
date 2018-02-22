@@ -3,23 +3,27 @@
 
         <!-- ko if: $data.getRoutedConnection([-1,0]) -->
         <g transform="translate(-24,-103)">
-            <polygon transform="rotate(210)" fill="" points="-8,0 8,-60 24,0" data-bind="attr: { fill: $data.getOuterStrokeColor([-1,0]) }"></polygon>
+            <polygon transform="rotate(210)" fill="" points="-8,0 8,-60 24,0"
+                     data-bind="attr: { fill: $data.getOuterStrokeColor([-1,0]) }"></polygon>
             <polygon transform="rotate(210)" fill="black" points="0,0 8,-31 16,0"></polygon>
         </g>
         <!-- /ko -->
 
         <!-- ko if: $data.getRoutedConnection([-1,1]) -->
         <g transform="translate(1,-45)">
-            <polygon transform="rotate(270)" fill="" points="-8,0 8,-60 24,0" data-bind="attr: { fill: $data.getOuterStrokeColor([-1,1]) }"></polygon>
+            <polygon transform="rotate(270)" fill="" points="-8,0 8,-60 24,0"
+                     data-bind="attr: { fill: $data.getOuterStrokeColor([-1,1]) }"></polygon>
             <polygon transform="rotate(270)" fill="black" points="0,0 8,-31 16,0"></polygon>
         </g>
         <!-- /ko -->
+
+        <!-- ko if: $data.hasSteamboat() -->
+        <image xlink:href="" x="10" y="10" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/boat.png' }"></image>
+        <!-- /ko -->
         <!-- ko if: $data.hasMeat() -->
-        <g transform="translate(3,45)">
-                    <text x="0" y="0" fill="white" stroke="black" stroke-width=""
-              font-size="20" text-anchor="middle" visibility="inherit">MEAT
-        </text>
-        </g>
+        <image xlink:href="" x="10" y="55" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/meat.png' }"></image>
         <!-- /ko -->
     </g>
 </svg>

@@ -14,7 +14,7 @@ class DraftPrivate extends Action {
 
     doExecute(state) {
         const player = state.playersById()[this.playerId];
-        const privateCompany = state.privateCompaniesById[this.privateId];
+        const privateCompany = state.privateCompaniesById()[this.privateId];
         if (!_.startsWith(this.privateId, 'pass')) {
             player.cash(player.cash() - privateCompany.cost);
             state.bank.cash(state.bank.cash() + privateCompany.cost);
@@ -34,7 +34,7 @@ class DraftPrivate extends Action {
     }
 
     summary(state) {
-        const privateCompany = state.privateCompaniesById[this.privateId];
+        const privateCompany = state.privateCompaniesById()[this.privateId];
         const passed = _.startsWith(this.privateId, 'pass');
         return 'Drafted ' + (passed ? this.privateId : privateCompany.name);
     }

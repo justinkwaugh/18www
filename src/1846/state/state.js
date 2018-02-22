@@ -50,10 +50,10 @@ class State extends BaseState {
         this.trainLimit = ko.observable(definition.trainLimit || 4);
 
         this.publicCompanies = definition.publicCompanies || [];
-        this.publicCompaniesById = _.keyBy(this.publicCompanies, 'id');
+        this.publicCompaniesById = ko.computed(()=>{ return _.keyBy(this.publicCompanies, 'id'); });
         this.privateCompanies = definition.privateCompanies || [];
-        this.privateCompaniesById = _.keyBy(this.privateCompanies, 'id');
-        this.allCompaniesById = _(this.publicCompanies).concat(this.privateCompanies).keyBy('id').value();
+        this.privateCompaniesById = ko.computed(()=>{ return _.keyBy(this.privateCompanies, 'id'); });
+        this.allCompaniesById = ko.computed(()=>{ return _(this.publicCompanies).concat(this.privateCompanies).keyBy('id').value(); });
         this.openCompanies = ko.computed(()=> {
             return _.reject(this.publicCompanies, company=>company.closed());
         });
@@ -134,6 +134,14 @@ class State extends BaseState {
         return !this.winner() && this.roundId() === RoundIds.STOCK_ROUND;
     }
 
+    isOperatingRound1() {
+        return !this.winner() && this.roundId() === RoundIds.OPERATING_ROUND_1;
+    }
+
+    isOperatingRound2() {
+        return !this.winner() && this.roundId() === RoundIds.OPERATING_ROUND_2;
+    }
+
     getPriorPhase() {
         if (this.currentPhaseId() === PhaseIds.PHASE_IV) {
             return PhaseIds.PHASE_III;
@@ -158,7 +166,7 @@ class State extends BaseState {
     }
 
     getCompany(companyId) {
-        return this.allCompaniesById[companyId];
+        return this.allCompaniesById()[companyId];
     }
 
     getOperatingCompanies() {

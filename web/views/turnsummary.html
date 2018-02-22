@@ -13,7 +13,7 @@
         </ul>
         <div class="ml-auto d-flex flex-nowrap">
             <!-- ko if: $data.actionHistory.canUndo() -->
-            <button type="button" class="btn btn-sm btn-danger mr-1" data-bind="click: function() { $root.sequence.undoLastAction(); }">Undo</button>
+            <button type="button" class="btn btn-sm btn-danger mr-1" data-bind="click: function() { $root.game().sequence.undoLastAction(); }">Undo</button>
             <!-- /ko -->
             <!-- ko if: !$data.isOperatingRound() || ($root.game().operatingRound().canEndTurn() && !$root.game().operatingRound().interruptionNeeded()) -->
             <button type="button" class="btn btn-sm btn-success" data-bind="click: function() { $root.game().sequence.finishTurn(); }">End Turn</button>

@@ -29,7 +29,7 @@ class StockRound {
         this.openingPriceIndex = ko.observable(definition.openingPriceIndex);
         this.selectedCompanyId = ko.observable(definition.selectedCompanyId);
         this.selectedCompany = ko.computed(() => {
-            return CurrentGame().state().publicCompaniesById[this.selectedCompanyId()];
+            return CurrentGame().state().publicCompaniesById()[this.selectedCompanyId()];
         });
         this.numberOfShares = ko.observable(definition.numberOfShares);
         this.chosenShareSource = ko.observable(definition.chosenShareSource);
@@ -69,7 +69,7 @@ class StockRound {
 
         this.action = ko.computed(() => {
             if (this.selectedAction() === Actions.BUY && this.selectedCompanyId()) {
-                if (CurrentGame().state().publicCompaniesById[this.selectedCompanyId()].opened() && this.shareSource()) {
+                if (CurrentGame().state().publicCompaniesById()[this.selectedCompanyId()].opened() && this.shareSource()) {
                     return new BuyShare({
                                             playerId: CurrentGame().state().currentPlayerId(),
                                             companyId: this.selectedCompanyId(),

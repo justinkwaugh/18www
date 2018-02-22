@@ -11,7 +11,7 @@ class DraftPass extends Action {
     }
 
     doExecute(state) {
-        const privateCompany = state.privateCompaniesById[this.privateId];
+        const privateCompany = state.privateCompaniesById()[this.privateId];
         privateCompany.cost -= 10;
     }
 
@@ -20,7 +20,7 @@ class DraftPass extends Action {
     }
 
     summary(state) {
-        const privateCompany = state.privateCompaniesById[this.privateId];
+        const privateCompany = state.privateCompaniesById()[this.privateId];
         return 'Passed on ' + privateCompany.name;
     }
 }

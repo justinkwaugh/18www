@@ -70,7 +70,7 @@ class LayTrack extends Action {
     }
 
     upgradeRoutes(state, cellId, oldTile, newTile) {
-        _.each(state.allCompaniesById, company=> {
+        _.each(state.allCompaniesById(), company=> {
                 if(company.closed()) {
                     return;
                 }

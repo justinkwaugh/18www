@@ -21,21 +21,19 @@ class GameRecord extends Serializable {
 
     create(currentState, initialState) {
         LocalStore.store(this.id, this.serialize(), 'games');
-        LocalStore.store(this.id, initialState.serialize(), 'initialstate');
-        LocalStore.store(this.id, currentState.serialize(), 'currentstate');
+        LocalStore.storeCompressed(this.id, initialState.serialize(), 'initialstate');
+        LocalStore.storeCompressed(this.id, currentState.serialize(), 'currentstate');
     }
 
     loadCurrentState() {
-        return Serializable.deserialize(LocalStore.load(this.id, 'currentstate'));
+        return Serializable.deserialize(LocalStore.loadCompressed(this.id, 'currentstate'));
     }
 
     save(state) {
         LocalStore.store(this.id, this.serialize(), 'games');
-        LocalStore.store(this.id, state.serialize(), 'currentstate');
-    }
-
-    static load(id) {
-        return LocalStore.load(this.id, 'games');
+        if(state) {
+            LocalStore.storeCompressed(this.id, state.serialize(), 'currentstate');
+        }
     }
 
     static list() {

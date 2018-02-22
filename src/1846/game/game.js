@@ -14,7 +14,7 @@ import Events from 'common/util/events';
 import Sequence from '1846/game/sequence';
 import OperatingRound from '1846/game/operatingRound';
 import RoundIDs from '1846/config/roundIds';
-
+import LZString from 'lz-string';
 
 const ActivePanelIDs = {
     MAP: 'map',
@@ -154,6 +154,12 @@ class Game extends BaseGame {
         this.record.round = this.state().winner() ? 'Game End' : this.state().roundHistory.currentRound().getRoundName();
         this.record.turn = this.state().currentPlayer().name();
         this.record.save(this.state());
+    }
+
+    generateBugEmail() {
+        const compressed = LZString.compressToEncodedURIComponent(this.state().serialize());
+        const link = "mailto:justin.waugh@gmail.com?subject=Bug Report&body=" + compressed;
+        window.location.href = link;
     }
 
 }

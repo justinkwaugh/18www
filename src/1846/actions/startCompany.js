@@ -16,7 +16,7 @@ class StartCompany extends Action {
 
     doExecute(state) {
         const player = state.playersById()[this.playerId];
-        const company = state.publicCompaniesById[this.companyId];
+        const company = state.getCompany(this.companyId);
         const price = Prices.price(this.startIndex);
         const cash = price * 2;
         this.firstPassIndex = state.firstPassIndex();
@@ -54,7 +54,7 @@ class StartCompany extends Action {
 
     doUndo(state) {
         const player = state.playersById()[this.playerId];
-        const company = state.publicCompaniesById[this.companyId];
+        const company = state.getCompany(this.companyId);
         const price = Prices.price(this.startIndex);
         const cash = price*2;
 
@@ -76,12 +76,12 @@ class StartCompany extends Action {
     }
 
     summary(state) {
-        const company = state.publicCompaniesById[this.companyId];
+        const company = state.getCompany(this.companyId);
         return 'Opened ' + company.nickname + ' @ ' + Prices.price(this.startIndex);
     }
 
     confirmation(state) {
-        const company = state.publicCompaniesById[this.companyId];
+        const company = state.getCompany(this.companyId);
         return 'Confirm Open ' + company.nickname + ' @ ' + Prices.price(this.startIndex);
     }
 }

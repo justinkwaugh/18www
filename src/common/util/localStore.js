@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import LZString from 'lz-string'
 
 class LocalStore {
 
@@ -21,9 +22,22 @@ class LocalStore {
         storage.setItem((namespace ? namespace + ':' + key : key), value);
     }
 
+    static storeCompressed(key, value, namespace) {
+        const storage = LocalStore.getStorage();
+        const compressed = LZString.compress(value);
+        storage.setItem((namespace ? namespace + ':' + key : key), compressed);
+    }
+
     static load(key, namespace) {
         const storage = LocalStore.getStorage();
         return storage.getItem((namespace ? namespace + ':' + key : key));
+    }
+
+    static loadCompressed(key, namespace) {
+        const storage = LocalStore.getStorage();
+        const item = storage.getItem((namespace ? namespace + ':' + key : key));
+        const decompressed = LZString.decompress(item);
+        return decompressed || item;
     }
 }
 

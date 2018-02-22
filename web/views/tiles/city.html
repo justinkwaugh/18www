@@ -105,12 +105,19 @@
 
 
         <!-- ko if: $data.getRevenue() -->
-        <g transform="translate(0, -46)">
+        <g transform="translate(0, -48)">
             <circle cx="0" cy="0" r="13" fill="white" stroke="black" stroke-width="1"></circle>
             <text x="0" y="2" fill="black" stroke="black" stroke-width="0.4"
                   font-size="16" alignment-baseline="middle" text-anchor="middle" visibility="inherit"
                   data-bind="css: 'pos-value' + ($data.position ? $data.position() : 0), text: $data.getRevenue()">
             </text>
+        </g>
+        <!-- /ko -->
+
+        <!-- ko if:  $data.hasSteamboat() -->
+        <g transform="translate(27, -38)">
+        <image xlink:href="" x="0" y="0" height="26px" width="26px"
+               data-bind="attr: {'xlink:href': 'images/tokens/boat.png' }, css: 'pos-boat' + ($data.position ? $data.position() : 0)"></image>
         </g>
         <!-- /ko -->
 

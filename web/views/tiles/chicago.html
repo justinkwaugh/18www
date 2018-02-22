@@ -73,6 +73,13 @@
               d="M 31,-53.69 C 11.82,-20.47 -23.64,0 -62,0"></path>
         <!-- /ko -->
 
+        <!-- ko if: $data.hasMeat() -->
+        <g transform="translate(-39, -50)">
+        <image xlink:href="" x="0" y="0" height="26px" width="26px"
+               data-bind="attr: {'xlink:href': 'images/tokens/meat.png' }, css: 'pos-boat' + ($data.position ? $data.position() : 0)"></image>
+        </g>
+        <!-- /ko -->
+
         <!-- ko foreach: $data.getRoutedCityColors(7) -->
         <circle cx="40" cy="-6" r="24" fill="white" stroke="none" stroke-width="8"
                 data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(7), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(7) }"></circle>
@@ -129,9 +136,12 @@
                   data-bind="text:$data.revenue, css: 'pos-value' + ($data.position ? $data.position() : 0)">
             </text>
         </g>
+
+        <!-- ko if: !$data.hasMeat() -->
         <text x="-33" y="-26" fill="black" stroke="black" stroke-width="1"
               font-size="20" text-anchor="middle" visibility="inherit">CHI
         </text>
+        <!-- /ko -->
         <polygon fill="none" stroke="black" stroke-width="2"
                  points="0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796"></polygon>
 

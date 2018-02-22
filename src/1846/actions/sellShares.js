@@ -21,7 +21,7 @@ class SellShares extends Action {
 
     doExecute(state) {
         const player = state.playersById()[this.playerId];
-        const company = state.publicCompaniesById[this.companyId];
+        const company = state.getCompany(this.companyId);
         const isPresident = company.president() === this.playerId;
         this.startIndex = company.priceIndex();
         this.oldCompaniesForPriceIndex = state.stockBoard.getCompaniesForPriceIndex(this.startIndex);
@@ -73,7 +73,7 @@ class SellShares extends Action {
 
     doUndo(state) {
         const player = state.playersById()[this.playerId];
-        const company = state.publicCompaniesById[this.companyId];
+        const company = state.getCompany(this.companyId);
 
         const cash = Prices.price(this.startIndex) * this.count;
         state.bank.addCash(cash);
@@ -104,12 +104,12 @@ class SellShares extends Action {
     }
 
     summary(state) {
-        const company = state.publicCompaniesById[this.companyId];
+        const company = state.getCompany(this.companyId);
         return 'Sold ' + this.count + ' ' + company.nickname + ' @ ' + Prices.price(this.startIndex) + (this.closeData ? ' closing the company': '');
     }
 
     confirmation(state) {
-        const company = state.publicCompaniesById[this.companyId];
+        const company = state.getCompany(this.companyId);
         const isPresident = company.president() === this.playerId;
         const endIndex = isPresident ? Prices.leftIndex(this.startIndex) : this.startIndex;
         return 'Sell ' + this.count + ' ' + company.nickname + ' @ ' + Prices.price(company.priceIndex()) + (endIndex ? ' closing the company': '');

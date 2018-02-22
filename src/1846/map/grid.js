@@ -217,12 +217,15 @@ class Grid extends BaseGrid {
     constructor(state) {
 
         super({cellSize: 124, cells: []});
+        const needToInitializeState = _.keys(state.tilesByCellId).length === 0;
         this.cells(this.createCells(state));
 
         this.routing = false;
         this.route = null;
         this.connectNeighbors();
-        this.addTokens(state);
+        if(needToInitializeState) {
+            this.addTokens(state);
+        }
 
         Events.on('stateUpdated', () => {
             _.each(CurrentGame().state().tilesByCellId, (tile, cellId) => {
@@ -320,15 +323,24 @@ class Grid extends BaseGrid {
         const allCells = _.concat(cells, offBoardCells);
 
         _.each(allCells, (cell) => {
-            const tile = TileManifest.createTile(SpecialTiles[cell.id] || MapTileIDs.BLANK);
-            state.tilesByCellId[cell.id] = tile;
-            cell.tile(tile);
+
+            const existingTile = state.tilesByCellId[cell.id];
+            if(!existingTile) {
+                const tile = TileManifest.createTile(SpecialTiles[cell.id] || MapTileIDs.BLANK);
+                state.tilesByCellId[cell.id] = tile;
+                cell.tile(tile);
+            }
+            else {
+                cell.tile(existingTile);
+            }
+
         });
 
         return allCells;
     }
 
     addTokens(state) {
+
         const portHuron = this.cellsById()['B16'];
         portHuron.tile().addReservedToken(CompanyIDs.GRAND_TRUNK);
 

@@ -26,7 +26,7 @@ class PlaceMeat extends Action {
     }
 
     recalculateRouteRevenue(state) {
-        _.each(state.allCompaniesById, company => {
+        _.each(state.allCompaniesById(), company => {
             if (company.closed()) {
                 return;
             }

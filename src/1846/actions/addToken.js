@@ -43,7 +43,7 @@ class AddToken extends Action {
     }
 
     updateRoutes(state) {
-        _.each(state.allCompaniesById, company => {
+        _.each(state.allCompaniesById(), company => {
             if (company.closed()) {
                 return;
             }
@@ -57,7 +57,7 @@ class AddToken extends Action {
     }
 
     undoRoutes(state) {
-        _.each(state.allCompaniesById, company => {
+        _.each(state.allCompaniesById(), company => {
             if (company.closed()) {
                 return;
             }
