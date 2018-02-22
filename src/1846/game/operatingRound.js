@@ -64,7 +64,7 @@ class OperatingRound {
         this.selectedSteamboatCompany = ko.observable(definition.selectedSteamboatCompany);
         this.useCWIToken = ko.observable(definition.useCWIToken);
 
-        this.maxPrivateCost = ko.pureComputed(() => {
+        this.maxPrivateCost = ko.computed(() => {
             if (!this.selectedPrivateId()) {
                 return 1;
             }
@@ -73,7 +73,7 @@ class OperatingRound {
         });
         this.privatePrice = ko.observable().extend({numeric: this.maxPrivateCost});
 
-        this.maxCompanyTrainPurchasePrice = ko.pureComputed(() => {
+        this.maxCompanyTrainPurchasePrice = ko.computed(() => {
             if (this.selectedCompanyTrainsForPurchase().length <= 0) {
                 return 1;
             }
@@ -82,7 +82,7 @@ class OperatingRound {
         this.companyTrainPurchasePrice = ko.observable().extend({numeric: this.maxCompanyTrainPurchasePrice});
 
         this.numberOfShares = ko.observable(definition.numberOfShares || 0);
-        this.useablePrivates = ko.pureComputed(() => {
+        this.useablePrivates = ko.computed(() => {
             if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
                 return [];
             }
@@ -110,7 +110,7 @@ class OperatingRound {
             }
         });
 
-        this.runRevenue = ko.pureComputed(() => {
+        this.runRevenue = ko.computed(() => {
             if (!this.selectedTrain()) {
                 return 0;
             }
@@ -124,7 +124,7 @@ class OperatingRound {
             return revenue;
         });
 
-        this.halfPayResult = ko.pureComputed(() => {
+        this.halfPayResult = ko.computed(() => {
             if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
                 return '';
             }
@@ -135,7 +135,7 @@ class OperatingRound {
             return this.calculateStockMovementDisplay(this.calculateStockMovement(payout));
         });
 
-        this.fullPayResult = ko.pureComputed(() => {
+        this.fullPayResult = ko.computed(() => {
             if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
                 return '';
             }
@@ -144,7 +144,7 @@ class OperatingRound {
             return this.calculateStockMovementDisplay(this.calculateStockMovement(revenue));
         });
 
-        this.availableBankTrains = ko.pureComputed(() => {
+        this.availableBankTrains = ko.computed(() => {
             if (this.selectedTrainSource() !== 'bank') {
                 return [];
             }
@@ -214,7 +214,7 @@ class OperatingRound {
             }).value();
         });
 
-        this.sharesForSale = ko.pureComputed(() => {
+        this.sharesForSale = ko.computed(() => {
             if (!this.selectedForcedTrainForPurchase()) {
                 return [];
             }
@@ -244,7 +244,7 @@ class OperatingRound {
         });
 
 
-        this.availableCompanyTrains = ko.pureComputed(() => {
+        this.availableCompanyTrains = ko.computed(() => {
             if (!this.selectedTrainSource() || this.selectedTrainSource() === 'bank') {
                 return [];
             }
@@ -253,7 +253,7 @@ class OperatingRound {
 
         });
 
-        this.currentCompanyTrains = ko.pureComputed(() => {
+        this.currentCompanyTrains = ko.computed(() => {
             if (this.selectedAction() !== Actions.RETURN_TRAIN) {
                 return [];
             }
@@ -262,7 +262,7 @@ class OperatingRound {
 
         });
 
-        this.action = ko.pureComputed(() => {
+        this.action = ko.computed(() => {
             if (this.selectedAction() === Actions.ISSUE_SHARES && this.numberOfShares()) {
                 return new IssueShares({
                                            companyId: CurrentGame().state().currentCompanyId(),

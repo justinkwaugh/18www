@@ -32,7 +32,7 @@ class Company extends Serializable {
         this.price = ko.computed(() => {
             return Prices.price(this.priceIndex() || 0);
         });
-        this.lastRun = ko.observable(definition.lastRun);
+        this.lastRun = ko.observable(definition.lastRun || 0);
         this.opened = ko.observable(definition.opened || false);
         this.closed = ko.observable(definition.closed || false);
         this.operated = ko.observable(definition.operated || false);

@@ -111,6 +111,7 @@ class Dashboard {
         const game = new Game({record: record, state: state});
         CurrentGame(game);
         game.sequence.restore();
+        Events.emit('stateUpdated');
         if(!fromState) {
             History.pushState({game: record.id}, record.name, '?game=' + record.id);
         }
