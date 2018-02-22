@@ -1,11 +1,11 @@
 <header>
     <nav class="navbar navbar-expand-lg navbar-light border border-0 m-0 p-0">
         <span class="navbar-brand ml-3">
-            <a href="/" class="h1 text-secondary">1846</a>
+            <a href="#" class="h1 text-secondary" data-bind="click:$root.showDashboard ">1846</a>
         </span>
         <div class="navbar-nav mr-auto d-flex">
-            <h2 class="mb-0 text-dark font-weight-light"
-                data-bind="text: $data.game().state().roundName() + '&nbsp;'"></h2>
+            <h2 class="mb-0 mr-3 text-dark font-weight-light"
+                data-bind="text: $data.game().state().roundName()"></h2>
             <!-- ko if: $data.game().state().currentCompanyId() -->
             <h2 class="mb-0 pl-2 pr-2 font-weight-light" style="border-radius:.7rem"
                 data-bind="css: 'bg-' + $root.game().state().currentCompanyId() + ' text-' + $root.game().state().currentCompanyId() , text: $data.game().state().getCompany($root.game().state().currentCompanyId()).nickname"></h2>

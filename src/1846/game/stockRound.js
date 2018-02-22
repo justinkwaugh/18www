@@ -29,12 +29,18 @@ class StockRound {
         this.openingPriceIndex = ko.observable(definition.openingPriceIndex);
         this.selectedCompanyId = ko.observable(definition.selectedCompanyId);
         this.selectedCompany = ko.computed(() => {
+            if(!CurrentGame()) {
+                return null;
+            }
             return CurrentGame().state().publicCompaniesById()[this.selectedCompanyId()];
         });
         this.numberOfShares = ko.observable(definition.numberOfShares);
         this.chosenShareSource = ko.observable(definition.chosenShareSource);
 
         this.bankShares = ko.computed(() => {
+            if(!CurrentGame()) {
+                return false;
+            }
             if (!CurrentGame().state().currentPlayer() || !this.selectedCompanyId()) {
                 return false;
             }
@@ -68,6 +74,10 @@ class StockRound {
         });
 
         this.action = ko.computed(() => {
+            if(!CurrentGame()) {
+                return false;
+            }
+
             if (this.selectedAction() === Actions.BUY && this.selectedCompanyId()) {
                 if (CurrentGame().state().publicCompaniesById()[this.selectedCompanyId()].opened() && this.shareSource()) {
                     return new BuyShare({

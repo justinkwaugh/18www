@@ -64,7 +64,7 @@ class OperatingRound {
         this.selectedSteamboatCompany = ko.observable(definition.selectedSteamboatCompany);
         this.useCWIToken = ko.observable(definition.useCWIToken);
 
-        this.maxPrivateCost = ko.computed(() => {
+        this.maxPrivateCost = ko.pureComputed(() => {
             if (!this.selectedPrivateId()) {
                 return 1;
             }
@@ -73,7 +73,7 @@ class OperatingRound {
         });
         this.privatePrice = ko.observable().extend({numeric: this.maxPrivateCost});
 
-        this.maxCompanyTrainPurchasePrice = ko.computed(() => {
+        this.maxCompanyTrainPurchasePrice = ko.pureComputed(() => {
             if (this.selectedCompanyTrainsForPurchase().length <= 0) {
                 return 1;
             }
@@ -82,7 +82,7 @@ class OperatingRound {
         this.companyTrainPurchasePrice = ko.observable().extend({numeric: this.maxCompanyTrainPurchasePrice});
 
         this.numberOfShares = ko.observable(definition.numberOfShares || 0);
-        this.useablePrivates = ko.computed(() => {
+        this.useablePrivates = ko.pureComputed(() => {
             if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
                 return [];
             }
@@ -110,7 +110,7 @@ class OperatingRound {
             }
         });
 
-        this.runRevenue = ko.computed(() => {
+        this.runRevenue = ko.pureComputed(() => {
             if (!this.selectedTrain()) {
                 return 0;
             }
@@ -124,7 +124,7 @@ class OperatingRound {
             return revenue;
         });
 
-        this.halfPayResult = ko.computed(() => {
+        this.halfPayResult = ko.pureComputed(() => {
             if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
                 return '';
             }
@@ -135,7 +135,7 @@ class OperatingRound {
             return this.calculateStockMovementDisplay(this.calculateStockMovement(payout));
         });
 
-        this.fullPayResult = ko.computed(() => {
+        this.fullPayResult = ko.pureComputed(() => {
             if (!CurrentGame() || !CurrentGame().state().currentCompany()) {
                 return '';
             }
@@ -144,7 +144,7 @@ class OperatingRound {
             return this.calculateStockMovementDisplay(this.calculateStockMovement(revenue));
         });
 
-        this.availableBankTrains = ko.computed(() => {
+        this.availableBankTrains = ko.pureComputed(() => {
             if (this.selectedTrainSource() !== 'bank') {
                 return [];
             }
@@ -214,7 +214,7 @@ class OperatingRound {
             }).value();
         });
 
-        this.sharesForSale = ko.computed(() => {
+        this.sharesForSale = ko.pureComputed(() => {
             if (!this.selectedForcedTrainForPurchase()) {
                 return [];
             }
@@ -244,7 +244,7 @@ class OperatingRound {
         });
 
 
-        this.availableCompanyTrains = ko.computed(() => {
+        this.availableCompanyTrains = ko.pureComputed(() => {
             if (!this.selectedTrainSource() || this.selectedTrainSource() === 'bank') {
                 return [];
             }
@@ -253,7 +253,7 @@ class OperatingRound {
 
         });
 
-        this.currentCompanyTrains = ko.computed(() => {
+        this.currentCompanyTrains = ko.pureComputed(() => {
             if (this.selectedAction() !== Actions.RETURN_TRAIN) {
                 return [];
             }
@@ -262,7 +262,7 @@ class OperatingRound {
 
         });
 
-        this.action = ko.computed(() => {
+        this.action = ko.pureComputed(() => {
             if (this.selectedAction() === Actions.ISSUE_SHARES && this.numberOfShares()) {
                 return new IssueShares({
                                            companyId: CurrentGame().state().currentCompanyId(),
@@ -345,20 +345,24 @@ class OperatingRound {
             }
         });
 
-        Events.on('undo', () => {
-            if (CurrentGame().state().isOperatingRound()) {
-                this.reset();
-                this.checkInMiddlePrivateLay();
-            }
-        });
+        Events.on('undo', ()=> {this.undoHandler()});
+        Events.on('turnEnd', ()=> {this.turnEndHandler()});
+        Events.on('stateUpdated',()=> {this.stateUpdatedHandler()});
+    }
 
-        Events.on('turnEnd', () => {
+    undoHandler() {
+        if (CurrentGame().state().isOperatingRound()) {
             this.reset();
-        });
-
-        Events.on('stateUpdated', () => {
             this.checkInMiddlePrivateLay();
-        });
+        }
+    }
+
+    turnEndHandler() {
+        this.reset();
+    }
+
+    stateUpdatedHandler() {
+        this.checkInMiddlePrivateLay();
     }
 
     canDoPlayerSteamboat() {
@@ -366,7 +370,7 @@ class OperatingRound {
             return false;
         }
 
-        if(this.hasPlacedSteamboatThisTurn()) {
+        if (this.hasPlacedSteamboatThisTurn()) {
             return false;
         }
 
@@ -573,7 +577,7 @@ class OperatingRound {
 
     isSteamboatAbility() {
         return (this.selectedAction() === Actions.PLAYER_STEAMBOAT && this.selectedSteamboatCompany()) || (this.selectedAction() === Actions.USE_PRIVATES
-               && this.selectedPrivateId() === CompanyIDs.STEAMBOAT_COMPANY);
+                                                                                                           && this.selectedPrivateId() === CompanyIDs.STEAMBOAT_COMPANY);
     }
 
     isMiddleOfPrivateLays() {
@@ -611,10 +615,10 @@ class OperatingRound {
         const player = state.currentPlayer();
         const companies = _.filter(state.publicCompanies,
                                    company => company.president() === player.id);
-        if(player.hasPrivate(CompanyIDs.MICHIGAN_SOUTHERN)) {
+        if (player.hasPrivate(CompanyIDs.MICHIGAN_SOUTHERN)) {
             companies.push(state.getCompany(CompanyIDs.MICHIGAN_SOUTHERN));
         }
-        if(player.hasPrivate(CompanyIDs.BIG_4)) {
+        if (player.hasPrivate(CompanyIDs.BIG_4)) {
             companies.push(state.getCompany(CompanyIDs.BIG_4));
         }
         return _.sortBy(companies, 'nickname');

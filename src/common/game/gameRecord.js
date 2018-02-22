@@ -36,6 +36,10 @@ class GameRecord extends Serializable {
         }
     }
 
+    static load(id) {
+        return Serializable.deserialize(LocalStore.load(id, 'games'));
+    }
+
     static list() {
         return _.map(LocalStore.list('games'), game=> {
             return GameRecord.deserialize(game);

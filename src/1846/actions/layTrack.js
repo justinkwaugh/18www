@@ -40,7 +40,7 @@ class LayTrack extends Action {
             privateCompany.used(true);
         }
 
-        Events.emit('tileUpdated.' + this.cellId);
+        Events.emit('tileUpdated', this.cellId);
         Events.emit('trackLaid');
         if(this.upgrade) {
             this.upgradeRoutes(state, this.cellId, oldTile, newTile);
@@ -62,7 +62,7 @@ class LayTrack extends Action {
 
         company.addCash(this.cost);
         state.bank.removeCash(this.cost);
-        Events.emit('tileUpdated.' + this.cellId);
+        Events.emit('tileUpdated',this.cellId);
         Events.emit('trackLaid', this);
         if(this.upgrade) {
             this.upgradeRoutes(state, this.cellId, newTile, oldTile);

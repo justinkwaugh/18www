@@ -223,40 +223,51 @@ class Grid extends BaseGrid {
         this.routing = false;
         this.route = null;
         this.connectNeighbors();
-        if(needToInitializeState) {
+        if (needToInitializeState) {
             this.addTokens(state);
         }
 
-        Events.on('stateUpdated', () => {
-            _.each(CurrentGame().state().tilesByCellId, (tile, cellId) => {
-                this.cellsById()[cellId].tile(tile);
+        Events.on('stateUpdated', () => { this.stateUpdatedHandler(); });
+        Events.on('drawRoutes', (routes) => { this.drawRoutesHandler(routes); });
+        Events.on('clearRoutes', () => { this.clearRoutesHandler(); });
+        Events.on('global:mouseup', () => { this.globalMouseUpHandler(); });
+        Events.on('global:mouseout', () => { this.globalMouseOutHandler(); });
+        Events.on('tileUpdated', (cellId) => { this.tileUpdatedHandler(cellId); });
+    }
+
+    stateUpdatedHandler() {
+        _.each(CurrentGame().state().tilesByCellId, (tile, cellId) => {
+            this.cellsById()[cellId].tile(tile);
+        });
+
+        Events.emit('gridRestored');
+    }
+
+    drawRoutesHandler(routes) {
+        _.each(routes, route => {
+            _.each(route.cells(), cellData => {
+                const tile = this.cellsById()[cellData.id].tile();
+                _.each(cellData.connections,
+                       connection => tile.addRoutedConnection(connection, route.color, route.id));
             });
-
-            Events.emit('gridRestored');
         });
+    }
 
-        Events.on('drawRoutes', (routes) => {
-            _.each(routes, route => {
-                _.each(route.cells(), cellData => {
-                    const tile = this.cellsById()[cellData.id].tile();
-                    _.each(cellData.connections,
-                           connection => tile.addRoutedConnection(connection, route.color, route.id));
-                });
-            });
-        });
+    clearRoutesHandler() {
+        _.each(this.cells(), cell => cell.tile().clearRoutedConnections());
+        this.route = null;
+    }
 
-        Events.on('clearRoutes', () => {
-            _.each(this.cells(), cell => cell.tile().clearRoutedConnections());
-            this.route = null;
-        });
+    globalMouseUpHandler() {
+        this.finishRoute();
+    }
 
-        Events.on('global:mouseup', () => {
-            this.finishRoute();
-        });
+    globalMouseOutHandler() {
+        this.finishRoute();
+    }
 
-        Events.on('global:mouseout', () => {
-            this.finishRoute();
-        });
+    tileUpdatedHandler(cellId) {
+        this.cellsById()[cellId].tile(CurrentGame().state().tilesByCellId[cellId]);
     }
 
     createCells(state) {
@@ -325,7 +336,7 @@ class Grid extends BaseGrid {
         _.each(allCells, (cell) => {
 
             const existingTile = state.tilesByCellId[cell.id];
-            if(!existingTile) {
+            if (!existingTile) {
                 const tile = TileManifest.createTile(SpecialTiles[cell.id] || MapTileIDs.BLANK);
                 state.tilesByCellId[cell.id] = tile;
                 cell.tile(tile);
@@ -536,7 +547,7 @@ class Grid extends BaseGrid {
 
         // No E/E routes
         const firstCellInRoute = this.cellsById()[this.route.firstCell().id];
-        if(firstCellInRoute.direction === 'e' && cell.direction === 'e') {
+        if (firstCellInRoute.direction === 'e' && cell.direction === 'e') {
             return;
         }
 
@@ -550,41 +561,41 @@ class Grid extends BaseGrid {
 
         const usedCurrentConnectionPoints = {};
         let routeableConnectionsToPrior = _.reject(connectionsToLastCellInRoute, connection => {
-                const connectionPoint = connection[0] >= 0 && connection[0] < 7 ? connection[0] : connection[1];
-                if (usedCurrentConnectionPoints[connectionPoint]) {
-                    return true;
-                }
+            const connectionPoint = connection[0] >= 0 && connection[0] < 7 ? connection[0] : connection[1];
+            if (usedCurrentConnectionPoints[connectionPoint]) {
+                return true;
+            }
 
-                if (cell.tile().hasOtherRoutedConnection(connection, this.route.id)) {
-                    usedCurrentConnectionPoints[connectionPoint] = true;
-                    return true;
-                }
-            });
+            if (cell.tile().hasOtherRoutedConnection(connection, this.route.id)) {
+                usedCurrentConnectionPoints[connectionPoint] = true;
+                return true;
+            }
+        });
 
-        if(cell.offboard && routeableConnectionsToPrior.length > 1) {
+        if (cell.offboard && routeableConnectionsToPrior.length > 1) {
             routeableConnectionsToPrior = [_.first(routeableConnectionsToPrior)];
         }
 
-        const cities = _(connectionsToLastCellInRoute).flatten().filter(cityId=> cityId >6).uniq().value();
-        const hasOpenCity = _.find(cities, cityId=> {
+        const cities = _(connectionsToLastCellInRoute).flatten().filter(cityId => cityId > 6).uniq().value();
+        const hasOpenCity = _.find(cities, cityId => {
             return !cell.tile().isBlockedForCompany(CurrentGame().state().currentCompanyId(), cityId);
         });
 
         const routeableConnectionsOnCurrent = hasOpenCity ? _.reject(cell.tile().connections, connection => {
-                if(_.indexOf(cities, _.max(connection)) < 0) {
-                    return true;
-                }
+            if (_.indexOf(cities, _.max(connection)) < 0) {
+                return true;
+            }
 
-                const connectionPoint = connection[0] >= 0 && connection[0] < 7 ? connection[0] : connection[1];
-                if (usedCurrentConnectionPoints[connectionPoint]) {
-                    return true;
-                }
+            const connectionPoint = connection[0] >= 0 && connection[0] < 7 ? connection[0] : connection[1];
+            if (usedCurrentConnectionPoints[connectionPoint]) {
+                return true;
+            }
 
-                if (cell.tile().hasOtherRoutedConnection(connection, this.route.id)) {
-                    usedCurrentConnectionPoints[connectionPoint] = true;
-                    return true;
-                }
-            }) : routeableConnectionsToPrior;
+            if (cell.tile().hasOtherRoutedConnection(connection, this.route.id)) {
+                usedCurrentConnectionPoints[connectionPoint] = true;
+                return true;
+            }
+        }) : routeableConnectionsToPrior;
 
         const lastCellInRouteConnectionsToCurrent = lastCellInRoute.getConnectionsToCell(cell);
         const usedPriorConnectionPoints = {};
@@ -618,9 +629,11 @@ class Grid extends BaseGrid {
         let lastCellConnections = [];
         if (this.route.numCells() > 1) {
             // Not a terminus for the route
-            const invalidConnectionIds = _.map(lastCellInRoute.tile().getOtherRoutedConnections(this.route.id), connection=>Tile.getConnectionId(connection));
+            const invalidConnectionIds = _.map(lastCellInRoute.tile().getOtherRoutedConnections(this.route.id),
+                                               connection => Tile.getConnectionId(connection));
             const nextToLastCellInRoute = this.cellsById()[this.route.nextToLastCell().id];
-            lastCellConnections = lastCellInRoute.getConnectionsFromNeighborToNeighbor(cell, nextToLastCellInRoute, invalidConnectionIds);
+            lastCellConnections = lastCellInRoute.getConnectionsFromNeighborToNeighbor(cell, nextToLastCellInRoute,
+                                                                                       invalidConnectionIds);
         }
         else if (lastCellInRoute.id === 'D6') {
             // Chicago is special with the many cities to one

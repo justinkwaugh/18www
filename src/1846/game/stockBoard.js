@@ -24,12 +24,14 @@ class StockBoard extends Serializable {
 
         });
 
-        Events.on('stateUpdated', ()=>{
-            _.each(this.stockBoard(), entry=> {
-                _.each(entry.companies(), (companyId) => {
-                    const company = CurrentGame().state().getCompany(companyId);
-                    this.subscribeToCompany(company);
-                });
+        Events.on('stateUpdated', () => {this.stateUpdatedHandler()});
+    }
+
+    stateUpdatedHandler() {
+        _.each(this.stockBoard(), entry => {
+            _.each(entry.companies(), (companyId) => {
+                const company = CurrentGame().state().getCompany(companyId);
+                this.subscribeToCompany(company);
             });
         });
     }
@@ -37,7 +39,7 @@ class StockBoard extends Serializable {
     toJSON() {
         const plainObject = super.toJSON();
         delete plainObject.subscriptions;
-        plainObject.stockBoard = _.pickBy(plainObject.stockBoard, (entry, index)=> entry.companies().length > 0);
+        plainObject.stockBoard = _.pickBy(plainObject.stockBoard, (entry, index) => entry.companies().length > 0);
         return plainObject;
     }
 
@@ -76,29 +78,30 @@ class StockBoard extends Serializable {
         return _.clone(this.stockBoard()[priceIndex].companies());
     }
 
-    setCompaniesForPriceIndex(priceIndex,companies) {
+    setCompaniesForPriceIndex(priceIndex, companies) {
         this.stockBoard()[priceIndex].companies(_.clone(companies));
     }
 
     getPopulatedStockboardCompanies() {
-        return _(this.stockBoard()).pickBy(entry=> entry.companies().length > 0).mapValues(entry=>_.clone(entry.companies())).value();
+        return _(this.stockBoard()).pickBy(entry => entry.companies().length > 0).mapValues(
+            entry => _.clone(entry.companies())).value();
     }
 
     restoreStockboardCompanies(stockboardData) {
-        _.each(stockboardData, (companies, index)=> {
+        _.each(stockboardData, (companies, index) => {
             this.stockBoard()[index] = _.clone(companies);
         });
     }
 
     getOperatingOrder(reverse) {
         let entries = _.values(this.stockBoard());
-        if(!reverse) {
+        if (!reverse) {
             entries = _.reverse(entries);
         }
 
         const minors = [CompanyIDs.MICHIGAN_SOUTHERN, CompanyIDs.BIG_4];
         const majors = _(entries).map(entry => entry.companies()).flatten().compact().value();
-        return _.reject(_.concat(minors, majors), companyId=>CurrentGame().state().getCompany(companyId).closed());
+        return _.reject(_.concat(minors, majors), companyId => CurrentGame().state().getCompany(companyId).closed());
     }
 
 }

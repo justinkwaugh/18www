@@ -247,18 +247,19 @@ class Cell {
             };
         });
 
-        Events.on('tileUpdated.' + this.id, () => {
-            this.tile(CurrentGame().state().tilesByCellId[this.id]);
-        });
 
-        Events.on('trackLaid', () => {
-            this.tokenCheckTrigger(1);
-        });
-
-        Events.on('gridRestored', () => {
-            this.tokenCheckTrigger(1);
-        });
+        Events.on('trackLaid', () => { this.trackLaidHandler();});
+        Events.on('gridRestored', () => { this.gridRestoredHandler();});
     }
+
+    trackLaidHandler() {
+        this.tokenCheckTrigger(1);
+    }
+
+    gridRestoredHandler() {
+        this.tokenCheckTrigger(1);
+    }
+
 
     isRouteable(route) {
         if (route.cells().length === 0 && this.tile().hasTokenForCompany(CurrentGame().state().currentCompany().id)) {
