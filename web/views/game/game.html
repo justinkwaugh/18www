@@ -92,6 +92,7 @@
                                      data-bind="template: {name:'views/limits', data: $data.game().state()}"></div>
                                 <div style="position:absolute;top:934px;left:953px;height:212px;width:855px;"
                                      data-bind="template: {name:'views/trains', data: $data.game().state()}"></div>
+                                <div style="position:absolute;top:898px;left:723px;height:175px; width:175px;" data-bind="template: { name: 'views/rounds', data: $data.game().state() }"></div>
                             </div>
                             <div class="zoom btn-group" role="group" style="position: absolute; top:10px; left:2px;">
                                 <button type="button"
@@ -103,7 +104,7 @@
                                         data-bind="click: function() { $data.game().zoomIn(); }"><span class="oi oi-zoom-in"></span>
                                 </button>
                             </div>
-                            <div data-bind="template: { name: 'views/roundAndPhase', data: $data.game().state() }"></div>
+
                         </div>
                     </div>
                 </div>
