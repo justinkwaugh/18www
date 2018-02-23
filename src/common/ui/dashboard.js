@@ -91,7 +91,7 @@ class Dashboard {
             }
         }
 
-        History.replaceState({}, 'Games', '/');
+        History.replaceState({}, 'Games', '/18www');
     }
 
     setActivePanel(newPanel) {
@@ -104,7 +104,7 @@ class Dashboard {
 
     showDashboard() {
         this.resetGame();
-        History.pushState({}, 'Games', '/');
+        History.pushState({}, 'Games', '/18www');
     }
 
     launchGame(record, fromState) {
@@ -114,7 +114,7 @@ class Dashboard {
         game.sequence.restore();
         Events.emit('stateUpdated');
         if (!fromState) {
-            History.pushState({game: record.id}, record.name, '?game=' + record.id);
+            History.pushState({game: record.id}, record.name, '18www?game=' + record.id);
         }
     }
 
