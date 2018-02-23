@@ -74,12 +74,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/justinkwaugh/COIN.git"
+    "url": "https://github.com/justinkwaugh/18www.git"
   },
   "author": "Justin Waugh",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/justinkwaugh/COIN/issues"
+    "url": "https://github.com/justinkwaugh/18www/issues"
   },
-  "homepage": "https://github.com/justinkwaugh/COIN"
+  "homepage": "https://github.com/justinkwaugh/18www"
 }
