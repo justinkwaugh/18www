@@ -1,9 +1,31 @@
-<div>
-    <!-- ko foreach: $data.players() -->
-    <div class="well" style="display:inline-block">
-        <h3 data-bind="text: user().username"></h3>
-        <p data-bind="text: 'Cash: ' + cash()"></p>
-        <p data-bind="text: 'Certs: ' + certificates().length"></p>
+<!-- ko foreach: $data.players() -->
+<div class="card d-inline-flex text-center pr-3 pl-3 pt-1 pb-1 rounded-0 border-bottom-0 border-right-0"
+     style="min-width:10rem;cursor:pointer;height:100%;"
+     data-bind="css: $parent.currentPlayerId() !== $data.id ? 'bg-light text-dark' : 'bg-warning text-dark'">
+    <div class="d-inline-flex justify-content-center align-items-center">
+        <!-- ko if: $data.id === $root.game().state().priorityDealPlayerId() -->
+        <img style="height:15px;margin-right:10px;" data-bind="attr: { src: $root.rootPath + '/images/pd.png' }"/><!-- /ko --><h5
+            class="mb-0" data-bind="text: user().username"></h5>
     </div>
-    <!-- /ko -->
+    <div class="d-flex justify-content-between text-center mt-1">
+        <div class="mr-3">
+            <div style="font-size:10px;margin-bottom:-5px;">cash</div>
+            <div style="font-size:.9rem"
+                 data-bind="text: (!$root.game().state().isPrivateDraft() || $root.game().isDraftRevealed() && $root.game().state().currentPlayerId() === $data.id) ? '$' + cash() : '&nbsp;'"></div>
+        </div>
+        <div class="mr-3">
+            <div style="font-size:10px;margin-bottom:-5px;">certs</div>
+            <div style="font-size:.9rem"
+                 data-bind="text: (!$root.game().state().isPrivateDraft() || $root.game().isDraftRevealed() && $root.game().state().currentPlayerId() === $data.id) ? certificates().length + '/' + $parent.certLimit() : '&nbsp;'"></div>
+        </div>
+        <div>
+            <div style="font-size:10px;margin-bottom:-5px;">worth</div>
+            <div style="font-size:.9rem"
+                 data-bind="text: (!$root.game().state().isPrivateDraft() || $root.game().isDraftRevealed() && $root.game().state().currentPlayerId() === $data.id) ? '$' + getNetWorth() : '&nbsp;'"></div>
+        </div>
+    </div>
 </div>
+<!-- ko if: $index() !== $parent.players().length -1 -->
+<div class="d-inline-flex" style="width:0px"></div>
+<!-- /ko -->
+<!-- /ko -->

@@ -45,6 +45,7 @@ class Dashboard {
 
         this.activePanel = ko.observable(ActivePanelIDs.ACTIVE_GAMES);
         this.ActivePanelIDs = ActivePanelIDs;
+        this.rootPath = '/';
 
         Events.on('newGameCreated', (record) => {
             this.loadAvailableGames();
@@ -91,7 +92,7 @@ class Dashboard {
             }
         }
 
-        History.replaceState({}, 'Games', '/18www');
+        History.replaceState({}, 'Games', this.rootPath);
     }
 
     setActivePanel(newPanel) {
@@ -104,7 +105,7 @@ class Dashboard {
 
     showDashboard() {
         this.resetGame();
-        History.pushState({}, 'Games', '/18www');
+        History.pushState({}, 'Games', this.rootPath);
     }
 
     launchGame(record, fromState) {
@@ -114,7 +115,7 @@ class Dashboard {
         game.sequence.restore();
         Events.emit('stateUpdated');
         if (!fromState) {
-            History.pushState({game: record.id}, record.name, '18www?game=' + record.id);
+            History.pushState({game: record.id}, record.name, this.rootPath + '?game=' + record.id);
         }
     }
 

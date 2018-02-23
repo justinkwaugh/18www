@@ -10,7 +10,7 @@
                 <!-- ko foreach: $data.privatesOffered() -->
                 <div class="card d-inline-flex mb-3 mr-3"
                      style="overflow:hidden;background-size:contain;cursor:pointer;min-width:250px;min-height:160px;box-shadow:3px 3px 10px #ccc"
-                     data-bind="style: { backgroundImage: 'url(/images/privates/' + $data.id + '.png)', borderWidth: $parent.selectedPrivateId() === $data.id ? '3px' : '1px' },click: $parent.selectPrivate.bind($parent, $data.id), css: {'border-warning': $parent.selectedPrivateId() === $data.id }">
+                     data-bind="style: { backgroundImage: 'url(' + $root.rootPath + 'images/privates/' + $data.id + '.png)', borderWidth: $parent.selectedPrivateId() === $data.id ? '3px' : '1px' },click: $parent.selectPrivate.bind($parent, $data.id), css: {'border-warning': $parent.selectedPrivateId() === $data.id }">
                     <!--<div data-bind="text: _.startsWith($data.id, 'pass') ? '' : $data.cost"></div>-->
                 </div>
                 <!-- /ko -->
