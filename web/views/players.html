@@ -6,15 +6,15 @@
     <div class="d-flex justify-content-between text-center mt-1">
         <div class="mr-3">
             <div style="font-size:10px;margin-bottom:-5px;">cash</div>
-            <div style="font-size:.9rem" data-bind="text: '$' + cash()"></div>
+            <div style="font-size:.9rem" data-bind="text: (!$root.game().state().isPrivateDraft() || $root.game().isDraftRevealed() && $root.game().state().currentPlayerId() === $data.id) ? '$' + cash() : '&nbsp;'"></div>
         </div>
         <div class="mr-3">
             <div style="font-size:10px;margin-bottom:-5px;">certs</div>
-            <div style="font-size:.9rem" data-bind="text: certificates().length + '/' + $parent.certLimit()"></div>
+            <div style="font-size:.9rem" data-bind="text: (!$root.game().state().isPrivateDraft() || $root.game().isDraftRevealed() && $root.game().state().currentPlayerId() === $data.id) ? certificates().length + '/' + $parent.certLimit() : '&nbsp;'"></div>
         </div>
         <div >
             <div style="font-size:10px;margin-bottom:-5px;">worth</div>
-            <div style="font-size:.9rem" data-bind="text: '$' + getNetWorth()"></div>
+            <div style="font-size:.9rem" data-bind="text: (!$root.game().state().isPrivateDraft() || $root.game().isDraftRevealed() && $root.game().state().currentPlayerId() === $data.id) ? '$' + getNetWorth() : '&nbsp;'"></div>
         </div>
     </div>
 </div>

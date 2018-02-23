@@ -44,9 +44,6 @@ class State extends BaseState {
 
         this.firstPassIndex = ko.observable(definition.firstPassIndex);
         this.priorityDealIndex = ko.observable(definition.priorityDealIndex);
-        this.certLimit = ko.computed(() => {
-            return this.calculateCertLimit();
-        });
         this.trainLimit = ko.observable(definition.trainLimit || 4);
 
         this.publicCompanies = definition.publicCompanies || [];
@@ -56,6 +53,10 @@ class State extends BaseState {
         this.allCompaniesById = ko.computed(()=>{ return _(this.publicCompanies).concat(this.privateCompanies).keyBy('id').value(); });
         this.openCompanies = ko.computed(()=> {
             return _.reject(this.publicCompanies, company=>company.closed());
+        });
+
+        this.certLimit = ko.computed(() => {
+            return this.calculateCertLimit();
         });
 
         this.currentCompany = ko.computed(() => {
@@ -113,7 +114,7 @@ class State extends BaseState {
     }
 
     calculateCertLimit() {
-        const numOpenCompanies = _.filter(this.publicCompanies, publicCompany=>!publicCompany.closed()).length;
+        const numOpenCompanies = this.openCompanies().length;
         const numPlayers = this.players().length;
         if(numPlayers === 3) {
             return numOpenCompanies > 4 ? 14 : 11;
@@ -140,6 +141,10 @@ class State extends BaseState {
 
     isOperatingRound2() {
         return !this.winner() && this.roundId() === RoundIds.OPERATING_ROUND_2;
+    }
+
+    isPrivateDraft() {
+        return !this.winner() && this.roundId() === RoundIds.PRIVATE_DRAFT;
     }
 
     getPriorPhase() {

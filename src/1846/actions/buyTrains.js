@@ -33,6 +33,7 @@ class BuyTrains extends Action {
         this.oldPlayerCerts = args.oldPlayerCerts || [];
         this.oldPlayerCash = args.oldPlayerCash;
         this.oldBankCash = args.oldBankCash;
+        this.oldReservedTokens = args.oldReservedTokens || {};
     }
 
     doExecute(state) {
@@ -289,6 +290,13 @@ class BuyTrains extends Action {
                 this.steamboatTileId = steamBoatTile.id;
             }
             state.trainLimit(2);
+
+            _.each(state.tilesByCellId, tile => {
+                if(tile.reservedTokens().length > 0) {
+                    this.oldReservedTokens[tile.id] = _.clone(tile.reservedTokens());
+                    tile.reservedTokens([]);
+                }
+            });
         }
     }
 
@@ -321,6 +329,11 @@ class BuyTrains extends Action {
                 tile.hasSteamboat(true);
             }
             state.trainLimit(3);
+
+            _.each(this.oldReservedTokens, (tokens, tileId) => {
+                const tile = _.find(state.tilesByCellId, tile=> tile.id === tileId);
+                tile.reservedTokens(_.clone(tokens));
+            })
         }
     }
 

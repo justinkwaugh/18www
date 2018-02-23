@@ -6,6 +6,7 @@ import PhaseIDs from '1846/config/phaseIds';
 import RouteColors from '1846/config/routeColors';
 import TileManifest from '1846/config/tileManifest';
 import OffBoardIDs from '1846/config/offBoardIds';
+import MapTileIDs from '1846/config/mapTileIds';
 
 const EdgeCoordinates = [
     '31,-53.69',
@@ -97,11 +98,11 @@ class Tile extends Serializable {
 
     getRevenue(cellId, companyId, ewBonus) {
         let revenue = 0;
-        if(this.hasMeat() && this.hasMeat() === companyId) {
+        if (this.hasMeat() && this.hasMeat() === companyId) {
             revenue += 30;
         }
 
-        if(this.hasSteamboat() && this.hasSteamboat() === companyId) {
+        if (this.hasSteamboat() && this.hasSteamboat() === companyId) {
             revenue += (cellId === 'G19' || cellId === OffBoardIDs.HOLLAND) ? 40 : 20;
         }
 
@@ -124,7 +125,7 @@ class Tile extends Serializable {
             revenue += this.revenue;
         }
 
-        if(ewBonus) {
+        if (ewBonus) {
             revenue += this.ewBonus || 0;
         }
 
@@ -140,7 +141,7 @@ class Tile extends Serializable {
     }
 
     getReservedTokenForCompany(companyId) {
-        const cityId = _.findKey(this.reservedTokensPerCity(), tokens=>_.indexOf(tokens, companyId) >= 0);
+        const cityId = _.findKey(this.reservedTokensPerCity(), tokens => _.indexOf(tokens, companyId) >= 0);
         return cityId ? cityId + '|' + companyId : null;
     }
 
@@ -160,7 +161,7 @@ class Tile extends Serializable {
                 cityId = cities[0].id;
             }
         }
-        if(!this.hasReservedTokenForCompany(companyId, cityId)) {
+        if (!this.hasReservedTokenForCompany(companyId, cityId)) {
             this.reservedTokens.push(cityId + '|' + companyId);
         }
     }
@@ -178,7 +179,7 @@ class Tile extends Serializable {
                 cityId = cities[0].id;
             }
         }
-        if(!this.hasTokenForCompany(companyId, cityId)) {
+        if (!this.hasTokenForCompany(companyId, cityId)) {
             this.tokens.push(cityId + '|' + companyId);
         }
     }
@@ -204,7 +205,8 @@ class Tile extends Serializable {
         }
 
         return _(this.cities).map((city, cityId) => {
-            const otherReserved = _.reject(this.getReservedTokensForCity(cityId), reservedToken => reservedToken === companyId);
+            const otherReserved = _.reject(this.getReservedTokensForCity(cityId),
+                                           reservedToken => reservedToken === companyId);
             return city.maxTokens > (this.getTokensForCity(cityId).length + otherReserved.length) ? city.id : null;
         }).compact().value();
     }
@@ -219,7 +221,7 @@ class Tile extends Serializable {
     }
 
     getTokenForCompany(companyId) {
-        const cityId = _.findKey(this.tokensPerCity(), tokens=>_.indexOf(tokens, companyId) >= 0);
+        const cityId = _.findKey(this.tokensPerCity(), tokens => _.indexOf(tokens, companyId) >= 0);
         return cityId ? cityId + '|' + companyId : null;
     }
 
@@ -244,8 +246,8 @@ class Tile extends Serializable {
         const oldConnectionsIds = Tile.getConnectionIdsForPosition(this.id, this.position());
         const newConnectionsIds = Tile.getConnectionIdsForPosition(newTile.id, newTile.position());
         const newConnectionsById = _.fromPairs(_.zip(newConnectionsIds, newTile.connections));
-        const originalConnectionIds = _.map(this.connections, connection=>Tile.getConnectionId(connection));
-        const upgradedConnections = _(oldConnectionsIds).map(connectionId=>newConnectionsById[connectionId]).value();
+        const originalConnectionIds = _.map(this.connections, connection => Tile.getConnectionId(connection));
+        const upgradedConnections = _(oldConnectionsIds).map(connectionId => newConnectionsById[connectionId]).value();
         return _.zipObject(originalConnectionIds, upgradedConnections);
     }
 
@@ -412,6 +414,25 @@ class Tile extends Serializable {
             connection => Tile.getConnectionId(connection)).find(
             connectionId => this.routedConnectionsById()[connectionId]);
         return routed ? 8 : 1;
+    }
+
+    getCityName(cityId) {
+        if (this.id !== MapTileIDs.CHICAGO) {
+            return '';
+        }
+
+        if (cityId === 7) {
+            return 'North';
+        }
+        if (cityId === 8) {
+            return 'East';
+        }
+        if (cityId === 9) {
+            return 'SE';
+        }
+        if (cityId === 10) {
+            return 'SW';
+        }
     }
 
 }

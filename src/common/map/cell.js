@@ -121,9 +121,8 @@ class Cell {
                 return openCities;
             }
 
-            const visited = [];
             const tokenableCities = _.filter(openCities,
-                                             cityId => this.depthFirstSearchForStation(companyId, cityId, visited));
+                                             cityId => this.depthFirstSearchForStation(companyId, cityId, []));
             return tokenableCities;
 
         });
@@ -342,7 +341,7 @@ class Cell {
         }
 
         if (!this.isLSLLay() && CurrentGame().operatingRound().hasLaidTwoTrackThisTurn()) {
-            return false;
+            return [];
         }
 
         const phase = CurrentGame().state().currentPhaseId();

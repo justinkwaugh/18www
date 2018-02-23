@@ -162,6 +162,10 @@ class Game extends BaseGame {
         window.location.href = link;
     }
 
+    isDraftRevealed() {
+        return this.privateDraft() && this.privateDraft().revealed();
+    }
+
 }
 
 export default Game;
