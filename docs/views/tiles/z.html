@@ -72,11 +72,11 @@
         <circle cx="0" cy="0" r="23" fill="white" stroke="black" stroke-width="1"></circle>
         <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->
         <image xlink:href="" x="-20" y="-20" height="40px" width="40px"
-               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+               data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
         <!-- /ko -->
         <!-- ko if:  $data.getTokensForCity(7).length > 0 -->
         <image xlink:href="" x="-20" y="-20" height="40px" width="40px"
-               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+               data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
         <!-- /ko -->
         <!-- /ko -->
 
@@ -90,18 +90,18 @@
         <!-- ko if: $data.getReservedTokensForCity(7).length > 0 -->
         <g transform="translate(-40, -31)">
             <image xlink:href="" x="0" y="0" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+                   data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
         </g>
         <!-- ko if: $data.getReservedTokensForCity(7).length > 1 -->
         <g transform="translate(40, -31)">
             <image xlink:href="" x="0" y="0" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getReservedTokensForCity(7)[1] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+                   data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getReservedTokensForCity(7)[1] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
         </g>
         <!-- /ko -->
         <!-- ko if: $data.getTokensForCity(7).length > 0 -->
         <g transform="translate(0, -8)">
             <image xlink:href="" x="0" y="0" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+                   data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
         </g>
         <!-- /ko -->
         <!-- /ko -->
@@ -110,14 +110,14 @@
         <!-- ko if: $data.getTokensForCity(7).length > 0 -->
         <g transform="translate(-40, -31)">
             <image xlink:href="" x="0" y="0" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+                   data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
         </g>
         <!-- /ko -->
 
         <!-- ko if: $data.getTokensForCity(7).length > 1 -->
         <g transform="translate(0, -8)">
             <image xlink:href="" x="0" y="0" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+                   data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
         </g>
         <!-- /ko -->
         <!-- /ko -->
@@ -138,18 +138,18 @@
         <!-- ko if: $data.getReservedTokensForCity(7).length > 0 -->
         <g transform="translate(-34, -43)">
             <image xlink:href="" x="0" y="0" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+                   data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
         </g>
         <!-- ko if: $data.getTokensForCity(7).length > 0 -->
         <g transform="translate(6, -20)">
             <image xlink:href="" x="0" y="0" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+                   data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
         </g>
         <!-- /ko -->
         <!-- ko if: $data.getTokensForCity(7).length > 1 -->
         <g transform="translate(-34, 3)">
             <image xlink:href="" x="0" y="0" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+                   data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
         </g>
         <!-- /ko -->
         <!-- /ko -->
@@ -158,20 +158,20 @@
         <!-- ko if: $data.getTokensForCity(7).length > 0 -->
         <g transform="translate(-34, -43)">
             <image xlink:href="" x="0" y="0" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+                   data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
         </g>
         <!-- /ko -->
 
         <!-- ko if: $data.getTokensForCity(7).length > 1 -->
         <g transform="translate(6, -20)">
             <image xlink:href="" x="0" y="0" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+                   data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
         </g>
         <!-- /ko -->
         <!-- ko if: $data.getTokensForCity(7).length > 2 -->
         <g transform="translate(-34, 3)">
             <image xlink:href="" x="0" y="0" height="40px" width="40px"
-                   data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
+                   data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)"></image>
         </g>
         <!-- /ko -->
         <!-- /ko -->

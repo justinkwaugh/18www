@@ -90,7 +90,7 @@
                                  style="position:relative;transform-origin:0 0;transform:scale(.817)"
                                  data-bind="style: { transform: 'scale(' + $data.game().zoom() + ')' }">
                                 <img style="width:1836px;height:1186px;"
-                                     data-bind="attr: { src: 'images/1846-map.jpg' }"/>
+                                     data-bind="attr: { src: $root.rootPath + '/images/1846-map.jpg' }"/>
                                 <div style="position:absolute;top:0px;left:36px;height:1083px;width:1370px;"
                                      data-bind="template: {name:'views/grid', data: $data.game().grid()}"></div>
                                 <div style="position:absolute;top:358px;left:1411px;height:437px;width:397px;"

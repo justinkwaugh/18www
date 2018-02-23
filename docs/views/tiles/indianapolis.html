@@ -5,7 +5,7 @@
         <circle cx="-7" cy="4" r="23" fill="white" stroke="black" stroke-width="1"></circle>
         <!-- ko if:  $data.getTokensForCity(7).length > 0 -->
         <image xlink:href="" x="-27" y="-17" height="40px" width="40px"
-               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+               data-bind="attr: {'xlink:href': $root.rootPath + '/images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
         <!-- /ko -->
     </g>
 </svg>
