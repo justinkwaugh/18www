@@ -1,4 +1,4 @@
-import RoundIDs from '1846/config/roundIds';
+import RoundTypes from '1846/config/roundTypes';
 import PrivateDraft from '1846/game/privateDraft';
 import StockRound from '1846/game/stockRound';
 import SetPriorityDeal from '1846/actions/setPriorityDeal';
@@ -98,11 +98,11 @@ class Sequence {
         const currentRound = state.roundHistory.getCurrentRound();
 
         if (!currentRound) {
-            state.roundHistory.startRound(RoundIDs.PRIVATE_DRAFT, 1);
+            state.roundHistory.startRound(RoundTypes.PRIVATE_DRAFT, 1);
             state.currentPlayerIndex(state.players().length - 1);
             game.privateDraft(new PrivateDraft());
         }
-        else if (currentRound.id === RoundIDs.PRIVATE_DRAFT) {
+        else if (currentRound.roundType === RoundTypes.PRIVATE_DRAFT) {
             if (state.undraftedPrivateIds().length > 0) {
                 state.currentPlayerIndex(Sequence.nextPlayerIndex(null, true));
                 game.privateDraft(new PrivateDraft());
@@ -111,7 +111,7 @@ class Sequence {
                 Sequence.onPrivateDraftEnd(game);
             }
         }
-        else if (currentRound.id === RoundIDs.STOCK_ROUND) {
+        else if (currentRound.roundType === RoundTypes.STOCK_ROUND) {
             const nextPlayer = Sequence.nextPlayerIndex();
             if (state.firstPassIndex() === nextPlayer) {
                 Sequence.onStockRoundEnd(game);
@@ -120,13 +120,13 @@ class Sequence {
                 state.currentPlayerIndex(nextPlayer);
             }
         }
-        else if (currentRound.id === RoundIDs.OPERATING_ROUND_1 || currentRound.id === RoundIDs.OPERATING_ROUND_2) {
+        else if (currentRound.roundType === RoundTypes.OPERATING_ROUND_1 || currentRound.roundType === RoundTypes.OPERATING_ROUND_2) {
             const nextCompanyIndex = Sequence.getNextCompanyIndex(state);
             if (nextCompanyIndex < state.operatingOrder().length) {
                 Sequence.setNextCompanyAndPlayer(state, nextCompanyIndex);
             }
             else {
-                Sequence.onOperatingRoundEnd(game, currentRound.id);
+                Sequence.onOperatingRoundEnd(game, currentRound.roundType);
             }
         }
         state.turnHistory.startTurn({state});
@@ -138,7 +138,7 @@ class Sequence {
         state.currentPlayerIndex(0);
         game.privateDraft(null);
         game.stockRound(new StockRound());
-        state.roundHistory.startRound(RoundIDs.STOCK_ROUND, 1);
+        state.roundHistory.startRound(RoundTypes.STOCK_ROUND, 1);
         game.showOwnership();
     }
 
@@ -150,7 +150,7 @@ class Sequence {
         state.roundHistory.commitRound();
 
         game.stockRound(null);
-        state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_1);
+        state.roundHistory.startRound(RoundTypes.OPERATING_ROUND_1);
         new SetOperatingOrder({operatingOrder: state.stockBoard.getOperatingOrder(currentRoundNumber === 1)}).execute(
             state);
         new PrivateIncome({}).execute(state);
@@ -160,7 +160,7 @@ class Sequence {
         game.showMap();
     }
 
-    static onOperatingRoundEnd(game, currentRoundId) {
+    static onOperatingRoundEnd(game, currentRoundType) {
         const state = game.state();
         _.each(state.publicCompanies, company => {
             _.each(company.trains(), train => {
@@ -168,9 +168,9 @@ class Sequence {
             });
         });
 
-        if (currentRoundId === RoundIDs.OPERATING_ROUND_1) {
+        if (currentRoundType === RoundTypes.OPERATING_ROUND_1) {
             state.roundHistory.commitRound();
-            state.roundHistory.startRound(RoundIDs.OPERATING_ROUND_2);
+            state.roundHistory.startRound(RoundTypes.OPERATING_ROUND_2);
             new SetOperatingOrder({operatingOrder: state.stockBoard.getOperatingOrder()}).execute(state);
             new PrivateIncome({}).execute(state);
             if(!Sequence.doSteamboat(state)) {
@@ -186,7 +186,7 @@ class Sequence {
                 state.roundHistory.commitRound();
                 state.currentCompanyId(null);
                 state.currentPlayerIndex(state.priorityDealIndex());
-                state.roundHistory.startRound(RoundIDs.STOCK_ROUND, currentRoundNumber + 1);
+                state.roundHistory.startRound(RoundTypes.STOCK_ROUND, currentRoundNumber + 1);
                 state.firstPassIndex(null);
                 game.stockRound(new StockRound());
                 game.showOwnership();
@@ -249,16 +249,17 @@ class Sequence {
     }
 
     static restore() {
+
         const game = CurrentGame();
         const state = game.state();
         const currentRound = state.roundHistory.getCurrentRound();
         if(!currentRound) {
             return;
         }
-        if (currentRound.id === RoundIDs.PRIVATE_DRAFT) {
+        if (currentRound.roundType === RoundTypes.PRIVATE_DRAFT) {
             game.privateDraft(new PrivateDraft());
         }
-        else if (currentRound.id === RoundIDs.STOCK_ROUND) {
+        else if (currentRound.roundType === RoundTypes.STOCK_ROUND) {
             game.stockRound(new StockRound());
             game.showOwnership();
         }

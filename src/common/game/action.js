@@ -27,7 +27,15 @@ class Action extends Serializable{
     }
 
     summary(state) {
-        return 'Unknown action';
+        return '';
+    }
+
+    confirmation(state) {
+        return '';
+    }
+
+    details(state) {
+        return [];
     }
 
     instructions(state) {

@@ -46,7 +46,7 @@
             <li class="nav-item">
                 <a
                         href="#" class="nav-link text-danger"
-                        data-bind="click: function() {$data.game().generateBugEmail();}">Report Bug</a>
+                        data-bind="click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.REPORT_BUG)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.REPORT_BUG ? 'active text-white font-weight-bold' : 'text-secondary' ">Report Bug</a>
             </li>
         </ul>
     </div>
@@ -61,7 +61,7 @@
 
     <div data-bind="template: { name: 'views/privateDraft', data: $data.game().privateDraft() }, visible:$data.game().privateDraft()"></div>
     <div data-bind="visible:!$data.game().privateDraft()">
-
+        <div data-bind="template: { name: 'views/bugReport' }, visible:$data.game().activePanel() === $data.game().ActivePanelIDs.REPORT_BUG"></div>
         <div class="row"
              data-bind="visible: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP || $data.game().activePanel() === $data.game().ActivePanelIDs.MAP">
             <div class="col">

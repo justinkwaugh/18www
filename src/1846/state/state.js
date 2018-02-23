@@ -5,7 +5,7 @@ import TurnHistory from 'common/game/turnHistory';
 import ActionHistory from 'common/game/actionHistory';
 import PhaseIds from '1846/config/phaseIds';
 import PassCard from '1846/game/passCard';
-import RoundIds from '1846/config/roundIds';
+import RoundTypes from '1846/config/roundTypes';
 import Serializable from 'common/model/serializable';
 import ko from 'knockout';
 
@@ -43,7 +43,14 @@ class State extends BaseState {
         this.currentCompanyId = ko.observable(definition.currentCompanyId);
 
         this.firstPassIndex = ko.observable(definition.firstPassIndex);
+
         this.priorityDealIndex = ko.observable(definition.priorityDealIndex);
+        this.priorityDealPlayerId = ko.computed(()=> {
+            if(!_.isNumber(this.priorityDealIndex())) {
+                return null;
+            }
+            return this.players()[this.priorityDealIndex()].id;
+        });
         this.trainLimit = ko.observable(definition.trainLimit || 4);
 
         this.publicCompanies = definition.publicCompanies || [];
@@ -91,13 +98,13 @@ class State extends BaseState {
             return currentRound.getRoundName();
         });
 
-        this.roundId = ko.computed(() => {
+        this.roundType = ko.computed(() => {
             const currentRound = this.roundHistory.getCurrentRound();
             if (!currentRound) {
                 return '';
             }
 
-            return currentRound.id;
+            return currentRound.roundType;
         });
 
         this.roundNumber = ko.computed(() => {
@@ -128,23 +135,23 @@ class State extends BaseState {
     }
 
     isOperatingRound() {
-        return !this.winner() && this.roundId() === RoundIds.OPERATING_ROUND_1 || this.roundId() === RoundIds.OPERATING_ROUND_2;
+        return !this.winner() && this.roundType() === RoundTypes.OPERATING_ROUND_1 || this.roundType() === RoundTypes.OPERATING_ROUND_2;
     }
 
     isStockRound() {
-        return !this.winner() && this.roundId() === RoundIds.STOCK_ROUND;
+        return !this.winner() && this.roundType() === RoundTypes.STOCK_ROUND;
     }
 
     isOperatingRound1() {
-        return !this.winner() && this.roundId() === RoundIds.OPERATING_ROUND_1;
+        return !this.winner() && this.roundType() === RoundTypes.OPERATING_ROUND_1;
     }
 
     isOperatingRound2() {
-        return !this.winner() && this.roundId() === RoundIds.OPERATING_ROUND_2;
+        return !this.winner() && this.roundType() === RoundTypes.OPERATING_ROUND_2;
     }
 
     isPrivateDraft() {
-        return !this.winner() && this.roundId() === RoundIds.PRIVATE_DRAFT;
+        return !this.winner() && this.roundType() === RoundTypes.PRIVATE_DRAFT;
     }
 
     getPriorPhase() {
@@ -183,9 +190,9 @@ class State extends BaseState {
     }
 
     tryDeserialize() {
-        debugger;
         const state = Serializable.deserialize(this.serialize());
     }
+
 }
 
 State.registerClass();

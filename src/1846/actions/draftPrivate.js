@@ -36,7 +36,7 @@ class DraftPrivate extends Action {
     summary(state) {
         const privateCompany = state.privateCompaniesById()[this.privateId];
         const passed = _.startsWith(this.privateId, 'pass');
-        return 'Drafted ' + (passed ? this.privateId : privateCompany.name);
+        return 'Drafted ' + (passed ? ' Pass card' : privateCompany.name);
     }
 
 

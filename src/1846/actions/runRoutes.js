@@ -19,10 +19,12 @@ class RunRoutes extends Action {
         this.oldLastRun = args.oldLastRun;
         this.oldPriceIndex = args.oldPriceIndex;
         this.newPriceIndex = args.newPriceIndex;
-        this.oldCompaniesForPriceIndex= args.oldCompaniesForPriceIndex;
+        this.oldCompaniesForPriceIndex = args.oldCompaniesForPriceIndex;
         this.oldTrains = args.oldTrains;
         this.closeData = args.closeData;
         this.oldOperated = args.oldOperated;
+        this.playerPayouts = args.playerPayouts || {};
+        this.companyPayout = args.companyPayout || 0;
     }
 
     doExecute(state) {
@@ -40,18 +42,25 @@ class RunRoutes extends Action {
         // Update and pay company
         company.lastRun(this.revenue);
 
-
-        state.bank.removeCash(companyIncome);
-        company.addCash(companyIncome);
+        if (companyIncome > 0) {
+            state.bank.removeCash(companyIncome);
+            company.addCash(companyIncome);
+            this.companyPayout = companyIncome;
+        }
 
         // Pay players
         if (company.type === CompanyTypes.INDEPENDANT) {
-            state.bank.removeCash(this.revenue / 2);
-            player.addCash(this.revenue / 2);
+            if(this.revenue > 0) {
+                const halfPayout = this.revenue / 2;
+                state.bank.removeCash(halfPayout);
+                player.addCash(halfPayout);
+                this.playerPayouts[player.id] = halfPayout;
+            }
         }
         else {
             if (this.allocation === Allocations.NONE || this.revenue === 0) {
-                company.priceIndex(Prices.leftIndex(this.oldPriceIndex, (!company.president() && company.numTrainsForLimit() === 0) ? 2 : 1));
+                company.priceIndex(Prices.leftIndex(this.oldPriceIndex,
+                                                    (!company.president() && company.numTrainsForLimit() === 0) ? 2 : 1));
             }
             else {
                 company.priceIndex(
@@ -61,20 +70,23 @@ class RunRoutes extends Action {
             const payoutPerShare = payout / 10;
             _.each(state.players(), player => {
                 const cash = player.numSharesOwnedOfCompany(this.companyId) * payoutPerShare;
-                state.bank.removeCash(cash);
-                player.addCash(cash);
+                if (cash > 0) {
+                    state.bank.removeCash(cash);
+                    player.addCash(cash);
+                    this.playerPayouts[player.id] = cash;
+                }
             });
         }
 
         company.updateTrains(_.map(this.trains, train => train.clone()));
-        _.each(company.trains(), train=>{
+        _.each(company.trains(), train => {
             if (train.phasedOut()) {
                 train.phasedOut(false);
                 train.rusted(true);
             }
         });
 
-        if(company.type === CompanyTypes.PUBLIC && company.priceIndex() === 0) {
+        if (company.type === CompanyTypes.PUBLIC && company.priceIndex() === 0) {
             this.closeData = company.close();
         }
         company.operated(true);
@@ -87,7 +99,7 @@ class RunRoutes extends Action {
         const companyIncome = this.calculateCompanyIncome(company, this.revenue, this.allocation);
         const payout = this.calculatePayout(this.revenue, this.allocation);
 
-        if(this.closeData) {
+        if (this.closeData) {
             company.unclose(this.closeData);
         }
 
@@ -121,25 +133,39 @@ class RunRoutes extends Action {
         const movement = (this.revenue === 0 || this.allocation === Allocations.NONE) ? -1 : this.calculateStockMovement(
             payout, Prices.price(this.oldPriceIndex));
         const newPrice = Prices.price(this.newPriceIndex);
-        const allocationText = this.revenue > 0 ? ' and ' + this.getAllocationText(this.allocation, true): '';
+        const allocationText = this.revenue > 0 ? ' and ' + this.getAllocationText(this.allocation, true) : '';
         const trainText = this.trains.length === 0 ? 'no trains' : 'its ' + _(this.trains).map(
                 train => TrainNames[train.type]).join(
                 ',') + ' train' + (this.trains.length > 1 ? 's' : '') + ' for $' + this.revenue + allocationText;
-        const stockText = company.type === CompanyTypes.INDEPENDANT ? '' : ' - share price ' + this.getMovementText(movement) + ' $' + newPrice;
+        const stockText = company.type === CompanyTypes.INDEPENDANT ? '' : ' - share price ' + this.getMovementText(
+                movement) + ' $' + newPrice;
         return company.nickname + ' ran ' + trainText + stockText;
     }
 
     confirmation(state) {
         const revenue = this.calculateRevenue(state);
-        const allocationText = this.revenue > 0 ? ' and ' + this.getAllocationText(this.allocation): '';
+        const allocationText = this.revenue > 0 ? ' and ' + this.getAllocationText(this.allocation) : '';
         return 'Confirm run trains for $' + revenue + allocationText;
+    }
+
+    details(state) {
+        const company = state.getCompany(this.companyId);
+        const details = [];
+        if (this.companyPayout) {
+            details.push(company.nickname + ' receives $' + this.companyPayout);
+        }
+        _.each(this.playerPayouts, (amount, id) => {
+            const player = state.playersById()[id];
+            details.push(player.name() + ' receives $' + amount);
+        });
+        return details;
     }
 
     calculateRevenue(state) {
         const company = state.getCompany(this.companyId);
-        let revenue =_.sumBy(this.trains, train=>train.route.revenue());
-        if(company.hasPrivate(CompanyIDs.MAIL_CONTRACT)) {
-            revenue += (_(this.trains).map(train=>train.route.numStops()).max() || 0)*10;
+        let revenue = _.sumBy(this.trains, train => train.route.revenue());
+        if (company.hasPrivate(CompanyIDs.MAIL_CONTRACT)) {
+            revenue += (_(this.trains).map(train => train.route.numStops()).max() || 0) * 10;
         }
         return revenue;
     }

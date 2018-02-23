@@ -9,6 +9,7 @@ import _ from 'lodash';
 import 'knockout-delegated-events';
 import Events from 'common/util/events';
 import History from 'common/util/history';
+import LZString from 'lz-string';
 
 const ActivePanelIDs = {
     ACTIVE_GAMES: 'active_games',
@@ -60,7 +61,7 @@ class Dashboard {
     }
 
     resetGame() {
-        if(CurrentGame()) {
+        if (CurrentGame()) {
             Events.emit('game-reset');
             Events.removeAllListeners('trackLaid');
             Events.removeAllListeners('gridRestored');
@@ -103,7 +104,7 @@ class Dashboard {
 
     showDashboard() {
         this.resetGame();
-        History.pushState({},'Games', '/');
+        History.pushState({}, 'Games', '/');
     }
 
     launchGame(record, fromState) {
@@ -112,7 +113,7 @@ class Dashboard {
         CurrentGame(game);
         game.sequence.restore();
         Events.emit('stateUpdated');
-        if(!fromState) {
+        if (!fromState) {
             History.pushState({game: record.id}, record.name, '?game=' + record.id);
         }
     }
@@ -125,7 +126,34 @@ class Dashboard {
         Events.emit('global:mouseout');
     }
 
+    downloadState() {
+        if(!CurrentGame()) {
+            return;
+        }
+        const record = CurrentGame().record;
+        const state = record.loadCurrentState();
+        const download = {
+            record: record.serialize(),
+            state: state.serialize()
+        };
+        const element = document.createElement('a');
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + LZString.compressToEncodedURIComponent(download));
+        element.setAttribute('download', '1846-' + record.name + '-state');
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
 
+    sendBugEmail() {
+        const link = "mailto:justin.waugh@gmail.com?subject=1846 Bug Report";
+        const element = document.createElement('a');
+        element.setAttribute('href', link);
+        element.style.display = 'none';
+        document.body.appendChild(element);
+        element.click();
+        document.body.removeChild(element);
+    }
 }
 
 export default Dashboard;

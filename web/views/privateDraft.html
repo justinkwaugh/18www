@@ -15,6 +15,9 @@
                 </div>
                 <!-- /ko -->
                 <div>
+                    <!-- ko if: $data.privatesOffered().length === 1 && $data.privatesOffered()[0].cost !== $data.privatesOffered()[0].baseCost -->
+                        <h3 class="font-weight-light" data-bind="text: 'Discounted to $' + $data.privatesOffered()[0].cost"></h3>
+                    <!-- /ko -->
                     <div class="d-inline-flex">
                         <button type="button" class="btn btn-warning"
                                 data-bind="click: pass, visible: $data.privatesOffered().length === 1 && $data.privatesOffered()[0].cost !== 0">

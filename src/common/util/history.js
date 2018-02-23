@@ -4,7 +4,6 @@ class History {
         constructor () {
             this.history = window.history && window.history.pushState ? window.history : { pushState: function() {}, replaceState: function() {}, back: function() {}, state: null };
             window.onpopstate = function(event) {
-                debugger;
                 Events.emit('nav-change', event.state);
             };
 

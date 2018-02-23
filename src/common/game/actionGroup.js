@@ -62,6 +62,27 @@ class ActionGroup extends Serializable {
                     });
                 }).flatten().value();
     }
+
+    getDetails() {
+        if (this.actionEndIndex <= this.actionStartIndex) {
+            return [];
+        }
+
+        return _(
+            this.getActions())
+            .invokeMap('details', CurrentGame().state()).map(
+                (details, index) => {
+                        return {
+                            index: this.actionStartIndex + index,
+                            type: 'action',
+                            details
+                        }
+                }).value();
+    }
+
+    isWithinRange(startIndex, endIndex) {
+        return this.actionStartIndex >= startIndex && ((endIndex && this.actionEndIndex <= endIndex) || !endIndex );
+    }
 }
 
 ActionGroup.registerClass();

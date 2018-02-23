@@ -8,6 +8,7 @@ class PrivateCompany extends Company {
         super(definition);
 
         this.cost = definition.cost || 0;
+        this.baseCost = definition.baseCost || 0;
         this.maxBuyInPrice = definition.maxBuyInPrice || 0;
         this.income = definition.income || 0;
         this.hasAbility = definition.hasAbility;

@@ -143,6 +143,14 @@ nav a, nav a:hover {
     background-color: #d2d2d4;
 }
 
+.bg-history-header {
+    background-color: #3969bd;
+}
+
+.bg-history-payout {
+    background-color: #fcf8e3;
+}
+
 .bg-ms {
     background-color: #777 !important;
 }

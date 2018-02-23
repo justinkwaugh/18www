@@ -13,14 +13,17 @@ import StockBoard from '1846/game/stockBoard';
 import Events from 'common/util/events';
 import Sequence from '1846/game/sequence';
 import OperatingRound from '1846/game/operatingRound';
-import RoundIDs from '1846/config/roundIds';
+import History from '1846/game/history';
+import RoundTypes from '1846/config/roundTypes';
 import LZString from 'lz-string';
+import CurrentGame from 'common/game/currentGame';
 
 const ActivePanelIDs = {
     MAP: 'map',
     OWNERSHIP: 'ownership',
     TILE_MANIFEST: 'manifest',
-    HISTORY: 'history'
+    HISTORY: 'history',
+    REPORT_BUG: 'report_bug'
 };
 
 class Game extends BaseGame {
@@ -34,6 +37,7 @@ class Game extends BaseGame {
         this.privateDraft = ko.observable();
         this.stockRound = ko.observable();
         this.operatingRound = ko.observable(new OperatingRound());
+        this.history = ko.observable(new History());
         this.zoom = ko.observable(.8);
         this.selectedCompany = ko.observable();
 
@@ -72,6 +76,12 @@ class Game extends BaseGame {
     }
 
     setActivePanel(newPanel) {
+        if(newPanel === ActivePanelIDs.HISTORY) {
+            const currentRound = CurrentGame().state().roundHistory.currentRound();
+            if(currentRound) {
+                this.history().selectRound(currentRound.id);
+            }
+        }
         this.activePanel(newPanel);
     }
 
@@ -136,7 +146,7 @@ class Game extends BaseGame {
                              stockBoard
                          });
 
-        state.roundHistory.startRound(RoundIDs.PRIVATE_DRAFT, 1);
+        state.roundHistory.startRound(RoundTypes.PRIVATE_DRAFT, 1);
         state.currentPlayerIndex(state.players().length - 1);
         state.turnHistory.startTurn({state});
 
@@ -154,12 +164,6 @@ class Game extends BaseGame {
         this.record.round = this.state().winner() ? 'Game End' : this.state().roundHistory.currentRound().getRoundName();
         this.record.turn = this.state().currentPlayer().name();
         this.record.save(this.state());
-    }
-
-    generateBugEmail() {
-        const compressed = LZString.compressToEncodedURIComponent(this.state().serialize());
-        const link = "mailto:justin.waugh@gmail.com?subject=Bug Report&body=" + compressed;
-        window.location.href = link;
     }
 
     isDraftRevealed() {

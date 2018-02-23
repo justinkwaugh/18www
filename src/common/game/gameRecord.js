@@ -29,6 +29,10 @@ class GameRecord extends Serializable {
         return Serializable.deserialize(LocalStore.loadCompressed(this.id, 'currentstate'));
     }
 
+    loadRawCurrentState() {
+        return LocalStore.load(this.id, 'currentstate');
+    }
+
     save(state) {
         LocalStore.store(this.id, this.serialize(), 'games');
         if(state) {

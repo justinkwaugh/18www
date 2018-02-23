@@ -53,6 +53,10 @@ class TurnHistory extends Serializable {
         return this.turns().length + 1;
     }
 
+    getTurnsForRange(startIndex, endIndex) {
+        return _.filter(this.turns(), turn=>turn.isWithinRange(startIndex, endIndex));
+    }
+
 }
 
 TurnHistory.registerClass();

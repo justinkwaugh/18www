@@ -82,6 +82,7 @@ const PrivateCompanyDefinitions = {
         tokens: 0,
         startTokens: 1,
         cost: 140,
+        baseCost: 140,
         maxBuyInPrice: 60,
         cash: 80,
         homeCellId: 'C15',
@@ -95,6 +96,7 @@ const PrivateCompanyDefinitions = {
         tokens: 0,
         startTokens: 1,
         cost: 100,
+        baseCost: 100,
         maxBuyInPrice: 40,
         cash: 60,
         homeCellId: 'G9',
@@ -105,6 +107,7 @@ const PrivateCompanyDefinitions = {
         name: 'Chicago & Western Indiana',
         type: CompanyTypes.PRIVATE,
         cost: 60,
+        baseCost: 60,
         maxBuyInPrice: 60,
         income: 10
     },
@@ -122,6 +125,7 @@ const PrivateCompanyDefinitions = {
         name: 'Meat Packing Company',
         type: CompanyTypes.PRIVATE,
         cost: 60,
+        baseCost: 60,
         maxBuyInPrice: 60,
         income: 15,
         hasAbility: true
@@ -131,6 +135,7 @@ const PrivateCompanyDefinitions = {
         name: 'Steamboat Company',
         type: CompanyTypes.PRIVATE,
         cost: 40,
+        baseCost: 40,
         maxBuyInPrice: 40,
         income: 10,
         hasAbility: true
@@ -140,6 +145,7 @@ const PrivateCompanyDefinitions = {
         name: 'Lake Shore Line',
         type: CompanyTypes.PRIVATE,
         cost: 40,
+        baseCost: 40,
         maxBuyInPrice: 40,
         income: 15,
         hasAbility: true
@@ -149,6 +155,7 @@ const PrivateCompanyDefinitions = {
         name: 'Michigan Central',
         type: CompanyTypes.PRIVATE,
         cost: 40,
+        baseCost: 40,
         maxBuyInPrice: 40,
         income: 15,
         hasAbility: true
@@ -158,6 +165,7 @@ const PrivateCompanyDefinitions = {
         name: 'Mail Contract',
         type: CompanyTypes.PRIVATE,
         cost: 80,
+        baseCost: 80,
         maxBuyInPrice: 80,
         income: 0
     },
@@ -166,6 +174,7 @@ const PrivateCompanyDefinitions = {
         name: 'Tunnel Blasting Company',
         type: CompanyTypes.PRIVATE,
         cost: 60,
+        baseCost: 60,
         maxBuyInPrice: 60,
         income: 20
     }

@@ -16,10 +16,12 @@
             </thead>
             <tbody>
             <tr>
-                <th scope="col" style="height:10px;" class="border-0 p-0"></th>
+                <th scope="col"class="border-0 font-weight-normal p-0 text-white text-center"><div class="p-1">
+                        Player
+                    </div></th>
                 <td class="table-col-spacer p-0 border-0">&nbsp;</td>
-                <th class="border-0 font-weight-normal p-0 text-right text-white" scope="row">
-                    <div class="p-1 pr-3">
+                <th class="border-0 font-weight-normal p-0 text-center text-white" scope="row">
+                    <div class="p-1">
                         Cash
                     </div>
                 </th>
@@ -34,12 +36,15 @@
             <tr>
                 <th class="border-0 font-weight-normal" scope="row"
                     data-bind="css: $parent.currentPlayerId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row' : 'bg-light'">
-                    <h5 class="m-0 font-weight-normal " data-bind="text:$data.user().username"></h5></th>
+                    <div class="d-inline-flex align-items-center">
+                        <!-- ko if: $data.id === $root.game().state().priorityDealPlayerId() -->
+        <img style="height:20px;margin-right:10px;" data-bind="attr: { src: 'images/pd.png' }"/><!-- /ko -->
+                        <h5 class="m-0 font-weight-normal " data-bind="text:$data.name()"></h5></div></th>
                 <td class="table-col-spacer p-0 border-0"
                     data-bind="css: $root.game().state().currentPlayerId() === $data.id ? 'bg-warning': 'bg-dark'">
                     &nbsp;
                 </td>
-                <th class="border-0 font-weight-normal text-right" style="width:1%;white-space:nowrap" scope="row"
+                <th class="border-0 font-weight-normal text-center" style="width:1%;white-space:nowrap" scope="row"
                     data-bind="css: $parent.currentPlayerId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row' : 'bg-light'">
                     <h5 class="m-0 font-weight-normal " data-bind="text:'$' + $data.cash()"></h5></th>
                 <!-- ko foreach: $parent.openCompanies() -->

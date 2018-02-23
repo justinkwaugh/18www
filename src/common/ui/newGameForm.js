@@ -40,7 +40,7 @@ class NewGameForm {
                                               type: this.type(),
                                               name: this.name() || 'New Game',
                                               location: 'local',
-                                              startDate: new Date().toISOString(),
+                                              startDate: new Date().toISOString().substring(0, 10),
                                               players: users.length,
                                               round: state.roundHistory.currentRound().getRoundName(),
                                               turn: state.currentPlayer().name()

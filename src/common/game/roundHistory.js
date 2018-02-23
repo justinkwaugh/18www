@@ -11,10 +11,10 @@ class RoundHistory extends Serializable {
         this.currentRound = ko.observable(definition.currentRound);
     }
 
-    startRound(id, number) {
+    startRound(type, number) {
         number = number || _.last(this.rounds()).number;
         this.currentRound(new Round({
-            id: id,
+            roundType: type,
             number: number
         }));
     }
@@ -31,6 +31,18 @@ class RoundHistory extends Serializable {
 
     lastRound() {
         return _.last(this.rounds());
+    }
+
+    getRound(id) {
+        return this.currentRound() && this.currentRound().id === id ? this.currentRound() : _.find(this.rounds(), {id});
+    }
+
+    getAllRounds() {
+        const all = _.clone(this.rounds());
+        if(this.currentRound()) {
+            all.push(this.currentRound())
+        }
+        return all;
     }
 }
 
