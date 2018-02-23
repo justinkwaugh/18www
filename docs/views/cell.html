@@ -18,7 +18,7 @@
             <!-- ko if: $data.canEdit() || $data.canRoute() -->
             <polygon pointer-events="all" class="tile-border" fill="none" stroke="none" stroke-width="0"
                      points="" data-bind="attr: { points: $data.outline }" data-mouseover="onMouseOver"
-                     data-mousedown="onMouseDown" data-mouseout="onMouseOut"></polygon>
+                     data-mousedown="onMouseDown" data-mouseout="onMouseOut" data-touchstart="onTouchStart" data-touchmove="onTouchMove" data-touchend="onTouchEnd"></polygon>
             <!-- /ko -->
         </g>
     </svg>
@@ -34,7 +34,7 @@
     </button>
     <button type="button" style="min-width:35px;" class="btn btn-sm btn-light font-weight-bold"
             data-bind="visible: $data.allowedPreviewPositions().length > 1, click: $data.nextPreviewPosition"><img
-            alt="rotate" style="width:16px; height:16px;" data-bind="attr: { src: $root.rootPath + '/open-iconic/svg/reload.svg' }"/>
+            alt="rotate" style="width:16px; height:16px;" data-bind="attr: { src: $root.rootPath + 'open-iconic/svg/reload.svg' }"/>
     </button>
     <button type="button" style="min-width:35px;" class="btn btn-sm btn-success"
             data-bind="click: function() { $data.commitPreview($root.game().state());}">OK

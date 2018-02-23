@@ -38,7 +38,7 @@
                     data-bind="css: $parent.currentPlayerId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row' : 'bg-light'">
                     <div class="d-inline-flex align-items-center">
                         <!-- ko if: $data.id === $root.game().state().priorityDealPlayerId() -->
-        <img style="height:20px;margin-right:10px;" data-bind="attr: { src: $root.rootPath + '/images/pd.png' }"/><!-- /ko -->
+        <img style="height:20px;margin-right:10px;" data-bind="attr: { src: $root.rootPath + 'images/pd.png' }"/><!-- /ko -->
                         <h5 class="m-0 font-weight-normal " data-bind="text:$data.name()"></h5></div></th>
                 <td class="table-col-spacer p-0 border-0"
                     data-bind="css: $root.game().state().currentPlayerId() === $data.id ? 'bg-warning': 'bg-dark'">

@@ -124,7 +124,7 @@
             <!-- ko foreach: $data.currentCompanyTrains() -->
             <li>
                 <div class="card d-inline-flex bg-route-train"
-                     data-bind="click: function() {$parent.selectTrainToReturn($data); }, style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(/' + $root.rootPath + '/images/trains/' + $data.type + '.png)' }">
+                     data-bind="click: function() {$parent.selectTrainToReturn($data); }, style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' }">
 
                     <div class="bg-route-train-border"
                          data-bind="css: 'bg-route-border-' + ($parent.selectedTrainToReturn() === $data.id  ? '1' : '0')+ ' ' + ($parent.selectedTrainToReturn() === $data.id ? 'bg-route-train-big-border' : 'bg-route-train-small-border')"></div>
@@ -258,7 +258,7 @@
             <!-- ko foreach: $data.companyTrains() -->
             <li>
                 <div class="card d-inline-flex bg-route-train"
-                     data-bind="style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(/' + $root.rootPath + '/images/trains/' + $data.type + '.png)' },click: function() { $parent.selectTrain($data)} ">
+                     data-bind="style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' },click: function() { $parent.selectTrain($data)} ">
                     <div class="bg-route-train-border"
                          data-bind="css: 'bg-route-border-' + $data.route.color + ' ' + ($parent.selectedTrain() === $data.id ? 'bg-route-train-big-border' : 'bg-route-train-small-border')"></div>
                     <div style="border-radius:4px; padding:0 5px;position:absolute;top:-5px;right:-5px;color:white"
@@ -325,7 +325,7 @@
             <li>
                 <div data-bind="style: { opacity: num <= 0 ? .2 : 1 }">
                     <div class="card mb-0 d-inline-flex bg-route-train"
-                         data-bind="style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(/' + $root.rootPath + '/images/trains/' + $data.type + '.png)' }">
+                         data-bind="style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' }">
                         <div class="bg-route-train-border"
                              data-bind="css: 'bg-route-border-0 bg-route-train-small-border'"></div>
                         <div class="bg-route-0"
@@ -351,7 +351,7 @@
             <!-- ko foreach: $data.getTrainsAvailableToForceBuy() -->
             <li>
                 <div class="card d-inline-flex bg-route-train"
-                     data-bind="style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(/' + $root.rootPath + '/images/trains/' + $data.type + '.png)' },click: function() { $parent.selectForcedTrainForPurchase($data)} ">
+                     data-bind="style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' },click: function() { $parent.selectForcedTrainForPurchase($data)} ">
                     <div class="bg-route-train-border"
                          data-bind="css: 'bg-route-border-0 ' + ($parent.selectedForcedTrainForPurchase() === $data.type ? 'bg-route-train-big-border' : 'bg-route-train-small-border')"></div>
                     <div class="bg-route-0"
@@ -401,7 +401,7 @@
             <!-- ko foreach: $data.availableCompanyTrains() -->
             <li>
                 <div class="card d-inline-flex bg-route-train"
-                     data-bind="click: function() {$parent.selectCompanyTrainForPurchase($data); }, style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(/' + $root.rootPath + '/images/trains/' + $data.type + '.png)' }">
+                     data-bind="click: function() {$parent.selectCompanyTrainForPurchase($data); }, style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' }">
 
                     <div class="bg-route-train-border"
                          data-bind="css: 'bg-route-border-' + ($parent.isCompanyTrainSelectedForPurchase($data.id) ? '1' : '0')+ ' ' + ($parent.isCompanyTrainSelectedForPurchase($data.id) ? 'bg-route-train-big-border' : 'bg-route-train-small-border')"></div>
