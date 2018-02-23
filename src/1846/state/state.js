@@ -20,6 +20,7 @@ class State extends BaseState {
 
         this.winner = ko.observable(definition.winner);
         this.players = ko.observableArray(definition.players || []);
+
         this.playersById = ko.computed(() => {
             return _.keyBy(this.players(), 'id');
         });

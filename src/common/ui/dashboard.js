@@ -10,6 +10,7 @@ import 'knockout-delegated-events';
 import Events from 'common/util/events';
 import History from 'common/util/history';
 import LZString from 'lz-string';
+import Serializable from 'common/model/serializable';
 
 const ActivePanelIDs = {
     ACTIVE_GAMES: 'active_games',
@@ -45,13 +46,13 @@ class Dashboard {
 
         this.activePanel = ko.observable(ActivePanelIDs.ACTIVE_GAMES);
         this.ActivePanelIDs = ActivePanelIDs;
-        this.rootPath = '/';
-        this.rootPathForHistory = ko.computed(()=>{
-            if(this.rootPath === '/') {
+        this.rootPath = '/18www/';
+        this.rootPathForHistory = ko.computed(() => {
+            if (this.rootPath === '/') {
                 return this.rootPath;
             }
             else {
-                return this.rootPath.substring(0,this.rootPath.length-1);
+                return this.rootPath.substring(0, this.rootPath.length - 1);
             }
         });
 
@@ -65,6 +66,13 @@ class Dashboard {
         Events.on('nav-change', (state) => {
             this.checkNavigation(state);
         });
+
+        // _.delay(()=> {
+        //     this.fileInput = document.getElementById('fileInput');
+        //     this.fileInput.addEventListener('change', (e) => {
+        //         this.loadState();
+        //     });
+        // },1000);
 
         Events.emit('app-ready');
     }
@@ -136,7 +144,7 @@ class Dashboard {
     }
 
     downloadState() {
-        if(!CurrentGame()) {
+        if (!CurrentGame()) {
             return;
         }
         const record = CurrentGame().record;
@@ -146,7 +154,8 @@ class Dashboard {
             state: state.serialize()
         };
         const element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + LZString.compressToEncodedURIComponent(JSON.stringify(download)));
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + LZString.compressToEncodedURIComponent(
+                                 JSON.stringify(download)));
         element.setAttribute('download', '1846-' + record.name + '-state');
         element.style.display = 'none';
         document.body.appendChild(element);
@@ -162,6 +171,21 @@ class Dashboard {
         document.body.appendChild(element);
         element.click();
         document.body.removeChild(element);
+    }
+
+    loadState() {
+        const file = this.fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const decompressed = JSON.parse(LZString.decompressFromEncodedURIComponent(reader.result));
+            const record = GameRecord.deserialize(decompressed.record);
+            const state = Serializable.deserialize(decompressed.state);
+            record.save(state);
+        };
+
+        reader.readAsText(file);
+
+
     }
 }
 

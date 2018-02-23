@@ -648,7 +648,7 @@ class Cell {
         let found = false;
 
         _.each(connections, connection => {
-            const connectionId = this.id + '-' + this.getConnectionId(connection);
+            const connectionId = this.id + '-' + connection[0] + '-' + connection[1];//this.getConnectionId(connection);
             if (visited[connectionId]) {
                 return;
             }
