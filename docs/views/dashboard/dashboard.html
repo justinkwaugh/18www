@@ -1,0 +1,36 @@
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light border border-0 m-0 p-0">
+        <span class="navbar-brand ml-3">
+            <a href="/" class="h1 text-secondary">18WWW</a>
+        </span>
+    </nav>
+
+<div class="border border-right-0 border-left-0 pl-3 pr-3 bg-light">
+    <ul class="nav">
+<li class="nav-item"
+                data-bind="css: activePanel() === ActivePanelIDs.ACTIVE_GAMES ? 'bg-active-nav' : ''">
+                <a
+                        href="#" class="nav-link "
+                        data-bind="click: function() {setActivePanel(ActivePanelIDs.ACTIVE_GAMES)}, css: activePanel() === ActivePanelIDs.ACTIVE_GAMES ? 'active text-white font-weight-bold' : 'text-secondary' ">Active Games</a>
+            </li>
+            <li class="nav-item"
+                data-bind="css: activePanel() === ActivePanelIDs.COMPLETED_GAMES ? 'bg-active-nav' : ''">
+                <a
+                        href="#" class="nav-link"
+                        data-bind="click: function() {setActivePanel(ActivePanelIDs.COMPLETED_GAMES)}, css: activePanel() === ActivePanelIDs.COMPLETED_GAMES ? 'active text-white font-weight-bold' : 'text-secondary' ">Completed Games</a>
+            </li>
+            <li class="nav-item"
+                data-bind="css: activePanel() === ActivePanelIDs.NEW_GAME ? 'bg-active-nav' : ''">
+                <a
+                        href="#" class="nav-link"
+                        data-bind="click: function() {setActivePanel(ActivePanelIDs.NEW_GAME)}, css: activePanel() === ActivePanelIDs.NEW_GAME ? 'active text-white font-weight-bold' : 'text-secondary' ">New Game</a>
+            </li>
+    </ul>
+</div>
+</header>
+
+<div class="container-fluid px-0">
+    <div data-bind="template: { name: 'views/dashboard/games' }, visible: activePanel() === ActivePanelIDs.ACTIVE_GAMES"></div>
+    <div data-bind="template: { name: 'views/dashboard/newGame', data: $data.newGameForm }, visible: activePanel() === ActivePanelIDs.NEW_GAME"></div>
+</div>
+

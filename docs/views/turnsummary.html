@@ -1,0 +1,24 @@
+<!-- ko if: $data.turnHistory.currentTurn() && $data.turnHistory.currentTurn().getCurrentSummaries().length > 0 -->
+<div class="alert alert-primary rounded-0 pt-1 pb-1 border-top-0 border-right-0 border-left-0 m-0" role="alert">
+    <div class="d-flex align-items-center">
+        <div class="ml-2 mr-3">
+            <h4 class="alert-heading font-weight-light mb-0">Turn Summary</h4>
+        </div>
+        <ul class="list-unstyled font-weight-light ml-0 mb-0 d-flex mr-3 flex-wrap" style="margin-top:-4px;">
+            <!-- ko foreach: $data.turnHistory.currentTurn().getCurrentSummaries() -->
+            <li class="alert alert-light pl-2 pr-2 pt-1 pb-1 m-0 mr-1 mt-1">
+                <strong data-bind="text:$data.summary"></strong>
+            </li>
+            <!-- /ko -->
+        </ul>
+        <div class="ml-auto d-flex flex-nowrap">
+            <!-- ko if: $data.actionHistory.canUndo() -->
+            <button type="button" class="btn btn-sm btn-danger mr-1" data-bind="click: function() { $root.game().sequence.undoLastAction(); }">Undo</button>
+            <!-- /ko -->
+            <!-- ko if: !$data.isOperatingRound() || ($root.game().operatingRound().canEndTurn() && !$root.game().operatingRound().interruptionNeeded()) -->
+            <button type="button" class="btn btn-sm btn-success" data-bind="click: function() { $root.game().sequence.finishTurn(); }">End Turn</button>
+            <!-- /ko -->
+        </div>
+    </div>
+</div>
+<!-- /ko -->

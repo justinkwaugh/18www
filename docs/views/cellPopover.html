@@ -1,0 +1,35 @@
+<!-- ko if: $data.tile() -->
+<div data-bind="style: { 'width': $data.upgradeTiles().length < 2 ? '126px' : '256px'} ">
+    <!-- ko if: $data.canToken() -->
+    <div class="d-flex flex-column align-items-center justify-content-center" data-bind="css: $data.canToken() && $data.tokenableCities() && $data.upgradeTiles().length > 0 ? 'mt-2' : ''">
+        <!-- ko foreach: $data.tokenableCities() -->
+        <button type="button" class="btn btn-sm btn-success" data-bind="css: $index() > 0 ? 'mt-2' : '', click: function() { $parent.tokenCity($data); }, text: 'Add ' + ($parent.tokenableCities().length > 1 ? $parent.tile().getCityName($data) + ' ' : '') + 'Token' "></button>
+        <!-- /ko -->
+    </div>
+    <!-- /ko -->
+    <!-- ko if: $data.canToken() && $data.tokenableCities() && $data.upgradeTiles().length > 0 -->
+    <hr>
+    <!-- /ko -->
+    <div class="d-flex flex-wrap mx-auto" data-bind="css: $data.canToken() && $data.tokenableCities() && $data.upgradeTiles().length > 0 ? 'mt-2' : ''">
+        <!-- ko foreach: $data.upgradeTiles() -->
+        <div class="position-relative" style="cursor:pointer" data-bind="click: function() { $parent.previewTile($data.tile.id); }">
+            <h5 class="position-absolute" style="top:0;left:10px;"
+                data-bind="text: $data.remaining === -1 ? '&#x221e;' : $data.remaining "></h5>
+            <div class="mr-1 mb-1" style="width:124px;height:144px;"
+                 data-bind="style: { opacity : $data.remaining === 0 ? .5 : 1 }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.tile.id), data: $data.tile }"></div>
+        </div>
+        <!-- /ko -->
+    </div>
+    <!-- ko if: $data.canPlaceMeat() -->
+    <div class="d-flex justify-content-center bg-light">
+        <button type="button" class="btn btn-sm btn-success" data-bind="click: function() { $data.placeMeat(); }">Place Meat</button>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: $data.canPlaceSteamboat() -->
+    <div class="d-flex justify-content-center bg-light">
+        <button type="button" class="btn btn-sm btn-success" data-bind="click: function() { $data.placeSteamboat();}">Place Steamboat</button>
+    </div>
+    <!-- /ko -->
+</div>
+
+<!-- /ko -->

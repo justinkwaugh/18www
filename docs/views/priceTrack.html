@@ -1,0 +1,14 @@
+<div class="d-flex flex-nowrap">
+    <!-- ko foreach: _.values($data.stockBoard.stockBoard()) -->
+    <div class="d-inline-flex card rounded-0 text-center text-secondary pb-3"
+         style="min-width:50px;width:100%;min-height:50px;"
+         data-bind="style: { backgroundColor: $index() % 2 == 0 ? '#f2f2f2' : '#FFF', 'border-left': $data.value === 40 ? '2px solid #ffe300' : '0', 'border-right': $data.value === 150 ? '2px solid #ffe300' : '0', 'border-top': $data.value >= 40 && $data.value <= 150 ? '2px solid #ffe300' : '0', 'border-bottom': $data.value >= 40 && $data.value <= 150 ? '2px solid #ffe300' : '0'  }">
+        <div class="card-title mb-0">
+            <h6 data-bind="text:$data.value"></h6>
+        </div>
+        <!-- ko foreach: $data.companies() -->
+            <div class="" style="height:25px;font-size:1em;margin-bottom:2px;" data-bind="text:$root.game().state().getCompany($data).nickname,css: 'bg-' + $data + ' text-' + $data"></div>
+        <!-- /ko -->
+    </div>
+    <!-- /ko -->
+</div>

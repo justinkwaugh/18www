@@ -1,0 +1,99 @@
+<!-- ko if: $data && ($root.game().state().currentPlayer().canSell() || $root.game().state().currentPlayer().canBuy() || $root.game().state().currentPlayer().canPass())-->
+<div class="alert alert-dark rounded-0 border-top-0 border-right-0 border-left-0 m-0 p-3 d-flex flex-column justify-content-center"
+     role="alert">
+
+
+    <h5 class="text-center font-weight-light alert-heading">Choose an action</h5>
+
+    <div class="d-flex justify-content-center">
+        <!-- ko if: $root.game().state().currentPlayer().canSell() -->
+        <button class="btn btn-sm mr-2"
+                data-bind="click: function() { $data.selectAction($data.Actions.SELL); }, css: $data.selectedAction() === $data.Actions.SELL ? 'active btn-danger' : 'btn-light' ">
+            Sell
+        </button>
+        <!-- /ko -->
+        <!-- ko if: $root.game().state().currentPlayer().canBuy() -->
+        <button class="btn btn-sm mr-2"
+                data-bind="click: function() { $data.selectAction($data.Actions.BUY); },css: $data.selectedAction() === $data.Actions.BUY ? 'active btn-success' : 'btn-light' ">
+            Buy
+        </button>
+        <!-- /ko -->
+        <!-- ko if: $root.game().state().currentPlayer().canPass() -->
+        <button class="btn btn-sm "
+                data-bind="click: function() { $data.selectAction($data.Actions.PASS); },css: $data.selectedAction() === $data.Actions.PASS ? 'active btn-secondary' : 'btn-light' ">
+            Pass
+        </button>
+        <!-- /ko -->
+    </div>
+
+    <!-- ko if: $data.selectedAction() === $data.Actions.SELL -->
+    <!-- ko if: $root.game().state().currentPlayer().hasSharesToSell() -->
+    <div class="mt-3 d-flex justify-content-center">
+        <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
+            <!-- ko foreach: _.values($root.game().state().currentPlayer().sharesCanSell()) -->
+            <li class="rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1" style="cursor:pointer;"
+                data-bind="click: function() {$parent.selectCompany($data.id); },style: { opacity: !$parent.selectedCompanyId() || $parent.selectedCompanyId() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id ">
+                <strong class="h5" data-bind="text: $data.company.nickname"></strong>
+                <div data-bind="text: $data.shares + ' @ $' + $data.company.price()"></div>
+            </li>
+            <!-- /ko -->
+        </ul>
+    </div>
+    <!-- ko if: $data.selectedCompany() && $root.game().state().currentPlayer().sharesCanSell()[$data.selectedCompany().id] -->
+    <h5 class="mt-3 text-center font-weight-light alert-heading">How many shares?</h5>
+    <div class="d-flex justify-content-center">
+        <div class="btn-group" role="group">
+            <!-- ko foreach: _.range(1, $root.game().state().currentPlayer().sharesCanSell()[$data.selectedCompany().id].shares + 1) -->
+            <button type="button" class="btn"
+                    data-bind="text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.numberOfShares($index()+1); }"></button>
+            <!-- /ko -->
+        </div>
+    </div>
+    <!-- /ko -->
+    <!-- /ko -->
+    <!-- /ko -->
+    <!-- ko if: $data.selectedAction() === $data.Actions.BUY -->
+    <div class="mt-3 d-flex justify-content-center">
+        <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
+            <!-- ko foreach: $root.game().state().currentPlayer().companiesCanBuy() -->
+            <li class="rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1" style="cursor:pointer;"
+                data-bind="click: function() {$parent.selectedCompanyId($data.id); },style: { opacity: !$parent.selectedCompanyId() || $parent.selectedCompanyId() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id ">
+                <div data-bind="text: $data.opened() ? '' : 'open'"></div>
+                <strong class="h5" data-bind="text: $data.nickname"></strong>
+                <div data-bind="text: $data.opened() ? '$' + $data.price() : ''"></div>
+            </li>
+            <!-- /ko -->
+        </ul>
+    </div>
+    <!-- ko if: $data.selectedCompany() && !$data.selectedCompany().opened()-->
+    <h5 class="mt-3 text-center font-weight-light alert-heading">Choose an initial stock price</h5>
+    <div class="d-flex justify-content-center">
+        <div class="btn-group" role="group">
+            <!-- ko foreach: $data.getParRange() -->
+            <button type="button" class="btn"
+                    data-bind="text: $data, css: $parent.openingPriceIndex() === $index()+4 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.openingPriceIndex($index()+4); }"></button>
+            <!-- /ko -->
+        </div>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: $data.selectedCompany() && $data.selectedCompany().opened() && $data.bankShares() && $data.treasuryShares() -->
+    <h5 class="mt-3 text-center font-weight-light alert-heading">Choose a share source</h5>
+    <div class="d-flex justify-content-center">
+
+            <button type="button" class="btn mr-1"
+                    data-bind="css: $data.chosenShareSource() === $data.ShareSources.MARKET ? 'btn-warning' : 'btn-secondary', click: function() { $data.chosenShareSource($data.ShareSources.MARKET); }"><strong class="h4 mr-2 align-middle" data-bind="text: $data.bankShares()"></strong><span class="align-middle">market</span></button>
+            <button type="button" class="btn"
+                    data-bind="css: $data.chosenShareSource() === $data.ShareSources.TREASURY ? 'btn-warning' : 'btn-secondary', click: function() { $data.chosenShareSource($data.ShareSources.TREASURY); }"><strong class="h4 mr-2 align-middle" data-bind="text: $data.treasuryShares()"></strong><span class="align-middle">treasury</span></button>
+    </div>
+    <!-- /ko -->
+    <!-- /ko -->
+
+    <!-- ko if: $data.action() -->
+    <div class="d-flex justify-content-center mt-3">
+        <button type="button" class="btn btn-sm btn-primary mr-1" data-bind="click: $data.commit, text: $data.action().confirmation($root.game().state())"></button>
+        <button type="button" class="btn btn-sm btn-danger mr-1" data-bind="click: $data.reset">Cancel</button>
+    </div>
+    <!-- /ko -->
+
+</div>
+<!-- /ko -->

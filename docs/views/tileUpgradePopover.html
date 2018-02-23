@@ -1,0 +1,17 @@
+<div data-bind="style: { width: $parent.manifest.getUpgradesForTile($data.id).length === 1 ? '126px' : '256px'} ">
+    <div class="d-flex flex-wrap m-auto">
+        <!-- ko foreach: $parent.manifest.getUpgradesForTile($data.id) -->
+        <div class="position-relative">
+            <h5 class="position-absolute" style="top:0;left:10px;"
+                data-bind="text: $data.remaining === -1 ? '&#x221e;' : $data.remaining "></h5>
+            <div class="mr-1 mb-1" style="width:124px;height:144px;"
+                 data-bind="style: { opacity : $data.remaining === 0 ? .5 : 1 }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.tile.id), data: $data.tile }"></div>
+        </div>
+        <!-- /ko -->
+
+        <!-- ko if: $parent.manifest.getUpgradesForTile($data.id).length === 0 -->
+        <h3 class="text-dark">No Upgrades</h3>
+        <!-- /ko -->
+    </div>
+
+</div>

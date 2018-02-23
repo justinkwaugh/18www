@@ -1,0 +1,84 @@
+<svg style="width:126px;height:144px;">
+    <g fill-opacity="1" visibility="inherit" transform="translate(63,72)" pointer-events="none">
+
+        <!-- ko if: $data.hasRoutedConnection([0,7]) -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d="M 15,-35 C 20,-40 23,-40  31,-53.69" data-bind="attr: { stroke: $data.getOuterStrokeColor([0,7]), 'stroke-width': $data.getOuterStrokeWidth([0,7]) }"></path>
+
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="M 15,-35 C 20,-40 23,-40  31,-53.69"></path>
+        <!-- /ko -->
+
+        <!-- ko if: $data.hasRoutedConnection([1,8]) -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d="M 50,0 L 62,0" data-bind="attr: { stroke: $data.getOuterStrokeColor([1,8]), 'stroke-width': $data.getOuterStrokeWidth([1,8]) }"></path>
+
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="M 50,0 L 62,0"></path>
+        <!-- /ko -->
+
+        <!-- ko if: $data.hasRoutedConnection([2,9]) -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d="M 25,43 L 31,53.69" data-bind="attr: { stroke: $data.getOuterStrokeColor([2,9]), 'stroke-width': $data.getOuterStrokeWidth([2,9]) }"></path>
+
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="M 25,43 L 31,53.69"></path>
+        <!-- /ko -->
+
+        <!-- ko if: $data.hasRoutedConnection([3,10]) -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d="M -33 30 C -21,40 -21, 40 -31 53.69" data-bind="attr: { stroke: $data.getOuterStrokeColor([3,10]), 'stroke-width': $data.getOuterStrokeWidth([3,10]) }"></path>
+
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="M -33 30 C -21,40 -21, 40 -31 53.69"></path>
+        <!-- /ko -->
+
+        <!-- ko foreach: $data.getRoutedCityColors(7) -->
+        <circle cx="-1" cy="-43" r="24" fill="white" stroke="none" stroke-width="8"
+                data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(7), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(7) }"></circle>
+        <!-- /ko -->
+
+        <!-- ko foreach: $data.getRoutedCityColors(8) -->
+        <circle cx="35" cy="-10" r="24" fill="white" stroke="none" stroke-width="8"
+                data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(8), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(8) }"></circle>
+        <!-- /ko -->
+
+        <!-- ko foreach: $data.getRoutedCityColors(9) -->
+        <circle cx="8" cy="35" r="24" fill="white" stroke="none" stroke-width="8"
+                data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(9), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(9) }"></circle>
+        <!-- /ko -->
+
+        <!-- ko foreach: $data.getRoutedCityColors(10) -->
+        <circle cx="-38" cy="21" r="24" fill="white" stroke="none" stroke-width="8"
+                data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(10), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(10) }"></circle>
+        <!-- /ko -->
+
+        <!-- ko if: $data.getTokensForCity(7).length > 0 -->
+        <image xlink:href="" x="-21" y="-63" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+        <!-- ko if: $data.getTokensForCity(8).length > 0 -->
+        <image xlink:href="" x="15" y="-29" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(8)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+
+        <!-- ko if:  $data.getReservedTokensForCity(9).length > 0 -->
+        <image xlink:href="" x="-11" y="16" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getReservedTokensForCity(9)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+
+        <!-- ko if: $data.getTokensForCity(9).length > 0 -->
+        <image xlink:href="" x="-11" y="16" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(9)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+        <!-- ko if: $data.getTokensForCity(10).length > 0 -->
+        <image xlink:href="" x="-58" y="2" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(10)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+
+        <!-- ko if: $data.hasMeat() -->
+        <image xlink:href="" x="-22" y="-20" height="35px" width="35px"
+               data-bind="attr: {'xlink:href': 'images/tokens/meat.png' }"></image>
+        <!-- /ko -->
+    </g>
+</svg>

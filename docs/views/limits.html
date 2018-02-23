@@ -1,0 +1,32 @@
+<div style="color:#555;background-color:#fdfdf3;height:100%;overflow:hidden;">
+    <table class="table text-center m-0 border-0" style="width:100%;">
+        <tr class="bg-dark border-0" style="color:#fdfdf3;">
+            <td class="p-1 border-0" colspan="2">
+                <div class="d-inline-flex">
+                    <div><span style="font-size:26px;">Bank</span></div>
+                    <div style="width:10px;"></div>
+                    <div><span style="font-size:26px;"
+                               data-bind="text: '$' + $data.bank.cash()"></span></div>
+                </div>
+            </td>
+        </tr>
+        <tr class="border-0">
+            <td class="p-0 pt-1 border-bottom-0 border-top-0" style="border-right:2px solid #CCC;width:50%;"><span
+                    style="font-size:16px;font-weight:bold">Cert Limit</span></td>
+            <td class="p-0 pt-1 border-bottom-0 border-top-0"><span
+                    style="font-size:16px;font-weight:bold">Train Limit</span></td>
+        </tr>
+        <tr>
+            <td class="p-0 border-bottom-0 border-top-0" style="border-right:2px solid #CCC;width:50%;">
+                <div style="margin-top:-5px;"><span style="font-size:36px;font-weight:300"
+                                                    data-bind="text: $data.certLimit()"></span></div>
+            </td>
+            <td class="p-0 border-bottom-0 border-top-0">
+                <div style="margin-top:-5px;"><span style="font-size:36px;font-weight:300"
+                                                    data-bind="text: $data.trainLimit()"></span></div>
+            </td>
+        </tr>
+        </tr>
+    </table>
+
+</div>

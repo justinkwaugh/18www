@@ -1,0 +1,36 @@
+<div class="p-3">
+    <ul class="nav mb-3">
+        <!-- ko foreach: _.reverse($data.roundHistory.getAllRounds()) -->
+        <li class="nav-item" style="border-radius:.5rem;"
+            data-bind="css: { 'ml-2' : $index() !== 0, 'bg-light': $root.game().history().selectedRound() !== $data.id, 'bg-warning': $root.game().history().selectedRound() === $data.id }">
+            <a class="nav-link text-dark" href="#"
+               data-bind="click:function() { $root.game().history().selectRound($data.id); },text:$data.getRoundName()"></a>
+        </li>
+        <!-- /ko -->
+    </ul>
+</div>
+<!-- ko if: $root.game().history().selectedRound() -->
+<div class="px-3">
+    <ul class="mb-3 list-unstyled d-inline-block" style="min-width:50%;">
+        <!-- ko foreach: $root.game().history().getTurnsForRound($root.game().history().selectedRound()) -->
+        <!-- ko if: $data.getActions().length > 0 -->
+        <div class="mb-3" style="border:1px solid #CCC;border-radius:.7rem;overflow:hidden;">
+            <ul class="list-unstyled ">
+                <li scope="col" class="text-white font-weight-normal bg-history-header px-3 py-1" style="font-size:1.2rem"
+                    data-bind="text: $root.game().state().playersById()[$data.playerId].name()">
+                </li>
+                <!-- ko foreach: $data.getActions() -->
+                <li class="p-2 px-3" style="border-top:1px solid #CCC;"
+                    data-bind="css: $index() % 2 ? 'bg-light' : '', text:$data.summary($root.game().state())"></li>
+                <!-- ko foreach: $data.details($root.game().state()) -->
+                <li class="p-1 pr-3" style=" padding-left: 50px !important;"
+                    data-bind="style: { 'border-top': $index() === 0 ? '1px solid #CCC' : '' }, css: 'bg-history-payout', text:$data"></li>
+                <!-- /ko -->
+                <!-- /ko -->
+            </ul>
+        </div>
+        <!-- /ko -->
+        <!-- /ko -->
+    </ul>
+</div>
+<!-- /ko -->

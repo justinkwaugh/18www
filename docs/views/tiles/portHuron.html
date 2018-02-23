@@ -1,0 +1,16 @@
+<svg style="width:126px;height:144px;">
+    <g fill-opacity="1" visibility="inherit" transform="translate(63,72)" pointer-events="none">
+
+        <circle cx="6" cy="-4" r="26" fill="white" stroke-width="1"></circle>
+        <circle cx="6" cy="-4" r="23" fill="white" stroke="black" stroke-width="1"></circle>
+        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->
+        <image xlink:href="" x="-14" y="-24" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->
+        <image xlink:href="" x="-14" y="-24" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+
+    </g>
+</svg>

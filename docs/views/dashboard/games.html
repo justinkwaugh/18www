@@ -1,0 +1,29 @@
+<div class="text-center pt-3 bg-dark">
+    <h2 class="text-white font-weight-light">Active Games</h2>
+    <div class="bg-light mt-3" style="width:100%">
+        <table class="table text-center bg-light m-0">
+            <thead>
+            <tr class="text-white bg-info">
+                <th scope="col" class="border-0 font-weight-light" style="font-size:18px;">Game</th>
+                <th scope="col" class="border-0 font-weight-light" style="font-size:18px;">Name</th>
+                <th scope="col" class="border-0 font-weight-light" style="font-size:18px;">Num Players</th>
+                <th scope="col" class="border-0 font-weight-light" style="font-size:18px;">Start Date</th>
+                <th scope="col" class="border-0 font-weight-light" style="font-size:18px;">Round</th>
+                <th scope="col" class="border-0 font-weight-light" style="font-size:18px;">Turn</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- ko foreach: $data.availableGames() -->
+            <tr style="cursor:pointer" data-bind="css: $index() % 2 === 0? 'bg-light' : 'bg-table-row-medium', click: function() { $root.launchGame($data);}">
+                <td class="table-col-spacer p-3 border-0" data-bind="text: type"></td>
+                <td class="table-col-spacer p-3 border-0 " data-bind="text: name"></td>
+                <td class="table-col-spacer p-3 border-0" data-bind="text: players"></td>
+                <td class="table-col-spacer p-3 border-0" data-bind="text: startDate"></td>
+                <td class="table-col-spacer p-3 border-0" data-bind="text: round"></td>
+                <td class="table-col-spacer p-3 border-0" data-bind="text: turn"></td>
+            </tr>
+            <!-- /ko -->
+            </tbody>
+        </table>
+    </div>
+</div>

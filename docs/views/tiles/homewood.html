@@ -1,0 +1,43 @@
+<svg style="width:126px;height:144px;">
+    <g fill-opacity="1" visibility="inherit" transform="translate(63,72)" pointer-events="none">
+        <!-- ko foreach: $data.connections -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d=""
+              data-bind="attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }"></path>
+        <!-- /ko -->
+
+        <circle cx="0" cy="0" r="26" fill="white" stroke-width="1"></circle>
+
+        <!-- ko foreach: $data.connections -->
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="" data-bind="attr: { d: $parent.getDrawingInstructions($data,true) }"></path>
+        <!-- /ko -->
+
+
+        <!-- ko foreach: $data.getRoutedCityColors() -->
+        <circle cx="0" cy="0" r="26" fill="none" stroke-width="8"
+                data-bind="attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }"></circle>
+        <!-- /ko -->
+
+        <!-- ko foreach: $data.getRoutedConnections() -->
+        <path fill="none" pointer-events="none" stroke="white" stroke-width="13"
+              d=""
+              data-bind="attr: { d: $parent.getDrawingInstructions($data), stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }"></path>
+        <path fill="none" pointer-events="none" stroke="black" stroke-width="9"
+              d="" data-bind="attr: { d: $parent.getDrawingInstructions($data,true) }"></path>
+        <!-- /ko -->
+
+
+        <!-- ko if: $data.cities[7].maxTokens === 1 -->
+        <circle cx="0" cy="0" r="23" fill="white" stroke="black" stroke-width="1"></circle>
+        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->
+        <image xlink:href="" x="-20" y="-20" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->
+        <image xlink:href="" x="-20" y="-20" height="40px" width="40px"
+               data-bind="attr: {'xlink:href': 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)"></image>
+        <!-- /ko -->
+        <!-- /ko -->
+    </g>
+</svg>
