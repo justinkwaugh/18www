@@ -46,6 +46,14 @@ class Dashboard {
         this.activePanel = ko.observable(ActivePanelIDs.ACTIVE_GAMES);
         this.ActivePanelIDs = ActivePanelIDs;
         this.rootPath = '/';
+        this.rootPathForHistory = ko.computed(()=>{
+            if(this.rootPath === '/') {
+                return this.rootPath;
+            }
+            else {
+                return this.rootPath.substring(0,this.rootPath.length-1);
+            }
+        });
 
         Events.on('newGameCreated', (record) => {
             this.loadAvailableGames();
@@ -92,7 +100,7 @@ class Dashboard {
             }
         }
 
-        History.replaceState({}, 'Games', this.rootPath);
+        History.replaceState({}, 'Games', this.rootPathForHistory());
     }
 
     setActivePanel(newPanel) {
@@ -105,7 +113,7 @@ class Dashboard {
 
     showDashboard() {
         this.resetGame();
-        History.pushState({}, 'Games', this.rootPath);
+        History.pushState({}, 'Games', this.rootPathForHistory());
     }
 
     launchGame(record, fromState) {
@@ -115,7 +123,7 @@ class Dashboard {
         game.sequence.restore();
         Events.emit('stateUpdated');
         if (!fromState) {
-            History.pushState({game: record.id}, record.name, this.rootPath + '?game=' + record.id);
+            History.pushState({game: record.id}, record.name, this.rootPathForHistory() + '?game=' + record.id);
         }
     }
 
@@ -138,7 +146,7 @@ class Dashboard {
             state: state.serialize()
         };
         const element = document.createElement('a');
-        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + LZString.compressToEncodedURIComponent(download));
+        element.setAttribute('href', 'data:text/plain;charset=utf-8,' + LZString.compressToEncodedURIComponent(JSON.stringify(download)));
         element.setAttribute('download', '1846-' + record.name + '-state');
         element.style.display = 'none';
         document.body.appendChild(element);

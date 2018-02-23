@@ -10,6 +10,7 @@ import CurrentGame from 'common/game/currentGame';
 import TerrainTypes from '1846/config/terrainTypes';
 import CompanyIDs from '1846/config/companyIds';
 import OffBoardIds from '1846/config/offBoardIds';
+import ko from 'knockout';
 
 const RowLetters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'];
 
@@ -222,6 +223,7 @@ class Grid extends BaseGrid {
 
         this.routing = false;
         this.route = null;
+        this.lastTouchedCell = null;
         this.connectNeighbors();
         if (needToInitializeState) {
             this.addTokens(state);
@@ -517,6 +519,26 @@ class Grid extends BaseGrid {
 
     static getIDForRowAndColumn(row, column) {
         return RowLetters[row] + (column * 2 + ((row % 2) ? 2 : 3));
+    }
+
+    onTouchStart(cell) {
+        this.onMouseDown(cell);
+        if(this.routing) {
+            this.lastTouchedCell = cell;
+        }
+    }
+
+    onTouchMove(originalCell, event) {
+        const element = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
+        const object = ko.dataFor(element);
+        if(object !== this.lastTouchedCell) {
+            this.lastTouchedCell = object;
+            this.onMouseOver(object);
+        }
+    }
+
+    onTouchEnd(cell) {
+        this.finishRoute();
     }
 
     onMouseOver(cell) {

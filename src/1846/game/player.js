@@ -138,7 +138,7 @@ class Player extends BasePlayer {
             return false;
         }
         return _.find(round.getActions(), action => {
-            return action.getTypeName() === 'SellShares' && action.companyId === companyId;
+            return action.getTypeName() === 'SellShares' && action.companyId === companyId && action.playerId === this.id;
         });
     }
 
