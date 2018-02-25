@@ -120,7 +120,7 @@ class Cell {
             }
 
             const tokenableCities = _.filter(openCities,
-                                             cityId => this.depthFirstSearchForStation(companyId, cityId, []));
+                                             cityId => this.depthFirstSearchForStation(companyId, cityId, {},null,[]));
             return tokenableCities;
 
         });
@@ -327,7 +327,7 @@ class Cell {
                 return;
             }
 
-            this.checkNeighborConnection(null, edgeIndex, visited, companies)
+            this.checkNeighborConnection(null, edgeIndex, visited, companies, [])
         });
 
         return _.uniq(companies);
@@ -536,7 +536,7 @@ class Cell {
                                                                           const isEdgeValid = this.checkNeighborConnection(
                                                                               company.id,
                                                                               connectionStart,
-                                                                              visited);
+                                                                              visited, null, [this.id + '-' + this.getConnectionId(connection)]);
                                                                           if (isEdgeValid) {
                                                                               // console.log('Connection found');
                                                                               validEdges[connectionStart] = true;
@@ -549,7 +549,7 @@ class Cell {
                                                                           const isEdgeValid = this.checkNeighborConnection(
                                                                               company.id,
                                                                               connectionEnd,
-                                                                              visited);
+                                                                              visited, null, [this.id + '-' + this.getConnectionId(connection)]);
                                                                           if (isEdgeValid) {
                                                                               // console.log('Connection found');
                                                                               validEdges[connectionEnd] = true;
@@ -606,18 +606,18 @@ class Cell {
             let connected = false;
 
             if (connection[0] < 7) {
-                connected = this.checkNeighborConnection(companyId, connection[0], visited);
+                connected = this.checkNeighborConnection(companyId, connection[0], visited, null, []);
             }
 
             if (!connected && connection[1] < 7) {
-                connected = this.checkNeighborConnection(companyId, connection[1], visited);
+                connected = this.checkNeighborConnection(companyId, connection[1], visited, null, []);
             }
             return connected;
         });
 
     }
 
-    checkNeighborConnection(companyId, edgeIndex, visited, companies) {
+    checkNeighborConnection(companyId, edgeIndex, visited, companies, currentSearchPath) {
 
         const hasLocalStation = this.tile().hasTokenForCompany(companyId);
         if (hasLocalStation) {
@@ -636,10 +636,10 @@ class Cell {
         }
 
         return neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint,
-                                                   visited, companies);
+                                                   visited, companies, currentSearchPath);
     }
 
-    depthFirstSearchForStation(companyId, connectionStart, visited, companies) {
+    depthFirstSearchForStation(companyId, connectionStart, visited, companies, currentSearchPath) {
         // console.log('In Cell ' + this.id + ' starting at connection ' + connectionStart);
         const connections = _.map(this.tile().getConnectionsToPoint(connectionStart), connection => {
             return connection[0] === connectionStart ? connection : [connection[1], connection[0]];
@@ -648,12 +648,16 @@ class Cell {
         let found = false;
 
         _.each(connections, connection => {
+            const directionalConnectionId = this.id + '-' + connection[0] + '-' + connection[1]; //this.getConnectionId(connection);
             const connectionId = this.id + '-' + this.getConnectionId(connection);
-            if (visited[connectionId]) {
+            if (visited[directionalConnectionId] || _.indexOf(currentSearchPath, connectionId) >= 0) {
                 return;
             }
 
-            visited[connectionId] = true;
+            visited[directionalConnectionId] = true;
+            if(currentSearchPath) {
+                currentSearchPath.push(connectionId);
+            }
 
             // start a new search from the connection point
             if (connection[1] > 6) {
@@ -662,6 +666,7 @@ class Cell {
                 if (companyId && this.tile().hasTokenForCompany(companyId, connection[1])) {
                     // console.log('Found token!');
                     found = true;
+                    // console.log('current search path: ' + JSON.stringify(currentSearchPath));
                     return false;
                 }
                 else if (!companyId) {
@@ -674,7 +679,7 @@ class Cell {
                 }
 
                 // console.log('Starting new search on this tile from local city ' + connection[1]);
-                found = this.depthFirstSearchForStation(companyId, connection[1], visited, companies);
+                found = this.depthFirstSearchForStation(companyId, connection[1], visited, companies, currentSearchPath);
             }
             else {
                 const connectionEnd = Tile.getOffsetIndexForPosition(connection[1], this.tile().position());
@@ -690,7 +695,7 @@ class Cell {
                     found = neighbor.depthFirstSearchForStation(companyId,
                                                                 neighborConnectionPoint,
                                                                 visited,
-                                                                companies);
+                                                                companies, currentSearchPath);
                 }
                 else {
                     // console.log('Neighbor not connected');
@@ -702,6 +707,9 @@ class Cell {
             }
 
         });
+        if(currentSearchPath) {
+            currentSearchPath.pop();
+        }
 
         return found;
 
