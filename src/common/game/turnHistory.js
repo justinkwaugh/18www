@@ -41,6 +41,10 @@ class TurnHistory extends Serializable {
         turn.undo();
     }
 
+    getTurn(id) {
+        return this.currentTurn() && this.currentTurn().id === id ? this.currentTurn() : _.find(this.turns(), {id});
+    }
+
     getCurrentTurn() {
         return this.currentTurn();
     }
@@ -53,8 +57,8 @@ class TurnHistory extends Serializable {
         return this.turns().length + 1;
     }
 
-    getTurnsForRange(startIndex, endIndex) {
-        return _.filter(this.turns(), turn=>turn.isWithinRange(startIndex, endIndex));
+    getTurnsForRange(startIndex, endIndex, playerId) {
+        return _.filter(this.turns(), turn=>turn.isWithinRange(startIndex, endIndex) && (!playerId || turn.playerId === playerId));
     }
 
 }

@@ -236,6 +236,11 @@ class Player extends BasePlayer {
     getPrivateNames() {
         return _.map(this.getPrivates(), 'name' );
     }
+
+    getActionsForCurrentRound() {
+        const round = CurrentGame().state().roundHistory.getCurrentRound();
+        return _(CurrentGame().state().turnHistory.getTurnsForRange(round.actionStartIndex, round.actionEndIndex, this.id)).map(turn=>turn.getActions()).flatten().value();
+    }
 }
 
 Player.registerClass();

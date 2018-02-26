@@ -8,6 +8,7 @@ import PrivateIncome from '1846/actions/privateIncome';
 import CurrentGame from 'common/game/currentGame';
 import Events from 'common/util/events';
 import CompanyIDs from '1846/config/companyIds';
+import UpdateSequence from '1846/actions/updateSequence';
 
 import _ from 'lodash';
 class Sequence {
@@ -16,6 +17,18 @@ class Sequence {
         CurrentGame().state().turnHistory.currentTurn().undoLast();
         CurrentGame().saveLocalState();
         Events.emit('undo');
+    }
+
+    static undoToRoundStart(roundId) {
+        this.undoToIndex(CurrentGame().state().roundHistory.getRound(roundId).actionStartIndex);
+    }
+
+    static undoToTurnStart(turnId) {
+        this.undoToIndex(CurrentGame().state().turnHistory.getTurn(turnId).actionStartIndex);
+    }
+
+    static undoToIndex(index) {
+
     }
 
     static interruptTurn(interruptionType) {
@@ -60,16 +73,9 @@ class Sequence {
         CurrentGame().saveLocalState();
     }
 
-    static endGame() {
-        const state = CurrentGame().state();
-        state.roundHistory.commitRound();
-        state.winner(_.maxBy(state.players(), player=>player.getNetWorth()).id);
-    }
-
     static nextOutOfTurn() {
         const game = CurrentGame();
         const state = game.state();
-
 
         // Train limit checks
         const companyWithTooManyTrains = _.find(state.publicCompanies, company => {
@@ -91,6 +97,12 @@ class Sequence {
         state.currentPlayerIndex(nextPresidentIndex);
     }
 
+    static endGame() {
+        const state = CurrentGame().state();
+        state.roundHistory.commitRound();
+        new UpdateSequence({winner:_.maxBy(state.players(), player=>player.getNetWorth()).id}).execute(state);
+    }
+
     static nextRoundPhaseAndTurn() {
         const game = CurrentGame();
         const state = game.state();
@@ -99,12 +111,12 @@ class Sequence {
 
         if (!currentRound) {
             state.roundHistory.startRound(RoundTypes.PRIVATE_DRAFT, 1);
-            state.currentPlayerIndex(state.players().length - 1);
+            new UpdateSequence({playerIndex: state.players().length - 1}).execute(state);
             game.privateDraft(new PrivateDraft());
         }
         else if (currentRound.roundType === RoundTypes.PRIVATE_DRAFT) {
             if (state.undraftedPrivateIds().length > 0) {
-                state.currentPlayerIndex(Sequence.nextPlayerIndex(null, true));
+                new UpdateSequence({playerIndex: Sequence.nextPlayerIndex(null, true)}).execute(state);
                 game.privateDraft(new PrivateDraft());
             }
             else {
@@ -117,7 +129,7 @@ class Sequence {
                 Sequence.onStockRoundEnd(game);
             }
             else {
-                state.currentPlayerIndex(nextPlayer);
+                new UpdateSequence({playerIndex: nextPlayer}).execute(state);
             }
         }
         else if (currentRound.roundType === RoundTypes.OPERATING_ROUND_1 || currentRound.roundType === RoundTypes.OPERATING_ROUND_2) {
@@ -135,7 +147,7 @@ class Sequence {
     static onPrivateDraftEnd(game) {
         const state = game.state();
         state.roundHistory.commitRound();
-        state.currentPlayerIndex(0);
+        new UpdateSequence({playerIndex: 0}).execute(state);
         game.privateDraft(null);
         game.stockRound(new StockRound());
         state.roundHistory.startRound(RoundTypes.STOCK_ROUND, 1);
@@ -184,10 +196,8 @@ class Sequence {
             else {
                 const currentRoundNumber = state.roundNumber();
                 state.roundHistory.commitRound();
-                state.currentCompanyId(null);
-                state.currentPlayerIndex(state.priorityDealIndex());
                 state.roundHistory.startRound(RoundTypes.STOCK_ROUND, currentRoundNumber + 1);
-                state.firstPassIndex(null);
+                new UpdateSequence({playerIndex: state.priorityDealIndex(), companyId: null, firstPassIndex:null}).execute(state);
                 game.stockRound(new StockRound());
                 game.showOwnership();
             }
@@ -208,22 +218,24 @@ class Sequence {
         const steamboatOwner = Sequence.getSteamboatOwner();
         if(steamboatOwner) {
             const steamboatOwnerIndex = _.findIndex(state.players(), player => player.id === steamboatOwner.id);
-            state.currentCompanyId(null);
-            state.currentPlayerIndex(steamboatOwnerIndex);
+            new UpdateSequence({playerIndex: steamboatOwnerIndex, companyId: null}).execute(state);
             return true;
         }
         return false;
     }
 
     static setNextCompanyAndPlayer(state, companyIndex) {
-        state.currentCompanyId(state.operatingOrder()[companyIndex]);
-        CurrentGame().selectedCompany(state.currentCompanyId());
-        let presidentPlayerId = state.getCompany(state.currentCompanyId()).president();
+        const companyId = state.operatingOrder()[companyIndex];
+        const nextCompany = state.getCompany(companyId);
+
+        let presidentPlayerId = nextCompany.president();
         if (!presidentPlayerId) {
             presidentPlayerId = _(state.players()).reject(player => player.bankrupt()).sample().id;
         }
         const nextPresidentIndex = _.findIndex(state.players(), player => player.id === presidentPlayerId);
-        state.currentPlayerIndex(nextPresidentIndex);
+
+        new UpdateSequence({playerIndex: nextPresidentIndex, companyId}).execute(state);
+        CurrentGame().selectedCompany(state.currentCompanyId());
     }
 
     static nextPlayerIndex(fromIndex, reverse) {

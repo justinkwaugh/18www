@@ -2,6 +2,7 @@ import ActionGroup from 'common/game/actionGroup';
 import CurrentGame from 'common/game/currentGame';
 import _ from 'lodash';
 import ko from 'knockout';
+import short from 'short-uuid';
 
 class Turn extends ActionGroup {
 
@@ -11,6 +12,7 @@ class Turn extends ActionGroup {
 
         const state = definition.state;
 
+        this.id = definition.id || short().new();
         this.number = definition.number;
         this.playerId = definition.playerId || state.currentPlayerId();
         this.actionGroups = definition.actionGroups || [];

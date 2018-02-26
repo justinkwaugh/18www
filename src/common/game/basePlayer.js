@@ -3,6 +3,8 @@ import short from 'short-uuid';
 import _ from 'lodash';
 import Serializable from 'common/model/serializable';
 import ValidationError from 'common/game/validationError';
+import CompanyTypes from 'common/model/companyTypes';
+import CurrentGame from 'common/game/currentGame';
 
 class BasePlayer extends Serializable {
     constructor(definition) {
@@ -95,6 +97,10 @@ class BasePlayer extends Serializable {
     removePrivate(id) {
         const privates = this.certificates.remove(cert=> cert.companyId === id);
         return privates.length > 0 ? privates[0] : null;
+    }
+
+    getOwnedPublicCompanies() {
+        return _(this.ownedCompanyIds()).map(id=>CurrentGame().state().getCompany(id)).filter({type: CompanyTypes.PUBLIC}).value();
     }
 
     toJSON() {
