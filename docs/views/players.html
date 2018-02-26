@@ -1,7 +1,7 @@
 <!-- ko foreach: $data.players() -->
 <div class="card d-inline-flex text-center pr-3 pl-3 pt-1 pb-1 rounded-0 border-bottom-0 border-right-0"
      style="min-width:10rem;cursor:pointer;height:100%;"
-     data-bind="css: $parent.currentPlayerId() !== $data.id ? 'bg-light text-dark' : 'bg-warning text-dark'">
+     data-bind="css: $parent.currentPlayerId() !== $data.id ? 'bg-light text-dark' : 'bg-warning text-dark', popover: $data.popoverParams">
     <div class="d-inline-flex justify-content-center align-items-center">
         <!-- ko if: $data.id === $root.game().state().priorityDealPlayerId() -->
         <img style="height:15px;margin-right:10px;" data-bind="attr: { src: $root.rootPath + 'images/pd.png' }"/><!-- /ko --><h5

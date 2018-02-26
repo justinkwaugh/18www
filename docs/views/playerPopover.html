@@ -1,13 +1,77 @@
-<div>
-    <h3 data-bind="text: user().username"></h3>
-
-    <ul class="nav nav-tabs">
-        <li class="nav-item">
-            <a class="nav-link active" href="#">Status</a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#">Turn Summary</a>
-        </li>
-    </ul>
-
+<div class="text-center" style="min-width:150px;max-width:280px;">
+    <!-- ko if: getOwnedPublicCompanies().length > 0 -->
+    <div class="card mb-2" style="overflow:hidden;border-radius:.7rem;border:3px solid #f8f9fa;">
+        <table class="table text-center m-0">
+            <tbody>
+            <tr>
+                <th colspan="2" scope="col" style="height:10px;"
+                    class="border-0 font-weight-normal p-0 bg-secondary text-white"
+                    data-bind="css: 'bg-' + $data.id + ' text-' + $data.id">Shares
+                </th>
+            </tr>
+            <!-- ko foreach: getOwnedPublicCompanies() -->
+            <tr>
+                <td class="border-0 font-weight-normal  p-0" scope="row"
+                    data-bind="css: $root.game().state().currentCompanyId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row-medium' : 'bg-light'">
+                    <div class="p-1 pl-2 pr-2">
+                        <div data-bind="text:$data.nickname"></div>
+                    </div>
+                </td>
+                <td class="pt-1 pb-1 border-0 "
+                    data-bind="css: $root.game().state().currentCompanyId() === $data.id ? 'bg-warning' : $index() % 2 ? 'bg-table-row-medium' : 'bg-light'">
+                    <div data-bind="text:$parent.numSharesOwnedOfCompany($data.id)"></div>
+                </td>
+            </tr>
+            <!-- /ko -->
+            </tbody>
+        </table>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: getPrivates().length > 0 -->
+    <div class="card mb-2" style="overflow:hidden;border-radius:.7rem;border:3px solid #f8f9fa;">
+        <table class="table text-center m-0">
+            <tbody>
+            <tr>
+                <th scope="col" style="height:10px;" class="border-0 font-weight-normal p-0 bg-secondary text-white"
+                    data-bind="css: 'bg-' + $data.id + ' text-' + $data.id">Privates
+                </th>
+            </tr>
+            <!-- ko foreach: _.sortBy(getPrivates(), 'name') -->
+            <tr>
+                <td class="border-0 font-weight-normal p-0" scope="row"
+                    data-bind="css: $index() %2 ? 'bg-table-row-medium' : 'bg-light'">
+                    <div class="p-1 pl-2 pr-2">
+                        <div data-bind="text:$data.name"></div>
+                    </div>
+                </td>
+            </tr>
+            <!-- /ko -->
+            </tbody>
+        </table>
+    </div>
+    <!-- /ko -->
+    <!-- ko if: $root.game().state().isStockRound() && getActionsForCurrentRound().length > 0 -->
+    <div class="card mb-2" style="overflow:hidden;border-radius:.7rem;border:3px solid #f8f9fa;">
+        <table class="table text-center m-0">
+            <tbody>
+            <tr>
+                <th scope="col" style="height:10px;"
+                    class="border-0 font-weight-normal p-0 bg-secondary text-white"
+                    data-bind="">Round Actions
+                </th>
+            </tr>
+            <!-- ko foreach: getActionsForCurrentRound() -->
+            <tr>
+                <td class="border-0 font-weight-normal p-0" scope="row"
+                    data-bind="css: $index() %2 ? 'bg-table-row-medium' : 'bg-light'">
+                    <div class="p-1 px-3">
+                        <div data-bind="text:$data.summary($root.game().state())"></div>
+                    </div>
+                </td>
+            </tr>
+            <!-- /ko -->
+            </tbody>
+        </table>
+    </div>
+    <!-- /ko -->
 </div>
