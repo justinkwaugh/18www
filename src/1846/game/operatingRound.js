@@ -375,6 +375,7 @@ class OperatingRound {
             return false;
         }
 
+        console.log('can steamboat');
         return true;
     }
 
@@ -405,6 +406,10 @@ class OperatingRound {
 
     canUsePrivates() {
         if (!CurrentGame().state().currentCompany() || this.midInterruption()) {
+            return false;
+        }
+
+        if(CurrentGame().state().currentCompany().closed()) {
             return false;
         }
 
@@ -495,6 +500,10 @@ class OperatingRound {
             return false;
         }
         const currentCompany = CurrentGame().state().currentCompany();
+
+        if (currentCompany.closed()) {
+            return false;
+        }
 
         if (currentCompany.type !== CompanyTypes.PUBLIC) {
             return false;
@@ -804,6 +813,11 @@ class OperatingRound {
         }
 
         const company = CurrentGame().state().currentCompany();
+
+        if(company.closed()) {
+            return false;
+        }
+
         if (!company.president()) {
             return false;
         }
@@ -996,7 +1010,7 @@ class OperatingRound {
             return true;
         }
         const company = state.currentCompany();
-        return (!company && this.hasPlacedSteamboatThisTurn()) || (this.midInterruption() && !this.mustReturnTrain()) || (this.hasRunRoutesThisTurn() && (company.numTrainsForLimit() > 0 || this.hasGoneBankrupt() || this.noPresidentAndCannotBuyTrain()));
+        return (!company && this.hasPlacedSteamboatThisTurn()) || (this.midInterruption() && !this.mustReturnTrain()) || (this.hasRunRoutesThisTurn() && (company.closed() || company.numTrainsForLimit() > 0 || this.hasGoneBankrupt() || this.noPresidentAndCannotBuyTrain()));
     }
 
     getTrainsAvailableToForceBuy() {
