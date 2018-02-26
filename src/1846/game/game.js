@@ -17,6 +17,7 @@ import History from '1846/game/history';
 import RoundTypes from '1846/config/roundTypes';
 import LZString from 'lz-string';
 import CurrentGame from 'common/game/currentGame';
+import $ from 'jquery';
 
 const ActivePanelIDs = {
     MAP: 'map',
@@ -39,11 +40,14 @@ class Game extends BaseGame {
         this.operatingRound = ko.observable(new OperatingRound());
         this.history = ko.observable(new History());
         this.zoom = ko.observable(.8);
+        this.oldZoom = ko.observable();
         this.selectedCompany = ko.observable();
 
         this.activePanel = ko.observable(ActivePanelIDs.MAP);
         this.ActivePanelIDs = ActivePanelIDs;
         this.sequence = Sequence;
+        this.touchMap = ko.observable();
+
     }
 
     selectCompany(companyId) {
@@ -166,8 +170,33 @@ class Game extends BaseGame {
         this.record.save(this.state());
     }
 
+    enableTouchMap() {
+        this.touchMap(true);
+        this.shrinkMapToFitGrid();
+
+    }
+
+    disableTouchMap() {
+        this.touchMap(false);
+        this.restoreZoom();
+    }
+
     isDraftRevealed() {
         return this.privateDraft() && this.privateDraft().revealed();
+    }
+
+    shrinkMapToFitGrid() {
+        const gridWidth = 1400;
+        const map = $('#map');
+        map.scrollLeft(0);
+        const mapWidth = map.width();
+
+        this.oldZoom(this.zoom());
+        this.zoom(mapWidth / gridWidth);
+    }
+
+    restoreZoom() {
+        this.zoom(this.oldZoom());
     }
 
 }

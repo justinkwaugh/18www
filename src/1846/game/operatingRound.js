@@ -17,6 +17,7 @@ import DeclareBankruptcy from '1846/actions/declareBankruptcy';
 import ForceIssueCloseCompany from '1846/actions/forceIssueCloseCompany';
 import ReturnTrain from '1846/actions/returnTrain';
 import PhaseIDs from '1846/config/phaseIds';
+import BrowserDetect from 'common/util/browserDetect';
 
 const Actions = {
     ISSUE_SHARES: 'issue',
@@ -345,9 +346,9 @@ class OperatingRound {
             }
         });
 
-        Events.on('undo', ()=> {this.undoHandler()});
-        Events.on('turnEnd', ()=> {this.turnEndHandler()});
-        Events.on('stateUpdated',()=> {this.stateUpdatedHandler()});
+        Events.on('undo', () => {this.undoHandler()});
+        Events.on('turnEnd', () => {this.turnEndHandler()});
+        Events.on('stateUpdated', () => {this.stateUpdatedHandler()});
     }
 
     undoHandler() {
@@ -1072,6 +1073,9 @@ class OperatingRound {
             if (company.type === CompanyTypes.INDEPENDANT) {
                 this.selectedAllocation(Allocations.HALF);
             }
+            if (BrowserDetect.supportTouch()) {
+                CurrentGame().enableTouchMap();
+            }
 
         }
         else if (this.selectedAction() === Actions.BUY_TRAINS) {
@@ -1210,6 +1214,10 @@ class OperatingRound {
         this.selectedSteamboatCompany(null);
         Events.emit('clearRoutes');
         Events.emit('cancelTilePreview');
+
+        if (BrowserDetect.supportTouch()) {
+            CurrentGame().disableTouchMap();
+        }
     }
 
     commit() {

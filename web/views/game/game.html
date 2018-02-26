@@ -77,21 +77,19 @@
         </div>
 
         <div data-bind="visible: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP">
-            <div class="row">
-                <div class="col bg-dark">
+                <div class="col bg-dark p-0" data-bind="css: $data.game().touchMap() ? '' : 'pr-2'">
                     <div class="d-flex">
-                        <div>
+                        <div data-bind="visible:!$data.game().touchMap()">
                             <div style="min-width:220px;"
                                  data-bind="template: { name: 'views/companies', data: $data.game().state() }"></div>
                         </div>
-                        <div style="position:relative;width:100%; overflow:scroll;">
-
+                        <div id="map" style="position:relative;width:100%;" data-bind="style: { overflow: $data.game().touchMap() ? 'hidden' : 'auto'}, css: $data.game().touchMap() ? 'mx-0' : ''">
                             <div class="mt-2"
                                  style="position:relative;transform-origin:0 0;transform:scale(.817);width:1836px;height:1186px;"
                                  data-bind="style: { transform: 'scale(' + $data.game().zoom() + ')' }">
                                 <img style="width:1836px;height:1186px;"
                                      data-bind="attr: { src: $root.rootPath + 'images/1846-map.jpg' }"/>
-                                <div style="position:absolute;top:0px;left:36px;height:1083px;width:1370px;"
+                                <div style="position:absolute;top:0;left:36px;height:1083px;width:1370px;"
                                      data-bind="template: {name:'views/grid', data: $data.game().grid()}"></div>
                                 <div style="position:absolute;top:358px;left:1411px;height:437px;width:397px;"
                                      data-bind="template: {name:'views/market', data: $data.game().state()}"></div>
@@ -118,7 +116,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
 
         <div data-bind="if: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY">
