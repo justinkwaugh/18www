@@ -27393,6 +27393,10 @@ class Company extends __WEBPACK_IMPORTED_MODULE_6_common_model_serializable__["a
         return this.numTrainsForLimit() > __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().trainLimit();
     }
 
+    isAtTrainLimit() {
+        return this.numTrainsForLimit() === __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().trainLimit();
+    }
+
     getRunnableTrains() {
         return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(this.trains(), train => !train.purchased && !train.rusted());
     }
@@ -40828,7 +40832,11 @@ class OperatingRound {
             return false;
         }
 
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().currentPlayer().getPrivates().length > 0 && company.cash() > 0;
+        if (company.cash() <= 0) {
+            return false;
+        }
+
+        return this.getPurchaseablePrivates().length > 0 && company.cash() > 0;
     }
 
     canUsePrivates() {
@@ -41013,6 +41021,14 @@ class OperatingRound {
         });
         skipAction.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state());
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().saveLocalState();
+    }
+
+    getPurchaseablePrivates() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.reject(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().currentPlayer().getPrivates(), privateCo => {
+            if (privateCo.type === __WEBPACK_IMPORTED_MODULE_14_common_model_companyTypes__["a" /* default */].INDEPENDANT && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().currentCompany().isAtTrainLimit()) {
+                return true;
+            }
+        });
     }
 
     getCompaniesWithTrains() {
@@ -41392,7 +41408,7 @@ class OperatingRound {
             return true;
         }
         const company = state.currentCompany();
-        return !company && this.hasPlacedSteamboatThisTurn() || this.hasRunRoutesThisTurn() && (company.numTrainsForLimit() > 0 || this.hasGoneBankrupt() || this.noPresidentAndCannotBuyTrain());
+        return !company && this.hasPlacedSteamboatThisTurn() || this.midInterruption() && !this.mustReturnTrain() || this.hasRunRoutesThisTurn() && (company.numTrainsForLimit() > 0 || this.hasGoneBankrupt() || this.noPresidentAndCannotBuyTrain());
     }
 
     getTrainsAvailableToForceBuy() {
@@ -44353,7 +44369,7 @@ class Dashboard {
         //     this.fileInput.addEventListener('change', (e) => {
         //         this.loadState();
         //     });
-        // },1000);
+        // },2000);
 
         __WEBPACK_IMPORTED_MODULE_9_common_util_events__["a" /* default */].emit('app-ready');
     }
@@ -49186,7 +49202,7 @@ module.exports = "module.exports = \"<div class=\\\"text-center pt-2\\\">\\n    
 /* 103 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<header>\\n    <nav class=\\\"navbar navbar-expand-lg navbar-light border border-0 m-0 p-0\\\">\\n        <span class=\\\"navbar-brand ml-3\\\">\\n            <a href=\\\"/\\\" class=\\\"h1 text-secondary\\\">18WWW</a>\\n        </span>\\n    </nav>\\n\\n<div class=\\\"border border-right-0 border-left-0 pl-3 pr-3 bg-light\\\">\\n    <ul class=\\\"nav\\\">\\n<li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: activePanel() === ActivePanelIDs.ACTIVE_GAMES ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link \\\"\\n                        data-bind=\\\"click: function() {setActivePanel(ActivePanelIDs.ACTIVE_GAMES)}, css: activePanel() === ActivePanelIDs.ACTIVE_GAMES ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Active Games</a>\\n            </li>\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: activePanel() === ActivePanelIDs.COMPLETED_GAMES ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link\\\"\\n                        data-bind=\\\"click: function() {setActivePanel(ActivePanelIDs.COMPLETED_GAMES)}, css: activePanel() === ActivePanelIDs.COMPLETED_GAMES ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Completed Games</a>\\n            </li>\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: activePanel() === ActivePanelIDs.NEW_GAME ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link\\\"\\n                        data-bind=\\\"click: function() {setActivePanel(ActivePanelIDs.NEW_GAME)}, css: activePanel() === ActivePanelIDs.NEW_GAME ? 'active text-white font-weight-bold' : 'text-secondary' \\\">New Game</a>\\n            </li>\\n    </ul>\\n</div>\\n</header>\\n\\n<div class=\\\"container-fluid px-0\\\">\\n    <div data-bind=\\\"template: { name: 'views/dashboard/games' }, visible: activePanel() === ActivePanelIDs.ACTIVE_GAMES\\\"></div>\\n    <div data-bind=\\\"template: { name: 'views/dashboard/newGame', data: $data.newGameForm }, visible: activePanel() === ActivePanelIDs.NEW_GAME\\\"></div>\\n</div>\\n\\n<!--<div>-->\\n      <!--Select a text file:-->\\n      <!--<input type=\\\"file\\\" id=\\\"fileInput\\\">-->\\n    <!--</div>-->\";";
+module.exports = "module.exports = \"<header>\\n    <nav class=\\\"navbar navbar-expand-lg navbar-light border border-0 m-0 p-0\\\">\\n        <span class=\\\"navbar-brand ml-3\\\">\\n            <a href=\\\"/\\\" class=\\\"h1 text-secondary\\\">18WWW</a>\\n        </span>\\n    </nav>\\n\\n<div class=\\\"border border-right-0 border-left-0 pl-3 pr-3 bg-light\\\">\\n    <ul class=\\\"nav\\\">\\n<li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: activePanel() === ActivePanelIDs.ACTIVE_GAMES ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link \\\"\\n                        data-bind=\\\"click: function() {setActivePanel(ActivePanelIDs.ACTIVE_GAMES)}, css: activePanel() === ActivePanelIDs.ACTIVE_GAMES ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Active Games</a>\\n            </li>\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: activePanel() === ActivePanelIDs.COMPLETED_GAMES ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link\\\"\\n                        data-bind=\\\"click: function() {setActivePanel(ActivePanelIDs.COMPLETED_GAMES)}, css: activePanel() === ActivePanelIDs.COMPLETED_GAMES ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Completed Games</a>\\n            </li>\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: activePanel() === ActivePanelIDs.NEW_GAME ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link\\\"\\n                        data-bind=\\\"click: function() {setActivePanel(ActivePanelIDs.NEW_GAME)}, css: activePanel() === ActivePanelIDs.NEW_GAME ? 'active text-white font-weight-bold' : 'text-secondary' \\\">New Game</a>\\n            </li>\\n    </ul>\\n</div>\\n</header>\\n\\n<div class=\\\"container-fluid px-0\\\">\\n    <div data-bind=\\\"template: { name: 'views/dashboard/games' }, visible: activePanel() === ActivePanelIDs.ACTIVE_GAMES\\\"></div>\\n    <div data-bind=\\\"template: { name: 'views/dashboard/newGame', data: $data.newGameForm }, visible: activePanel() === ActivePanelIDs.NEW_GAME\\\"></div>\\n</div>\\n\\n<!--<div>-->\\n      <!--Select a text file:-->\\n      <!--<input type=\\\"file\\\" id=\\\"fileInput\\\">-->\\n<!--</div>-->\";";
 
 /***/ }),
 /* 104 */
