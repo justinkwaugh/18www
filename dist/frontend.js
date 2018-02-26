@@ -39514,6 +39514,7 @@ class RedeemShares extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" 
 
         this.companyId = args.companyId;
         this.count = args.count;
+        this.price = args.price;
     }
 
     doExecute(state) {
