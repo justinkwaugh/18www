@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 164);
+/******/ 	return __webpack_require__(__webpack_require__.s = 165);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -17156,7 +17156,7 @@
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20), __webpack_require__(162)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20), __webpack_require__(163)(module)))
 
 /***/ }),
 /* 1 */
@@ -23321,7 +23321,7 @@ class Prices {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_events__ = __webpack_require__(96);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_events__ = __webpack_require__(97);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_events___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_events__);
 
 
@@ -23360,7 +23360,7 @@ const CompanyTypes = {
 module.exports = (function(){
 
     var anyBase = __webpack_require__(34);
-    var uuidV4 = __webpack_require__(161);
+    var uuidV4 = __webpack_require__(162);
 
     var flickrBase58 = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
     var cookieBase90 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!#$%&'()*+-./:<=>?@[]^_`{|}~";
@@ -25422,2199 +25422,6 @@ const TileColorIDs = {
 
 /***/ }),
 /* 22 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var __WEBPACK_AMD_DEFINE_RESULT__;// Copyright (c) 2013 Pieroxy <pieroxy@pieroxy.net>
-// This work is free. You can redistribute it and/or modify it
-// under the terms of the WTFPL, Version 2
-// For more information see LICENSE.txt or http://www.wtfpl.net/
-//
-// For more information, the home page:
-// http://pieroxy.net/blog/pages/lz-string/testing.html
-//
-// LZ-based compression algorithm, version 1.4.4
-var LZString = (function() {
-
-// private property
-var f = String.fromCharCode;
-var keyStrBase64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-var keyStrUriSafe = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$";
-var baseReverseDic = {};
-
-function getBaseValue(alphabet, character) {
-  if (!baseReverseDic[alphabet]) {
-    baseReverseDic[alphabet] = {};
-    for (var i=0 ; i<alphabet.length ; i++) {
-      baseReverseDic[alphabet][alphabet.charAt(i)] = i;
-    }
-  }
-  return baseReverseDic[alphabet][character];
-}
-
-var LZString = {
-  compressToBase64 : function (input) {
-    if (input == null) return "";
-    var res = LZString._compress(input, 6, function(a){return keyStrBase64.charAt(a);});
-    switch (res.length % 4) { // To produce valid Base64
-    default: // When could this happen ?
-    case 0 : return res;
-    case 1 : return res+"===";
-    case 2 : return res+"==";
-    case 3 : return res+"=";
-    }
-  },
-
-  decompressFromBase64 : function (input) {
-    if (input == null) return "";
-    if (input == "") return null;
-    return LZString._decompress(input.length, 32, function(index) { return getBaseValue(keyStrBase64, input.charAt(index)); });
-  },
-
-  compressToUTF16 : function (input) {
-    if (input == null) return "";
-    return LZString._compress(input, 15, function(a){return f(a+32);}) + " ";
-  },
-
-  decompressFromUTF16: function (compressed) {
-    if (compressed == null) return "";
-    if (compressed == "") return null;
-    return LZString._decompress(compressed.length, 16384, function(index) { return compressed.charCodeAt(index) - 32; });
-  },
-
-  //compress into uint8array (UCS-2 big endian format)
-  compressToUint8Array: function (uncompressed) {
-    var compressed = LZString.compress(uncompressed);
-    var buf=new Uint8Array(compressed.length*2); // 2 bytes per character
-
-    for (var i=0, TotalLen=compressed.length; i<TotalLen; i++) {
-      var current_value = compressed.charCodeAt(i);
-      buf[i*2] = current_value >>> 8;
-      buf[i*2+1] = current_value % 256;
-    }
-    return buf;
-  },
-
-  //decompress from uint8array (UCS-2 big endian format)
-  decompressFromUint8Array:function (compressed) {
-    if (compressed===null || compressed===undefined){
-        return LZString.decompress(compressed);
-    } else {
-        var buf=new Array(compressed.length/2); // 2 bytes per character
-        for (var i=0, TotalLen=buf.length; i<TotalLen; i++) {
-          buf[i]=compressed[i*2]*256+compressed[i*2+1];
-        }
-
-        var result = [];
-        buf.forEach(function (c) {
-          result.push(f(c));
-        });
-        return LZString.decompress(result.join(''));
-
-    }
-
-  },
-
-
-  //compress into a string that is already URI encoded
-  compressToEncodedURIComponent: function (input) {
-    if (input == null) return "";
-    return LZString._compress(input, 6, function(a){return keyStrUriSafe.charAt(a);});
-  },
-
-  //decompress from an output of compressToEncodedURIComponent
-  decompressFromEncodedURIComponent:function (input) {
-    if (input == null) return "";
-    if (input == "") return null;
-    input = input.replace(/ /g, "+");
-    return LZString._decompress(input.length, 32, function(index) { return getBaseValue(keyStrUriSafe, input.charAt(index)); });
-  },
-
-  compress: function (uncompressed) {
-    return LZString._compress(uncompressed, 16, function(a){return f(a);});
-  },
-  _compress: function (uncompressed, bitsPerChar, getCharFromInt) {
-    if (uncompressed == null) return "";
-    var i, value,
-        context_dictionary= {},
-        context_dictionaryToCreate= {},
-        context_c="",
-        context_wc="",
-        context_w="",
-        context_enlargeIn= 2, // Compensate for the first entry which should not count
-        context_dictSize= 3,
-        context_numBits= 2,
-        context_data=[],
-        context_data_val=0,
-        context_data_position=0,
-        ii;
-
-    for (ii = 0; ii < uncompressed.length; ii += 1) {
-      context_c = uncompressed.charAt(ii);
-      if (!Object.prototype.hasOwnProperty.call(context_dictionary,context_c)) {
-        context_dictionary[context_c] = context_dictSize++;
-        context_dictionaryToCreate[context_c] = true;
-      }
-
-      context_wc = context_w + context_c;
-      if (Object.prototype.hasOwnProperty.call(context_dictionary,context_wc)) {
-        context_w = context_wc;
-      } else {
-        if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)) {
-          if (context_w.charCodeAt(0)<256) {
-            for (i=0 ; i<context_numBits ; i++) {
-              context_data_val = (context_data_val << 1);
-              if (context_data_position == bitsPerChar-1) {
-                context_data_position = 0;
-                context_data.push(getCharFromInt(context_data_val));
-                context_data_val = 0;
-              } else {
-                context_data_position++;
-              }
-            }
-            value = context_w.charCodeAt(0);
-            for (i=0 ; i<8 ; i++) {
-              context_data_val = (context_data_val << 1) | (value&1);
-              if (context_data_position == bitsPerChar-1) {
-                context_data_position = 0;
-                context_data.push(getCharFromInt(context_data_val));
-                context_data_val = 0;
-              } else {
-                context_data_position++;
-              }
-              value = value >> 1;
-            }
-          } else {
-            value = 1;
-            for (i=0 ; i<context_numBits ; i++) {
-              context_data_val = (context_data_val << 1) | value;
-              if (context_data_position ==bitsPerChar-1) {
-                context_data_position = 0;
-                context_data.push(getCharFromInt(context_data_val));
-                context_data_val = 0;
-              } else {
-                context_data_position++;
-              }
-              value = 0;
-            }
-            value = context_w.charCodeAt(0);
-            for (i=0 ; i<16 ; i++) {
-              context_data_val = (context_data_val << 1) | (value&1);
-              if (context_data_position == bitsPerChar-1) {
-                context_data_position = 0;
-                context_data.push(getCharFromInt(context_data_val));
-                context_data_val = 0;
-              } else {
-                context_data_position++;
-              }
-              value = value >> 1;
-            }
-          }
-          context_enlargeIn--;
-          if (context_enlargeIn == 0) {
-            context_enlargeIn = Math.pow(2, context_numBits);
-            context_numBits++;
-          }
-          delete context_dictionaryToCreate[context_w];
-        } else {
-          value = context_dictionary[context_w];
-          for (i=0 ; i<context_numBits ; i++) {
-            context_data_val = (context_data_val << 1) | (value&1);
-            if (context_data_position == bitsPerChar-1) {
-              context_data_position = 0;
-              context_data.push(getCharFromInt(context_data_val));
-              context_data_val = 0;
-            } else {
-              context_data_position++;
-            }
-            value = value >> 1;
-          }
-
-
-        }
-        context_enlargeIn--;
-        if (context_enlargeIn == 0) {
-          context_enlargeIn = Math.pow(2, context_numBits);
-          context_numBits++;
-        }
-        // Add wc to the dictionary.
-        context_dictionary[context_wc] = context_dictSize++;
-        context_w = String(context_c);
-      }
-    }
-
-    // Output the code for w.
-    if (context_w !== "") {
-      if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)) {
-        if (context_w.charCodeAt(0)<256) {
-          for (i=0 ; i<context_numBits ; i++) {
-            context_data_val = (context_data_val << 1);
-            if (context_data_position == bitsPerChar-1) {
-              context_data_position = 0;
-              context_data.push(getCharFromInt(context_data_val));
-              context_data_val = 0;
-            } else {
-              context_data_position++;
-            }
-          }
-          value = context_w.charCodeAt(0);
-          for (i=0 ; i<8 ; i++) {
-            context_data_val = (context_data_val << 1) | (value&1);
-            if (context_data_position == bitsPerChar-1) {
-              context_data_position = 0;
-              context_data.push(getCharFromInt(context_data_val));
-              context_data_val = 0;
-            } else {
-              context_data_position++;
-            }
-            value = value >> 1;
-          }
-        } else {
-          value = 1;
-          for (i=0 ; i<context_numBits ; i++) {
-            context_data_val = (context_data_val << 1) | value;
-            if (context_data_position == bitsPerChar-1) {
-              context_data_position = 0;
-              context_data.push(getCharFromInt(context_data_val));
-              context_data_val = 0;
-            } else {
-              context_data_position++;
-            }
-            value = 0;
-          }
-          value = context_w.charCodeAt(0);
-          for (i=0 ; i<16 ; i++) {
-            context_data_val = (context_data_val << 1) | (value&1);
-            if (context_data_position == bitsPerChar-1) {
-              context_data_position = 0;
-              context_data.push(getCharFromInt(context_data_val));
-              context_data_val = 0;
-            } else {
-              context_data_position++;
-            }
-            value = value >> 1;
-          }
-        }
-        context_enlargeIn--;
-        if (context_enlargeIn == 0) {
-          context_enlargeIn = Math.pow(2, context_numBits);
-          context_numBits++;
-        }
-        delete context_dictionaryToCreate[context_w];
-      } else {
-        value = context_dictionary[context_w];
-        for (i=0 ; i<context_numBits ; i++) {
-          context_data_val = (context_data_val << 1) | (value&1);
-          if (context_data_position == bitsPerChar-1) {
-            context_data_position = 0;
-            context_data.push(getCharFromInt(context_data_val));
-            context_data_val = 0;
-          } else {
-            context_data_position++;
-          }
-          value = value >> 1;
-        }
-
-
-      }
-      context_enlargeIn--;
-      if (context_enlargeIn == 0) {
-        context_enlargeIn = Math.pow(2, context_numBits);
-        context_numBits++;
-      }
-    }
-
-    // Mark the end of the stream
-    value = 2;
-    for (i=0 ; i<context_numBits ; i++) {
-      context_data_val = (context_data_val << 1) | (value&1);
-      if (context_data_position == bitsPerChar-1) {
-        context_data_position = 0;
-        context_data.push(getCharFromInt(context_data_val));
-        context_data_val = 0;
-      } else {
-        context_data_position++;
-      }
-      value = value >> 1;
-    }
-
-    // Flush the last char
-    while (true) {
-      context_data_val = (context_data_val << 1);
-      if (context_data_position == bitsPerChar-1) {
-        context_data.push(getCharFromInt(context_data_val));
-        break;
-      }
-      else context_data_position++;
-    }
-    return context_data.join('');
-  },
-
-  decompress: function (compressed) {
-    if (compressed == null) return "";
-    if (compressed == "") return null;
-    return LZString._decompress(compressed.length, 32768, function(index) { return compressed.charCodeAt(index); });
-  },
-
-  _decompress: function (length, resetValue, getNextValue) {
-    var dictionary = [],
-        next,
-        enlargeIn = 4,
-        dictSize = 4,
-        numBits = 3,
-        entry = "",
-        result = [],
-        i,
-        w,
-        bits, resb, maxpower, power,
-        c,
-        data = {val:getNextValue(0), position:resetValue, index:1};
-
-    for (i = 0; i < 3; i += 1) {
-      dictionary[i] = i;
-    }
-
-    bits = 0;
-    maxpower = Math.pow(2,2);
-    power=1;
-    while (power!=maxpower) {
-      resb = data.val & data.position;
-      data.position >>= 1;
-      if (data.position == 0) {
-        data.position = resetValue;
-        data.val = getNextValue(data.index++);
-      }
-      bits |= (resb>0 ? 1 : 0) * power;
-      power <<= 1;
-    }
-
-    switch (next = bits) {
-      case 0:
-          bits = 0;
-          maxpower = Math.pow(2,8);
-          power=1;
-          while (power!=maxpower) {
-            resb = data.val & data.position;
-            data.position >>= 1;
-            if (data.position == 0) {
-              data.position = resetValue;
-              data.val = getNextValue(data.index++);
-            }
-            bits |= (resb>0 ? 1 : 0) * power;
-            power <<= 1;
-          }
-        c = f(bits);
-        break;
-      case 1:
-          bits = 0;
-          maxpower = Math.pow(2,16);
-          power=1;
-          while (power!=maxpower) {
-            resb = data.val & data.position;
-            data.position >>= 1;
-            if (data.position == 0) {
-              data.position = resetValue;
-              data.val = getNextValue(data.index++);
-            }
-            bits |= (resb>0 ? 1 : 0) * power;
-            power <<= 1;
-          }
-        c = f(bits);
-        break;
-      case 2:
-        return "";
-    }
-    dictionary[3] = c;
-    w = c;
-    result.push(c);
-    while (true) {
-      if (data.index > length) {
-        return "";
-      }
-
-      bits = 0;
-      maxpower = Math.pow(2,numBits);
-      power=1;
-      while (power!=maxpower) {
-        resb = data.val & data.position;
-        data.position >>= 1;
-        if (data.position == 0) {
-          data.position = resetValue;
-          data.val = getNextValue(data.index++);
-        }
-        bits |= (resb>0 ? 1 : 0) * power;
-        power <<= 1;
-      }
-
-      switch (c = bits) {
-        case 0:
-          bits = 0;
-          maxpower = Math.pow(2,8);
-          power=1;
-          while (power!=maxpower) {
-            resb = data.val & data.position;
-            data.position >>= 1;
-            if (data.position == 0) {
-              data.position = resetValue;
-              data.val = getNextValue(data.index++);
-            }
-            bits |= (resb>0 ? 1 : 0) * power;
-            power <<= 1;
-          }
-
-          dictionary[dictSize++] = f(bits);
-          c = dictSize-1;
-          enlargeIn--;
-          break;
-        case 1:
-          bits = 0;
-          maxpower = Math.pow(2,16);
-          power=1;
-          while (power!=maxpower) {
-            resb = data.val & data.position;
-            data.position >>= 1;
-            if (data.position == 0) {
-              data.position = resetValue;
-              data.val = getNextValue(data.index++);
-            }
-            bits |= (resb>0 ? 1 : 0) * power;
-            power <<= 1;
-          }
-          dictionary[dictSize++] = f(bits);
-          c = dictSize-1;
-          enlargeIn--;
-          break;
-        case 2:
-          return result.join('');
-      }
-
-      if (enlargeIn == 0) {
-        enlargeIn = Math.pow(2, numBits);
-        numBits++;
-      }
-
-      if (dictionary[c]) {
-        entry = dictionary[c];
-      } else {
-        if (c === dictSize) {
-          entry = w + w.charAt(0);
-        } else {
-          return null;
-        }
-      }
-      result.push(entry);
-
-      // Add w+entry[0] to the dictionary.
-      dictionary[dictSize++] = w + entry.charAt(0);
-      enlargeIn--;
-
-      w = entry;
-
-      if (enlargeIn == 0) {
-        enlargeIn = Math.pow(2, numBits);
-        numBits++;
-      }
-
-    }
-  }
-};
-  return LZString;
-})();
-
-if (true) {
-  !(__WEBPACK_AMD_DEFINE_RESULT__ = function () { return LZString; }.call(exports, __webpack_require__, exports, module),
-				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
-} else if( typeof module !== 'undefined' && module != null ) {
-  module.exports = LZString
-}
-
-
-/***/ }),
-/* 23 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_game_validationError__ = __webpack_require__(14);
-
-
-
-
-
-class StartCompany extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-
-        this.playerId = args.playerId;
-        this.companyId = args.companyId;
-        this.startIndex = args.startIndex;
-        this.firstPassIndex = args.firstPassIndex;
-    }
-
-    doExecute(state) {
-        const player = state.playersById()[this.playerId];
-        const company = state.getCompany(this.companyId);
-        const price = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex);
-        const cash = price * 2;
-        this.firstPassIndex = state.firstPassIndex();
-
-        // validate things
-        if (company.opened()) {
-            throw new __WEBPACK_IMPORTED_MODULE_3_common_game_validationError__["a" /* default */]('Cannot open a company that was already opened');
-        }
-
-        if (player.cash() < cash) {
-            throw new __WEBPACK_IMPORTED_MODULE_3_common_game_validationError__["a" /* default */](player.name() + ' does not have enough cash to open ' + company.name + ' at ' + cash / 2);
-        }
-
-        // cert limit
-
-        company.priceIndex(this.startIndex);
-        company.president(this.playerId);
-        company.opened(true);
-        state.stockBoard.addCompany(company);
-        player.removeCash(cash);
-        company.addCash(cash + (this.companyId === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL ? price : 0));
-
-        const tile = state.tilesByCellId[company.homeCellId];
-        company.useToken();
-        tile.addToken(company.id);
-        tile.removeReservedToken(company.id);
-
-        // First cert in company treasury always pres cert for convenience
-        const cert = company.certificates.shift();
-        player.addCert(cert);
-        state.firstPassIndex(null);
-    }
-
-    doUndo(state) {
-        const player = state.playersById()[this.playerId];
-        const company = state.getCompany(this.companyId);
-        const price = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex);
-        const cash = price * 2;
-
-        const tile = state.tilesByCellId[company.homeCellId];
-        tile.removeToken(company.id);
-        tile.addReservedToken(company.id);
-        company.returnToken();
-
-        company.removeCash(cash + (this.companyId === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL ? price : 0));
-        player.addCash(cash);
-
-        state.stockBoard.removeCompany(company.id);
-        company.priceIndex(0);
-        company.president(null);
-        company.opened(false);
-
-        const cert = player.removePresidentCertForCompany(this.companyId);
-        company.certificates.unshift(cert);
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        return 'Opened ' + company.nickname + ' @ ' + __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex);
-    }
-
-    confirmation(state) {
-        const company = state.getCompany(this.companyId);
-        return 'Confirm Open ' + company.nickname + ' @ ' + __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex);
-    }
-}
-
-StartCompany.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (StartCompany);
-
-/***/ }),
-/* 24 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const Allocations = {
-    NONE: 'none',
-    HALF: 'half',
-    FULL: 'full'
-};
-
-/* harmony default export */ __webpack_exports__["a"] = (Allocations);
-
-/***/ }),
-/* 25 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const TerrainTypes = {
-    BRIDGE: 'bridge',
-    TUNNEL: 'tunnel'
-};
-
-/* harmony default export */ __webpack_exports__["a"] = (TerrainTypes);
-
-/***/ }),
-/* 26 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_baseGame__ = __webpack_require__(75);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_map_grid__ = __webpack_require__(70);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_companies__ = __webpack_require__(59);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_state_state__ = __webpack_require__(72);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_game_player__ = __webpack_require__(65);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_common_game_bank__ = __webpack_require__(74);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_knockout__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_knockout__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_1846_config_tileManifest__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_1846_game_stockBoard__ = __webpack_require__(67);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_common_util_events__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_1846_game_sequence__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_1846_game_operatingRound__ = __webpack_require__(63);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_1846_game_history__ = __webpack_require__(62);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16_1846_config_roundTypes__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17_lz_string__ = __webpack_require__(22);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17_lz_string___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_17_lz_string__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18_common_game_currentGame__ = __webpack_require__(3);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const ActivePanelIDs = {
-    MAP: 'map',
-    OWNERSHIP: 'ownership',
-    TILE_MANIFEST: 'manifest',
-    HISTORY: 'history',
-    REPORT_BUG: 'report_bug'
-};
-
-class Game extends __WEBPACK_IMPORTED_MODULE_0_common_game_baseGame__["a" /* default */] {
-    constructor(definition) {
-        definition = definition || {};
-        super(definition);
-
-        this.record = definition.record;
-        this.state = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable(definition.state);
-        this.grid = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable(new __WEBPACK_IMPORTED_MODULE_1_1846_map_grid__["a" /* default */](definition.state));
-        this.privateDraft = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable();
-        this.stockRound = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable();
-        this.operatingRound = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable(new __WEBPACK_IMPORTED_MODULE_14_1846_game_operatingRound__["a" /* default */]());
-        this.history = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable(new __WEBPACK_IMPORTED_MODULE_15_1846_game_history__["a" /* default */]());
-        this.zoom = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable(.8);
-        this.selectedCompany = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable();
-
-        this.activePanel = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable(ActivePanelIDs.MAP);
-        this.ActivePanelIDs = ActivePanelIDs;
-        this.sequence = __WEBPACK_IMPORTED_MODULE_13_1846_game_sequence__["a" /* default */];
-    }
-
-    selectCompany(companyId) {
-        if (this.selectedCompany() === companyId) {
-            this.selectedCompany(null);
-        } else {
-            this.selectedCompany(companyId);
-        }
-    }
-
-    zoomIn() {
-        if (this.zoom() < 1.5) {
-            this.zoom(this.zoom() + .05);
-        }
-    }
-
-    zoomOut() {
-        if (this.zoom() > .1) {
-            this.zoom(this.zoom() - .05);
-        }
-    }
-
-    showMap() {
-        this.activePanel(ActivePanelIDs.MAP);
-    }
-
-    showOwnership() {
-        this.activePanel(ActivePanelIDs.OWNERSHIP);
-    }
-
-    setActivePanel(newPanel) {
-        if (newPanel === ActivePanelIDs.HISTORY) {
-            const currentRound = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_18_common_game_currentGame__["a" /* default */])().state().roundHistory.currentRound();
-            if (currentRound) {
-                this.history().selectRound(currentRound.id);
-            }
-        }
-        this.activePanel(newPanel);
-    }
-
-    static createInitialState(users) {
-        const publicCompanies = __WEBPACK_IMPORTED_MODULE_2_1846_config_companies__["a" /* default */].generatePublicCompanies();
-        const privateCompanies = __WEBPACK_IMPORTED_MODULE_2_1846_config_companies__["a" /* default */].generatePrivateCompanies();
-
-        const greenGroup = [__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].CHESAPEAKE_OHIO, __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].ERIE, __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].PENNSYLVANIA];
-        const blueGroup = [__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY, __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY, __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY];
-        const orangeGroup = [__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].OHIO_INDIANA, __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL, __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].LAKE_SHORE_LINE];
-
-        const players = __WEBPACK_IMPORTED_MODULE_9_lodash___default()(users).shuffle().map((user, index) => {
-            return new __WEBPACK_IMPORTED_MODULE_5_1846_game_player__["a" /* default */]({ user, cash: 400, order: index });
-        }).value();
-
-        if (players.length === 3 || players.length === 4) {
-            const numToRemove = players.length === 3 ? 2 : 1;
-            const greenRemovals = __WEBPACK_IMPORTED_MODULE_9_lodash___default()(greenGroup).shuffle().take(numToRemove).value();
-            const blueRemovals = __WEBPACK_IMPORTED_MODULE_9_lodash___default()(blueGroup).shuffle().take(numToRemove).value();
-            const orangeRemovals = __WEBPACK_IMPORTED_MODULE_9_lodash___default()(orangeGroup).shuffle().take(numToRemove).value();
-
-            __WEBPACK_IMPORTED_MODULE_9_lodash___default.a.remove(publicCompanies, company => __WEBPACK_IMPORTED_MODULE_9_lodash___default.a.indexOf(greenRemovals, company.id) >= 0);
-            __WEBPACK_IMPORTED_MODULE_9_lodash___default.a.remove(privateCompanies, company => __WEBPACK_IMPORTED_MODULE_9_lodash___default.a.indexOf(blueRemovals, company.id) >= 0);
-            __WEBPACK_IMPORTED_MODULE_9_lodash___default.a.remove(privateCompanies, company => __WEBPACK_IMPORTED_MODULE_9_lodash___default.a.indexOf(orangeRemovals, company.id) >= 0);
-        }
-
-        let cash = 0;
-        const trainsByPhase = {};
-        if (players.length === 3) {
-            cash = 5300;
-            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_I] = 5;
-            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_II] = 4;
-            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_III] = 3;
-            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_IV] = -1;
-        } else if (players.length === 4) {
-            cash = 5900;
-            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_I] = 6;
-            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_II] = 5;
-            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_III] = 4;
-            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_IV] = -1;
-        } else if (players.length === 5) {
-            cash = 7000;
-            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_I] = 7;
-            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_II] = 6;
-            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_III] = 5;
-            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_IV] = -1;
-        }
-
-        const bank = new __WEBPACK_IMPORTED_MODULE_7_common_game_bank__["a" /* default */]({ cash, trainsByPhase });
-
-        const manifest = new __WEBPACK_IMPORTED_MODULE_10_1846_config_tileManifest__["a" /* default */]();
-        const stockBoard = new __WEBPACK_IMPORTED_MODULE_11_1846_game_stockBoard__["a" /* default */]();
-
-        const state = new __WEBPACK_IMPORTED_MODULE_4_1846_state_state__["a" /* default */]({
-            players,
-            publicCompanies,
-            privateCompanies,
-            bank,
-            manifest,
-            stockBoard
-        });
-
-        state.roundHistory.startRound(__WEBPACK_IMPORTED_MODULE_16_1846_config_roundTypes__["a" /* default */].PRIVATE_DRAFT, 1);
-        state.currentPlayerIndex(state.players().length - 1);
-        state.turnHistory.startTurn({ state });
-
-        return state;
-    }
-
-    updateState(newState) {
-        this.state(newState);
-        __WEBPACK_IMPORTED_MODULE_13_1846_game_sequence__["a" /* default */].restore();
-        __WEBPACK_IMPORTED_MODULE_12_common_util_events__["a" /* default */].emit('stateUpdated', {});
-    }
-
-    saveLocalState() {
-        this.record.round = this.state().winner() ? 'Game End' : this.state().roundHistory.currentRound().getRoundName();
-        this.record.turn = this.state().currentPlayer().name();
-        this.record.save(this.state());
-    }
-
-    isDraftRevealed() {
-        return this.privateDraft() && this.privateDraft().revealed();
-    }
-
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (Game);
-
-/***/ }),
-/* 27 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_model_serializable__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__ = __webpack_require__(3);
-
-
-
-class ActionGroup extends __WEBPACK_IMPORTED_MODULE_0_common_model_serializable__["a" /* default */] {
-    constructor(definition) {
-        definition = definition || {};
-        super(definition);
-
-        this.type = definition.type;
-        this.id = definition.id;
-        this.actionStartIndex = definition.actionStartIndex;
-        this.actionEndIndex = definition.actionEndIndex;
-    }
-
-    commit() {
-        this.actionEndIndex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().actionHistory.currentIndex();
-    }
-
-    undo() {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().actionHistory.undoRange(this.actionStartIndex, this.actionEndIndex);
-    }
-
-    getActions() {
-        if (this.actionEndIndex <= this.actionStartIndex) {
-            return [];
-        }
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().actionHistory.getActionRange(this.actionStartIndex, this.actionEndIndex);
-    }
-
-    getSummaries() {
-        if (this.actionEndIndex <= this.actionStartIndex) {
-            return [];
-        }
-
-        return _(this.getActions()).invokeMap('summary', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state()).map((summary, index) => {
-            return {
-                index: this.actionStartIndex + index,
-                type: 'action',
-                summary
-            };
-        }).value();
-    }
-
-    getInstructions() {
-        if (this.actionEndIndex <= this.actionStartIndex) {
-            return [];
-        }
-
-        return _(this.getActions()).invokeMap('instructions', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state()).map((instructions, index) => {
-            return _.map(instructions, instruction => {
-                return {
-                    index: this.actionStartIndex + index,
-                    type: 'action',
-                    instruction
-                };
-            });
-        }).flatten().value();
-    }
-
-    getDetails() {
-        if (this.actionEndIndex <= this.actionStartIndex) {
-            return [];
-        }
-
-        return _(this.getActions()).invokeMap('details', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state()).map((details, index) => {
-            return {
-                index: this.actionStartIndex + index,
-                type: 'action',
-                details
-            };
-        }).value();
-    }
-
-    isWithinRange(startIndex, endIndex) {
-        return this.actionStartIndex >= startIndex && (endIndex && this.actionEndIndex <= endIndex || !endIndex);
-    }
-}
-
-ActionGroup.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (ActionGroup);
-
-/***/ }),
-/* 28 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_short_uuid__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__ = __webpack_require__(91);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__ = __webpack_require__(4);
-
-
-
-
-
-class GameRecord extends __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__["a" /* default */] {
-    constructor(definition) {
-        super(definition);
-
-        this.id = definition.id || __WEBPACK_IMPORTED_MODULE_0_short_uuid___default()().new();
-        this.type = definition.type;
-        this.name = definition.name;
-        this.location = definition.location;
-        this.players = definition.players;
-        this.startDate = definition.startDate;
-        this.endDate = definition.endDate;
-        this.winner = definition.winner;
-        this.round = definition.round;
-        this.turn = definition.turn;
-    }
-
-    create(currentState, initialState) {
-        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].store(this.id, this.serialize(), 'games');
-        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].storeCompressed(this.id, initialState.serialize(), 'initialstate');
-        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].storeCompressed(this.id, currentState.serialize(), 'currentstate');
-    }
-
-    loadCurrentState() {
-        return __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__["a" /* default */].deserialize(__WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].loadCompressed(this.id, 'currentstate'));
-    }
-
-    loadRawCurrentState() {
-        return __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].load(this.id, 'currentstate');
-    }
-
-    save(state) {
-        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].store(this.id, this.serialize(), 'games');
-        if (state) {
-            __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].storeCompressed(this.id, state.serialize(), 'currentstate');
-        }
-    }
-
-    static load(id) {
-        return __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__["a" /* default */].deserialize(__WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].load(id, 'games'));
-    }
-
-    static list() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(__WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].list('games'), game => {
-            return GameRecord.deserialize(game);
-        });
-    }
-}
-
-GameRecord.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (GameRecord);
-
-/***/ }),
-/* 29 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_map_tile__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_1846_actions_layTrack__ = __webpack_require__(46);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_1846_actions_addToken__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_1846_actions_placeMeat__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_1846_actions_placeSteamboat__ = __webpack_require__(48);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_common_util_events__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_1846_config_terrainTypes__ = __webpack_require__(25);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__ = __webpack_require__(16);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const CellCosts = {
-    C15: 40,
-    F18: 40,
-    G17: 40,
-    H16: 40,
-    H14: 60
-};
-
-const FreeICCells = {
-    E5: true,
-    F6: true,
-    G5: true,
-    H6: true,
-    J4: true
-};
-
-const FreeTunnelBlasterCells = {
-    F18: true,
-    G17: true,
-    H16: true,
-    H14: true
-};
-
-const ReservedTokens = {
-    I5: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL,
-    E11: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].PENNSYLVANIA,
-    D20: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].ERIE,
-    H12: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO
-};
-
-// Could optimize by storing known connections to stations on tiles, but would always need to refresh those if a
-// token is placed, as it can break a connection by blocking
-
-class Cell {
-    constructor(data) {
-        data = data || {};
-
-        this.id = data.id;
-        this.top = data.top || 0;
-        this.left = data.left || 0;
-        this.row = data.row || 0;
-        this.col = data.col || 0;
-        this.width = data.width || 126;
-        this.height = data.height || 144;
-        this.outline = data.outline || '0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796';
-        this.tile = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(data.tile);
-        this.preview = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(data.preview);
-        this.allowedPreviewPositionData = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable({});
-        this.allowedPreviewPositions = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(this.allowedPreviewPositionData(), 'position');
-        });
-        this.neighbors = data.neighbors || [null, null, null, null, null, null];
-        this.connectionCosts = data.connectionCosts || {};
-        this.visibleTile = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            return this.preview() || this.tile();
-        });
-        this.upgradeTiles = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
-                return [];
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
-                return [];
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany()) {
-                return [];
-            }
-
-            return this.getUpgradeTiles();
-        });
-
-        this.tokenCheckTrigger = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable().extend({ notify: 'always' });
-
-        this.tokenableCities = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
-                return [];
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
-                return [];
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany()) {
-                return [];
-            }
-
-            if (!this.tile()) {
-                return [];
-            }
-
-            this.tokenCheckTrigger();
-
-            const companyId = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId();
-            const openCities = this.tile().getOpenCities(companyId);
-
-            if (openCities.length > 0 && this.id === 'H12' && companyId === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO) {
-                return openCities;
-            }
-
-            if (openCities.length > 0 && this.id === 'E11' && companyId === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].PENNSYLVANIA) {
-                return openCities;
-            }
-
-            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(openCities, cityId => this.depthFirstSearchForStation(companyId, cityId, {}, []));
-        });
-
-        this.canToken = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
-                return false;
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
-                return false;
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany()) {
-                return false;
-            }
-
-            if (this.tile().getOpenCities(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId()).length === 0) {
-                return false;
-            }
-
-            const turn = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().turnHistory.currentTurn();
-            if (!turn) {
-                return false;
-            }
-
-            const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
-            if (!company.tokens()) {
-                return false;
-            }
-
-            const hasTokened = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(turn.getActions(), action => {
-                return action.getTypeName() === 'AddToken';
-            });
-
-            if (hasTokened) {
-                return false;
-            }
-
-            if (this.tokenableCities().length === 0) {
-                return false;
-            }
-
-            const cost = this.getTokenCost();
-            if (company.cash() < cost) {
-                return false;
-            }
-
-            return true;
-        });
-
-        this.canEdit = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
-                return false;
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
-                return false;
-            }
-
-            const steamboat = this.canPlaceSteamboat();
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany() && !steamboat) {
-                return false;
-            }
-
-            const layingTrack = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().selectedAction() === __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().Actions.LAY_TRACK;
-            const oandi = this.isOhioIndianaLay();
-            const mc = this.isMichiganCentralLay();
-            const lsl = this.isLSLLay();
-            const meat = this.canPlaceMeat();
-
-            if (!layingTrack && !oandi && !mc && !lsl && !meat && !steamboat) {
-                return false;
-            }
-
-            if (this.isMichiganCentralLay() && !this.michiganCentralBlocked() || this.isOhioIndianaLay() && !this.ohioIndianaBlocked()) {
-                return false;
-            }
-
-            if (!this.isMichiganCentralLay() && this.michiganCentralBlocked()) {
-                return false;
-            }
-
-            if (!this.isOhioIndianaLay() && this.ohioIndianaBlocked()) {
-                return false;
-            }
-
-            return this.upgradeTiles().length > 0 || this.canToken() || meat || steamboat;
-        });
-
-        this.canRoute = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
-                return false;
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
-                return false;
-            }
-
-            const train = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().selectedTrain();
-            if (!train) {
-                return false;
-            }
-
-            return true;
-        });
-
-        this.popoverParams = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            return {
-                enabledObservable: this.canEdit,
-                placement: 'right',
-                trigger: this.preview() ? 'manual' : 'click',
-                closestDiv: true,
-                content: '<div data-bind="template: { name: \'views/cellPopover\' }"></div>'
-            };
-        });
-
-        __WEBPACK_IMPORTED_MODULE_12_common_util_events__["a" /* default */].on('trackLaid', () => {
-            this.trackLaidHandler();
-        });
-        __WEBPACK_IMPORTED_MODULE_12_common_util_events__["a" /* default */].on('gridRestored', () => {
-            this.gridRestoredHandler();
-        });
-    }
-
-    trackLaidHandler() {
-        this.tokenCheckTrigger(1);
-    }
-
-    gridRestoredHandler() {
-        this.tokenCheckTrigger(1);
-    }
-
-    isOhioIndianaTiles() {
-        return this.id === 'F14' || this.id === 'F16';
-    }
-
-    isMichiganCentralTiles() {
-        return this.id === 'B10' || this.id === 'B12';
-    }
-
-    isOhioIndianaLay() {
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isOhioIndianaAbility() && this.isOhioIndianaTiles();
-    }
-
-    isMichiganCentralLay() {
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isMichiganCentralAbility() && this.isMichiganCentralTiles();
-    }
-
-    isLSLLay() {
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isLSLAbility() && (this.id === 'D14' || this.id === 'E17');
-    }
-
-    canUpgrade() {
-        return this.isLSLLay() || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().hasUpgradedTrackThisTurn();
-    }
-
-    canPlaceMeat() {
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isMeatPackingAbility() && (this.id === 'D6' || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].ST_LOUIS);
-    }
-
-    canPlaceSteamboat() {
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isSteamboatAbility() && (this.id === 'D14' || this.id === 'G19' || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].HOLLAND || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].CHICAGO_CONNECTIONS || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].ST_LOUIS);
-    }
-
-    michiganCentralBlocked() {
-        const michiganCentral = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().getCompany(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL);
-        return michiganCentral && this.isMichiganCentralTiles() && !michiganCentral.closed() && !michiganCentral.used();
-    }
-
-    ohioIndianaBlocked() {
-        const ohioIndiana = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().getCompany(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].OHIO_INDIANA);
-        return ohioIndiana && this.isOhioIndianaTiles() && !ohioIndiana.closed() && !ohioIndiana.used();
-    }
-
-    getUpgradeTiles() {
-        if (this.isOhioIndianaLay() || this.isMichiganCentralLay()) {
-            return this.getOhioIndianaOrMichiganCentralTiles();
-        }
-
-        if (!this.isLSLLay() && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().hasLaidTwoTrackThisTurn()) {
-            return [];
-        }
-
-        const phase = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentPhaseId();
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().manifest.getUpgradesForTile(this.tile().id) || [], upgrade => {
-
-            if (upgrade.tile.colorId !== __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW && (phase === __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__["a" /* default */].PHASE_I || !this.canUpgrade())) {
-                return false;
-            }
-
-            if (phase === __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__["a" /* default */].PHASE_II && __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf([__WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].GREEN, __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW], upgrade.tile.colorId) < 0) {
-                return false;
-            }
-
-            if (phase === __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__["a" /* default */].PHASE_III && __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf([__WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].BROWN, __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].GREEN, __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW], upgrade.tile.colorId) < 0) {
-                return false;
-            }
-
-            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
-        });
-    }
-
-    getOhioIndianaOrMichiganCentralTiles() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().manifest.getUpgradesForTile(this.tile().id) || [], upgrade => {
-            if (upgrade.tile.colorId !== __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW) {
-                return false;
-            }
-
-            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
-        });
-    }
-
-    getTokenCost() {
-        const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
-        let cost = 80;
-        if (ReservedTokens[this.id] === company.id) {
-            cost = 40;
-            if (company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO || company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].PENNSYLVANIA) {
-                const connected = this.isConnectedToStation(company.id);
-                if (!connected) {
-                    cost = company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO ? 100 : 60;
-                }
-            }
-        }
-        return cost;
-    }
-
-    getBaseCost(oldTile) {
-        if (this.isLSLLay()) {
-            return 0;
-        }
-
-        if (!oldTile.map) {
-            return 20;
-        }
-
-        const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
-        let cost = CellCosts[this.id] || 20;
-
-        if (company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL && FreeICCells[this.id]) {
-            cost = 0;
-        }
-
-        if (company.hasPrivate(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY) && FreeTunnelBlasterCells[this.id]) {
-            cost = 0;
-        }
-
-        return cost;
-    }
-
-    getPrivatePairPositionData(oldTile, newTileId, neighborEdge) {
-
-        const neighbor = this.neighbors[neighborEdge];
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(0, 6)).map(pos => {
-            const connections = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(newTileId, pos);
-            if (neighbor.tile().colorId === __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW) {
-                const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(neighborEdge);
-                const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
-                if (neighborConnectionPoint < 0) {
-                    return false;
-                }
-
-                const connectsToNeighbor = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(connections, connection => {
-                    return connection[0] === neighborEdge || connection[1] === neighborEdge;
-                });
-                if (!connectsToNeighbor) {
-                    return false;
-                }
-            }
-            const connectionOffMap = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(connections, connection => {
-                if (connection[0] < 7 && !this.neighbors[connection[0]]) {
-                    return true;
-                }
-
-                if (connection[1] < 7 && !this.neighbors[connection[1]]) {
-                    return true;
-                }
-            });
-
-            if (connectionOffMap) {
-                return null;
-            }
-            return {
-                position: pos,
-                cost: 0
-            };
-        }).compact().keyBy('position').value();
-    }
-
-    getAllowedTilePositionData(oldTile, newTileId) {
-        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state();
-        if (!state.isOperatingRound()) {
-            return [];
-        }
-
-        const oandi = this.isOhioIndianaLay();
-        const mc = this.isMichiganCentralLay();
-        if (oandi || mc) {
-            return this.getPrivatePairPositionData(oldTile, newTileId, this.id === 'F14' || this.id === 'B10' ? 1 : 4);
-        }
-
-        const visited = {};
-
-        const validEdges = {};
-        const invalidEdges = {};
-
-        const company = state.currentCompany();
-        const baseCost = this.getBaseCost(oldTile);
-        if (company.cash() < baseCost) {
-            return [];
-        }
-
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(0, 6)).map(pos => {
-            // Check against existing tile connections
-            const oldConnectionsIds = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionIdsForPosition(oldTile.id, oldTile.position());
-            const newConnectionsIds = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionIdsForPosition(newTileId, pos);
-
-            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.difference(oldConnectionsIds, newConnectionsIds).length > 0) {
-                return null;
-            }
-
-            const addedConnectionIds = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.difference(newConnectionsIds, oldConnectionsIds);
-            const addedConnections = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(newTileId, pos)).filter(connection => {
-                return this.tile().hasCity() || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(addedConnectionIds, this.getConnectionId(connection)) >= 0;
-            }).value();
-
-            // Check off map
-            const connectionOffMap = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(addedConnections, connection => {
-                if (connection[0] < 7 && !this.neighbors[connection[0]]) {
-                    invalidEdges[connection[0]] = true;
-                    return true;
-                }
-
-                if (connection[1] < 7 && !this.neighbors[connection[1]]) {
-                    invalidEdges[connection[1]] = true;
-                    return true;
-                }
-            });
-
-            if (connectionOffMap) {
-                return null;
-            }
-
-            // Check for connection costs
-            const existingConnectionPoints = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(oldTile.id, oldTile.position())).flatten().uniq().value();
-            const connectionCosts = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(addedConnections).flatten().uniq().difference(existingConnectionPoints).sumBy(edgeIndex => {
-                return this.getConnectionCost(edgeIndex);
-            });
-
-            // Check new track for a path back to station
-            const connectionToStation = this.isLSLLay() || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(addedConnections, connection => {
-                const connectionStart = connection[0];
-                const connectionEnd = connection[1];
-
-                if (validEdges[connectionStart] || validEdges[connectionEnd]) {
-                    return true;
-                }
-
-                const connectionId = this.getCellConnectionId(connection);
-
-                if (connectionStart < 7 && !invalidEdges[connectionStart]) {
-                    const isEdgeValid = this.checkNeighborConnection(company.id, connectionStart, visited, [connectionId]);
-                    if (isEdgeValid) {
-                        validEdges[connectionStart] = true;
-                        return true;
-                    } else {
-                        invalidEdges[connectionStart] = true;
-                    }
-                }
-
-                if (connectionEnd < 7 && !invalidEdges[connectionEnd]) {
-                    const isEdgeValid = this.checkNeighborConnection(company.id, connectionEnd, visited, [connectionId]);
-                    if (isEdgeValid) {
-                        validEdges[connectionEnd] = true;
-                        return true;
-                    } else {
-                        invalidEdges[connectionEnd] = true;
-                    }
-                }
-            });
-
-            if (!connectionToStation) {
-                return null;
-            }
-
-            const totalCost = baseCost + connectionCosts;
-            if (company.cash() < totalCost) {
-                return null;
-            }
-
-            return {
-                position: pos,
-                cost: totalCost
-            };
-        }).compact().keyBy('position').value();
-    }
-
-    getConnectionCost(edgeIndex) {
-        if (edgeIndex > 6) {
-            return 0;
-        }
-
-        const costData = this.connectionCosts[edgeIndex];
-        if (!costData) {
-            return 0;
-        }
-
-        if (costData.type === __WEBPACK_IMPORTED_MODULE_13_1846_config_terrainTypes__["a" /* default */].TUNNEL) {
-            const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
-            if (company.hasPrivate(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY)) {
-                return 0;
-            }
-        }
-
-        const neighbor = this.neighbors[edgeIndex];
-        const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
-        const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
-        return neighborConnectionPoint >= 0 ? costData.cost : 0;
-    }
-
-    isConnectedToStation(companyId) {
-        const connections = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(this.tile().id, this.tile().position());
-        const visited = {};
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(connections, connection => {
-            let connected = false;
-
-            if (connection[0] < 7) {
-                connected = this.checkNeighborConnection(companyId, connection[0], visited, []);
-            }
-
-            if (!connected && connection[1] < 7) {
-                connected = this.checkNeighborConnection(companyId, connection[1], visited, []);
-            }
-            return connected;
-        });
-    }
-
-    checkNeighborConnection(companyId, edgeIndex, visited, currentSearchPath) {
-
-        const hasLocalStation = this.tile().hasTokenForCompany(companyId);
-        if (hasLocalStation) {
-            return true;
-        }
-
-        const neighbor = this.neighbors[edgeIndex];
-        if (!neighbor) {
-            return false;
-        }
-        // console.log('Checking neighbor ' + neighbor.id + ' for connection to station');
-        const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
-        const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
-        if (neighborConnectionPoint < 0) {
-            return false;
-        }
-
-        return neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint, visited, currentSearchPath);
-    }
-
-    depthFirstSearchForStation(companyId, connectionStart, visited, currentSearchPath) {
-        const connections = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(this.tile().getConnectionsToPoint(connectionStart), connection => {
-            return connection[0] === connectionStart ? connection : [connection[1], connection[0]];
-        });
-
-        let found = false;
-
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(connections, connection => {
-            const directionalConnectionId = this.id + '-' + this.getConnectionId(connection, true);
-            const connectionId = this.id + '-' + this.getConnectionId(connection);
-            if (visited[directionalConnectionId] || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(currentSearchPath, connectionId) >= 0) {
-                return;
-            }
-
-            visited[directionalConnectionId] = true;
-            if (currentSearchPath) {
-                currentSearchPath.push(connectionId);
-            }
-
-            if (connection[1] > 6) {
-
-                // check for city / token
-                if (companyId && this.tile().hasTokenForCompany(companyId, connection[1])) {
-                    found = true;
-                    return false;
-                }
-
-                // Check blocked
-                if (this.tile().isBlockedForCompany(companyId, connection[1])) {
-                    return false;
-                }
-
-                // console.log('Starting new search on this tile from local city ' + connection[1]);
-                found = this.depthFirstSearchForStation(companyId, connection[1], visited, currentSearchPath);
-            } else {
-                const connectionEnd = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position());
-                const neighbor = this.neighbors[connectionEnd];
-                if (!neighbor) {
-                    return;
-                }
-                const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(connectionEnd);
-                const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
-                if (neighborConnectionPoint >= 0) {
-                    found = neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint, visited, currentSearchPath);
-                }
-            }
-
-            if (found) {
-                return false;
-            }
-        });
-        if (currentSearchPath) {
-            currentSearchPath.pop();
-        }
-
-        return found;
-    }
-
-    getCellConnectionId(connection, directional) {
-        return this.id + '-' + this.getConnectionId(connection, directional);
-    }
-
-    getConnectionId(connection, directional) {
-        if (directional) {
-            return connection[0] + '-' + connection[1];
-        } else {
-            return Math.min(connection[0], connection[1]) + '-' + Math.max(connection[0], connection[1]);
-        }
-    }
-
-    hasConnectionAtIndex(index) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
-            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position()) === index) {
-                return true;
-            }
-
-            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position()) === index) {
-                return true;
-            }
-        });
-    }
-
-    getConnectionsToCell(cell) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.neighbors).map((neighbor, index) => {
-            if (!neighbor || neighbor.id !== cell.id) {
-                return;
-            }
-            return this.getConnectionsToIndex(cell, index);
-        }).compact().flatten().value();
-    }
-
-    getConnectionEdgeToCell(cell) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.findIndex(this.neighbors, neighbor => neighbor && neighbor.id === cell.id);
-    }
-
-    getAllConnectionEdgesToCell(cell) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.neighbors).map((neighbor, index) => neighbor && neighbor.id === cell.id ? index : null).reject(index => __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isNull(index)).value();
-    }
-
-    getConnectionsFromNeighborToNeighbor(neighborOne, neighborTwo, invalidConnectionIds) {
-        const edgeOne = this.getConnectionEdgeToCell(neighborOne);
-        const edgeTwo = this.getConnectionEdgeToCell(neighborTwo);
-
-        if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.keys(this.tile().cities).length > 0) {
-            let edgePairs = [[edgeOne, edgeTwo]];
-            if (neighborTwo.offboard) {
-                const edges = this.getAllConnectionEdgesToCell(neighborTwo);
-                if (edges.length > 1) {
-                    edgePairs = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(edges, edge => [edgeOne, edge]);
-                }
-            } else if (neighborOne.offboard) {
-                const edges = this.getAllConnectionEdgesToCell(neighborOne);
-                if (edges.length > 1) {
-                    edgePairs = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(edges, edge => [edge, edgeTwo]);
-                }
-            }
-
-            return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.tile().cities).map(city => {
-                return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(edgePairs).map(edgePair => __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.compact([this.getConnectionToEdges(edgePair[0], city.id), this.getConnectionToEdges(edgePair[1], city.id)])).reject(result => {
-                    const resultConnectionIds = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(result, connection => __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionId(connection));
-                    return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.intersection(resultConnectionIds, invalidConnectionIds).length > 0;
-                }).first();
-            }).find(connections => connections.length === 2);
-        } else {
-            return [this.getConnectionToEdges(edgeOne, edgeTwo)];
-        }
-    }
-
-    getConnectionToEdges(start, end) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
-            const offsetStart = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position());
-            const offsetEnd = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position());
-            return (offsetStart === start || offsetStart === end) && (offsetEnd === start || offsetEnd === end);
-        });
-    }
-
-    getConnectionPointAtIndex(neighbor, index) {
-        const connection = this.hasConnectionAtIndex(index);
-        if (connection) {
-            return __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position()) === index ? connection[0] : connection[1];
-        }
-        return -1;
-    }
-
-    getConnectionsToIndex(neighbor, index) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
-            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position()) === index) {
-                return true;
-            }
-
-            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position()) === index) {
-                return true;
-            }
-        });
-    }
-
-    getConnectionsToPoint(neighbor, index) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
-            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], 0) === index) {
-                return true;
-            }
-
-            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], 0) === index) {
-                return true;
-            }
-        });
-    }
-
-    static getNeighboringConnectionIndex(index) {
-        return (index + 3) % 6;
-    }
-
-    previewTile(tileId) {
-        const tile = __WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].createTile(tileId);
-        this.allowedPreviewPositionData(this.getAllowedTilePositionData(this.tile(), tileId));
-        tile.position(this.allowedPreviewPositions()[0]);
-        this.preview(tile);
-    }
-
-    nextPreviewPosition() {
-        const currentPosition = this.preview().position();
-        const allowedPositions = this.allowedPreviewPositions();
-        const currentIndex = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(allowedPositions, currentPosition);
-        const nextIndex = (currentIndex + 1) % allowedPositions.length;
-        this.preview().position(allowedPositions[nextIndex]);
-    }
-
-    cancelPreview() {
-        this.preview(null);
-        this.allowedPreviewPositionData({});
-    }
-
-    commitPreview() {
-        const previewTile = this.preview();
-        const privateId = this.isLSLLay() ? __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].LAKE_SHORE_LINE : this.isMichiganCentralLay() ? __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL : this.isOhioIndianaLay() ? __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].OHIO_INDIANA : null;
-        const layTrack = new __WEBPACK_IMPORTED_MODULE_8_1846_actions_layTrack__["a" /* default */]({
-            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId(),
-            cellId: this.id,
-            tileId: previewTile.id,
-            position: previewTile.position(),
-            cost: this.allowedPreviewPositionData()[previewTile.position()].cost,
-            privateId,
-            privateDone: privateId && (this.isLSLLay() || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().numPrivateTrackLays(privateId) === 1)
-        });
-        layTrack.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
-        this.cancelPreview();
-    }
-
-    tokenCity(cityId) {
-        const addToken = new __WEBPACK_IMPORTED_MODULE_9_1846_actions_addToken__["a" /* default */]({
-            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId(),
-            cityId: cityId,
-            cellId: this.id,
-            cost: this.getTokenCost()
-        });
-        addToken.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
-        this.cancelPreview();
-    }
-
-    placeMeat() {
-        const placeMeat = new __WEBPACK_IMPORTED_MODULE_10_1846_actions_placeMeat__["a" /* default */]({
-            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId(),
-            privateId: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY,
-            cellId: this.id
-        });
-        placeMeat.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
-        this.cancelPreview();
-    }
-
-    placeSteamboat() {
-        const placeSteamboat = new __WEBPACK_IMPORTED_MODULE_11_1846_actions_placeSteamboat__["a" /* default */]({
-            playerId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId() ? null : __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentPlayerId(),
-            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId() || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().selectedSteamboatCompany(),
-            cellId: this.id
-        });
-        placeSteamboat.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
-        this.cancelPreview();
-    }
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (Cell);
-
-/***/ }),
-/* 30 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_actions_startCompany__ = __webpack_require__(23);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_common_model_serializable__ = __webpack_require__(4);
-
-
-
-
-
-
-
-
-class Company extends __WEBPACK_IMPORTED_MODULE_6_common_model_serializable__["a" /* default */] {
-    constructor(definition) {
-        super();
-        definition = definition || {};
-        this.id = definition.id;
-        this.name = definition.name || 'Anonymous';
-        this.nickname = definition.nickname || 'Anon';
-        this.type = definition.type;
-        this.homeCellId = definition.homeCellId;
-
-        this.certificates = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.certificates);
-        this.shares = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(this.certificates(), 'shares');
-        });
-        this.cash = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.cash || 0);
-        this.tokens = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.tokens || 0);
-        this.startTokens = definition.startTokens;
-        this.privates = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.privates || []);
-        this.trains = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.trains || []);
-        this.president = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.president);
-        this.parPriceIndex = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.parPriceIndex || 0);
-        this.priceIndex = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.priceIndex || 0);
-        this.price = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            return __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].price(this.priceIndex() || 0);
-        });
-        this.lastRun = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.lastRun || 0);
-        this.opened = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.opened || false);
-        this.closed = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.closed || false);
-        this.operated = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.operated || false);
-        this.routes = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.routes || []);
-    }
-
-    addCash(amount) {
-        this.cash(this.cash() + amount);
-    }
-
-    removeCash(amount) {
-        this.cash(this.cash() - amount);
-    }
-
-    start(state, playerId) {
-        new __WEBPACK_IMPORTED_MODULE_4_1846_actions_startCompany__["a" /* default */]({ playerId, companyId: this.id, startIndex: 7 }).execute(state);
-    }
-
-    addCerts(certs) {
-        this.certificates.push.apply(this.certificates, certs);
-    }
-
-    removeCerts(count) {
-        return this.certificates.splice(0, count);
-    }
-
-    numCanIssue() {
-        const numBankShares = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.numSharesOwnedOfCompany(this.id);
-        const playerShares = 10 - this.shares() - numBankShares;
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.max([0, __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.min([this.shares(), playerShares - numBankShares])]);
-    }
-
-    cashFromForcedIssues(numIssued) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.reduce(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(1, numIssued + 1), (sum, value) => {
-            return sum + __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftPrice(this.priceIndex(), value);
-        }, 0);
-    }
-
-    getPrivates() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.privates()).map(cert => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().getCompany(cert.companyId)).reject(company => company.closed()).sortBy('name').value();
-    }
-
-    hasPrivate(id) {
-        const privateCert = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(this.privates(), cert => cert.companyId === id);
-        if (!privateCert) {
-            return false;
-        }
-
-        const privateCo = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().getCompany(privateCert.companyId);
-        return !privateCo.closed() || privateCo.id === __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].MAIL_CONTRACT;
-    }
-
-    addPrivate(cert) {
-        this.privates.push(cert);
-    }
-
-    removePrivate(id) {
-        const privates = this.privates.remove(cert => cert.companyId === id);
-        return privates.length > 0 ? privates[0] : null;
-    }
-
-    addTrain(train) {
-        this.trains.push(train);
-    }
-
-    addTrains(trains) {
-        this.trains.push.apply(this.trains, trains);
-    }
-
-    getTrainById(trainId) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(this.trains(), train => train.id === trainId);
-    }
-
-    removeTrainById(trainId) {
-        const removed = this.trains.remove(train => train.id === trainId);
-        return removed.length > 0 ? removed[0] : null;
-    }
-
-    removeTrainsById(trainIds) {
-        return this.trains.remove(train => __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(trainIds, train.id) >= 0);
-    }
-
-    updateTrains(trains) {
-        this.trains.valueWillMutate();
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(trains, train => {
-            const index = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.findIndex(this.trains(), oldTrain => oldTrain.id === train.id);
-            if (index >= 0) {
-                this.trains()[index] = train;
-            }
-        });
-        this.trains.valueHasMutated();
-    }
-
-    numTrainsForLimit() {
-        return this.getNonPhasedOutTrains().length;
-    }
-
-    hasTooManyTrains() {
-        return this.numTrainsForLimit() > __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().trainLimit();
-    }
-
-    isAtTrainLimit() {
-        return this.numTrainsForLimit() === __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().trainLimit();
-    }
-
-    getRunnableTrains() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(this.trains(), train => !train.purchased && !train.rusted());
-    }
-
-    getNonPhasedOutTrains() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.trains()).filter(train => !train.phasedOut() && !train.rusted()).sortBy(train => train.type).value();
-    }
-
-    getPhasedOutTrains() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(this.trains(), train => train.phasedOut() && !train.rusted());
-    }
-
-    getNonRustedTrains() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(this.trains(), train => !train.rusted());
-    }
-
-    getAvailableRouteColor() {
-        const currentColors = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(this.getNonRustedTrains(), train => train.route.color);
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(1, 5)).difference(currentColors).first();
-    }
-
-    calculateRevenue() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(this.trains(), train => train.route.revenue());
-    }
-
-    useToken() {
-        this.tokens(this.tokens() - 1);
-    }
-
-    returnToken() {
-        this.tokens(this.tokens() + 1);
-    }
-
-    close() {
-        // remove from operating order
-        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state();
-        const playerCerts = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().players()).map(player => {
-            return [player.id, player.removeAllCertsForCompany(this.id)];
-        }).fromPairs().value();
-
-        const bankCerts = state.bank.removeAllCertsForCompany(this.id);
-
-        const tokens = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId).map(tile => {
-            if (tile.hasTokenForCompany(this.id)) {
-                return [tile.id, tile.removeToken(this.id)];
-            }
-            return null;
-        }).compact().fromPairs().value();
-        const reservedTokens = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId).map(tile => {
-            if (tile.hasReservedTokenForCompany(this.id)) {
-                return [tile.id, tile.removeReservedToken(this.id)];
-            }
-            return null;
-        }).compact().fromPairs().value();
-
-        const cash = this.cash();
-        state.bank.addCash(cash);
-        this.cash(0);
-
-        let meatTileId = null;
-        if (this.hasPrivate(__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY)) {
-            const tile = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId, tile => {
-                return tile.hasMeat();
-            });
-            tile.hasMeat(false);
-            meatTileId = tile.id;
-        }
-
-        let steamboatTileId = null;
-        if (this.hasPrivate(__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY)) {
-            const tile = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId, tile => {
-                return tile.hasSteamboat();
-            });
-            tile.hasSteamboat(false);
-            steamboatTileId = tile.id;
-        }
-
-        this.closed(true);
-
-        return {
-            id: this.id,
-            playerCerts,
-            bankCerts,
-            tokens,
-            reservedTokens,
-            meatTileId,
-            steamboatTileId,
-            cash
-        };
-    }
-
-    unclose(closeData) {
-        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state();
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(closeData.playerCerts, (certs, playerId) => {
-            const player = state.playersById()[playerId];
-            player.addCerts(certs);
-        });
-
-        state.bank.addCerts(closeData.bankCerts);
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId, tile => {
-            const token = closeData.tokens[tile.id];
-            if (token) {
-                const splitToken = token.split('|');
-                tile.addToken(splitToken[1], splitToken[0]);
-            }
-            const reservedToken = closeData.reservedTokens[tile.id];
-            if (reservedToken) {
-                const splitToken = reservedToken.split('|');
-                tile.addReservedToken(splitToken[1], splitToken[0]);
-            }
-
-            if (closeData.meatTileId === tile.id) {
-                tile.hasMeat(true);
-            }
-            if (closeData.steamboatTileId === tile.id) {
-                tile.hasSteamboat(true);
-            }
-        });
-        state.bank.removeCash(closeData.cash);
-        this.cash(closeData.cash);
-        this.closed(false);
-    }
-
-    phaseOut(phase) {
-        const phasedOutTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
-            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(phasedOutTrains, train.type) >= 0) {
-                train.phasedOut(true);
-            }
-        });
-    }
-
-    unphaseOut(phase) {
-        const phasedOutTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
-            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(phasedOutTrains, train.type) >= 0) {
-                train.phasedOut(false);
-            }
-        });
-    }
-
-    rust(phase) {
-        const rustedTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
-            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(rustedTrains, train.type) >= 0) {
-                train.rusted(true);
-            }
-        });
-    }
-
-    unrust(phase) {
-        const rustedTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
-            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(rustedTrains, train.type) >= 0 && train.phasedOut(true)) {
-                train.rusted(false);
-            }
-        });
-    }
-
-}
-
-Company.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (Company);
-
-/***/ }),
-/* 31 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_short_uuid__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_serializable__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_model_route__ = __webpack_require__(85);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_trainDefinitions__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_knockout__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_knockout__);
-
-
-
-
-
-
-class Train extends __WEBPACK_IMPORTED_MODULE_1_common_model_serializable__["a" /* default */] {
-    constructor(data) {
-        super();
-        data = data || {};
-        this.id = data.id || __WEBPACK_IMPORTED_MODULE_0_short_uuid___default()().new();
-        this.type = data.type;
-        this.lastRoute = data.lastRoute;
-        this.route = data.route || new __WEBPACK_IMPORTED_MODULE_2_common_model_route__["a" /* default */]({ trainType: this.type, color: 1, companyId: data.companyId });
-        this.purchased = data.purchased;
-        this.phasedOut = __WEBPACK_IMPORTED_MODULE_4_knockout___default.a.observable(data.phasedOut);
-        this.rusted = __WEBPACK_IMPORTED_MODULE_4_knockout___default.a.observable(data.rusted);
-    }
-    getName() {
-        return __WEBPACK_IMPORTED_MODULE_3_1846_config_trainDefinitions__["a" /* default */][this.type].name;
-    }
-}
-
-Train.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (Train);
-
-/***/ }),
-/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -37874,14 +35681,2236 @@ return jQuery;
 
 
 /***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_RESULT__;// Copyright (c) 2013 Pieroxy <pieroxy@pieroxy.net>
+// This work is free. You can redistribute it and/or modify it
+// under the terms of the WTFPL, Version 2
+// For more information see LICENSE.txt or http://www.wtfpl.net/
+//
+// For more information, the home page:
+// http://pieroxy.net/blog/pages/lz-string/testing.html
+//
+// LZ-based compression algorithm, version 1.4.4
+var LZString = (function() {
+
+// private property
+var f = String.fromCharCode;
+var keyStrBase64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+var keyStrUriSafe = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+-$";
+var baseReverseDic = {};
+
+function getBaseValue(alphabet, character) {
+  if (!baseReverseDic[alphabet]) {
+    baseReverseDic[alphabet] = {};
+    for (var i=0 ; i<alphabet.length ; i++) {
+      baseReverseDic[alphabet][alphabet.charAt(i)] = i;
+    }
+  }
+  return baseReverseDic[alphabet][character];
+}
+
+var LZString = {
+  compressToBase64 : function (input) {
+    if (input == null) return "";
+    var res = LZString._compress(input, 6, function(a){return keyStrBase64.charAt(a);});
+    switch (res.length % 4) { // To produce valid Base64
+    default: // When could this happen ?
+    case 0 : return res;
+    case 1 : return res+"===";
+    case 2 : return res+"==";
+    case 3 : return res+"=";
+    }
+  },
+
+  decompressFromBase64 : function (input) {
+    if (input == null) return "";
+    if (input == "") return null;
+    return LZString._decompress(input.length, 32, function(index) { return getBaseValue(keyStrBase64, input.charAt(index)); });
+  },
+
+  compressToUTF16 : function (input) {
+    if (input == null) return "";
+    return LZString._compress(input, 15, function(a){return f(a+32);}) + " ";
+  },
+
+  decompressFromUTF16: function (compressed) {
+    if (compressed == null) return "";
+    if (compressed == "") return null;
+    return LZString._decompress(compressed.length, 16384, function(index) { return compressed.charCodeAt(index) - 32; });
+  },
+
+  //compress into uint8array (UCS-2 big endian format)
+  compressToUint8Array: function (uncompressed) {
+    var compressed = LZString.compress(uncompressed);
+    var buf=new Uint8Array(compressed.length*2); // 2 bytes per character
+
+    for (var i=0, TotalLen=compressed.length; i<TotalLen; i++) {
+      var current_value = compressed.charCodeAt(i);
+      buf[i*2] = current_value >>> 8;
+      buf[i*2+1] = current_value % 256;
+    }
+    return buf;
+  },
+
+  //decompress from uint8array (UCS-2 big endian format)
+  decompressFromUint8Array:function (compressed) {
+    if (compressed===null || compressed===undefined){
+        return LZString.decompress(compressed);
+    } else {
+        var buf=new Array(compressed.length/2); // 2 bytes per character
+        for (var i=0, TotalLen=buf.length; i<TotalLen; i++) {
+          buf[i]=compressed[i*2]*256+compressed[i*2+1];
+        }
+
+        var result = [];
+        buf.forEach(function (c) {
+          result.push(f(c));
+        });
+        return LZString.decompress(result.join(''));
+
+    }
+
+  },
+
+
+  //compress into a string that is already URI encoded
+  compressToEncodedURIComponent: function (input) {
+    if (input == null) return "";
+    return LZString._compress(input, 6, function(a){return keyStrUriSafe.charAt(a);});
+  },
+
+  //decompress from an output of compressToEncodedURIComponent
+  decompressFromEncodedURIComponent:function (input) {
+    if (input == null) return "";
+    if (input == "") return null;
+    input = input.replace(/ /g, "+");
+    return LZString._decompress(input.length, 32, function(index) { return getBaseValue(keyStrUriSafe, input.charAt(index)); });
+  },
+
+  compress: function (uncompressed) {
+    return LZString._compress(uncompressed, 16, function(a){return f(a);});
+  },
+  _compress: function (uncompressed, bitsPerChar, getCharFromInt) {
+    if (uncompressed == null) return "";
+    var i, value,
+        context_dictionary= {},
+        context_dictionaryToCreate= {},
+        context_c="",
+        context_wc="",
+        context_w="",
+        context_enlargeIn= 2, // Compensate for the first entry which should not count
+        context_dictSize= 3,
+        context_numBits= 2,
+        context_data=[],
+        context_data_val=0,
+        context_data_position=0,
+        ii;
+
+    for (ii = 0; ii < uncompressed.length; ii += 1) {
+      context_c = uncompressed.charAt(ii);
+      if (!Object.prototype.hasOwnProperty.call(context_dictionary,context_c)) {
+        context_dictionary[context_c] = context_dictSize++;
+        context_dictionaryToCreate[context_c] = true;
+      }
+
+      context_wc = context_w + context_c;
+      if (Object.prototype.hasOwnProperty.call(context_dictionary,context_wc)) {
+        context_w = context_wc;
+      } else {
+        if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)) {
+          if (context_w.charCodeAt(0)<256) {
+            for (i=0 ; i<context_numBits ; i++) {
+              context_data_val = (context_data_val << 1);
+              if (context_data_position == bitsPerChar-1) {
+                context_data_position = 0;
+                context_data.push(getCharFromInt(context_data_val));
+                context_data_val = 0;
+              } else {
+                context_data_position++;
+              }
+            }
+            value = context_w.charCodeAt(0);
+            for (i=0 ; i<8 ; i++) {
+              context_data_val = (context_data_val << 1) | (value&1);
+              if (context_data_position == bitsPerChar-1) {
+                context_data_position = 0;
+                context_data.push(getCharFromInt(context_data_val));
+                context_data_val = 0;
+              } else {
+                context_data_position++;
+              }
+              value = value >> 1;
+            }
+          } else {
+            value = 1;
+            for (i=0 ; i<context_numBits ; i++) {
+              context_data_val = (context_data_val << 1) | value;
+              if (context_data_position ==bitsPerChar-1) {
+                context_data_position = 0;
+                context_data.push(getCharFromInt(context_data_val));
+                context_data_val = 0;
+              } else {
+                context_data_position++;
+              }
+              value = 0;
+            }
+            value = context_w.charCodeAt(0);
+            for (i=0 ; i<16 ; i++) {
+              context_data_val = (context_data_val << 1) | (value&1);
+              if (context_data_position == bitsPerChar-1) {
+                context_data_position = 0;
+                context_data.push(getCharFromInt(context_data_val));
+                context_data_val = 0;
+              } else {
+                context_data_position++;
+              }
+              value = value >> 1;
+            }
+          }
+          context_enlargeIn--;
+          if (context_enlargeIn == 0) {
+            context_enlargeIn = Math.pow(2, context_numBits);
+            context_numBits++;
+          }
+          delete context_dictionaryToCreate[context_w];
+        } else {
+          value = context_dictionary[context_w];
+          for (i=0 ; i<context_numBits ; i++) {
+            context_data_val = (context_data_val << 1) | (value&1);
+            if (context_data_position == bitsPerChar-1) {
+              context_data_position = 0;
+              context_data.push(getCharFromInt(context_data_val));
+              context_data_val = 0;
+            } else {
+              context_data_position++;
+            }
+            value = value >> 1;
+          }
+
+
+        }
+        context_enlargeIn--;
+        if (context_enlargeIn == 0) {
+          context_enlargeIn = Math.pow(2, context_numBits);
+          context_numBits++;
+        }
+        // Add wc to the dictionary.
+        context_dictionary[context_wc] = context_dictSize++;
+        context_w = String(context_c);
+      }
+    }
+
+    // Output the code for w.
+    if (context_w !== "") {
+      if (Object.prototype.hasOwnProperty.call(context_dictionaryToCreate,context_w)) {
+        if (context_w.charCodeAt(0)<256) {
+          for (i=0 ; i<context_numBits ; i++) {
+            context_data_val = (context_data_val << 1);
+            if (context_data_position == bitsPerChar-1) {
+              context_data_position = 0;
+              context_data.push(getCharFromInt(context_data_val));
+              context_data_val = 0;
+            } else {
+              context_data_position++;
+            }
+          }
+          value = context_w.charCodeAt(0);
+          for (i=0 ; i<8 ; i++) {
+            context_data_val = (context_data_val << 1) | (value&1);
+            if (context_data_position == bitsPerChar-1) {
+              context_data_position = 0;
+              context_data.push(getCharFromInt(context_data_val));
+              context_data_val = 0;
+            } else {
+              context_data_position++;
+            }
+            value = value >> 1;
+          }
+        } else {
+          value = 1;
+          for (i=0 ; i<context_numBits ; i++) {
+            context_data_val = (context_data_val << 1) | value;
+            if (context_data_position == bitsPerChar-1) {
+              context_data_position = 0;
+              context_data.push(getCharFromInt(context_data_val));
+              context_data_val = 0;
+            } else {
+              context_data_position++;
+            }
+            value = 0;
+          }
+          value = context_w.charCodeAt(0);
+          for (i=0 ; i<16 ; i++) {
+            context_data_val = (context_data_val << 1) | (value&1);
+            if (context_data_position == bitsPerChar-1) {
+              context_data_position = 0;
+              context_data.push(getCharFromInt(context_data_val));
+              context_data_val = 0;
+            } else {
+              context_data_position++;
+            }
+            value = value >> 1;
+          }
+        }
+        context_enlargeIn--;
+        if (context_enlargeIn == 0) {
+          context_enlargeIn = Math.pow(2, context_numBits);
+          context_numBits++;
+        }
+        delete context_dictionaryToCreate[context_w];
+      } else {
+        value = context_dictionary[context_w];
+        for (i=0 ; i<context_numBits ; i++) {
+          context_data_val = (context_data_val << 1) | (value&1);
+          if (context_data_position == bitsPerChar-1) {
+            context_data_position = 0;
+            context_data.push(getCharFromInt(context_data_val));
+            context_data_val = 0;
+          } else {
+            context_data_position++;
+          }
+          value = value >> 1;
+        }
+
+
+      }
+      context_enlargeIn--;
+      if (context_enlargeIn == 0) {
+        context_enlargeIn = Math.pow(2, context_numBits);
+        context_numBits++;
+      }
+    }
+
+    // Mark the end of the stream
+    value = 2;
+    for (i=0 ; i<context_numBits ; i++) {
+      context_data_val = (context_data_val << 1) | (value&1);
+      if (context_data_position == bitsPerChar-1) {
+        context_data_position = 0;
+        context_data.push(getCharFromInt(context_data_val));
+        context_data_val = 0;
+      } else {
+        context_data_position++;
+      }
+      value = value >> 1;
+    }
+
+    // Flush the last char
+    while (true) {
+      context_data_val = (context_data_val << 1);
+      if (context_data_position == bitsPerChar-1) {
+        context_data.push(getCharFromInt(context_data_val));
+        break;
+      }
+      else context_data_position++;
+    }
+    return context_data.join('');
+  },
+
+  decompress: function (compressed) {
+    if (compressed == null) return "";
+    if (compressed == "") return null;
+    return LZString._decompress(compressed.length, 32768, function(index) { return compressed.charCodeAt(index); });
+  },
+
+  _decompress: function (length, resetValue, getNextValue) {
+    var dictionary = [],
+        next,
+        enlargeIn = 4,
+        dictSize = 4,
+        numBits = 3,
+        entry = "",
+        result = [],
+        i,
+        w,
+        bits, resb, maxpower, power,
+        c,
+        data = {val:getNextValue(0), position:resetValue, index:1};
+
+    for (i = 0; i < 3; i += 1) {
+      dictionary[i] = i;
+    }
+
+    bits = 0;
+    maxpower = Math.pow(2,2);
+    power=1;
+    while (power!=maxpower) {
+      resb = data.val & data.position;
+      data.position >>= 1;
+      if (data.position == 0) {
+        data.position = resetValue;
+        data.val = getNextValue(data.index++);
+      }
+      bits |= (resb>0 ? 1 : 0) * power;
+      power <<= 1;
+    }
+
+    switch (next = bits) {
+      case 0:
+          bits = 0;
+          maxpower = Math.pow(2,8);
+          power=1;
+          while (power!=maxpower) {
+            resb = data.val & data.position;
+            data.position >>= 1;
+            if (data.position == 0) {
+              data.position = resetValue;
+              data.val = getNextValue(data.index++);
+            }
+            bits |= (resb>0 ? 1 : 0) * power;
+            power <<= 1;
+          }
+        c = f(bits);
+        break;
+      case 1:
+          bits = 0;
+          maxpower = Math.pow(2,16);
+          power=1;
+          while (power!=maxpower) {
+            resb = data.val & data.position;
+            data.position >>= 1;
+            if (data.position == 0) {
+              data.position = resetValue;
+              data.val = getNextValue(data.index++);
+            }
+            bits |= (resb>0 ? 1 : 0) * power;
+            power <<= 1;
+          }
+        c = f(bits);
+        break;
+      case 2:
+        return "";
+    }
+    dictionary[3] = c;
+    w = c;
+    result.push(c);
+    while (true) {
+      if (data.index > length) {
+        return "";
+      }
+
+      bits = 0;
+      maxpower = Math.pow(2,numBits);
+      power=1;
+      while (power!=maxpower) {
+        resb = data.val & data.position;
+        data.position >>= 1;
+        if (data.position == 0) {
+          data.position = resetValue;
+          data.val = getNextValue(data.index++);
+        }
+        bits |= (resb>0 ? 1 : 0) * power;
+        power <<= 1;
+      }
+
+      switch (c = bits) {
+        case 0:
+          bits = 0;
+          maxpower = Math.pow(2,8);
+          power=1;
+          while (power!=maxpower) {
+            resb = data.val & data.position;
+            data.position >>= 1;
+            if (data.position == 0) {
+              data.position = resetValue;
+              data.val = getNextValue(data.index++);
+            }
+            bits |= (resb>0 ? 1 : 0) * power;
+            power <<= 1;
+          }
+
+          dictionary[dictSize++] = f(bits);
+          c = dictSize-1;
+          enlargeIn--;
+          break;
+        case 1:
+          bits = 0;
+          maxpower = Math.pow(2,16);
+          power=1;
+          while (power!=maxpower) {
+            resb = data.val & data.position;
+            data.position >>= 1;
+            if (data.position == 0) {
+              data.position = resetValue;
+              data.val = getNextValue(data.index++);
+            }
+            bits |= (resb>0 ? 1 : 0) * power;
+            power <<= 1;
+          }
+          dictionary[dictSize++] = f(bits);
+          c = dictSize-1;
+          enlargeIn--;
+          break;
+        case 2:
+          return result.join('');
+      }
+
+      if (enlargeIn == 0) {
+        enlargeIn = Math.pow(2, numBits);
+        numBits++;
+      }
+
+      if (dictionary[c]) {
+        entry = dictionary[c];
+      } else {
+        if (c === dictSize) {
+          entry = w + w.charAt(0);
+        } else {
+          return null;
+        }
+      }
+      result.push(entry);
+
+      // Add w+entry[0] to the dictionary.
+      dictionary[dictSize++] = w + entry.charAt(0);
+      enlargeIn--;
+
+      w = entry;
+
+      if (enlargeIn == 0) {
+        enlargeIn = Math.pow(2, numBits);
+        numBits++;
+      }
+
+    }
+  }
+};
+  return LZString;
+})();
+
+if (true) {
+  !(__WEBPACK_AMD_DEFINE_RESULT__ = function () { return LZString; }.call(exports, __webpack_require__, exports, module),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+} else if( typeof module !== 'undefined' && module != null ) {
+  module.exports = LZString
+}
+
+
+/***/ }),
+/* 24 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_game_validationError__ = __webpack_require__(14);
+
+
+
+
+
+class StartCompany extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+
+        this.playerId = args.playerId;
+        this.companyId = args.companyId;
+        this.startIndex = args.startIndex;
+        this.firstPassIndex = args.firstPassIndex;
+    }
+
+    doExecute(state) {
+        const player = state.playersById()[this.playerId];
+        const company = state.getCompany(this.companyId);
+        const price = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex);
+        const cash = price * 2;
+        this.firstPassIndex = state.firstPassIndex();
+
+        // validate things
+        if (company.opened()) {
+            throw new __WEBPACK_IMPORTED_MODULE_3_common_game_validationError__["a" /* default */]('Cannot open a company that was already opened');
+        }
+
+        if (player.cash() < cash) {
+            throw new __WEBPACK_IMPORTED_MODULE_3_common_game_validationError__["a" /* default */](player.name() + ' does not have enough cash to open ' + company.name + ' at ' + cash / 2);
+        }
+
+        // cert limit
+
+        company.priceIndex(this.startIndex);
+        company.president(this.playerId);
+        company.opened(true);
+        state.stockBoard.addCompany(company);
+        player.removeCash(cash);
+        company.addCash(cash + (this.companyId === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL ? price : 0));
+
+        const tile = state.tilesByCellId[company.homeCellId];
+        company.useToken();
+        tile.addToken(company.id);
+        tile.removeReservedToken(company.id);
+
+        // First cert in company treasury always pres cert for convenience
+        const cert = company.certificates.shift();
+        player.addCert(cert);
+        state.firstPassIndex(null);
+    }
+
+    doUndo(state) {
+        const player = state.playersById()[this.playerId];
+        const company = state.getCompany(this.companyId);
+        const price = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex);
+        const cash = price * 2;
+
+        const tile = state.tilesByCellId[company.homeCellId];
+        tile.removeToken(company.id);
+        tile.addReservedToken(company.id);
+        company.returnToken();
+
+        company.removeCash(cash + (this.companyId === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL ? price : 0));
+        player.addCash(cash);
+
+        state.stockBoard.removeCompany(company.id);
+        company.priceIndex(0);
+        company.president(null);
+        company.opened(false);
+
+        const cert = player.removePresidentCertForCompany(this.companyId);
+        company.certificates.unshift(cert);
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        return 'Opened ' + company.nickname + ' @ ' + __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex);
+    }
+
+    confirmation(state) {
+        const company = state.getCompany(this.companyId);
+        return 'Confirm Open ' + company.nickname + ' @ ' + __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex);
+    }
+}
+
+StartCompany.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (StartCompany);
+
+/***/ }),
+/* 25 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const Allocations = {
+    NONE: 'none',
+    HALF: 'half',
+    FULL: 'full'
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (Allocations);
+
+/***/ }),
+/* 26 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const TerrainTypes = {
+    BRIDGE: 'bridge',
+    TUNNEL: 'tunnel'
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (TerrainTypes);
+
+/***/ }),
+/* 27 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_baseGame__ = __webpack_require__(75);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_map_grid__ = __webpack_require__(70);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_companies__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_state_state__ = __webpack_require__(72);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_game_player__ = __webpack_require__(65);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_common_game_bank__ = __webpack_require__(74);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_knockout__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_knockout__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_9_lodash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_1846_config_tileManifest__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_1846_game_stockBoard__ = __webpack_require__(67);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_common_util_events__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_1846_game_sequence__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_1846_game_operatingRound__ = __webpack_require__(63);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_1846_game_history__ = __webpack_require__(62);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16_1846_config_roundTypes__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17_lz_string__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17_lz_string___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_17_lz_string__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_18_common_game_currentGame__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19_jquery__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19_jquery___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_19_jquery__);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const ActivePanelIDs = {
+    MAP: 'map',
+    OWNERSHIP: 'ownership',
+    TILE_MANIFEST: 'manifest',
+    HISTORY: 'history',
+    REPORT_BUG: 'report_bug'
+};
+
+class Game extends __WEBPACK_IMPORTED_MODULE_0_common_game_baseGame__["a" /* default */] {
+    constructor(definition) {
+        definition = definition || {};
+        super(definition);
+
+        this.record = definition.record;
+        this.state = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable(definition.state);
+        this.grid = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable(new __WEBPACK_IMPORTED_MODULE_1_1846_map_grid__["a" /* default */](definition.state));
+        this.privateDraft = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable();
+        this.stockRound = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable();
+        this.operatingRound = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable(new __WEBPACK_IMPORTED_MODULE_14_1846_game_operatingRound__["a" /* default */]());
+        this.history = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable(new __WEBPACK_IMPORTED_MODULE_15_1846_game_history__["a" /* default */]());
+        this.zoom = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable(.8);
+        this.oldZoom = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable();
+        this.selectedCompany = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable();
+
+        this.activePanel = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable(ActivePanelIDs.MAP);
+        this.ActivePanelIDs = ActivePanelIDs;
+        this.sequence = __WEBPACK_IMPORTED_MODULE_13_1846_game_sequence__["a" /* default */];
+        this.touchMap = __WEBPACK_IMPORTED_MODULE_8_knockout___default.a.observable();
+    }
+
+    selectCompany(companyId) {
+        if (this.selectedCompany() === companyId) {
+            this.selectedCompany(null);
+        } else {
+            this.selectedCompany(companyId);
+        }
+    }
+
+    zoomIn() {
+        if (this.zoom() < 1.5) {
+            this.zoom(this.zoom() + .05);
+        }
+    }
+
+    zoomOut() {
+        if (this.zoom() > .1) {
+            this.zoom(this.zoom() - .05);
+        }
+    }
+
+    showMap() {
+        this.activePanel(ActivePanelIDs.MAP);
+    }
+
+    showOwnership() {
+        this.activePanel(ActivePanelIDs.OWNERSHIP);
+    }
+
+    setActivePanel(newPanel) {
+        if (newPanel === ActivePanelIDs.HISTORY) {
+            const currentRound = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_18_common_game_currentGame__["a" /* default */])().state().roundHistory.currentRound();
+            if (currentRound) {
+                this.history().selectRound(currentRound.id);
+            }
+        }
+        this.activePanel(newPanel);
+    }
+
+    static createInitialState(users) {
+        const publicCompanies = __WEBPACK_IMPORTED_MODULE_2_1846_config_companies__["a" /* default */].generatePublicCompanies();
+        const privateCompanies = __WEBPACK_IMPORTED_MODULE_2_1846_config_companies__["a" /* default */].generatePrivateCompanies();
+
+        const greenGroup = [__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].CHESAPEAKE_OHIO, __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].ERIE, __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].PENNSYLVANIA];
+        const blueGroup = [__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY, __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY, __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY];
+        const orangeGroup = [__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].OHIO_INDIANA, __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL, __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].LAKE_SHORE_LINE];
+
+        const players = __WEBPACK_IMPORTED_MODULE_9_lodash___default()(users).shuffle().map((user, index) => {
+            return new __WEBPACK_IMPORTED_MODULE_5_1846_game_player__["a" /* default */]({ user, cash: 400, order: index });
+        }).value();
+
+        if (players.length === 3 || players.length === 4) {
+            const numToRemove = players.length === 3 ? 2 : 1;
+            const greenRemovals = __WEBPACK_IMPORTED_MODULE_9_lodash___default()(greenGroup).shuffle().take(numToRemove).value();
+            const blueRemovals = __WEBPACK_IMPORTED_MODULE_9_lodash___default()(blueGroup).shuffle().take(numToRemove).value();
+            const orangeRemovals = __WEBPACK_IMPORTED_MODULE_9_lodash___default()(orangeGroup).shuffle().take(numToRemove).value();
+
+            __WEBPACK_IMPORTED_MODULE_9_lodash___default.a.remove(publicCompanies, company => __WEBPACK_IMPORTED_MODULE_9_lodash___default.a.indexOf(greenRemovals, company.id) >= 0);
+            __WEBPACK_IMPORTED_MODULE_9_lodash___default.a.remove(privateCompanies, company => __WEBPACK_IMPORTED_MODULE_9_lodash___default.a.indexOf(blueRemovals, company.id) >= 0);
+            __WEBPACK_IMPORTED_MODULE_9_lodash___default.a.remove(privateCompanies, company => __WEBPACK_IMPORTED_MODULE_9_lodash___default.a.indexOf(orangeRemovals, company.id) >= 0);
+        }
+
+        let cash = 0;
+        const trainsByPhase = {};
+        if (players.length === 3) {
+            cash = 5300;
+            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_I] = 5;
+            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_II] = 4;
+            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_III] = 3;
+            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_IV] = -1;
+        } else if (players.length === 4) {
+            cash = 5900;
+            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_I] = 6;
+            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_II] = 5;
+            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_III] = 4;
+            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_IV] = -1;
+        } else if (players.length === 5) {
+            cash = 7000;
+            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_I] = 7;
+            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_II] = 6;
+            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_III] = 5;
+            trainsByPhase[__WEBPACK_IMPORTED_MODULE_6_1846_config_phaseIds__["a" /* default */].PHASE_IV] = -1;
+        }
+
+        const bank = new __WEBPACK_IMPORTED_MODULE_7_common_game_bank__["a" /* default */]({ cash, trainsByPhase });
+
+        const manifest = new __WEBPACK_IMPORTED_MODULE_10_1846_config_tileManifest__["a" /* default */]();
+        const stockBoard = new __WEBPACK_IMPORTED_MODULE_11_1846_game_stockBoard__["a" /* default */]();
+
+        const state = new __WEBPACK_IMPORTED_MODULE_4_1846_state_state__["a" /* default */]({
+            players,
+            publicCompanies,
+            privateCompanies,
+            bank,
+            manifest,
+            stockBoard
+        });
+
+        state.roundHistory.startRound(__WEBPACK_IMPORTED_MODULE_16_1846_config_roundTypes__["a" /* default */].PRIVATE_DRAFT, 1);
+        state.currentPlayerIndex(state.players().length - 1);
+        state.turnHistory.startTurn({ state });
+
+        return state;
+    }
+
+    updateState(newState) {
+        this.state(newState);
+        __WEBPACK_IMPORTED_MODULE_13_1846_game_sequence__["a" /* default */].restore();
+        __WEBPACK_IMPORTED_MODULE_12_common_util_events__["a" /* default */].emit('stateUpdated', {});
+    }
+
+    saveLocalState() {
+        this.record.round = this.state().winner() ? 'Game End' : this.state().roundHistory.currentRound().getRoundName();
+        this.record.turn = this.state().currentPlayer().name();
+        this.record.save(this.state());
+    }
+
+    enableTouchMap() {
+        this.touchMap(true);
+        this.shrinkMapToFitGrid();
+    }
+
+    disableTouchMap() {
+        this.touchMap(false);
+        this.restoreZoom();
+    }
+
+    isDraftRevealed() {
+        return this.privateDraft() && this.privateDraft().revealed();
+    }
+
+    shrinkMapToFitGrid() {
+        const gridWidth = 1400;
+        const map = __WEBPACK_IMPORTED_MODULE_19_jquery___default()('#map');
+        map.scrollLeft(0);
+        const mapWidth = map.width();
+
+        this.oldZoom(this.zoom());
+        this.zoom(mapWidth / gridWidth);
+    }
+
+    restoreZoom() {
+        this.zoom(this.oldZoom());
+    }
+
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Game);
+
+/***/ }),
+/* 28 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_model_serializable__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__ = __webpack_require__(3);
+
+
+
+class ActionGroup extends __WEBPACK_IMPORTED_MODULE_0_common_model_serializable__["a" /* default */] {
+    constructor(definition) {
+        definition = definition || {};
+        super(definition);
+
+        this.type = definition.type;
+        this.id = definition.id;
+        this.actionStartIndex = definition.actionStartIndex;
+        this.actionEndIndex = definition.actionEndIndex;
+    }
+
+    commit() {
+        this.actionEndIndex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().actionHistory.currentIndex();
+    }
+
+    undo() {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().actionHistory.undoRange(this.actionStartIndex, this.actionEndIndex);
+    }
+
+    getActions() {
+        if (this.actionEndIndex <= this.actionStartIndex) {
+            return [];
+        }
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().actionHistory.getActionRange(this.actionStartIndex, this.actionEndIndex);
+    }
+
+    getSummaries() {
+        if (this.actionEndIndex <= this.actionStartIndex) {
+            return [];
+        }
+
+        return _(this.getActions()).invokeMap('summary', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state()).map((summary, index) => {
+            return {
+                index: this.actionStartIndex + index,
+                type: 'action',
+                summary
+            };
+        }).value();
+    }
+
+    getInstructions() {
+        if (this.actionEndIndex <= this.actionStartIndex) {
+            return [];
+        }
+
+        return _(this.getActions()).invokeMap('instructions', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state()).map((instructions, index) => {
+            return _.map(instructions, instruction => {
+                return {
+                    index: this.actionStartIndex + index,
+                    type: 'action',
+                    instruction
+                };
+            });
+        }).flatten().value();
+    }
+
+    getDetails() {
+        if (this.actionEndIndex <= this.actionStartIndex) {
+            return [];
+        }
+
+        return _(this.getActions()).invokeMap('details', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state()).map((details, index) => {
+            return {
+                index: this.actionStartIndex + index,
+                type: 'action',
+                details
+            };
+        }).value();
+    }
+
+    isWithinRange(startIndex, endIndex) {
+        return this.actionStartIndex >= startIndex && (endIndex && this.actionEndIndex <= endIndex || !endIndex);
+    }
+}
+
+ActionGroup.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (ActionGroup);
+
+/***/ }),
+/* 29 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_short_uuid__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__ = __webpack_require__(4);
+
+
+
+
+
+class GameRecord extends __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__["a" /* default */] {
+    constructor(definition) {
+        super(definition);
+
+        this.id = definition.id || __WEBPACK_IMPORTED_MODULE_0_short_uuid___default()().new();
+        this.type = definition.type;
+        this.name = definition.name;
+        this.location = definition.location;
+        this.players = definition.players;
+        this.startDate = definition.startDate;
+        this.endDate = definition.endDate;
+        this.winner = definition.winner;
+        this.round = definition.round;
+        this.turn = definition.turn;
+    }
+
+    create(currentState, initialState) {
+        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].store(this.id, this.serialize(), 'games');
+        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].storeCompressed(this.id, initialState.serialize(), 'initialstate');
+        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].storeCompressed(this.id, currentState.serialize(), 'currentstate');
+    }
+
+    loadCurrentState() {
+        return __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__["a" /* default */].deserialize(__WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].loadCompressed(this.id, 'currentstate'));
+    }
+
+    loadRawCurrentState() {
+        return __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].load(this.id, 'currentstate');
+    }
+
+    save(state) {
+        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].store(this.id, this.serialize(), 'games');
+        if (state) {
+            __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].storeCompressed(this.id, state.serialize(), 'currentstate');
+        }
+    }
+
+    static load(id) {
+        return __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__["a" /* default */].deserialize(__WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].load(id, 'games'));
+    }
+
+    static list() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(__WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].list('games'), game => {
+            return GameRecord.deserialize(game);
+        });
+    }
+}
+
+GameRecord.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (GameRecord);
+
+/***/ }),
+/* 30 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_map_tile__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_1846_actions_layTrack__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_1846_actions_addToken__ = __webpack_require__(36);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_1846_actions_placeMeat__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_1846_actions_placeSteamboat__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_common_util_events__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_1846_config_terrainTypes__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__ = __webpack_require__(16);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const CellCosts = {
+    C15: 40,
+    F18: 40,
+    G17: 40,
+    H16: 40,
+    H14: 60
+};
+
+const FreeICCells = {
+    E5: true,
+    F6: true,
+    G5: true,
+    H6: true,
+    J4: true
+};
+
+const FreeTunnelBlasterCells = {
+    F18: true,
+    G17: true,
+    H16: true,
+    H14: true
+};
+
+const ReservedTokens = {
+    I5: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL,
+    E11: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].PENNSYLVANIA,
+    D20: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].ERIE,
+    H12: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO
+};
+
+// Could optimize by storing known connections to stations on tiles, but would always need to refresh those if a
+// token is placed, as it can break a connection by blocking
+
+class Cell {
+    constructor(data) {
+        data = data || {};
+
+        this.id = data.id;
+        this.top = data.top || 0;
+        this.left = data.left || 0;
+        this.row = data.row || 0;
+        this.col = data.col || 0;
+        this.width = data.width || 126;
+        this.height = data.height || 144;
+        this.outline = data.outline || '0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796';
+        this.tile = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(data.tile);
+        this.preview = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(data.preview);
+        this.allowedPreviewPositionData = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable({});
+        this.allowedPreviewPositions = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(this.allowedPreviewPositionData(), 'position');
+        });
+        this.neighbors = data.neighbors || [null, null, null, null, null, null];
+        this.connectionCosts = data.connectionCosts || {};
+        this.visibleTile = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            return this.preview() || this.tile();
+        });
+        this.upgradeTiles = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
+                return [];
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
+                return [];
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany()) {
+                return [];
+            }
+
+            return this.getUpgradeTiles();
+        });
+
+        this.tokenCheckTrigger = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable().extend({ notify: 'always' });
+
+        this.tokenableCities = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
+                return [];
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
+                return [];
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany()) {
+                return [];
+            }
+
+            if (!this.tile()) {
+                return [];
+            }
+
+            this.tokenCheckTrigger();
+
+            const companyId = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId();
+            const openCities = this.tile().getOpenCities(companyId);
+
+            if (openCities.length > 0 && this.id === 'H12' && companyId === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO) {
+                return openCities;
+            }
+
+            if (openCities.length > 0 && this.id === 'E11' && companyId === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].PENNSYLVANIA) {
+                return openCities;
+            }
+
+            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(openCities, cityId => this.depthFirstSearchForStation(companyId, cityId, {}, []));
+        });
+
+        this.canToken = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
+                return false;
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
+                return false;
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany()) {
+                return false;
+            }
+
+            if (this.tile().getOpenCities(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId()).length === 0) {
+                return false;
+            }
+
+            const turn = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().turnHistory.currentTurn();
+            if (!turn) {
+                return false;
+            }
+
+            const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
+            if (!company.tokens()) {
+                return false;
+            }
+
+            const hasTokened = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(turn.getActions(), action => {
+                return action.getTypeName() === 'AddToken';
+            });
+
+            if (hasTokened) {
+                return false;
+            }
+
+            if (this.tokenableCities().length === 0) {
+                return false;
+            }
+
+            const cost = this.getTokenCost();
+            if (company.cash() < cost) {
+                return false;
+            }
+
+            return true;
+        });
+
+        this.canEdit = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
+                return false;
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
+                return false;
+            }
+
+            const steamboat = this.canPlaceSteamboat();
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany() && !steamboat) {
+                return false;
+            }
+
+            const layingTrack = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().selectedAction() === __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().Actions.LAY_TRACK;
+            const oandi = this.isOhioIndianaLay();
+            const mc = this.isMichiganCentralLay();
+            const lsl = this.isLSLLay();
+            const meat = this.canPlaceMeat();
+
+            if (!layingTrack && !oandi && !mc && !lsl && !meat && !steamboat) {
+                return false;
+            }
+
+            if (this.isMichiganCentralLay() && !this.michiganCentralBlocked() || this.isOhioIndianaLay() && !this.ohioIndianaBlocked()) {
+                return false;
+            }
+
+            if (!this.isMichiganCentralLay() && this.michiganCentralBlocked()) {
+                return false;
+            }
+
+            if (!this.isOhioIndianaLay() && this.ohioIndianaBlocked()) {
+                return false;
+            }
+
+            return this.upgradeTiles().length > 0 || this.canToken() || meat || steamboat;
+        });
+
+        this.canRoute = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
+                return false;
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
+                return false;
+            }
+
+            const train = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().selectedTrain();
+            if (!train) {
+                return false;
+            }
+
+            return true;
+        });
+
+        this.popoverParams = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            return {
+                enabledObservable: this.canEdit,
+                placement: 'right',
+                trigger: this.preview() ? 'manual' : 'click',
+                closestDiv: true,
+                content: '<div data-bind="template: { name: \'views/cellPopover\' }"></div>'
+            };
+        });
+
+        __WEBPACK_IMPORTED_MODULE_12_common_util_events__["a" /* default */].on('trackLaid', () => {
+            this.trackLaidHandler();
+        });
+        __WEBPACK_IMPORTED_MODULE_12_common_util_events__["a" /* default */].on('gridRestored', () => {
+            this.gridRestoredHandler();
+        });
+    }
+
+    trackLaidHandler() {
+        this.tokenCheckTrigger(1);
+    }
+
+    gridRestoredHandler() {
+        this.tokenCheckTrigger(1);
+    }
+
+    isOhioIndianaTiles() {
+        return this.id === 'F14' || this.id === 'F16';
+    }
+
+    isMichiganCentralTiles() {
+        return this.id === 'B10' || this.id === 'B12';
+    }
+
+    isOhioIndianaLay() {
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isOhioIndianaAbility() && this.isOhioIndianaTiles();
+    }
+
+    isMichiganCentralLay() {
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isMichiganCentralAbility() && this.isMichiganCentralTiles();
+    }
+
+    isLSLLay() {
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isLSLAbility() && (this.id === 'D14' || this.id === 'E17');
+    }
+
+    canUpgrade() {
+        return this.isLSLLay() || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().hasUpgradedTrackThisTurn();
+    }
+
+    canPlaceMeat() {
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isMeatPackingAbility() && (this.id === 'D6' || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].ST_LOUIS);
+    }
+
+    canPlaceSteamboat() {
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isSteamboatAbility() && (this.id === 'D14' || this.id === 'G19' || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].HOLLAND || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].CHICAGO_CONNECTIONS || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].ST_LOUIS);
+    }
+
+    michiganCentralBlocked() {
+        const michiganCentral = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().getCompany(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL);
+        return michiganCentral && this.isMichiganCentralTiles() && !michiganCentral.closed() && !michiganCentral.used();
+    }
+
+    ohioIndianaBlocked() {
+        const ohioIndiana = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().getCompany(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].OHIO_INDIANA);
+        return ohioIndiana && this.isOhioIndianaTiles() && !ohioIndiana.closed() && !ohioIndiana.used();
+    }
+
+    getUpgradeTiles() {
+        if (this.isOhioIndianaLay() || this.isMichiganCentralLay()) {
+            return this.getOhioIndianaOrMichiganCentralTiles();
+        }
+
+        if (!this.isLSLLay() && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().hasLaidTwoTrackThisTurn()) {
+            return [];
+        }
+
+        const phase = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentPhaseId();
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().manifest.getUpgradesForTile(this.tile().id) || [], upgrade => {
+
+            if (upgrade.tile.colorId !== __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW && (phase === __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__["a" /* default */].PHASE_I || !this.canUpgrade())) {
+                return false;
+            }
+
+            if (phase === __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__["a" /* default */].PHASE_II && __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf([__WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].GREEN, __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW], upgrade.tile.colorId) < 0) {
+                return false;
+            }
+
+            if (phase === __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__["a" /* default */].PHASE_III && __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf([__WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].BROWN, __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].GREEN, __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW], upgrade.tile.colorId) < 0) {
+                return false;
+            }
+
+            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
+        });
+    }
+
+    getOhioIndianaOrMichiganCentralTiles() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().manifest.getUpgradesForTile(this.tile().id) || [], upgrade => {
+            if (upgrade.tile.colorId !== __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW) {
+                return false;
+            }
+
+            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
+        });
+    }
+
+    getTokenCost() {
+        const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
+        let cost = 80;
+        if (ReservedTokens[this.id] === company.id) {
+            cost = 40;
+            if (company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO || company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].PENNSYLVANIA) {
+                const connected = this.isConnectedToStation(company.id);
+                if (!connected) {
+                    cost = company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO ? 100 : 60;
+                }
+            }
+        }
+        return cost;
+    }
+
+    getBaseCost(oldTile) {
+        if (this.isLSLLay()) {
+            return 0;
+        }
+
+        if (!oldTile.map) {
+            return 20;
+        }
+
+        const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
+        let cost = CellCosts[this.id] || 20;
+
+        if (company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL && FreeICCells[this.id]) {
+            cost = 0;
+        }
+
+        if (company.hasPrivate(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY) && FreeTunnelBlasterCells[this.id]) {
+            cost = 0;
+        }
+
+        return cost;
+    }
+
+    getPrivatePairPositionData(oldTile, newTileId, neighborEdge) {
+
+        const neighbor = this.neighbors[neighborEdge];
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(0, 6)).map(pos => {
+            const connections = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(newTileId, pos);
+            if (neighbor.tile().colorId === __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW) {
+                const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(neighborEdge);
+                const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
+                if (neighborConnectionPoint < 0) {
+                    return false;
+                }
+
+                const connectsToNeighbor = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(connections, connection => {
+                    return connection[0] === neighborEdge || connection[1] === neighborEdge;
+                });
+                if (!connectsToNeighbor) {
+                    return false;
+                }
+            }
+            const connectionOffMap = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(connections, connection => {
+                if (connection[0] < 7 && !this.neighbors[connection[0]]) {
+                    return true;
+                }
+
+                if (connection[1] < 7 && !this.neighbors[connection[1]]) {
+                    return true;
+                }
+            });
+
+            if (connectionOffMap) {
+                return null;
+            }
+            return {
+                position: pos,
+                cost: 0
+            };
+        }).compact().keyBy('position').value();
+    }
+
+    getAllowedTilePositionData(oldTile, newTileId) {
+        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state();
+        if (!state.isOperatingRound()) {
+            return [];
+        }
+
+        const oandi = this.isOhioIndianaLay();
+        const mc = this.isMichiganCentralLay();
+        if (oandi || mc) {
+            return this.getPrivatePairPositionData(oldTile, newTileId, this.id === 'F14' || this.id === 'B10' ? 1 : 4);
+        }
+
+        const visited = {};
+
+        const validEdges = {};
+        const invalidEdges = {};
+
+        const company = state.currentCompany();
+        const baseCost = this.getBaseCost(oldTile);
+        if (company.cash() < baseCost) {
+            return [];
+        }
+
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(0, 6)).map(pos => {
+            // Check against existing tile connections
+            const oldConnectionsIds = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionIdsForPosition(oldTile.id, oldTile.position());
+            const newConnectionsIds = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionIdsForPosition(newTileId, pos);
+
+            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.difference(oldConnectionsIds, newConnectionsIds).length > 0) {
+                return null;
+            }
+
+            const addedConnectionIds = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.difference(newConnectionsIds, oldConnectionsIds);
+            const addedConnections = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(newTileId, pos)).filter(connection => {
+                return this.tile().hasCity() || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(addedConnectionIds, this.getConnectionId(connection)) >= 0;
+            }).value();
+
+            // Check off map
+            const connectionOffMap = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(addedConnections, connection => {
+                if (connection[0] < 7 && !this.neighbors[connection[0]]) {
+                    invalidEdges[connection[0]] = true;
+                    return true;
+                }
+
+                if (connection[1] < 7 && !this.neighbors[connection[1]]) {
+                    invalidEdges[connection[1]] = true;
+                    return true;
+                }
+            });
+
+            if (connectionOffMap) {
+                return null;
+            }
+
+            // Check for connection costs
+            const existingConnectionPoints = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(oldTile.id, oldTile.position())).flatten().uniq().value();
+            const connectionCosts = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(addedConnections).flatten().uniq().difference(existingConnectionPoints).sumBy(edgeIndex => {
+                return this.getConnectionCost(edgeIndex);
+            });
+
+            // Check new track for a path back to station
+            const connectionToStation = this.isLSLLay() || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(addedConnections, connection => {
+                const connectionStart = connection[0];
+                const connectionEnd = connection[1];
+
+                if (validEdges[connectionStart] || validEdges[connectionEnd]) {
+                    return true;
+                }
+
+                const connectionId = this.getCellConnectionId(connection);
+
+                if (connectionStart < 7 && !invalidEdges[connectionStart]) {
+                    const isEdgeValid = this.checkNeighborConnection(company.id, connectionStart, visited, [connectionId]);
+                    if (isEdgeValid) {
+                        validEdges[connectionStart] = true;
+                        return true;
+                    } else {
+                        invalidEdges[connectionStart] = true;
+                    }
+                }
+
+                if (connectionEnd < 7 && !invalidEdges[connectionEnd]) {
+                    const isEdgeValid = this.checkNeighborConnection(company.id, connectionEnd, visited, [connectionId]);
+                    if (isEdgeValid) {
+                        validEdges[connectionEnd] = true;
+                        return true;
+                    } else {
+                        invalidEdges[connectionEnd] = true;
+                    }
+                }
+            });
+
+            if (!connectionToStation) {
+                return null;
+            }
+
+            const totalCost = baseCost + connectionCosts;
+            if (company.cash() < totalCost) {
+                return null;
+            }
+
+            return {
+                position: pos,
+                cost: totalCost
+            };
+        }).compact().keyBy('position').value();
+    }
+
+    getConnectionCost(edgeIndex) {
+        if (edgeIndex > 6) {
+            return 0;
+        }
+
+        const costData = this.connectionCosts[edgeIndex];
+        if (!costData) {
+            return 0;
+        }
+
+        if (costData.type === __WEBPACK_IMPORTED_MODULE_13_1846_config_terrainTypes__["a" /* default */].TUNNEL) {
+            const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
+            if (company.hasPrivate(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY)) {
+                return 0;
+            }
+        }
+
+        const neighbor = this.neighbors[edgeIndex];
+        const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
+        const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
+        return neighborConnectionPoint >= 0 ? costData.cost : 0;
+    }
+
+    isConnectedToStation(companyId) {
+        const connections = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(this.tile().id, this.tile().position());
+        const visited = {};
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(connections, connection => {
+            let connected = false;
+
+            if (connection[0] < 7) {
+                connected = this.checkNeighborConnection(companyId, connection[0], visited, []);
+            }
+
+            if (!connected && connection[1] < 7) {
+                connected = this.checkNeighborConnection(companyId, connection[1], visited, []);
+            }
+            return connected;
+        });
+    }
+
+    checkNeighborConnection(companyId, edgeIndex, visited, currentSearchPath) {
+
+        const hasLocalStation = this.tile().hasTokenForCompany(companyId);
+        if (hasLocalStation) {
+            return true;
+        }
+
+        const neighbor = this.neighbors[edgeIndex];
+        if (!neighbor) {
+            return false;
+        }
+        // console.log('Checking neighbor ' + neighbor.id + ' for connection to station');
+        const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
+        const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
+        if (neighborConnectionPoint < 0) {
+            return false;
+        }
+
+        return neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint, visited, currentSearchPath);
+    }
+
+    depthFirstSearchForStation(companyId, connectionStart, visited, currentSearchPath) {
+        const connections = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(this.tile().getConnectionsToPoint(connectionStart), connection => {
+            return connection[0] === connectionStart ? connection : [connection[1], connection[0]];
+        });
+
+        let found = false;
+
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(connections, connection => {
+            const directionalConnectionId = this.id + '-' + this.getConnectionId(connection, true);
+            const connectionId = this.id + '-' + this.getConnectionId(connection);
+            if (visited[directionalConnectionId] || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(currentSearchPath, connectionId) >= 0) {
+                return;
+            }
+
+            visited[directionalConnectionId] = true;
+            if (currentSearchPath) {
+                currentSearchPath.push(connectionId);
+            }
+
+            if (connection[1] > 6) {
+
+                // check for city / token
+                if (companyId && this.tile().hasTokenForCompany(companyId, connection[1])) {
+                    found = true;
+                    return false;
+                }
+
+                // Check blocked
+                if (this.tile().isBlockedForCompany(companyId, connection[1])) {
+                    return false;
+                }
+
+                // console.log('Starting new search on this tile from local city ' + connection[1]);
+                found = this.depthFirstSearchForStation(companyId, connection[1], visited, currentSearchPath);
+            } else {
+                const connectionEnd = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position());
+                const neighbor = this.neighbors[connectionEnd];
+                if (!neighbor) {
+                    return;
+                }
+                const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(connectionEnd);
+                const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
+                if (neighborConnectionPoint >= 0) {
+                    found = neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint, visited, currentSearchPath);
+                }
+            }
+
+            if (found) {
+                return false;
+            }
+        });
+        if (currentSearchPath) {
+            currentSearchPath.pop();
+        }
+
+        return found;
+    }
+
+    getCellConnectionId(connection, directional) {
+        return this.id + '-' + this.getConnectionId(connection, directional);
+    }
+
+    getConnectionId(connection, directional) {
+        if (directional) {
+            return connection[0] + '-' + connection[1];
+        } else {
+            return Math.min(connection[0], connection[1]) + '-' + Math.max(connection[0], connection[1]);
+        }
+    }
+
+    hasConnectionAtIndex(index) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
+            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position()) === index) {
+                return true;
+            }
+
+            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position()) === index) {
+                return true;
+            }
+        });
+    }
+
+    getConnectionsToCell(cell) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.neighbors).map((neighbor, index) => {
+            if (!neighbor || neighbor.id !== cell.id) {
+                return;
+            }
+            return this.getConnectionsToIndex(cell, index);
+        }).compact().flatten().value();
+    }
+
+    getConnectionEdgeToCell(cell) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.findIndex(this.neighbors, neighbor => neighbor && neighbor.id === cell.id);
+    }
+
+    getAllConnectionEdgesToCell(cell) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.neighbors).map((neighbor, index) => neighbor && neighbor.id === cell.id ? index : null).reject(index => __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isNull(index)).value();
+    }
+
+    getConnectionsFromNeighborToNeighbor(neighborOne, neighborTwo, invalidConnectionIds) {
+        const edgeOne = this.getConnectionEdgeToCell(neighborOne);
+        const edgeTwo = this.getConnectionEdgeToCell(neighborTwo);
+
+        if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.keys(this.tile().cities).length > 0) {
+            let edgePairs = [[edgeOne, edgeTwo]];
+            if (neighborTwo.offboard) {
+                const edges = this.getAllConnectionEdgesToCell(neighborTwo);
+                if (edges.length > 1) {
+                    edgePairs = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(edges, edge => [edgeOne, edge]);
+                }
+            } else if (neighborOne.offboard) {
+                const edges = this.getAllConnectionEdgesToCell(neighborOne);
+                if (edges.length > 1) {
+                    edgePairs = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(edges, edge => [edge, edgeTwo]);
+                }
+            }
+
+            return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.tile().cities).map(city => {
+                return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(edgePairs).map(edgePair => __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.compact([this.getConnectionToEdges(edgePair[0], city.id), this.getConnectionToEdges(edgePair[1], city.id)])).reject(result => {
+                    const resultConnectionIds = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(result, connection => __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionId(connection));
+                    return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.intersection(resultConnectionIds, invalidConnectionIds).length > 0;
+                }).first();
+            }).find(connections => connections.length === 2);
+        } else {
+            return [this.getConnectionToEdges(edgeOne, edgeTwo)];
+        }
+    }
+
+    getConnectionToEdges(start, end) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
+            const offsetStart = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position());
+            const offsetEnd = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position());
+            return (offsetStart === start || offsetStart === end) && (offsetEnd === start || offsetEnd === end);
+        });
+    }
+
+    getConnectionPointAtIndex(neighbor, index) {
+        const connection = this.hasConnectionAtIndex(index);
+        if (connection) {
+            return __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position()) === index ? connection[0] : connection[1];
+        }
+        return -1;
+    }
+
+    getConnectionsToIndex(neighbor, index) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
+            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position()) === index) {
+                return true;
+            }
+
+            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position()) === index) {
+                return true;
+            }
+        });
+    }
+
+    getConnectionsToPoint(neighbor, index) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
+            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], 0) === index) {
+                return true;
+            }
+
+            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], 0) === index) {
+                return true;
+            }
+        });
+    }
+
+    static getNeighboringConnectionIndex(index) {
+        return (index + 3) % 6;
+    }
+
+    previewTile(tileId) {
+        const tile = __WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].createTile(tileId);
+        this.allowedPreviewPositionData(this.getAllowedTilePositionData(this.tile(), tileId));
+        tile.position(this.allowedPreviewPositions()[0]);
+        this.preview(tile);
+    }
+
+    nextPreviewPosition() {
+        const currentPosition = this.preview().position();
+        const allowedPositions = this.allowedPreviewPositions();
+        const currentIndex = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(allowedPositions, currentPosition);
+        const nextIndex = (currentIndex + 1) % allowedPositions.length;
+        this.preview().position(allowedPositions[nextIndex]);
+    }
+
+    cancelPreview() {
+        this.preview(null);
+        this.allowedPreviewPositionData({});
+    }
+
+    commitPreview() {
+        const previewTile = this.preview();
+        const privateId = this.isLSLLay() ? __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].LAKE_SHORE_LINE : this.isMichiganCentralLay() ? __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL : this.isOhioIndianaLay() ? __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].OHIO_INDIANA : null;
+        const layTrack = new __WEBPACK_IMPORTED_MODULE_8_1846_actions_layTrack__["a" /* default */]({
+            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId(),
+            cellId: this.id,
+            tileId: previewTile.id,
+            position: previewTile.position(),
+            cost: this.allowedPreviewPositionData()[previewTile.position()].cost,
+            privateId,
+            privateDone: privateId && (this.isLSLLay() || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().numPrivateTrackLays(privateId) === 1)
+        });
+        layTrack.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
+        this.cancelPreview();
+    }
+
+    tokenCity(cityId) {
+        const addToken = new __WEBPACK_IMPORTED_MODULE_9_1846_actions_addToken__["a" /* default */]({
+            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId(),
+            cityId: cityId,
+            cellId: this.id,
+            cost: this.getTokenCost()
+        });
+        addToken.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
+        this.cancelPreview();
+    }
+
+    placeMeat() {
+        const placeMeat = new __WEBPACK_IMPORTED_MODULE_10_1846_actions_placeMeat__["a" /* default */]({
+            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId(),
+            privateId: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY,
+            cellId: this.id
+        });
+        placeMeat.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
+        this.cancelPreview();
+    }
+
+    placeSteamboat() {
+        const placeSteamboat = new __WEBPACK_IMPORTED_MODULE_11_1846_actions_placeSteamboat__["a" /* default */]({
+            playerId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId() ? null : __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentPlayerId(),
+            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId() || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().selectedSteamboatCompany(),
+            cellId: this.id
+        });
+        placeSteamboat.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
+        this.cancelPreview();
+    }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Cell);
+
+/***/ }),
+/* 31 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_actions_startCompany__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_common_model_serializable__ = __webpack_require__(4);
+
+
+
+
+
+
+
+
+class Company extends __WEBPACK_IMPORTED_MODULE_6_common_model_serializable__["a" /* default */] {
+    constructor(definition) {
+        super();
+        definition = definition || {};
+        this.id = definition.id;
+        this.name = definition.name || 'Anonymous';
+        this.nickname = definition.nickname || 'Anon';
+        this.type = definition.type;
+        this.homeCellId = definition.homeCellId;
+
+        this.certificates = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.certificates);
+        this.shares = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(this.certificates(), 'shares');
+        });
+        this.cash = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.cash || 0);
+        this.tokens = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.tokens || 0);
+        this.startTokens = definition.startTokens;
+        this.privates = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.privates || []);
+        this.trains = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.trains || []);
+        this.president = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.president);
+        this.parPriceIndex = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.parPriceIndex || 0);
+        this.priceIndex = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.priceIndex || 0);
+        this.price = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            return __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].price(this.priceIndex() || 0);
+        });
+        this.lastRun = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.lastRun || 0);
+        this.opened = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.opened || false);
+        this.closed = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.closed || false);
+        this.operated = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.operated || false);
+        this.routes = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.routes || []);
+    }
+
+    addCash(amount) {
+        this.cash(this.cash() + amount);
+    }
+
+    removeCash(amount) {
+        this.cash(this.cash() - amount);
+    }
+
+    start(state, playerId) {
+        new __WEBPACK_IMPORTED_MODULE_4_1846_actions_startCompany__["a" /* default */]({ playerId, companyId: this.id, startIndex: 7 }).execute(state);
+    }
+
+    addCerts(certs) {
+        this.certificates.push.apply(this.certificates, certs);
+    }
+
+    removeCerts(count) {
+        return this.certificates.splice(0, count);
+    }
+
+    numCanIssue() {
+        const numBankShares = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.numSharesOwnedOfCompany(this.id);
+        const playerShares = 10 - this.shares() - numBankShares;
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.max([0, __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.min([this.shares(), playerShares - numBankShares])]);
+    }
+
+    cashFromForcedIssues(numIssued) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.reduce(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(1, numIssued + 1), (sum, value) => {
+            return sum + __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftPrice(this.priceIndex(), value);
+        }, 0);
+    }
+
+    getPrivates() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.privates()).map(cert => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().getCompany(cert.companyId)).reject(company => company.closed()).sortBy('name').value();
+    }
+
+    hasPrivate(id) {
+        const privateCert = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(this.privates(), cert => cert.companyId === id);
+        if (!privateCert) {
+            return false;
+        }
+
+        const privateCo = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().getCompany(privateCert.companyId);
+        return !privateCo.closed() || privateCo.id === __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].MAIL_CONTRACT;
+    }
+
+    addPrivate(cert) {
+        this.privates.push(cert);
+    }
+
+    removePrivate(id) {
+        const privates = this.privates.remove(cert => cert.companyId === id);
+        return privates.length > 0 ? privates[0] : null;
+    }
+
+    addTrain(train) {
+        this.trains.push(train);
+    }
+
+    addTrains(trains) {
+        this.trains.push.apply(this.trains, trains);
+    }
+
+    getTrainById(trainId) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(this.trains(), train => train.id === trainId);
+    }
+
+    removeTrainById(trainId) {
+        const removed = this.trains.remove(train => train.id === trainId);
+        return removed.length > 0 ? removed[0] : null;
+    }
+
+    removeTrainsById(trainIds) {
+        return this.trains.remove(train => __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(trainIds, train.id) >= 0);
+    }
+
+    updateTrains(trains) {
+        this.trains.valueWillMutate();
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(trains, train => {
+            const index = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.findIndex(this.trains(), oldTrain => oldTrain.id === train.id);
+            if (index >= 0) {
+                this.trains()[index] = train;
+            }
+        });
+        this.trains.valueHasMutated();
+    }
+
+    numTrainsForLimit() {
+        return this.getNonPhasedOutTrains().length;
+    }
+
+    hasTooManyTrains() {
+        return this.numTrainsForLimit() > __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().trainLimit();
+    }
+
+    isAtTrainLimit() {
+        return this.numTrainsForLimit() === __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().trainLimit();
+    }
+
+    getRunnableTrains() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(this.trains(), train => !train.purchased && !train.rusted());
+    }
+
+    getNonPhasedOutTrains() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.trains()).filter(train => !train.phasedOut() && !train.rusted()).sortBy(train => train.type).value();
+    }
+
+    getPhasedOutTrains() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(this.trains(), train => train.phasedOut() && !train.rusted());
+    }
+
+    getNonRustedTrains() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(this.trains(), train => !train.rusted());
+    }
+
+    getAvailableRouteColor() {
+        const currentColors = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(this.getNonRustedTrains(), train => train.route.color);
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(1, 5)).difference(currentColors).first();
+    }
+
+    calculateRevenue() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(this.trains(), train => train.route.revenue());
+    }
+
+    useToken() {
+        this.tokens(this.tokens() - 1);
+    }
+
+    returnToken() {
+        this.tokens(this.tokens() + 1);
+    }
+
+    close() {
+        // remove from operating order
+        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state();
+        const playerCerts = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().players()).map(player => {
+            return [player.id, player.removeAllCertsForCompany(this.id)];
+        }).fromPairs().value();
+
+        const bankCerts = state.bank.removeAllCertsForCompany(this.id);
+
+        const tokens = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId).map(tile => {
+            if (tile.hasTokenForCompany(this.id)) {
+                return [tile.id, tile.removeToken(this.id)];
+            }
+            return null;
+        }).compact().fromPairs().value();
+        const reservedTokens = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId).map(tile => {
+            if (tile.hasReservedTokenForCompany(this.id)) {
+                return [tile.id, tile.removeReservedToken(this.id)];
+            }
+            return null;
+        }).compact().fromPairs().value();
+
+        const cash = this.cash();
+        state.bank.addCash(cash);
+        this.cash(0);
+
+        let meatTileId = null;
+        if (this.hasPrivate(__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY)) {
+            const tile = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId, tile => {
+                return tile.hasMeat();
+            });
+            tile.hasMeat(false);
+            meatTileId = tile.id;
+        }
+
+        let steamboatTileId = null;
+        if (this.hasPrivate(__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY)) {
+            const tile = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId, tile => {
+                return tile.hasSteamboat();
+            });
+            tile.hasSteamboat(false);
+            steamboatTileId = tile.id;
+        }
+
+        this.closed(true);
+
+        return {
+            id: this.id,
+            playerCerts,
+            bankCerts,
+            tokens,
+            reservedTokens,
+            meatTileId,
+            steamboatTileId,
+            cash
+        };
+    }
+
+    unclose(closeData) {
+        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state();
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(closeData.playerCerts, (certs, playerId) => {
+            const player = state.playersById()[playerId];
+            player.addCerts(certs);
+        });
+
+        state.bank.addCerts(closeData.bankCerts);
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId, tile => {
+            const token = closeData.tokens[tile.id];
+            if (token) {
+                const splitToken = token.split('|');
+                tile.addToken(splitToken[1], splitToken[0]);
+            }
+            const reservedToken = closeData.reservedTokens[tile.id];
+            if (reservedToken) {
+                const splitToken = reservedToken.split('|');
+                tile.addReservedToken(splitToken[1], splitToken[0]);
+            }
+
+            if (closeData.meatTileId === tile.id) {
+                tile.hasMeat(true);
+            }
+            if (closeData.steamboatTileId === tile.id) {
+                tile.hasSteamboat(true);
+            }
+        });
+        state.bank.removeCash(closeData.cash);
+        this.cash(closeData.cash);
+        this.closed(false);
+    }
+
+    phaseOut(phase) {
+        const phasedOutTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
+            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(phasedOutTrains, train.type) >= 0) {
+                train.phasedOut(true);
+            }
+        });
+    }
+
+    unphaseOut(phase) {
+        const phasedOutTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
+            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(phasedOutTrains, train.type) >= 0) {
+                train.phasedOut(false);
+            }
+        });
+    }
+
+    rust(phase) {
+        const rustedTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
+            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(rustedTrains, train.type) >= 0) {
+                train.rusted(true);
+            }
+        });
+    }
+
+    unrust(phase) {
+        const rustedTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
+            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(rustedTrains, train.type) >= 0 && train.phasedOut(true)) {
+                train.rusted(false);
+            }
+        });
+    }
+
+}
+
+Company.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (Company);
+
+/***/ }),
+/* 32 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_short_uuid__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_serializable__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_model_route__ = __webpack_require__(85);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_trainDefinitions__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_knockout__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_knockout__);
+
+
+
+
+
+
+class Train extends __WEBPACK_IMPORTED_MODULE_1_common_model_serializable__["a" /* default */] {
+    constructor(data) {
+        super();
+        data = data || {};
+        this.id = data.id || __WEBPACK_IMPORTED_MODULE_0_short_uuid___default()().new();
+        this.type = data.type;
+        this.lastRoute = data.lastRoute;
+        this.route = data.route || new __WEBPACK_IMPORTED_MODULE_2_common_model_route__["a" /* default */]({ trainType: this.type, color: 1, companyId: data.companyId });
+        this.purchased = data.purchased;
+        this.phasedOut = __WEBPACK_IMPORTED_MODULE_4_knockout___default.a.observable(data.phasedOut);
+        this.rusted = __WEBPACK_IMPORTED_MODULE_4_knockout___default.a.observable(data.rusted);
+    }
+    getName() {
+        return __WEBPACK_IMPORTED_MODULE_3_1846_config_trainDefinitions__["a" /* default */][this.type].name;
+    }
+}
+
+Train.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (Train);
+
+/***/ }),
 /* 33 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bootstrap__ = __webpack_require__(93);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bootstrap__ = __webpack_require__(94);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bootstrap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bootstrap__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_bootstrap_dist_css_bootstrap_min_css__ = __webpack_require__(156);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_bootstrap_dist_css_bootstrap_min_css__ = __webpack_require__(157);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_bootstrap_dist_css_bootstrap_min_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_bootstrap_dist_css_bootstrap_min_css__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_ui_dashboard__ = __webpack_require__(87);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_knockout__ = __webpack_require__(1);
@@ -37890,7 +37919,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
-__webpack_require__(92);
+__webpack_require__(93);
 
 const dashboard = new __WEBPACK_IMPORTED_MODULE_2_common_ui_dashboard__["a" /* default */]();
 __WEBPACK_IMPORTED_MODULE_3_knockout___default.a.applyBindings(dashboard);
@@ -38442,7 +38471,7 @@ BuyShare.registerClass();
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_train__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_train__ = __webpack_require__(32);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__ = __webpack_require__(12);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__ = __webpack_require__(10);
@@ -39628,7 +39657,7 @@ ReturnTrain.registerClass();
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_trainNames__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_lodash__);
@@ -40223,13 +40252,13 @@ UpdateSequence.registerClass();
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_company__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_company__ = __webpack_require__(31);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_model_certificate__ = __webpack_require__(83);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_model_privateCompany__ = __webpack_require__(84);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_config_trainIds__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_common_model_train__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_common_model_train__ = __webpack_require__(32);
 
 
 
@@ -40528,7 +40557,7 @@ class History {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_actions_redeemShares__ = __webpack_require__(50);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_actions_buyPrivate__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_1846_config_prices__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_1846_config_allocations__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_1846_config_allocations__ = __webpack_require__(25);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_1846_actions_runRoutes__ = __webpack_require__(52);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_1846_actions_buyTrains__ = __webpack_require__(40);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_1846_actions_skipSecondPrivateLay__ = __webpack_require__(56);
@@ -40539,6 +40568,8 @@ class History {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16_1846_actions_forceIssueCloseCompany__ = __webpack_require__(44);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_17_1846_actions_returnTrain__ = __webpack_require__(51);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_18_1846_config_phaseIds__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_19_common_util_browserDetect__ = __webpack_require__(89);
+
 
 
 
@@ -41569,6 +41600,9 @@ class OperatingRound {
             if (company.type === __WEBPACK_IMPORTED_MODULE_14_common_model_companyTypes__["a" /* default */].INDEPENDANT) {
                 this.selectedAllocation(__WEBPACK_IMPORTED_MODULE_8_1846_config_allocations__["a" /* default */].HALF);
             }
+            if (__WEBPACK_IMPORTED_MODULE_19_common_util_browserDetect__["a" /* default */].supportTouch()) {
+                __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().enableTouchMap();
+            }
         } else if (this.selectedAction() === Actions.BUY_TRAINS) {
             if (this.getCompaniesWithTrains().length === 0) {
                 this.selectedTrainSource('bank');
@@ -41700,6 +41734,10 @@ class OperatingRound {
         this.selectedSteamboatCompany(null);
         __WEBPACK_IMPORTED_MODULE_12_common_util_events__["a" /* default */].emit('clearRoutes');
         __WEBPACK_IMPORTED_MODULE_12_common_util_events__["a" /* default */].emit('cancelTilePreview');
+
+        if (__WEBPACK_IMPORTED_MODULE_19_common_util_browserDetect__["a" /* default */].supportTouch()) {
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().disableTouchMap();
+        }
     }
 
     commit() {
@@ -42207,7 +42245,7 @@ StockBoardEntry.registerClass();
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_actions_buyShare__ = __webpack_require__(39);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_actions_sellShares__ = __webpack_require__(53);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_actions_startCompany__ = __webpack_require__(23);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_actions_startCompany__ = __webpack_require__(24);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_actions_stockRoundPass__ = __webpack_require__(57);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_1846_game_sequence__ = __webpack_require__(13);
 
@@ -42366,13 +42404,13 @@ class StockRound {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_mapTileIds__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_map_cell__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_map_cell__ = __webpack_require__(30);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_map_offBoardCell__ = __webpack_require__(71);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_common_map_tile__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_config_tileManifest__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_common_util_events__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_1846_config_terrainTypes__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_1846_config_terrainTypes__ = __webpack_require__(26);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_1846_config_companyIds__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_1846_config_offBoardIds__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_knockout__ = __webpack_require__(1);
@@ -43148,7 +43186,7 @@ class Grid extends __WEBPACK_IMPORTED_MODULE_0_common_map_baseGrid__["a" /* defa
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_map_cell__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_map_cell__ = __webpack_require__(30);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 
@@ -43793,7 +43831,7 @@ class BaseState extends __WEBPACK_IMPORTED_MODULE_0_common_model_serializable__[
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_actionGroup__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_actionGroup__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_roundTypes__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_short_uuid__ = __webpack_require__(9);
@@ -43904,7 +43942,7 @@ RoundHistory.registerClass();
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_actionGroup__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_actionGroup__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
@@ -44114,7 +44152,7 @@ Certificate.registerClass();
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_model_company__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_model_company__ = __webpack_require__(31);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_knockout__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_knockout__);
@@ -44392,18 +44430,18 @@ class User {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_game_gameRecord__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_game_gameRecord__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_ui_newGameForm__ = __webpack_require__(88);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_game_game__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_game_game__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_game_sequence__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_common_util_knockoutBootstrapBindings__ = __webpack_require__(90);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_common_util_knockoutBootstrapBindings__ = __webpack_require__(91);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_knockout_delegated_events__ = __webpack_require__(154);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_knockout_delegated_events__ = __webpack_require__(155);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_knockout_delegated_events___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_8_knockout_delegated_events__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_common_util_events__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_common_util_history__ = __webpack_require__(89);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lz_string__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_common_util_history__ = __webpack_require__(90);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lz_string__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lz_string___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11_lz_string__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_common_model_serializable__ = __webpack_require__(4);
 
@@ -44605,8 +44643,8 @@ class Dashboard {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_server_user__ = __webpack_require__(86);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_game_game__ = __webpack_require__(26);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_common_game_gameRecord__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_game_game__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_common_game_gameRecord__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_common_util_events__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_short_uuid__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_short_uuid___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_short_uuid__);
@@ -44670,6 +44708,22 @@ class NewGameForm {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+
+class BrowserDetect {
+    static supportTouch() {
+        return (/(iphone|ipod|ipad|android|iemobile|blackberry|bada)/.test(window.navigator.userAgent.toLowerCase())
+        );
+    }
+
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (BrowserDetect);
+
+/***/ }),
+/* 90 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_util_events__ = __webpack_require__(7);
 
 
@@ -44701,7 +44755,7 @@ class History {
 /* harmony default export */ __webpack_exports__["a"] = (new History());
 
 /***/ }),
-/* 90 */
+/* 91 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -44841,16 +44895,16 @@ __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.extenders.numeric = function (t
     //return the new computed observable
     return result;
 };
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(32)))
+/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(22)))
 
 /***/ }),
-/* 91 */
+/* 92 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(global) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lz_string__ = __webpack_require__(22);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lz_string__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lz_string___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lz_string__);
 
 
@@ -44899,7 +44953,7 @@ class LocalStore {
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(20)))
 
 /***/ }),
-/* 92 */
+/* 93 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -44909,7 +44963,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 // This is mega crappy stuff right here.
-const templateContext = __webpack_require__(163);
+const templateContext = __webpack_require__(164);
 
 //define a template source that simply treats the template name as its content
 const sources = {},
@@ -44965,7 +45019,7 @@ engine.makeTemplateSource = function (template, doc) {
 __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.setTemplateEngine(engine);
 
 /***/ }),
-/* 93 */
+/* 94 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*!
@@ -44974,7 +45028,7 @@ __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.setTemplateEngine(engine);
   * Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
   */
 (function (global, factory) {
-	 true ? factory(exports, __webpack_require__(32), __webpack_require__(155)) :
+	 true ? factory(exports, __webpack_require__(22), __webpack_require__(156)) :
 	typeof define === 'function' && define.amd ? define(['exports', 'jquery', 'popper.js'], factory) :
 	(factory((global.bootstrap = {}),global.jQuery,global.Popper));
 }(this, (function (exports,$,Popper) { 'use strict';
@@ -48863,10 +48917,10 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 
 /***/ }),
-/* 94 */
+/* 95 */
 /***/ (function(module, exports, __webpack_require__) {
 
-exports = module.exports = __webpack_require__(95)(undefined);
+exports = module.exports = __webpack_require__(96)(undefined);
 // imports
 
 
@@ -48877,7 +48931,7 @@ exports.push([module.i, "/*!\n * Bootstrap v4.0.0-beta.3 (https://getbootstrap.c
 
 
 /***/ }),
-/* 95 */
+/* 96 */
 /***/ (function(module, exports) {
 
 /*
@@ -48959,7 +49013,7 @@ function toComment(sourceMap) {
 
 
 /***/ }),
-/* 96 */
+/* 97 */
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -49267,356 +49321,356 @@ function isUndefined(arg) {
 
 
 /***/ }),
-/* 97 */
+/* 98 */
 /***/ (function(module, exports) {
 
 module.exports = "module.exports = \"<!DOCTYPE html>\\n<html lang=\\\"en\\\">\\n<head>\\n    <meta name=\\\"viewport\\\" content=\\\"width=device-width, initial-scale=1\\\">\\n    <link rel=\\\"stylesheet\\\" type=\\\"text/css\\\" href=\\\"css/18www.css\\\">\\n    <link href=\\\"open-iconic/font/css/open-iconic-bootstrap.css\\\" rel=\\\"stylesheet\\\">\\n</head>\\n<body style=\\\"background-color:#FFF\\\" data-bind=\\\"event: {mouseup: onMouseUp, mouseout: onMouseOut}\\\">\\n<!-- ko if: $root.game() -->\\n<div data-bind=\\\"template: { name: 'views/game/game' }\\\"></div>\\n<!-- /ko -->\\n<!-- ko if: !$root.game() -->\\n<div data-bind=\\\"template: { name: 'views/dashboard/dashboard' }\\\"></div>\\n<!-- /ko -->\\n\\n<script src=\\\"frontend.js\\\"></script>\\n</body>\\n</html>\";";
 
 /***/ }),
-/* 98 */
+/* 99 */
 /***/ (function(module, exports) {
 
 module.exports = "module.exports = \"<!DOCTYPE html>\\n<html>\\n<head>\\n<meta charset=\\\"utf-8\\\">\\n<style>\\n  body {\\n    font-family: 'Helvetica', sans-serif;\\n    margin: 50px 0;\\n  }\\n\\n  .container {\\n    width: 600px;\\n    text-align: center;\\n    margin: 20px auto;\\n  }\\n\\n  .intro {\\n    text-align: left;\\n  }\\n\\n  .icon {\\n\\n    margin: 10px;\\n    width: 16px;\\n    height: 16px;\\n  }\\n</style>\\n</head>\\n<body>\\n\\n<div class=\\\"container\\\">\\n  <p class='intro'>\\n    Make sure to run this through a web server otherwise you won&rsquo;t see any icons. You can use <a href=\\\"https://github.com/visionmedia/serve\\\">Serve</a> for local testing.\\n  </p>\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#account-login\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#account-logout\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#action-redo\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#action-undo\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#align-center\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#align-left\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#align-right\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#aperture\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#arrow-bottom\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#arrow-circle-bottom\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#arrow-circle-left\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#arrow-circle-right\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#arrow-circle-top\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#arrow-left\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#arrow-right\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#arrow-thick-bottom\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#arrow-thick-left\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#arrow-thick-right\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#arrow-thick-top\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#arrow-top\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#audio-spectrum\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#audio\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#badge\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#ban\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#bar-chart\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#basket\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#battery-empty\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#battery-full\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#beaker\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#bell\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#bluetooth\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#bold\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#bolt\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#book\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#bookmark\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#box\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#briefcase\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#british-pound\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#browser\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#brush\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#bug\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#bullhorn\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#calculator\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#calendar\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#camera-slr\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#caret-bottom\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#caret-left\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#caret-right\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#caret-top\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#cart\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#chat\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#check\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#chevron-bottom\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#chevron-left\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#chevron-right\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#chevron-top\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#circle-check\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#circle-x\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#clipboard\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#clock\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#cloud-download\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#cloud-upload\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#cloud\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#cloudy\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#code\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#cog\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#collapse-down\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#collapse-left\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#collapse-right\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#collapse-up\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#command\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#comment-square\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#compass\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#contrast\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#copywriting\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#credit-card\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#crop\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#dashboard\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#data-transfer-download\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#data-transfer-upload\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#delete\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#dial\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#document\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#dollar\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#double-quote-sans-left\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#double-quote-sans-right\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#double-quote-serif-left\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#double-quote-serif-right\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#droplet\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#eject\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#elevator\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#ellipses\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#envelope-closed\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#envelope-open\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#euro\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#excerpt\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#expand-down\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#expand-left\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#expand-right\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#expand-up\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#external-link\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#eye\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#eyedropper\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#file\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#fire\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#flag\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#flash\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#folder\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#fork\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#fullscreen-enter\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#fullscreen-exit\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#globe\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#graph\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#grid-four-up\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#grid-three-up\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#grid-two-up\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#hard-drive\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#header\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#headphones\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#heart\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#home\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#image\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#inbox\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#infinity\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#info\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#italic\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#justify-center\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#justify-left\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#justify-right\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#key\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#laptop\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#layers\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#lightbulb\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#link-broken\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#link-intact\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#list-rich\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#list\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#location\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#lock-locked\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#lock-unlocked\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#loop-circular\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#loop-square\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#loop\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#magnifying-glass\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#map-marker\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#map\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#media-pause\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#media-play\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#media-record\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#media-skip-backward\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#media-skip-forward\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#media-step-backward\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#media-step-forward\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#media-stop\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#medical-cross\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#menu\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#microphone\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#minus\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#monitor\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#moon\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#move\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#musical-note\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#paperclip\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#pencil\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#people\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#person\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#phone\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#pie-chart\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#pin\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#play-circle\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#plus\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#power-standby\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#print\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#project\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#pulse\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#puzzle-piece\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#question-mark\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#rain\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#random\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#reload\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#resize-both\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#resize-height\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#resize-width\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#rss-alt\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#rss\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#script\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#share-boxed\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#share\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#shield\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#signal\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#signpost\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#sort-ascending\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#sort-descending\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#spreadsheet\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#star\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#sun\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#tablet\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#tag\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#tags\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#target\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#task\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#terminal\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#text\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#thumb-down\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#thumb-up\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#timer\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#transfer\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#trash\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#underline\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#vertical-align-bottom\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#vertical-align-center\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#vertical-align-top\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#video\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#volume-high\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#volume-low\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#volume-off\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#warning\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#wifi\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#wrench\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#x\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#yen\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#zoom-in\\\"></use>\\n  </svg>\\n\\n  <svg viewBox=\\\"0 0 8 8\\\" class=\\\"icon\\\">\\n    <use xlink:href=\\\"open-iconic.svg#zoom-out\\\"></use>\\n  </svg>\\n\\n</div>\\n</body>\\n</html>\";";
 
 /***/ }),
-/* 99 */
+/* 100 */
 /***/ (function(module, exports) {
 
 module.exports = "module.exports = \"<!DOCTYPE html>\\n<html>\\n<head>\\n<meta charset=\\\"utf-8\\\">\\n<style>\\n  body {\\n    font-family: Helvetica, sans-serif;\\n  }\\n\\n  .container {\\n    width: 600px;\\n    text-align: center;\\n    margin: 20px auto;\\n  }\\n\\n  .message {\\n    text-align: left;\\n  }\\n\\n  .icon {\\n    display: inline-block;\\n    margin: 10px;\\n    width: 16px;\\n    height: 16px;\\n  }\\n</style>\\n</head>\\n<body>\\n\\n<div class=\\\"container\\\">\\n  <p class=\\\"message\\\">Make sure to run this through a web server otherwise you won&rsquo;t see any icons. You can use <a href=\\\"https://github.com/visionmedia/serve\\\">Serve</a> for local testing.</p>\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#account-login\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#account-logout\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#action-redo\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#action-undo\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#align-center\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#align-left\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#align-right\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#aperture\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#arrow-bottom\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#arrow-circle-bottom\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#arrow-circle-left\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#arrow-circle-right\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#arrow-circle-top\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#arrow-left\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#arrow-right\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#arrow-thick-bottom\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#arrow-thick-left\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#arrow-thick-right\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#arrow-thick-top\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#arrow-top\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#audio-spectrum\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#audio\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#badge\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#ban\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#bar-chart\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#basket\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#battery-empty\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#battery-full\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#beaker\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#bell\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#bluetooth\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#bold\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#bolt\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#book\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#bookmark\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#box\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#briefcase\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#british-pound\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#browser\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#brush\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#bug\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#bullhorn\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#calculator\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#calendar\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#camera-slr\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#caret-bottom\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#caret-left\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#caret-right\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#caret-top\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#cart\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#chat\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#check\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#chevron-bottom\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#chevron-left\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#chevron-right\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#chevron-top\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#circle-check\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#circle-x\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#clipboard\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#clock\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#cloud-download\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#cloud-upload\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#cloud\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#cloudy\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#code\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#cog\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#collapse-down\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#collapse-left\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#collapse-right\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#collapse-up\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#command\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#comment-square\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#compass\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#contrast\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#copywriting\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#credit-card\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#crop\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#dashboard\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#data-transfer-download\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#data-transfer-upload\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#delete\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#dial\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#document\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#dollar\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#double-quote-sans-left\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#double-quote-sans-right\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#double-quote-serif-left\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#double-quote-serif-right\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#droplet\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#eject\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#elevator\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#ellipses\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#envelope-closed\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#envelope-open\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#euro\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#excerpt\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#expand-down\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#expand-left\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#expand-right\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#expand-up\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#external-link\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#eye\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#eyedropper\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#file\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#fire\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#flag\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#flash\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#folder\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#fork\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#fullscreen-enter\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#fullscreen-exit\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#globe\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#graph\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#grid-four-up\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#grid-three-up\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#grid-two-up\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#hard-drive\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#header\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#headphones\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#heart\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#home\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#image\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#inbox\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#infinity\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#info\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#italic\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#justify-center\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#justify-left\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#justify-right\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#key\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#laptop\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#layers\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#lightbulb\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#link-broken\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#link-intact\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#list-rich\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#list\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#location\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#lock-locked\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#lock-unlocked\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#loop-circular\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#loop-square\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#loop\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#magnifying-glass\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#map-marker\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#map\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#media-pause\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#media-play\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#media-record\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#media-skip-backward\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#media-skip-forward\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#media-step-backward\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#media-step-forward\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#media-stop\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#medical-cross\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#menu\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#microphone\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#minus\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#monitor\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#moon\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#move\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#musical-note\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#paperclip\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#pencil\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#people\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#person\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#phone\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#pie-chart\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#pin\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#play-circle\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#plus\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#power-standby\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#print\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#project\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#pulse\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#puzzle-piece\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#question-mark\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#rain\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#random\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#reload\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#resize-both\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#resize-height\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#resize-width\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#rss-alt\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#rss\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#script\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#share-boxed\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#share\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#shield\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#signal\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#signpost\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#sort-ascending\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#sort-descending\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#spreadsheet\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#star\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#sun\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#tablet\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#tag\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#tags\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#target\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#task\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#terminal\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#text\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#thumb-down\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#thumb-up\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#timer\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#transfer\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#trash\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#underline\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#vertical-align-bottom\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#vertical-align-center\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#vertical-align-top\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#video\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#volume-high\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#volume-low\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#volume-off\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#warning\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#wifi\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#wrench\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#x\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#yen\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#zoom-in\\\"></use>\\n  </svg>\\n\\n  <svg class=\\\"icon\\\">\\n    <use xlink:href=\\\"sprite.svg#zoom-out\\\"></use>\\n  </svg>\\n\\n</div>\\n</body>\\n</html>\\n\";";
 
 /***/ }),
-/* 100 */
+/* 101 */
 /***/ (function(module, exports) {
 
 module.exports = "module.exports = \"<div class=\\\"d-flex justify-content-center mt-3\\\">\\n    <div><h2 class=\\\"font-weight-light\\\">To report a bug please do the following:</h2>\\n<ul class=\\\"list-unstyled mt-2\\\">\\n    <li>\\n        <div class=\\\"d-flex align-items-center\\\">\\n            <h4 class=\\\"m-0\\\">1.</h4>&nbsp;Click&nbsp;<button class=\\\"btn btn-sm btn-warning\\\" data-bind=\\\"click: $root.downloadState\\\">Download State</button>&nbsp;to download and save the current state for this game.\\n        </div>\\n    </li>\\n    <li class=\\\"mt-2\\\">\\n        <div class=\\\"d-flex align-items-center\\\">\\n            <h4 class=\\\"m-0\\\">2.</h4>&nbsp;Click&nbsp;<button class=\\\"btn btn-sm btn-info\\\" data-bind=\\\"click: $root.sendBugEmail\\\">Send Email</button>&nbsp;to open a new email. Please describe the problem and&nbsp;<strong>attach the file you downloaded.</strong>\\n        </div>\\n    </li>\\n</ul>\\n    </div>\\n</div>\";";
 
 /***/ }),
-/* 101 */
+/* 102 */
 /***/ (function(module, exports) {
 
 module.exports = "module.exports = \"<div style=\\\"pointer-events:none;position:absolute;\\\"\\n     data-bind=\\\"style: { top: $data.top +'px', left: $data.left + 'px'}, css: {editable: $data.canEdit()}\\\">\\n    <!-- ko if: $data.visibleTile() -->\\n    <svg xmlns=\\\"http://www.w3.org/2000/svg\\\" pointer-events=\\\"none\\\"\\n         data-bind=\\\"style: { width: $data.width +'px', height: $data.height + 'px'}\\\">\\n        <defs>\\n            <clipPath id=\\\"\\\" data-bind=\\\"attr: { id: 'tile-clip' + $data.id }\\\">\\n                <polygon stroke=\\\"black\\\"\\n                         points=\\\"\\\" data-bind=\\\"attr: { points: $data.outline }\\\"></polygon>\\n            </clipPath>\\n        </defs>\\n        <g clip-path=\\\"url(#tile-clip)\\\" pointer-events=\\\"all\\\" class=\\\"tile\\\" xmlns=\\\"http://www.w3.org/2000/svg\\\"\\n           fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\"\\n           data-bind=\\\"attr: { 'clip-path': 'url(#tile-clip' + $data.id + ')', transform: 'translate(' + Math.floor($data.width/2) + ', ' + Math.floor($data.height/2)+')' }, popover: $data.popoverParams, css: $data.offboard ? '' : 'pos' + ($data.visibleTile().position ? $data.visibleTile().position() : 0)\\\">\\n\\n            <g pointer-events=\\\"all\\\" transform=\\\"\\\"\\n               data-bind=\\\"attr: { transform: 'translate(-' + Math.floor($data.width/2) + ', -' + Math.floor($data.height/2)+')'  }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.visibleTile().id), data: $data.visibleTile() }\\\"></g>\\n            <!-- ko if: $data.canEdit() || $data.canRoute() -->\\n            <polygon pointer-events=\\\"all\\\" class=\\\"tile-border\\\" fill=\\\"none\\\" stroke=\\\"none\\\" stroke-width=\\\"0\\\"\\n                     points=\\\"\\\" data-bind=\\\"attr: { points: $data.outline }\\\" data-mouseover=\\\"onMouseOver\\\"\\n                     data-mousedown=\\\"onMouseDown\\\" data-mouseout=\\\"onMouseOut\\\" data-touchstart=\\\"onTouchStart\\\"\\n                     data-touchmove=\\\"onTouchMove\\\" data-touchend=\\\"onTouchEnd\\\"></polygon>\\n            <!-- /ko -->\\n        </g>\\n    </svg>\\n    <!-- /ko -->\\n</div>\\n\\n<!-- ko if: $data.preview() -->\\n<div class=\\\"position-fixed\\\" style=\\\"height:100%;width:100%;left:0;top:0;overflow:hidden;z-index:99\\\"></div>\\n<div class=\\\"d-flex position-absolute justify-content-between\\\" style=\\\"width:132px;z-index:100\\\"\\n     data-bind=\\\"style: { top: ($data.top-35) + 'px', left: ($data.left-3) + 'px'}\\\">\\n    <button type=\\\"button\\\" style=\\\"min-width:35px;\\\" class=\\\"btn btn-sm btn-danger font-weight-bold\\\"\\n            data-bind=\\\"click: $data.cancelPreview\\\"><span class=\\\"oi oi-x\\\" title=\\\"icon name\\\" aria-hidden=\\\"true\\\"></span>\\n    </button>\\n    <button type=\\\"button\\\" style=\\\"min-width:35px;\\\" class=\\\"btn btn-sm btn-light font-weight-bold\\\"\\n            data-bind=\\\"visible: $data.allowedPreviewPositions().length > 1, click: $data.nextPreviewPosition\\\"><img\\n            alt=\\\"rotate\\\" style=\\\"width:16px; height:16px;\\\"\\n            data-bind=\\\"attr: { src: $root.rootPath + 'open-iconic/svg/reload.svg' }\\\"/>\\n    </button>\\n    <button type=\\\"button\\\" style=\\\"min-width:35px;\\\" class=\\\"btn btn-sm btn-success\\\"\\n            data-bind=\\\"click: function() { $data.commitPreview($root.game().state());}\\\">OK\\n    </button>\\n</div>\\n\\n<div style=\\\"pointer-events:none;position:absolute;z-index:99\\\" data-bind=\\\"style: { top: $data.top +'px', left: $data.left + 'px'}\\\">\\n    <svg xmlns=\\\"http://www.w3.org/2000/svg\\\" pointer-events=\\\"none\\\"\\n         data-bind=\\\"style: { width: $data.width +'px', height: $data.height + 'px'}\\\">\\n        <defs>\\n            <clipPath id=\\\"\\\" data-bind=\\\"attr: { id: 'tile-clip' + $data.id }\\\">\\n                <polygon stroke=\\\"black\\\"\\n                         points=\\\"\\\" data-bind=\\\"attr: { points: $data.outline }\\\"></polygon>\\n            </clipPath>\\n        </defs>\\n        <g clip-path=\\\"url(#tile-clip)\\\" pointer-events=\\\"all\\\" class=\\\"tile\\\" xmlns=\\\"http://www.w3.org/2000/svg\\\"\\n           fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\"\\n           data-bind=\\\"attr: { 'clip-path': 'url(#tile-clip' + $data.id + ')', transform: 'translate(' + Math.floor($data.width/2) + ', ' + Math.floor($data.height/2)+')' }\\\">\\n\\n            <polygon pointer-events=\\\"all\\\" class=\\\"tile-border\\\" fill=\\\"none\\\" stroke=\\\"none\\\" stroke-width=\\\"0\\\"\\n                     points=\\\"\\\" data-bind=\\\"attr: { points: $data.outline }, click: $data.nextPreviewPosition\\\" ></polygon>\\n        </g>\\n    </svg>\\n    <!-- /ko -->\\n</div>\\n<!-- /ko -->\\n\";";
 
 /***/ }),
-/* 102 */
+/* 103 */
 /***/ (function(module, exports) {
 
 module.exports = "module.exports = \"<!-- ko if: $data.tile() -->\\n<div data-bind=\\\"style: { 'width': $data.upgradeTiles().length < 2 ? '126px' : '256px'} \\\">\\n    <!-- ko if: $data.canToken() -->\\n    <div class=\\\"d-flex flex-column align-items-center justify-content-center\\\" data-bind=\\\"css: $data.canToken() && $data.tokenableCities() && $data.upgradeTiles().length > 0 ? 'mt-2' : ''\\\">\\n        <!-- ko foreach: $data.tokenableCities() -->\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-success\\\" data-bind=\\\"css: $index() > 0 ? 'mt-2' : '', click: function() { $parent.tokenCity($data); }, text: 'Add ' + ($parent.tokenableCities().length > 1 ? $parent.tile().getCityName($data) + ' ' : '') + 'Token' \\\"></button>\\n        <!-- /ko -->\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.canToken() && $data.tokenableCities() && $data.upgradeTiles().length > 0 -->\\n    <hr>\\n    <!-- /ko -->\\n    <div class=\\\"d-flex flex-wrap mx-auto\\\" data-bind=\\\"css: $data.canToken() && $data.tokenableCities() && $data.upgradeTiles().length > 0 ? 'mt-2' : ''\\\">\\n        <!-- ko foreach: $data.upgradeTiles() -->\\n        <div class=\\\"position-relative\\\" style=\\\"cursor:pointer\\\" data-bind=\\\"click: function() { $parent.previewTile($data.tile.id); }\\\">\\n            <h5 class=\\\"position-absolute\\\" style=\\\"top:0;left:10px;\\\"\\n                data-bind=\\\"text: $data.remaining === -1 ? '&#x221e;' : $data.remaining \\\"></h5>\\n            <div class=\\\"mr-1 mb-1\\\" style=\\\"width:124px;height:144px;\\\"\\n                 data-bind=\\\"style: { opacity : $data.remaining === 0 ? .5 : 1 }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.tile.id), data: $data.tile }\\\"></div>\\n        </div>\\n        <!-- /ko -->\\n    </div>\\n    <!-- ko if: $data.canPlaceMeat() -->\\n    <div class=\\\"d-flex justify-content-center bg-light\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-success\\\" data-bind=\\\"click: function() { $data.placeMeat(); }\\\">Place Meat</button>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.canPlaceSteamboat() -->\\n    <div class=\\\"d-flex justify-content-center bg-light\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-success\\\" data-bind=\\\"click: function() { $data.placeSteamboat();}\\\">Place Steamboat</button>\\n    </div>\\n    <!-- /ko -->\\n</div>\\n\\n<!-- /ko -->\";";
 
 /***/ }),
-/* 103 */
+/* 104 */
 /***/ (function(module, exports) {
 
 module.exports = "module.exports = \"<div class=\\\"text-center pt-2\\\">\\n    <h4 class=\\\"text-white font-weight-light\\\">Operating Order</h4>\\n</div>\\n<!-- ko foreach: $data.getOperatingCompanies() -->\\n<div class=\\\" text-center pr-3 pl-3 pt-1 pb-1 m-0 mt-2 mr-2 ml-2 border-0 font-weight-light\\\"\\n     style=\\\"min-width:10rem;cursor:pointer;\\\"\\n     data-bind=\\\"click: function() { $root.game().selectCompany($data.id); },css: 'bg-' + $data.id + ' text-' + $data.id + ($root.game().selectedCompany() === $data.id || $root.game().state().currentCompanyId() === $data.id ? ' mr-0 ml-0' : ' mr-0 ml-0')\\\">\\n\\n    <!-- ko if: $root.game().selectedCompany() !== $data.id -->\\n    <h6 class=\\\"mb-0\\\" data-bind=\\\"text: $data.name\\\"></h6>\\n    <div class=\\\"d-flex justify-content-between text-center mt-1\\\">\\n        <div class=\\\"mr-3\\\">\\n            <div style=\\\"font-size:10px;margin-bottom:-5px;\\\">cash</div>\\n            <div style=\\\"font-size:.9rem\\\" data-bind=\\\"text: '$' + cash()\\\"></div>\\n        </div>\\n        <div class=\\\"mr-3\\\">\\n            <div style=\\\"font-size:10px;margin-bottom:-5px;\\\">shares</div>\\n            <div style=\\\"font-size:.9rem\\\" data-bind=\\\"text: shares()\\\"></div>\\n        </div>\\n        <div>\\n            <div style=\\\"font-size:10px;margin-bottom:-5px;\\\">last run</div>\\n            <div style=\\\"font-size:.9rem\\\" data-bind=\\\"text: '$' + lastRun()\\\"></div>\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $root.game().selectedCompany() === $data.id  -->\\n    <div class=\\\"d-flex justify-content-center align-items-center\\\" style=\\\"height:43px;\\\">\\n        <h5 class=\\\"font-weight-normal mb-0\\\" data-bind=\\\"text:$data.name\\\"></h5>\\n    </div>\\n    <!-- /ko -->\\n</div>\\n<!-- ko if: $root.game().selectedCompany() === $data.id  -->\\n<div data-bind=\\\"template: {name:'views/operatingCompany', data: $data }\\\"></div>\\n<!-- /ko -->\\n<!-- /ko -->\";";
 
 /***/ }),
-/* 104 */
+/* 105 */
 /***/ (function(module, exports) {
 
 module.exports = "module.exports = \"<header>\\n    <nav class=\\\"navbar navbar-expand-lg navbar-light border border-0 m-0 p-0\\\">\\n        <span class=\\\"navbar-brand ml-3\\\">\\n            <a href=\\\"/\\\" class=\\\"h1 text-secondary\\\">18WWW</a>\\n        </span>\\n    </nav>\\n\\n<div class=\\\"border border-right-0 border-left-0 pl-3 pr-3 bg-light\\\">\\n    <ul class=\\\"nav\\\">\\n<li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: activePanel() === ActivePanelIDs.ACTIVE_GAMES ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link \\\"\\n                        data-bind=\\\"click: function() {setActivePanel(ActivePanelIDs.ACTIVE_GAMES)}, css: activePanel() === ActivePanelIDs.ACTIVE_GAMES ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Active Games</a>\\n            </li>\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: activePanel() === ActivePanelIDs.COMPLETED_GAMES ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link\\\"\\n                        data-bind=\\\"click: function() {setActivePanel(ActivePanelIDs.COMPLETED_GAMES)}, css: activePanel() === ActivePanelIDs.COMPLETED_GAMES ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Completed Games</a>\\n            </li>\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: activePanel() === ActivePanelIDs.NEW_GAME ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link\\\"\\n                        data-bind=\\\"click: function() {setActivePanel(ActivePanelIDs.NEW_GAME)}, css: activePanel() === ActivePanelIDs.NEW_GAME ? 'active text-white font-weight-bold' : 'text-secondary' \\\">New Game</a>\\n            </li>\\n    </ul>\\n</div>\\n</header>\\n\\n<div class=\\\"container-fluid px-0\\\">\\n    <div data-bind=\\\"template: { name: 'views/dashboard/games' }, visible: activePanel() === ActivePanelIDs.ACTIVE_GAMES\\\"></div>\\n    <div data-bind=\\\"template: { name: 'views/dashboard/newGame', data: $data.newGameForm }, visible: activePanel() === ActivePanelIDs.NEW_GAME\\\"></div>\\n</div>\\n\\n<!--<div>-->\\n      <!--Select a text file:-->\\n      <!--<input type=\\\"file\\\" id=\\\"fileInput\\\">-->\\n<!--</div>-->\";";
 
 /***/ }),
-/* 105 */
+/* 106 */
 /***/ (function(module, exports) {
 
 module.exports = "module.exports = \"<div class=\\\"text-center pt-3 bg-dark\\\">\\n    <h2 class=\\\"text-white font-weight-light\\\">Active Games</h2>\\n    <div class=\\\"bg-light mt-3\\\" style=\\\"width:100%\\\">\\n        <table class=\\\"table text-center bg-light m-0\\\">\\n            <thead>\\n            <tr class=\\\"text-white bg-info\\\">\\n                <th scope=\\\"col\\\" class=\\\"border-0 font-weight-light\\\" style=\\\"font-size:18px;\\\">Game</th>\\n                <th scope=\\\"col\\\" class=\\\"border-0 font-weight-light\\\" style=\\\"font-size:18px;\\\">Name</th>\\n                <th scope=\\\"col\\\" class=\\\"border-0 font-weight-light\\\" style=\\\"font-size:18px;\\\">Num Players</th>\\n                <th scope=\\\"col\\\" class=\\\"border-0 font-weight-light\\\" style=\\\"font-size:18px;\\\">Start Date</th>\\n                <th scope=\\\"col\\\" class=\\\"border-0 font-weight-light\\\" style=\\\"font-size:18px;\\\">Round</th>\\n                <th scope=\\\"col\\\" class=\\\"border-0 font-weight-light\\\" style=\\\"font-size:18px;\\\">Turn</th>\\n            </tr>\\n            </thead>\\n            <tbody>\\n            <!-- ko foreach: $data.availableGames() -->\\n            <tr style=\\\"cursor:pointer\\\" data-bind=\\\"css: $index() % 2 === 0? 'bg-light' : 'bg-table-row-medium', click: function() { $root.launchGame($data);}\\\">\\n                <td class=\\\"table-col-spacer p-3 border-0\\\" data-bind=\\\"text: type\\\"></td>\\n                <td class=\\\"table-col-spacer p-3 border-0 \\\" data-bind=\\\"text: name\\\"></td>\\n                <td class=\\\"table-col-spacer p-3 border-0\\\" data-bind=\\\"text: players\\\"></td>\\n                <td class=\\\"table-col-spacer p-3 border-0\\\" data-bind=\\\"text: startDate\\\"></td>\\n                <td class=\\\"table-col-spacer p-3 border-0\\\" data-bind=\\\"text: round\\\"></td>\\n                <td class=\\\"table-col-spacer p-3 border-0\\\" data-bind=\\\"text: turn\\\"></td>\\n            </tr>\\n            <!-- /ko -->\\n            </tbody>\\n        </table>\\n    </div>\\n</div>\";";
 
 /***/ }),
-/* 106 */
+/* 107 */
 /***/ (function(module, exports) {
 
 module.exports = "module.exports = \"<div class=\\\"d-flex justify-content-center mt-3\\\" style=\\\"height:100%\\\">\\n    <div class=\\\"card\\\" style=\\\"width:600px;box-shadow:3px 3px 10px #ccc\\\">\\n        <div class=\\\"card-body\\\">\\n            <h5 class=\\\"card-title\\\">New Local Game</h5>\\n\\n            <form>\\n                <div class=\\\"form-group\\\">\\n                    <label>Game</label>\\n                    <input class=\\\"form-control\\\" type=\\\"text\\\" placeholder=\\\"1846\\\" readonly data-bind=\\\"value: type\\\">\\n                </div>\\n                <div class=\\\"form-group\\\">\\n                    <label>Name</label>\\n                    <input class=\\\"form-control\\\" type=\\\"text\\\" placeholder=\\\"Game Name...\\\" data-bind=\\\"value: name\\\">\\n                </div>\\n                <div class=\\\"form-group\\\">\\n                    <label>Number of Players</label>\\n                    <div>\\n                    <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n                        <!-- ko foreach: _.range(3, 6) -->\\n                        <button type=\\\"button\\\" class=\\\"btn\\\"\\n                                data-bind=\\\"text: $data, css: $parent.numPlayers() === $data ? 'btn-warning' : 'btn-secondary', click: function() { $parent.setNumPlayers($data); }\\\"></button>\\n                        <!-- /ko -->\\n                    </div>\\n                        </div>\\n                </div>\\n                <div class=\\\"form-group\\\">\\n                    <label>Players</label>\\n                    <input class=\\\"form-control mb-1\\\" type=\\\"text\\\" placeholder=\\\"Player Name...\\\" data-bind=\\\"value: player1\\\">\\n                    <input class=\\\"form-control mb-1\\\" type=\\\"text\\\" placeholder=\\\"Player Name...\\\" data-bind=\\\"value: player2\\\">\\n                    <input class=\\\"form-control mb-1\\\" type=\\\"text\\\" placeholder=\\\"Player Name...\\\" data-bind=\\\"value: player4, visible: numPlayers() === 4 || numPlayers() === 5\\\">\\n                    <input class=\\\"form-control mb-1\\\" type=\\\"text\\\" placeholder=\\\"Player Name...\\\" data-bind=\\\"value: player5, visible: numPlayers() === 5\\\">\\n                    <input class=\\\"form-control\\\" type=\\\"text\\\" placeholder=\\\"Player Name...\\\" data-bind=\\\"value: player3\\\">\\n                </div>\\n                <button type=\\\"submit\\\" class=\\\"btn btn-primary mb-2\\\" data-bind=\\\"click: createLocalGame\\\">Create Game\\n                </button>\\n            </form>\\n        </div>\\n    </div>\\n</div>\";";
 
 /***/ }),
-/* 107 */
+/* 108 */
 /***/ (function(module, exports) {
 
 module.exports = "module.exports = \"\";";
 
 /***/ }),
-/* 108 */
-/***/ (function(module, exports) {
-
-module.exports = "module.exports = \"<header>\\n    <nav class=\\\"navbar navbar-expand-lg navbar-light border border-0 m-0 p-0\\\">\\n        <span class=\\\"navbar-brand ml-3\\\">\\n            <a href=\\\"#\\\" class=\\\"h1 text-secondary\\\" data-bind=\\\"click:$root.showDashboard \\\">1846</a>\\n        </span>\\n        <div class=\\\"navbar-nav mr-auto d-flex\\\">\\n            <h2 class=\\\"mb-0 mr-3 text-dark font-weight-light\\\"\\n                data-bind=\\\"text: $data.game().state().roundName()\\\"></h2>\\n            <!-- ko if: $data.game().state().currentCompanyId() -->\\n            <h2 class=\\\"mb-0 pl-2 pr-2 font-weight-light\\\" style=\\\"border-radius:.7rem\\\"\\n                data-bind=\\\"css: 'bg-' + $root.game().state().currentCompanyId() + ' text-' + $root.game().state().currentCompanyId() , text: $data.game().state().getCompany($root.game().state().currentCompanyId()).nickname\\\"></h2>\\n            <!-- /ko -->\\n            <!--<h2 class=\\\"mb-0 text-dark font-weight-light\\\"-->\\n            <!--data-bind=\\\"text:($data.game().state().currentCompanyId() ? '&nbsp;' : '') + $data.game().state().currentPlayer().user().username\\\"></h2>-->\\n        </div>\\n        <div data-bind=\\\"template: { name: 'views/players', data: $data.game().state()}\\\"></div>\\n    </nav>\\n    <div class=\\\"border border-right-0 border-left-0 pl-3 pr-3 bg-light\\\"\\n         data-bind=\\\"visible:!$data.game().privateDraft()\\\">\\n        <ul class=\\\"nav\\\">\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link \\\"\\n                        data-bind=\\\"click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.MAP)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Map</a>\\n            </li>\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link\\\"\\n                        data-bind=\\\"click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.OWNERSHIP)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Ownership</a>\\n            </li>\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: $data.game().activePanel() === $data.game().ActivePanelIDs.TILE_MANIFEST ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link\\\"\\n                        data-bind=\\\"click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.TILE_MANIFEST)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.TILE_MANIFEST ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Tile\\n                    Manifest</a>\\n            </li>\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link\\\"\\n                        data-bind=\\\"click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.HISTORY)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY ? 'active text-white font-weight-bold' : 'text-secondary' \\\">History</a>\\n            </li>\\n            <li class=\\\"nav-item\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link text-danger\\\"\\n                        data-bind=\\\"click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.REPORT_BUG)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.REPORT_BUG ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Report Bug</a>\\n            </li>\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.game().state().winner() -->\\n    <div data-bind=\\\"template: { name: 'views/winner', data: $data.game().state() }\\\"></div>\\n    <!-- /ko -->\\n    <div data-bind=\\\"template: { name: 'views/turnsummary', data: $data.game().state() }, visible:!$data.game().privateDraft()\\\"></div>\\n    <div data-bind=\\\"template: { name: 'views/stockRound', data: $data.game().stockRound() }, visible:!$data.game().privateDraft()\\\"></div>\\n    <div data-bind=\\\"template: { name: 'views/operatingRound', data: $data.game().operatingRound() }, visible:$data.game().state().isOperatingRound()\\\"></div>\\n</header>\\n<div class=\\\"container-fluid px-0\\\">\\n\\n    <div data-bind=\\\"template: { name: 'views/privateDraft', data: $data.game().privateDraft() }, visible:$data.game().privateDraft()\\\"></div>\\n    <div data-bind=\\\"visible:!$data.game().privateDraft()\\\">\\n        <div data-bind=\\\"template: { name: 'views/bugReport' }, visible:$data.game().activePanel() === $data.game().ActivePanelIDs.REPORT_BUG\\\"></div>\\n        <div class=\\\"row\\\"\\n             data-bind=\\\"visible: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP || $data.game().activePanel() === $data.game().ActivePanelIDs.MAP\\\">\\n            <div class=\\\"col\\\">\\n                <div data-bind=\\\"template: { name: 'views/priceTrack', data: $data.game().state() }\\\"></div>\\n            </div>\\n        </div>\\n        <div data-bind=\\\"visible: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP\\\">\\n            <div class=\\\"row\\\">\\n                <div class=\\\"col\\\">\\n                    <div data-bind=\\\"template: { name: 'views/ownership', data: $data.game().state() }\\\"></div>\\n                </div>\\n            </div>\\n        </div>\\n\\n        <div data-bind=\\\"visible: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP\\\">\\n            <div class=\\\"row\\\">\\n                <div class=\\\"col bg-dark\\\">\\n                    <div class=\\\"d-flex\\\">\\n                        <div>\\n                            <div style=\\\"min-width:220px;\\\"\\n                                 data-bind=\\\"template: { name: 'views/companies', data: $data.game().state() }\\\"></div>\\n                        </div>\\n                        <div style=\\\"position:relative;width:100%; overflow:scroll;\\\">\\n\\n                            <div class=\\\"mt-2\\\"\\n                                 style=\\\"position:relative;transform-origin:0 0;transform:scale(.817);width:1836px;height:1186px;\\\"\\n                                 data-bind=\\\"style: { transform: 'scale(' + $data.game().zoom() + ')' }\\\">\\n                                <img style=\\\"width:1836px;height:1186px;\\\"\\n                                     data-bind=\\\"attr: { src: $root.rootPath + 'images/1846-map.jpg' }\\\"/>\\n                                <div style=\\\"position:absolute;top:0px;left:36px;height:1083px;width:1370px;\\\"\\n                                     data-bind=\\\"template: {name:'views/grid', data: $data.game().grid()}\\\"></div>\\n                                <div style=\\\"position:absolute;top:358px;left:1411px;height:437px;width:397px;\\\"\\n                                     data-bind=\\\"template: {name:'views/market', data: $data.game().state()}\\\"></div>\\n                                <div style=\\\"position:absolute;top:39px;left:47px;height:124px;width:257px;\\\"\\n                                     data-bind=\\\"template: {name:'views/limits', data: $data.game().state()}\\\"></div>\\n                                <div style=\\\"position:absolute;top:934px;left:953px;height:212px;width:855px;\\\"\\n                                     data-bind=\\\"template: {name:'views/trains', data: $data.game().state()}\\\"></div>\\n                                <div style=\\\"position:absolute;top:898px;left:723px;height:175px; width:175px;\\\"\\n                                     data-bind=\\\"template: { name: 'views/rounds', data: $data.game().state() }\\\"></div>\\n                            </div>\\n                            <div class=\\\"zoom btn-group\\\" role=\\\"group\\\" style=\\\"position: absolute; top:10px; left:2px;\\\">\\n                                <button type=\\\"button\\\"\\n                                        class=\\\"btn btn-sm btn-dark font-weight-bold \\\"\\n                                        data-bind=\\\"click: function() { $data.game().zoomOut(); }\\\"><span\\n                                        class=\\\"oi oi-zoom-out\\\"></span>\\n                                </button>\\n                                <button type=\\\"button\\\"\\n                                        class=\\\"btn btn-sm btn-dark font-weight-bold\\\"\\n                                        data-bind=\\\"click: function() { $data.game().zoomIn(); }\\\"><span\\n                                        class=\\\"oi oi-zoom-in\\\"></span>\\n                                </button>\\n                            </div>\\n\\n                        </div>\\n                    </div>\\n                </div>\\n            </div>\\n        </div>\\n\\n        <div data-bind=\\\"if: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY\\\">\\n            <div class=\\\"row\\\">\\n                <div class=\\\"col\\\">\\n                    <div data-bind=\\\"template: { name: 'views/turnHistory', data: $data.game().state() }\\\"></div>\\n                </div>\\n            </div>\\n        </div>\\n        <div data-bind=\\\"if: $data.game().activePanel() === $data.game().ActivePanelIDs.TILE_MANIFEST\\\">\\n            <div class=\\\"row\\\">\\n                <div class=\\\"col\\\">\\n                    <div data-bind=\\\"template: { name: 'views/tileManifest', data: $data.game().state() }\\\"></div>\\n                </div>\\n            </div>\\n        </div>\\n    </div>\\n</div>\";";
-
-/***/ }),
 /* 109 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<div style=\\\"width:100%;height:100%;\\\"><div data-bind=\\\"template: {name: 'views/cell', foreach: cells()}, delegatedHandler: ['mousedown', 'mouseover', 'mouseout', 'touchstart', 'touchmove', 'touchend']\\\"></div></div>\";";
+module.exports = "module.exports = \"<header>\\n    <nav class=\\\"navbar navbar-expand-lg navbar-light border border-0 m-0 p-0\\\">\\n        <span class=\\\"navbar-brand ml-3\\\">\\n            <a href=\\\"#\\\" class=\\\"h1 text-secondary\\\" data-bind=\\\"click:$root.showDashboard \\\">1846</a>\\n        </span>\\n        <div class=\\\"navbar-nav mr-auto d-flex\\\">\\n            <h2 class=\\\"mb-0 mr-3 text-dark font-weight-light\\\"\\n                data-bind=\\\"text: $data.game().state().roundName()\\\"></h2>\\n            <!-- ko if: $data.game().state().currentCompanyId() -->\\n            <h2 class=\\\"mb-0 pl-2 pr-2 font-weight-light\\\" style=\\\"border-radius:.7rem\\\"\\n                data-bind=\\\"css: 'bg-' + $root.game().state().currentCompanyId() + ' text-' + $root.game().state().currentCompanyId() , text: $data.game().state().getCompany($root.game().state().currentCompanyId()).nickname\\\"></h2>\\n            <!-- /ko -->\\n            <!--<h2 class=\\\"mb-0 text-dark font-weight-light\\\"-->\\n            <!--data-bind=\\\"text:($data.game().state().currentCompanyId() ? '&nbsp;' : '') + $data.game().state().currentPlayer().user().username\\\"></h2>-->\\n        </div>\\n        <div data-bind=\\\"template: { name: 'views/players', data: $data.game().state()}\\\"></div>\\n    </nav>\\n    <div class=\\\"border border-right-0 border-left-0 pl-3 pr-3 bg-light\\\"\\n         data-bind=\\\"visible:!$data.game().privateDraft()\\\">\\n        <ul class=\\\"nav\\\">\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link \\\"\\n                        data-bind=\\\"click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.MAP)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Map</a>\\n            </li>\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link\\\"\\n                        data-bind=\\\"click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.OWNERSHIP)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Ownership</a>\\n            </li>\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: $data.game().activePanel() === $data.game().ActivePanelIDs.TILE_MANIFEST ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link\\\"\\n                        data-bind=\\\"click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.TILE_MANIFEST)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.TILE_MANIFEST ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Tile\\n                    Manifest</a>\\n            </li>\\n            <li class=\\\"nav-item\\\"\\n                data-bind=\\\"css: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY ? 'bg-active-nav' : ''\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link\\\"\\n                        data-bind=\\\"click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.HISTORY)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY ? 'active text-white font-weight-bold' : 'text-secondary' \\\">History</a>\\n            </li>\\n            <li class=\\\"nav-item\\\">\\n                <a\\n                        href=\\\"#\\\" class=\\\"nav-link text-danger\\\"\\n                        data-bind=\\\"click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.REPORT_BUG)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.REPORT_BUG ? 'active text-white font-weight-bold' : 'text-secondary' \\\">Report Bug</a>\\n            </li>\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.game().state().winner() -->\\n    <div data-bind=\\\"template: { name: 'views/winner', data: $data.game().state() }\\\"></div>\\n    <!-- /ko -->\\n    <div data-bind=\\\"template: { name: 'views/turnsummary', data: $data.game().state() }, visible:!$data.game().privateDraft()\\\"></div>\\n    <div data-bind=\\\"template: { name: 'views/stockRound', data: $data.game().stockRound() }, visible:!$data.game().privateDraft()\\\"></div>\\n    <div data-bind=\\\"template: { name: 'views/operatingRound', data: $data.game().operatingRound() }, visible:$data.game().state().isOperatingRound()\\\"></div>\\n</header>\\n<div class=\\\"container-fluid px-0\\\">\\n\\n    <div data-bind=\\\"template: { name: 'views/privateDraft', data: $data.game().privateDraft() }, visible:$data.game().privateDraft()\\\"></div>\\n    <div data-bind=\\\"visible:!$data.game().privateDraft()\\\">\\n        <div data-bind=\\\"template: { name: 'views/bugReport' }, visible:$data.game().activePanel() === $data.game().ActivePanelIDs.REPORT_BUG\\\"></div>\\n        <div class=\\\"row\\\"\\n             data-bind=\\\"visible: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP || $data.game().activePanel() === $data.game().ActivePanelIDs.MAP\\\">\\n            <div class=\\\"col\\\">\\n                <div data-bind=\\\"template: { name: 'views/priceTrack', data: $data.game().state() }\\\"></div>\\n            </div>\\n        </div>\\n        <div data-bind=\\\"visible: $data.game().activePanel() === $data.game().ActivePanelIDs.OWNERSHIP\\\">\\n            <div class=\\\"row\\\">\\n                <div class=\\\"col\\\">\\n                    <div data-bind=\\\"template: { name: 'views/ownership', data: $data.game().state() }\\\"></div>\\n                </div>\\n            </div>\\n        </div>\\n\\n        <div data-bind=\\\"visible: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP\\\">\\n                <div class=\\\"col bg-dark p-0\\\" data-bind=\\\"css: $data.game().touchMap() ? '' : 'pr-2'\\\">\\n                    <div class=\\\"d-flex\\\">\\n                        <div data-bind=\\\"visible:!$data.game().touchMap()\\\">\\n                            <div style=\\\"min-width:220px;\\\"\\n                                 data-bind=\\\"template: { name: 'views/companies', data: $data.game().state() }\\\"></div>\\n                        </div>\\n                        <div id=\\\"map\\\" style=\\\"position:relative;width:100%;\\\" data-bind=\\\"style: { overflow: $data.game().touchMap() ? 'hidden' : 'auto'}, css: $data.game().touchMap() ? 'mx-0' : ''\\\">\\n                            <div class=\\\"mt-2\\\"\\n                                 style=\\\"position:relative;transform-origin:0 0;transform:scale(.817);width:1836px;height:1186px;\\\"\\n                                 data-bind=\\\"style: { transform: 'scale(' + $data.game().zoom() + ')' }\\\">\\n                                <img style=\\\"width:1836px;height:1186px;\\\"\\n                                     data-bind=\\\"attr: { src: $root.rootPath + 'images/1846-map.jpg' }\\\"/>\\n                                <div style=\\\"position:absolute;top:0;left:36px;height:1083px;width:1370px;\\\"\\n                                     data-bind=\\\"template: {name:'views/grid', data: $data.game().grid()}\\\"></div>\\n                                <div style=\\\"position:absolute;top:358px;left:1411px;height:437px;width:397px;\\\"\\n                                     data-bind=\\\"template: {name:'views/market', data: $data.game().state()}\\\"></div>\\n                                <div style=\\\"position:absolute;top:39px;left:47px;height:124px;width:257px;\\\"\\n                                     data-bind=\\\"template: {name:'views/limits', data: $data.game().state()}\\\"></div>\\n                                <div style=\\\"position:absolute;top:934px;left:953px;height:212px;width:855px;\\\"\\n                                     data-bind=\\\"template: {name:'views/trains', data: $data.game().state()}\\\"></div>\\n                                <div style=\\\"position:absolute;top:898px;left:723px;height:175px; width:175px;\\\"\\n                                     data-bind=\\\"template: { name: 'views/rounds', data: $data.game().state() }\\\"></div>\\n                            </div>\\n                            <div class=\\\"zoom btn-group\\\" role=\\\"group\\\" style=\\\"position: absolute; top:10px; left:2px;\\\">\\n                                <button type=\\\"button\\\"\\n                                        class=\\\"btn btn-sm btn-dark font-weight-bold \\\"\\n                                        data-bind=\\\"click: function() { $data.game().zoomOut(); }\\\"><span\\n                                        class=\\\"oi oi-zoom-out\\\"></span>\\n                                </button>\\n                                <button type=\\\"button\\\"\\n                                        class=\\\"btn btn-sm btn-dark font-weight-bold\\\"\\n                                        data-bind=\\\"click: function() { $data.game().zoomIn(); }\\\"><span\\n                                        class=\\\"oi oi-zoom-in\\\"></span>\\n                                </button>\\n                            </div>\\n\\n                        </div>\\n                    </div>\\n                </div>\\n        </div>\\n\\n        <div data-bind=\\\"if: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY\\\">\\n            <div class=\\\"row\\\">\\n                <div class=\\\"col\\\">\\n                    <div data-bind=\\\"template: { name: 'views/turnHistory', data: $data.game().state() }\\\"></div>\\n                </div>\\n            </div>\\n        </div>\\n        <div data-bind=\\\"if: $data.game().activePanel() === $data.game().ActivePanelIDs.TILE_MANIFEST\\\">\\n            <div class=\\\"row\\\">\\n                <div class=\\\"col\\\">\\n                    <div data-bind=\\\"template: { name: 'views/tileManifest', data: $data.game().state() }\\\"></div>\\n                </div>\\n            </div>\\n        </div>\\n    </div>\\n</div>\";";
 
 /***/ }),
 /* 110 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<div style=\\\"color:#555;background-color:#fdfdf3;height:100%;overflow:hidden;\\\">\\n    <table class=\\\"table text-center m-0 border-0\\\" style=\\\"width:100%;\\\">\\n        <tr class=\\\"bg-dark border-0\\\" style=\\\"color:#fdfdf3;\\\">\\n            <td class=\\\"p-1 border-0\\\" colspan=\\\"2\\\">\\n                <div class=\\\"d-inline-flex\\\">\\n                    <div><span style=\\\"font-size:26px;\\\">Bank</span></div>\\n                    <div style=\\\"width:10px;\\\"></div>\\n                    <div><span style=\\\"font-size:26px;\\\"\\n                               data-bind=\\\"text: '$' + $data.bank.cash()\\\"></span></div>\\n                </div>\\n            </td>\\n        </tr>\\n        <tr class=\\\"border-0\\\">\\n            <td class=\\\"p-0 pt-1 border-bottom-0 border-top-0\\\" style=\\\"border-right:2px solid #CCC;width:50%;\\\"><span\\n                    style=\\\"font-size:16px;font-weight:bold\\\">Cert Limit</span></td>\\n            <td class=\\\"p-0 pt-1 border-bottom-0 border-top-0\\\"><span\\n                    style=\\\"font-size:16px;font-weight:bold\\\">Train Limit</span></td>\\n        </tr>\\n        <tr>\\n            <td class=\\\"p-0 border-bottom-0 border-top-0\\\" style=\\\"border-right:2px solid #CCC;width:50%;\\\">\\n                <div style=\\\"margin-top:-5px;\\\"><span style=\\\"font-size:36px;font-weight:300\\\"\\n                                                    data-bind=\\\"text: $data.certLimit()\\\"></span></div>\\n            </td>\\n            <td class=\\\"p-0 border-bottom-0 border-top-0\\\">\\n                <div style=\\\"margin-top:-5px;\\\"><span style=\\\"font-size:36px;font-weight:300\\\"\\n                                                    data-bind=\\\"text: $data.trainLimit()\\\"></span></div>\\n            </td>\\n        </tr>\\n        </tr>\\n    </table>\\n\\n</div>\";";
+module.exports = "module.exports = \"<div style=\\\"width:100%;height:100%;\\\"><div data-bind=\\\"template: {name: 'views/cell', foreach: cells()}, delegatedHandler: ['mousedown', 'mouseover', 'mouseout', 'touchstart', 'touchmove', 'touchend']\\\"></div></div>\";";
 
 /***/ }),
 /* 111 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<div class=\\\"d-flex flex-wrap text-center\\\" style=\\\"width:100%;margin-left:25px;margin-top:25px;color:#333\\\">\\n    <!-- ko foreach: _.keys($data.bank.certificatesById()) -->\\n    <div class=\\\"card\\\" style=\\\"overflow:hidden;min-width:100px;height:100px;margin-right:25px;margin-bottom:25px;border-radius:.7rem\\\">\\n        <h5 class=\\\"card-title mb-0\\\" data-bind=\\\"css: 'bg-' + $data + ' text-' + $data, text: $parent.getCompany($data).nickname\\\"></h5>\\n        <div class=\\\"m-auto\\\">\\n            <h1 class=\\\"font-weight-light mb-0\\\" data-bind=\\\"text:$parent.bank.certificatesById()[$data].length\\\"></h1>\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n</div>\";";
+module.exports = "module.exports = \"<div style=\\\"color:#555;background-color:#fdfdf3;height:100%;overflow:hidden;\\\">\\n    <table class=\\\"table text-center m-0 border-0\\\" style=\\\"width:100%;\\\">\\n        <tr class=\\\"bg-dark border-0\\\" style=\\\"color:#fdfdf3;\\\">\\n            <td class=\\\"p-1 border-0\\\" colspan=\\\"2\\\">\\n                <div class=\\\"d-inline-flex\\\">\\n                    <div><span style=\\\"font-size:26px;\\\">Bank</span></div>\\n                    <div style=\\\"width:10px;\\\"></div>\\n                    <div><span style=\\\"font-size:26px;\\\"\\n                               data-bind=\\\"text: '$' + $data.bank.cash()\\\"></span></div>\\n                </div>\\n            </td>\\n        </tr>\\n        <tr class=\\\"border-0\\\">\\n            <td class=\\\"p-0 pt-1 border-bottom-0 border-top-0\\\" style=\\\"border-right:2px solid #CCC;width:50%;\\\"><span\\n                    style=\\\"font-size:16px;font-weight:bold\\\">Cert Limit</span></td>\\n            <td class=\\\"p-0 pt-1 border-bottom-0 border-top-0\\\"><span\\n                    style=\\\"font-size:16px;font-weight:bold\\\">Train Limit</span></td>\\n        </tr>\\n        <tr>\\n            <td class=\\\"p-0 border-bottom-0 border-top-0\\\" style=\\\"border-right:2px solid #CCC;width:50%;\\\">\\n                <div style=\\\"margin-top:-5px;\\\"><span style=\\\"font-size:36px;font-weight:300\\\"\\n                                                    data-bind=\\\"text: $data.certLimit()\\\"></span></div>\\n            </td>\\n            <td class=\\\"p-0 border-bottom-0 border-top-0\\\">\\n                <div style=\\\"margin-top:-5px;\\\"><span style=\\\"font-size:36px;font-weight:300\\\"\\n                                                    data-bind=\\\"text: $data.trainLimit()\\\"></span></div>\\n            </td>\\n        </tr>\\n        </tr>\\n    </table>\\n\\n</div>\";";
 
 /***/ }),
 /* 112 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<div class=\\\"text-center pl-2 pr-2\\\">\\n    <div class=\\\"pb-2 pr-2 pl-2 pt-0 \\\" style=\\\"width:100%\\\" data-bind=\\\"css: 'bg-' + $data.id\\\">\\n        <div class=\\\"card mb-2\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #f8f9fa;\\\">\\n            <table class=\\\"table text-center m-0\\\">\\n                <tbody>\\n                <tr>\\n                    <th colspan=\\\"2\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                        data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Player Shares\\n                    </th>\\n                </tr>\\n                <!-- ko foreach: $root.game().state().players() -->\\n                <tr>\\n                    <td class=\\\"border-0 font-weight-normal  p-0 text-right\\\" scope=\\\"row\\\"\\n                        data-bind=\\\"css: $root.game().state().currentPlayerId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row' : 'bg-light'\\\">\\n                        <div class=\\\"p-1 pl-2 pr-2\\\">\\n                            <div data-bind=\\\"text:$data.user().username\\\">Price</div>\\n                        </div>\\n                    </td>\\n                    <td class=\\\"pt-1 pb-1 border-0 \\\"\\n                        data-bind=\\\"css: $root.game().state().currentPlayerId() === $data.id ? 'bg-warning' : $index() % 2 ? 'bg-table-row' : 'bg-light'\\\">\\n                        <div data-bind=\\\"text:$data.numSharesOwnedOfCompany($parent.id)\\\"></div>\\n                    </td>\\n                </tr>\\n                <!-- /ko -->\\n                </tbody>\\n            </table>\\n        </div>\\n        <div class=\\\"card mb-2\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #f8f9fa;\\\">\\n            <table class=\\\"table text-center m-0\\\">\\n                <tbody>\\n                <tr>\\n                    <th colspan=\\\"2\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                        data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Avail. Shares\\n                    </th>\\n                </tr>\\n                <tr>\\n                    <td class=\\\"border-0 bg-light font-weight-normal p-0 text-right \\\" scope=\\\"row\\\">\\n                        <div class=\\\" p-1 pl-2 pr-2\\\">\\n                            <div>Price</div>\\n                        </div>\\n                    </td>\\n                    <td class=\\\"bg-light pt-1 pb-1 border-0 \\\">\\n                        <div data-bind=\\\"text: '$' + $data.price()\\\"></div>\\n                    </td>\\n                </tr>\\n                <tr>\\n                    <td class=\\\"border-0 bg-table-row font-weight-normal p-0 text-right \\\" scope=\\\"row\\\">\\n                        <div class=\\\"p-1 pl-2 pr-2\\\">\\n                            <div>Market</div>\\n                        </div>\\n                    </td>\\n                    <td class=\\\"bg-table-row pt-1 pb-1 border-0 \\\">\\n                        <div data-bind=\\\"text: $root.game().state().bank.numSharesOwnedOfCompany($data.id)\\\"></div>\\n                    </td>\\n                </tr>\\n                <tr>\\n                    <td class=\\\"border-0 bg-light font-weight-normal p-0 text-right \\\" scope=\\\"row\\\">\\n                        <div class=\\\"p-1 pl-2 pr-2\\\">\\n                            <div>Treas.</div>\\n                        </div>\\n                    </td>\\n                    <td class=\\\"bg-light pt-1 pb-1 border-0 \\\">\\n                        <div class=\\\"\\\"\\n                             data-bind=\\\"text: $data.shares()\\\"></div>\\n                    </td>\\n                </tr>\\n                </tbody>\\n            </table>\\n        </div>\\n        <div class=\\\"card mb-2\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #f8f9fa;\\\">\\n            <table class=\\\"table text-center m-0\\\">\\n                <tbody>\\n                <tr>\\n                    <th colspan=\\\"2\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                        data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Assets\\n                    </th>\\n                </tr>\\n                <tr>\\n                    <th class=\\\"border-0 bg-light font-weight-normal p-0 text-right \\\" scope=\\\"row\\\">\\n                        <div class=\\\"p-1 pl-2 pr-2\\\">\\n                            Trains\\n                        </div>\\n                    </th>\\n                    <td class=\\\"pt-1 pb-1 bg-light border-0\\\" data-bind=\\\"\\\">\\n                    <span style=\\\"color:red\\\"\\n                          data-bind=\\\"text: _.join(_.map($data.getPhasedOutTrains(), train=>train.getName()).sort(), ' ')\\\"></span>&nbsp;<span\\n                            data-bind=\\\"text: _.join(_.map($data.getNonPhasedOutTrains(), train=>train.getName()).sort(), ' ')\\\"></span>\\n                    </td>\\n                </tr>\\n                <tr>\\n                    <th class=\\\"border-0 bg-table-row font-weight-normal p-0 text-right \\\" scope=\\\"row\\\">\\n                        <div class=\\\"p-1 pl-2 pr-2\\\">Cash</div>\\n                    </th>\\n                    <td class=\\\"pt-1 pb-1 bg-table-row border-0\\\">\\n                        <div data-bind=\\\"text: '$' + $data.cash()\\\"></div>\\n                    </td>\\n                </tr>\\n                <tr>\\n                    <th class=\\\"border-0 bg-light font-weight-normal p-0 text-right \\\" scope=\\\"row\\\">\\n                        <div class=\\\"p-1 pl-2 pr-2 \\\">\\n                            Tokens\\n                        </div>\\n                    </th>\\n                    <td class=\\\"pt-1 pb-1 bg-light border-0\\\"\\n                        data-bind=\\\"text:$data.tokens() + '/' + $data.startTokens\\\"></td>\\n                </tr>\\n                </tbody>\\n            </table>\\n        </div>\\n        <!-- ko if: $data.getPrivates().length > 0 -->\\n        <div class=\\\"card mb-1\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #f8f9fa;\\\">\\n            <table class=\\\"table text-center m-0\\\">\\n                <tbody>\\n                <tr>\\n                    <th colspan=\\\"2\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                        data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Privates\\n                    </th>\\n                </tr>\\n                <!-- ko foreach: $data.getPrivates() -->\\n                <tr>\\n                    <td colspan=\\\"2\\\" class=\\\"pt-1 pb-1 border-0\\\"\\n                        data-bind=\\\"css: $index() % 2 ? 'bg-table-row' : 'bg-light', text:$data.name\\\"></td>\\n                </tr>\\n                <!-- /ko -->\\n                </tbody>\\n            </table>\\n        </div>\\n        <!-- /ko -->\\n    </div>\\n</div>\";";
+module.exports = "module.exports = \"<div class=\\\"d-flex flex-wrap text-center\\\" style=\\\"width:100%;margin-left:25px;margin-top:25px;color:#333\\\">\\n    <!-- ko foreach: _.keys($data.bank.certificatesById()) -->\\n    <div class=\\\"card\\\" style=\\\"overflow:hidden;min-width:100px;height:100px;margin-right:25px;margin-bottom:25px;border-radius:.7rem\\\">\\n        <h5 class=\\\"card-title mb-0\\\" data-bind=\\\"css: 'bg-' + $data + ' text-' + $data, text: $parent.getCompany($data).nickname\\\"></h5>\\n        <div class=\\\"m-auto\\\">\\n            <h1 class=\\\"font-weight-light mb-0\\\" data-bind=\\\"text:$parent.bank.certificatesById()[$data].length\\\"></h1>\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n</div>\";";
 
 /***/ }),
 /* 113 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<!-- ko if: $root.game() && $root.game().state().isOperatingRound() && $data && $data.canDoAnything() -->\\n<div class=\\\"alert alert-dark rounded-0 border-top-0 border-right-0 border-left-0 m-0 p-3 d-flex flex-column justify-content-center\\\"\\n     role=\\\"alert\\\">\\n\\n    <!-- ko if: $data.interruptionNeeded() -->\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"alert alert-warning\\\" role=\\\"alert\\\">\\n            <h3 class=\\\"text-center font-weight-light alert-heading\\\">Warning</h3>\\n            <h5 class=\\\"mb-1 text-center font-weight-light\\\">This company's turn must be interrupted so other companies\\n                can remove trains.</h5>\\n            <div class=\\\" text-center font-weight-light\\\">\\n                (When they are done this turn\\n                will resume but you will not be able to undo your previous actions)\\n            </div>\\n            <div class=\\\"d-flex justify-content-center mt-3\\\">\\n                <button type=\\\"button\\\" class=\\\"btn btn-sm btn-success\\\"\\n                        data-bind=\\\"click: function() { $root.game().sequence.interruptTurn($data.interruptionNeeded()); }\\\">\\n                    Interrupt Turn\\n                </button>\\n            </div>\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n\\n    <!-- ko if: !$data.interruptionNeeded() -->\\n    <!-- ko if: !$data.isMiddleOfPrivateLays() -->\\n    <h5 class=\\\"text-center font-weight-light alert-heading\\\">Choose an action</h5>\\n    <!-- /ko -->\\n\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <!-- ko if: $data.canDoPlayerSteamboat() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.PLAYER_STEAMBOAT); }, css: $data.selectedAction() === $data.Actions.PLAYER_STEAMBOAT ? 'active btn-secondary' : 'btn-light' \\\">\\n            Place / Move Steamboat\\n        </button>\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-danger mr-1\\\"\\n                data-bind=\\\"click: function() {$root.game().sequence.finishTurn();}\\\">Skip\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canBuyPrivates() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.BUY_PRIVATES); }, css: $data.selectedAction() === $data.Actions.BUY_PRIVATES ? 'active btn-secondary' : 'btn-light' \\\">\\n            Buy Private\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canUsePrivates() && ! $data.isMiddleOfPrivateLays() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.USE_PRIVATES); }, css: $data.selectedAction() === $data.Actions.USE_PRIVATES ? 'active btn-secondary' : 'btn-light' \\\">\\n            Use Private Ability\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canIssue() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.ISSUE_SHARES); }, css: $data.selectedAction() === $data.Actions.ISSUE_SHARES ? 'active btn-secondary' : 'btn-light' \\\">\\n            Issue Shares\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canRedeem() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.REDEEM_SHARES); },css: $data.selectedAction() === $data.Actions.REDEEM_SHARES ? 'active btn-secondary' : 'btn-light' \\\">\\n            Redeem Shares\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canLayTrackOrToken() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.LAY_TRACK); },css: $data.selectedAction() === $data.Actions.LAY_TRACK ? 'active btn-secondary' : 'btn-light' \\\">\\n            Lay Track / Token\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canRunRoutes() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.RUN_ROUTES); },css: $data.selectedAction() === $data.Actions.RUN_ROUTES ? 'active btn-secondary' : 'btn-light' \\\">\\n            Run Routes\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canBuyTrains() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.BUY_TRAINS); },css: $data.selectedAction() === $data.Actions.BUY_TRAINS ? 'active btn-secondary' : 'btn-light' \\\">\\n            Buy Trains\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canCloseCompany() -->\\n        <button class=\\\"btn btn-sm \\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.CLOSE_COMPANY); },css: $data.selectedAction() === $data.Actions.CLOSE_COMPANY ? 'active btn-secondary' : 'btn-light' \\\">\\n            Close Company\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canGoBankrupt() -->\\n        <button class=\\\"btn btn-sm \\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.BANKRUPT); },css: $data.selectedAction() === $data.Actions.BANKRUPT ? 'active btn-danger' : 'btn-danger' \\\">\\n            Declare Bankruptcy\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.mustReturnTrain() -->\\n        <button class=\\\"btn btn-sm \\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.RETURN_TRAIN); },css: $data.selectedAction() === $data.Actions.RETURN_TRAIN ? 'active btn-warning' : 'btn-warning' \\\">\\n            Return Train\\n        </button>\\n        <!-- /ko -->\\n    </div>\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.PLAYER_STEAMBOAT -->\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\">Choose a company</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $data.getSteamboatCompanies() -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$parent.selectedSteamboatCompany($data.id); },style: { opacity: !$parent.selectedSteamboatCompany() || $parent.selectedSteamboatCompany() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.nickname\\\"></strong>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedSteamboatCompany() -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to place the Steamboat token in\\n        Holland, Chicago Connections, St Louis, Toledo (D14) or Wheeling (G19)</h4>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.RETURN_TRAIN -->\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\">Choose Trains</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $data.currentCompanyTrains() -->\\n            <li>\\n                <div class=\\\"card d-inline-flex bg-route-train\\\"\\n                     data-bind=\\\"click: function() {$parent.selectTrainToReturn($data); }, style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' }\\\">\\n\\n                    <div class=\\\"bg-route-train-border\\\"\\n                         data-bind=\\\"css: 'bg-route-border-' + ($parent.selectedTrainToReturn() === $data.id  ? '1' : '0')+ ' ' + ($parent.selectedTrainToReturn() === $data.id ? 'bg-route-train-big-border' : 'bg-route-train-small-border')\\\"></div>\\n                </div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.BUY_PRIVATES -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Choose a private:</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $root.game().state().currentPlayer().getPrivates() -->\\n            <button class=\\\"btn btn-sm mr-2\\\"\\n                    data-bind=\\\"click: function() {$parent.selectPrivate($data.id); },style: { opacity: !$parent.selectedPrivateId() || $parent.selectedPrivateId() === $data.id ? 1 : 0.2}, css: ($parent.selectedPrivateId() === $data.id  ? 'btn-warning text-dark' : 'btn-secondary text-white') \\\">\\n                <span class=\\\"h6\\\" data-bind=\\\"text: $data.name\\\"></span>\\n            </button>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedPrivateId() -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">For how much?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"input-group justify-content-center\\\">\\n            <div class=\\\"input-group-prepend\\\">\\n                <span class=\\\"input-group-text\\\" data-bind=\\\"text: '$'\\\"></span>\\n            </div>\\n            <input type=\\\"number\\\" maxlength=\\\"3\\\" pattern=\\\"[0-9]*\\\" min=\\\"1\\\" max=\\\"60\\\" inputmode=\\\"numeric\\\"\\n                   style=\\\"max-width: 72px;\\\" class=\\\"form-control no-spinners\\\"\\n                   data-bind=\\\"value: privatePrice, valueUpdate: 'keyup', attr: { placeholder: '1-' + maxPrivateCost()}\\\">\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedPrivateId() === 'cwi' && $data.privatePrice() -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Take over the token?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: $data.useCWIToken() ? 'btn-warning' : 'btn-secondary', click: function() { $data.useCWIToken(true) }\\\">\\n                Yes\\n            </button>\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: !$data.useCWIToken() ? 'btn-warning' : 'btn-secondary', click: function() { $data.useCWIToken(false) }\\\">\\n                No\\n            </button>\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n\\n\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.USE_PRIVATES -->\\n    <!-- ko if: $data.useablePrivates().length > 1 && !$data.isMiddleOfPrivateLays() -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\"\\n        data-bind=\\\"html: $data.useablePrivates().length > 1 ? 'Choose a private:' : '&nbsp;'\\\"></h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $data.useablePrivates() -->\\n            <button class=\\\"btn btn-sm mr-2\\\"\\n                    data-bind=\\\"click: function() {$parent.selectPrivate($data.id); },style: { opacity: !$parent.selectedPrivateId() || $parent.selectedPrivateId() === $data.id ? 1 : 0.2}, css: ($parent.selectedPrivateId() === $data.id  ? 'btn-warning text-dark' : 'btn-secondary text-white') \\\">\\n                <span class=\\\"h6\\\" data-bind=\\\"text: $data.name\\\"></span>\\n            </button>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedPrivateId() === 'oandi' -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to lay up to two O&I tiles (F14\\n        and/or F16)</h4>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedPrivateId() === 'mc' -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to lay up to two MC tiles (B10\\n        and/or B12)</h4>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedPrivateId() === 'lsl' -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to upgrade Toledo (D14) or Cleveland\\n        (E17)</h4>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedPrivateId() === 'meat' -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to place the Meat Packing token in\\n        Chicago (D6) or St Louis</h4>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedPrivateId() === 'boat' -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to place the Steamboat token in\\n        Holland, Chicago Connections, St Louis, Toledo (D14) or Wheeling (G19)</h4>\\n    <!-- /ko -->\\n    <!-- ko if: $data.isMiddleOfPrivateLays() -->\\n    <div class=\\\"d-flex justify-content-center mt-3\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-danger mr-1\\\"\\n                data-bind=\\\"click: function() {$data.skipSecondPrivateLay();}\\\">Skip Second Tile\\n        </button>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedAction() === $data.Actions.ISSUE_SHARES -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">How many shares?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <!-- ko foreach: _.range(1, $data.getNumCanIssue()+1) -->\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.numberOfShares($index()+1); }\\\"></button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedAction() === $data.Actions.REDEEM_SHARES -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">How many shares?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <!-- ko foreach: _.range(1, $data.getNumCanRedeem()+1) -->\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.numberOfShares($index()+1); }\\\"></button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedAction() === $data.Actions.LAY_TRACK -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to lay track or add a token</h4>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedAction() === $data.Actions.RUN_ROUTES -->\\n    <!-- ko if: $data.companyTrains().length > 0 -->\\n    <h5 class=\\\"mt-3 mb-0 text-center font-weight-light alert-heading\\\">Operate Trains</h5>\\n    <div style=\\\"font-size:14px;\\\" class=\\\"mt-0 mb-3 text-center alert-heading\\\">(Choose trains and draw routes on map\\n        below)\\n    </div>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $data.companyTrains() -->\\n            <li>\\n                <div class=\\\"card d-inline-flex bg-route-train\\\"\\n                     data-bind=\\\"style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' },click: function() { $parent.selectTrain($data)} \\\">\\n                    <div class=\\\"bg-route-train-border\\\"\\n                         data-bind=\\\"css: 'bg-route-border-' + $data.route.color + ' ' + ($parent.selectedTrain() === $data.id ? 'bg-route-train-big-border' : 'bg-route-train-small-border')\\\"></div>\\n                    <div style=\\\"border-radius:4px; padding:0 5px;position:absolute;top:-5px;right:-5px;color:white\\\"\\n                         data-bind=\\\"css: 'bg-route-' + $data.route.color\\\"><span style=\\\"font-size:16px;font-weight:600\\\"\\n                                                                                data-bind=\\\"text: '$' + $data.route.revenue()\\\"></span>\\n                    </div>\\n                </div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedTrain() && $data.canAllocateRevenue()-->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\"\\n        data-bind=\\\"text: 'Allocate $' + $data.runRevenue() + ' revenue'\\\"></h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: $data.selectedAllocation() === $data.Allocations.NONE ? 'btn-warning' : 'btn-secondary', click: function() {  $data.selectAllocation($data.Allocations.NONE); }\\\">\\n                <div>Withhold</div>\\n                <div style=\\\"font-size:12px;\\\" data-bind=\\\"html: '&#x21E0; price'\\\"></div>\\n            </button>\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: $data.selectedAllocation() === $data.Allocations.HALF ? 'btn-warning' : 'btn-secondary', click: function() { $data.selectAllocation($data.Allocations.HALF); }\\\">\\n                <div>Pay Half</div>\\n                <div style=\\\"font-size:12px;\\\" data-bind=\\\"text: $data.halfPayResult()\\\"></div>\\n            </button>\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: $data.selectedAllocation() === $data.Allocations.FULL ? 'btn-warning' : 'btn-secondary', click: function() { $data.selectAllocation($data.Allocations.FULL); }\\\">\\n                <div>Pay Full</div>\\n                <div style=\\\"font-size:12px;\\\" data-bind=\\\"text: $data.fullPayResult()\\\"></div>\\n            </button>\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.BUY_TRAINS -->\\n    <!-- ko if: $data.canBuyTrainFromCompany() -->\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\">Buy from</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko if: $data.canBuyTrainFromBank() || $data.canEmergencyBuy()-->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$data.selectedTrainSource('bank'); },style: { opacity: !$data.selectedTrainSource() || $data.selectedTrainSource() === 'bank' ? 1 : 0.2}, css: 'bg-secondary'+ ' text-white'\\\">\\n                <strong class=\\\"h5\\\">Bank</strong>\\n            </li>\\n            <!-- /ko -->\\n            <!-- ko foreach: $data.getCompaniesWithTrains() -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$parent.selectedTrainSource($data.id); },style: { opacity: !$parent.selectedTrainSource() || $parent.selectedTrainSource() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.nickname\\\"></strong>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedTrainSource() && $data.selectedTrainSource() === 'bank'-->\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\">Choose Trains</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko if: !$data.canEmergencyBuy() -->\\n            <!-- ko foreach: $data.availableBankTrains() -->\\n            <li>\\n                <div data-bind=\\\"style: { opacity: num <= 0 ? .2 : 1 }\\\">\\n                    <div class=\\\"card mb-0 d-inline-flex bg-route-train\\\"\\n                         data-bind=\\\"style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' }\\\">\\n                        <div class=\\\"bg-route-train-border\\\"\\n                             data-bind=\\\"css: 'bg-route-border-0 bg-route-train-small-border'\\\"></div>\\n                        <div class=\\\"bg-route-0\\\"\\n                             style=\\\"border-radius:4px; padding:0 5px;position:absolute;top:-5px;right:-5px;color:white\\\"><span\\n                                style=\\\"font-size:16px;font-weight:600\\\"\\n                                data-bind=\\\"text: '$' + $data.cost\\\"></span>\\n                        </div>\\n                    </div>\\n                    <div class=\\\"mb-2\\\">\\n                        <span style=\\\"font-size:14px\\\" data-bind=\\\"text: $data.available + ' remaining'\\\"></span>\\n                    </div>\\n                    <div>\\n                        <!-- ko foreach: _.range(1, $data.num+1) -->\\n                        <button type=\\\"button\\\" class=\\\"btn\\\"\\n                                data-bind=\\\"text: $data, css: $parents[1].isBankTrainSelectedForPurchase($parent.type, $data) ? 'btn-warning' : 'btn-secondary', click: function() { $parents[1].selectBankTrainForPurchase($parent.type, $data) }\\\"></button>\\n                        <!-- /ko -->\\n                    </div>\\n                </div>\\n            </li>\\n            <!-- /ko -->\\n            <!-- /ko -->\\n            <!-- ko if: $data.canEmergencyBuy() -->\\n            <!-- ko foreach: $data.getTrainsAvailableToForceBuy() -->\\n            <li>\\n                <div class=\\\"card d-inline-flex bg-route-train\\\"\\n                     data-bind=\\\"style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' },click: function() { $parent.selectForcedTrainForPurchase($data)} \\\">\\n                    <div class=\\\"bg-route-train-border\\\"\\n                         data-bind=\\\"css: 'bg-route-border-0 ' + ($parent.selectedForcedTrainForPurchase() === $data.type ? 'bg-route-train-big-border' : 'bg-route-train-small-border')\\\"></div>\\n                    <div class=\\\"bg-route-0\\\"\\n                         style=\\\"border-radius:4px; padding:0 5px;position:absolute;top:-5px;right:-5px;color:white\\\"><span\\n                            style=\\\"font-size:16px;font-weight:600\\\"\\n                            data-bind=\\\"text: '$' + $data.cost\\\"></span>\\n                    </div>\\n                </div>\\n            </li>\\n            <!-- /ko -->\\n\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.canEmergencyBuy() && $data.selectedForcedTrainForPurchase() && $data.needsStockSales() -->\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\"\\n        data-bind=\\\"text: 'Sell Shares' + ($data.moneyNeededAfterCurrentStockSales() > 0 ? ' - $' + $data.moneyNeededAfterCurrentStockSales() + ' needed' : '')\\\">\\n        Sell Shares</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $data.sharesForSale() -->\\n            <li>\\n                <div class=\\\"mr-2\\\" data-bind=\\\"style: { opacity: num <= 0 ? .2 : 1 }\\\">\\n                    <div class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mb-2\\\" style=\\\"cursor:pointer;\\\"\\n                         data-bind=\\\"style: { opacity: 1 }, css: 'bg-' + $data.company.id + ' text-' + $data.company.id\\\">\\n                        <strong class=\\\"h5\\\" data-bind=\\\"text: $data.company.nickname\\\"></strong>\\n                        <div data-bind=\\\"text: '$' + $data.company.price()\\\"></div>\\n                    </div>\\n                    <div>\\n                        <!-- ko foreach: _.range(1, $data.num+1) -->\\n                        <button type=\\\"button\\\" class=\\\"btn\\\"\\n                                data-bind=\\\"text: $data, css: $parents[1].isStockSelectedForSale($parent.company.id, $data) ? 'btn-warning' : 'btn-secondary', click: function() { $parents[1].selectStockForSale($parent.company.id, $data)}\\\"></button>\\n                        <!-- /ko -->\\n                    </div>\\n                </div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.selectedTrainSource() && $data.selectedTrainSource() !== 'bank'-->\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\">Choose Trains</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $data.availableCompanyTrains() -->\\n            <li>\\n                <div class=\\\"card d-inline-flex bg-route-train\\\"\\n                     data-bind=\\\"click: function() {$parent.selectCompanyTrainForPurchase($data); }, style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' }\\\">\\n\\n                    <div class=\\\"bg-route-train-border\\\"\\n                         data-bind=\\\"css: 'bg-route-border-' + ($parent.isCompanyTrainSelectedForPurchase($data.id) ? '1' : '0')+ ' ' + ($parent.isCompanyTrainSelectedForPurchase($data.id) ? 'bg-route-train-big-border' : 'bg-route-train-small-border')\\\"></div>\\n                </div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedCompanyTrainsForPurchase().length > 0 -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">For how much?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"input-group justify-content-center\\\">\\n            <div class=\\\"input-group-prepend\\\">\\n                <span class=\\\"input-group-text\\\" data-bind=\\\"text: '$'\\\"></span>\\n            </div>\\n            <input type=\\\"number\\\" maxlength=\\\"3\\\" pattern=\\\"[0-9]*\\\" min=\\\"1\\\" max=\\\"60\\\" inputmode=\\\"numeric\\\"\\n                   style=\\\"max-width: 72px;\\\" class=\\\"form-control no-spinners\\\"\\n                   data-bind=\\\"value: companyTrainPurchasePrice, valueUpdate: 'keyup', attr: { placeholder: $data.selectedCompanyTrainsForPurchase().length + '-' + $data.maxCompanyTrainPurchasePrice()}\\\">\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.action() -->\\n    <div class=\\\"d-flex justify-content-center mt-3\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-primary mr-1\\\"\\n                data-bind=\\\"click: $data.commit, text: $data.action().confirmation($root.game().state())\\\"></button>\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-danger mr-1\\\" data-bind=\\\"click: $data.reset\\\">Cancel</button>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n</div>\\n<!-- /ko -->\\n\";";
+module.exports = "module.exports = \"<div class=\\\"text-center pl-2 pr-2\\\">\\n    <div class=\\\"pb-2 pr-2 pl-2 pt-0 \\\" style=\\\"width:100%\\\" data-bind=\\\"css: 'bg-' + $data.id\\\">\\n        <div class=\\\"card mb-2\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #f8f9fa;\\\">\\n            <table class=\\\"table text-center m-0\\\">\\n                <tbody>\\n                <tr>\\n                    <th colspan=\\\"2\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                        data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Player Shares\\n                    </th>\\n                </tr>\\n                <!-- ko foreach: $root.game().state().players() -->\\n                <tr>\\n                    <td class=\\\"border-0 font-weight-normal  p-0 text-right\\\" scope=\\\"row\\\"\\n                        data-bind=\\\"css: $root.game().state().currentPlayerId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row' : 'bg-light'\\\">\\n                        <div class=\\\"p-1 pl-2 pr-2\\\">\\n                            <div data-bind=\\\"text:$data.user().username\\\">Price</div>\\n                        </div>\\n                    </td>\\n                    <td class=\\\"pt-1 pb-1 border-0 \\\"\\n                        data-bind=\\\"css: $root.game().state().currentPlayerId() === $data.id ? 'bg-warning' : $index() % 2 ? 'bg-table-row' : 'bg-light'\\\">\\n                        <div data-bind=\\\"text:$data.numSharesOwnedOfCompany($parent.id)\\\"></div>\\n                    </td>\\n                </tr>\\n                <!-- /ko -->\\n                </tbody>\\n            </table>\\n        </div>\\n        <div class=\\\"card mb-2\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #f8f9fa;\\\">\\n            <table class=\\\"table text-center m-0\\\">\\n                <tbody>\\n                <tr>\\n                    <th colspan=\\\"2\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                        data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Avail. Shares\\n                    </th>\\n                </tr>\\n                <tr>\\n                    <td class=\\\"border-0 bg-light font-weight-normal p-0 text-right \\\" scope=\\\"row\\\">\\n                        <div class=\\\" p-1 pl-2 pr-2\\\">\\n                            <div>Price</div>\\n                        </div>\\n                    </td>\\n                    <td class=\\\"bg-light pt-1 pb-1 border-0 \\\">\\n                        <div data-bind=\\\"text: '$' + $data.price()\\\"></div>\\n                    </td>\\n                </tr>\\n                <tr>\\n                    <td class=\\\"border-0 bg-table-row font-weight-normal p-0 text-right \\\" scope=\\\"row\\\">\\n                        <div class=\\\"p-1 pl-2 pr-2\\\">\\n                            <div>Market</div>\\n                        </div>\\n                    </td>\\n                    <td class=\\\"bg-table-row pt-1 pb-1 border-0 \\\">\\n                        <div data-bind=\\\"text: $root.game().state().bank.numSharesOwnedOfCompany($data.id)\\\"></div>\\n                    </td>\\n                </tr>\\n                <tr>\\n                    <td class=\\\"border-0 bg-light font-weight-normal p-0 text-right \\\" scope=\\\"row\\\">\\n                        <div class=\\\"p-1 pl-2 pr-2\\\">\\n                            <div>Treas.</div>\\n                        </div>\\n                    </td>\\n                    <td class=\\\"bg-light pt-1 pb-1 border-0 \\\">\\n                        <div class=\\\"\\\"\\n                             data-bind=\\\"text: $data.shares()\\\"></div>\\n                    </td>\\n                </tr>\\n                </tbody>\\n            </table>\\n        </div>\\n        <div class=\\\"card mb-2\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #f8f9fa;\\\">\\n            <table class=\\\"table text-center m-0\\\">\\n                <tbody>\\n                <tr>\\n                    <th colspan=\\\"2\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                        data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Assets\\n                    </th>\\n                </tr>\\n                <tr>\\n                    <th class=\\\"border-0 bg-light font-weight-normal p-0 text-right \\\" scope=\\\"row\\\">\\n                        <div class=\\\"p-1 pl-2 pr-2\\\">\\n                            Trains\\n                        </div>\\n                    </th>\\n                    <td class=\\\"pt-1 pb-1 bg-light border-0\\\" data-bind=\\\"\\\">\\n                    <span style=\\\"color:red\\\"\\n                          data-bind=\\\"text: _.join(_.map($data.getPhasedOutTrains(), train=>train.getName()).sort(), ' ')\\\"></span>&nbsp;<span\\n                            data-bind=\\\"text: _.join(_.map($data.getNonPhasedOutTrains(), train=>train.getName()).sort(), ' ')\\\"></span>\\n                    </td>\\n                </tr>\\n                <tr>\\n                    <th class=\\\"border-0 bg-table-row font-weight-normal p-0 text-right \\\" scope=\\\"row\\\">\\n                        <div class=\\\"p-1 pl-2 pr-2\\\">Cash</div>\\n                    </th>\\n                    <td class=\\\"pt-1 pb-1 bg-table-row border-0\\\">\\n                        <div data-bind=\\\"text: '$' + $data.cash()\\\"></div>\\n                    </td>\\n                </tr>\\n                <tr>\\n                    <th class=\\\"border-0 bg-light font-weight-normal p-0 text-right \\\" scope=\\\"row\\\">\\n                        <div class=\\\"p-1 pl-2 pr-2 \\\">\\n                            Tokens\\n                        </div>\\n                    </th>\\n                    <td class=\\\"pt-1 pb-1 bg-light border-0\\\"\\n                        data-bind=\\\"text:$data.tokens() + '/' + $data.startTokens\\\"></td>\\n                </tr>\\n                </tbody>\\n            </table>\\n        </div>\\n        <!-- ko if: $data.getPrivates().length > 0 -->\\n        <div class=\\\"card mb-1\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #f8f9fa;\\\">\\n            <table class=\\\"table text-center m-0\\\">\\n                <tbody>\\n                <tr>\\n                    <th colspan=\\\"2\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                        data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Privates\\n                    </th>\\n                </tr>\\n                <!-- ko foreach: $data.getPrivates() -->\\n                <tr>\\n                    <td colspan=\\\"2\\\" class=\\\"pt-1 pb-1 border-0\\\"\\n                        data-bind=\\\"css: $index() % 2 ? 'bg-table-row' : 'bg-light', text:$data.name\\\"></td>\\n                </tr>\\n                <!-- /ko -->\\n                </tbody>\\n            </table>\\n        </div>\\n        <!-- /ko -->\\n    </div>\\n</div>\";";
 
 /***/ }),
 /* 114 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<div class=\\\"text-center\\\">\\n    <div class=\\\"bg-dark\\\" style=\\\"padding:10px;width:100%\\\">\\n        <table class=\\\"table text-center bg-dark m-0\\\">\\n            <thead>\\n            <tr>\\n                <th colspan=\\\"3\\\" scope=\\\"col\\\" class=\\\"border-0\\\"></th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <th class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</th>\\n                <th scope=\\\"col\\\" class=\\\"border-0 font-weight-normal pt-2 pb-2\\\"\\n                    data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\"><h5 class=\\\"font-weight-normal mb-0\\\"\\n                                                                                data-bind=\\\"text:$data.nickname\\\"></h5>\\n                </th>\\n\\n                <!-- /ko -->\\n            </tr>\\n            </thead>\\n            <tbody>\\n            <tr>\\n                <th scope=\\\"col\\\"class=\\\"border-0 font-weight-normal p-0 text-white text-center\\\"><div class=\\\"p-1\\\">\\n                        Player\\n                    </div></th>\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <th class=\\\"border-0 font-weight-normal p-0 text-center text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1\\\">\\n                        Cash\\n                    </div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <th scope=\\\"col\\\" class=\\\"table-col-spacer p-0 border-0\\\" style=\\\"height:10px;\\\"></th>\\n                <th scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                    data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Player Shares\\n                </th>\\n                <!-- /ko -->\\n            </tr>\\n            <!-- ko foreach: $data.players() -->\\n            <tr>\\n                <th class=\\\"border-0 font-weight-normal\\\" scope=\\\"row\\\"\\n                    data-bind=\\\"css: $parent.currentPlayerId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row' : 'bg-light'\\\">\\n                    <div class=\\\"d-inline-flex align-items-center\\\">\\n                        <!-- ko if: $data.id === $root.game().state().priorityDealPlayerId() -->\\n        <img style=\\\"height:20px;margin-right:10px;\\\" data-bind=\\\"attr: { src: $root.rootPath + 'images/pd.png' }\\\"/><!-- /ko -->\\n                        <h5 class=\\\"m-0 font-weight-normal \\\" data-bind=\\\"text:$data.name()\\\"></h5></div></th>\\n                <td class=\\\"table-col-spacer p-0 border-0\\\"\\n                    data-bind=\\\"css: $root.game().state().currentPlayerId() === $data.id ? 'bg-warning': 'bg-dark'\\\">\\n                    &nbsp;\\n                </td>\\n                <th class=\\\"border-0 font-weight-normal text-center\\\" style=\\\"width:1%;white-space:nowrap\\\" scope=\\\"row\\\"\\n                    data-bind=\\\"css: $parent.currentPlayerId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row' : 'bg-light'\\\">\\n                    <h5 class=\\\"m-0 font-weight-normal \\\" data-bind=\\\"text:'$' + $data.cash()\\\"></h5></th>\\n                <!-- ko foreach: $parent.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\"\\n                    data-bind=\\\"css: $root.game().state().currentPlayerId() === $parent.id ? 'bg-warning': 'bg-dark'\\\">\\n                    &nbsp;\\n                </td>\\n                <td class=\\\"border-0\\\"\\n                    data-bind=\\\"css: $root.game().state().currentPlayerId() === $parent.id ? 'bg-warning' : $parentContext.$index() % 2 ? 'bg-table-row' : 'bg-light'\\\">\\n                    <h5 class=\\\"m-0 font-weight-normal text-dark\\\"\\n                        data-bind=\\\"text:$parent.numSharesOwnedOfCompany($data.id)\\\"></h5></td>\\n                <!-- /ko -->\\n            </tr>\\n            <!-- /ko -->\\n            <tr>\\n                <th colspan=\\\"\\\" scope=\\\"col\\\" class=\\\"table-col-spacer p-0 border-0\\\" style=\\\"height:10px;\\\"\\n                    data-bind=\\\"attr: { 'colspan': ($data.openCompanies().length *2) + 3}\\\"></th>\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 p-0\\\"></th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <th scope=\\\"col\\\" class=\\\"table-col-spacer p-0 border-0\\\" style=\\\"height:10px;\\\"></th>\\n                <th scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                    data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Avail. Shares\\n                </th>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" class=\\\"border-0 font-weight-normal p-0 text-right text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1 pr-2\\\">\\n                        <div>Price</div>\\n                    </div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <td class=\\\"bg-light pt-1 pb-1 border-0 \\\">\\n                    <div data-bind=\\\"text: '$' + $data.price()\\\"></div>\\n                </td>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" class=\\\"border-0 font-weight-normal p-0 text-right text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1 pr-2\\\">\\n                        <div>Market</div>\\n                    </div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <td class=\\\"bg-table-row pt-1 pb-1 border-0 \\\">\\n                    <div data-bind=\\\"text: $root.game().state().bank.numSharesOwnedOfCompany($data.id)\\\"></div>\\n                </td>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" class=\\\"border-0 font-weight-normal p-0 text-right text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1\\\">\\n                        <div>Treasury</div>\\n                    </div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <td class=\\\"bg-light pt-1 pb-1 border-0 \\\">\\n                    <div class=\\\"\\\"\\n                         data-bind=\\\"text: $data.shares()\\\"></div>\\n                </td>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"\\\" scope=\\\"col\\\" class=\\\"table-col-spacer p-0 border-0\\\" style=\\\"height:10px;\\\"\\n                    data-bind=\\\"attr: { 'colspan': ($data.openCompanies().length *2) + 3}\\\"></th>\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 p-0\\\"></th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <th scope=\\\"col\\\" class=\\\"table-col-spacer p-0 border-0\\\" style=\\\"height:10px;\\\"></th>\\n                <th scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                    data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Assets\\n                </th>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" class=\\\"border-0 font-weight-normal p-0 text-right text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1\\\">\\n                        Trains\\n                    </div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <td class=\\\"pt-1 pb-1 bg-light border-0\\\"\\n                    data-bind=\\\"text: _.join(_.map($data.getNonPhasedOutTrains(), train=>train.getName()).sort(), ' ')\\\"></td>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" class=\\\"border-0 font-weight-normal p-0 text-right text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1\\\">Cash</div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <td class=\\\"pt-1 pb-1 bg-table-row border-0\\\">\\n                    <div data-bind=\\\"text: '$' + $data.cash()\\\"></div>\\n                </td>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" class=\\\"border-0 font-weight-normal p-0 text-right text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1\\\">\\n                        Tokens\\n                    </div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <td class=\\\"pt-1 pb-1 bg-light border-0\\\" data-bind=\\\"text:$data.tokens() + '/' + $data.startTokens\\\"></td>\\n                <!-- /ko -->\\n            </tr>\\n            </tbody>\\n\\n        </table>\\n    </div>\\n\\n</div>\";";
+module.exports = "module.exports = \"<!-- ko if: $root.game() && $root.game().state().isOperatingRound() && $data && $data.canDoAnything() -->\\n<div class=\\\"alert alert-dark rounded-0 border-top-0 border-right-0 border-left-0 m-0 p-3 d-flex flex-column justify-content-center\\\"\\n     role=\\\"alert\\\">\\n\\n    <!-- ko if: $data.interruptionNeeded() -->\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"alert alert-warning\\\" role=\\\"alert\\\">\\n            <h3 class=\\\"text-center font-weight-light alert-heading\\\">Warning</h3>\\n            <h5 class=\\\"mb-1 text-center font-weight-light\\\">This company's turn must be interrupted so other companies\\n                can remove trains.</h5>\\n            <div class=\\\" text-center font-weight-light\\\">\\n                (When they are done this turn\\n                will resume but you will not be able to undo your previous actions)\\n            </div>\\n            <div class=\\\"d-flex justify-content-center mt-3\\\">\\n                <button type=\\\"button\\\" class=\\\"btn btn-sm btn-success\\\"\\n                        data-bind=\\\"click: function() { $root.game().sequence.interruptTurn($data.interruptionNeeded()); }\\\">\\n                    Interrupt Turn\\n                </button>\\n            </div>\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n\\n    <!-- ko if: !$data.interruptionNeeded() -->\\n    <!-- ko if: !$data.isMiddleOfPrivateLays() -->\\n    <h5 class=\\\"text-center font-weight-light alert-heading\\\">Choose an action</h5>\\n    <!-- /ko -->\\n\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <!-- ko if: $data.canDoPlayerSteamboat() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.PLAYER_STEAMBOAT); }, css: $data.selectedAction() === $data.Actions.PLAYER_STEAMBOAT ? 'active btn-secondary' : 'btn-light' \\\">\\n            Place / Move Steamboat\\n        </button>\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-danger mr-1\\\"\\n                data-bind=\\\"click: function() {$root.game().sequence.finishTurn();}\\\">Skip\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canBuyPrivates() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.BUY_PRIVATES); }, css: $data.selectedAction() === $data.Actions.BUY_PRIVATES ? 'active btn-secondary' : 'btn-light' \\\">\\n            Buy Private\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canUsePrivates() && ! $data.isMiddleOfPrivateLays() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.USE_PRIVATES); }, css: $data.selectedAction() === $data.Actions.USE_PRIVATES ? 'active btn-secondary' : 'btn-light' \\\">\\n            Use Private Ability\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canIssue() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.ISSUE_SHARES); }, css: $data.selectedAction() === $data.Actions.ISSUE_SHARES ? 'active btn-secondary' : 'btn-light' \\\">\\n            Issue Shares\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canRedeem() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.REDEEM_SHARES); },css: $data.selectedAction() === $data.Actions.REDEEM_SHARES ? 'active btn-secondary' : 'btn-light' \\\">\\n            Redeem Shares\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canLayTrackOrToken() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.LAY_TRACK); },css: $data.selectedAction() === $data.Actions.LAY_TRACK ? 'active btn-secondary' : 'btn-light' \\\">\\n            Lay Track / Token\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canRunRoutes() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.RUN_ROUTES); },css: $data.selectedAction() === $data.Actions.RUN_ROUTES ? 'active btn-secondary' : 'btn-light' \\\">\\n            Run Routes\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canBuyTrains() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.BUY_TRAINS); },css: $data.selectedAction() === $data.Actions.BUY_TRAINS ? 'active btn-secondary' : 'btn-light' \\\">\\n            Buy Trains\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canCloseCompany() -->\\n        <button class=\\\"btn btn-sm \\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.CLOSE_COMPANY); },css: $data.selectedAction() === $data.Actions.CLOSE_COMPANY ? 'active btn-secondary' : 'btn-light' \\\">\\n            Close Company\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.canGoBankrupt() -->\\n        <button class=\\\"btn btn-sm \\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.BANKRUPT); },css: $data.selectedAction() === $data.Actions.BANKRUPT ? 'active btn-danger' : 'btn-danger' \\\">\\n            Declare Bankruptcy\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $data.mustReturnTrain() -->\\n        <button class=\\\"btn btn-sm \\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.RETURN_TRAIN); },css: $data.selectedAction() === $data.Actions.RETURN_TRAIN ? 'active btn-warning' : 'btn-warning' \\\">\\n            Return Train\\n        </button>\\n        <!-- /ko -->\\n    </div>\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.PLAYER_STEAMBOAT -->\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\">Choose a company</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $data.getSteamboatCompanies() -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$parent.selectedSteamboatCompany($data.id); },style: { opacity: !$parent.selectedSteamboatCompany() || $parent.selectedSteamboatCompany() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.nickname\\\"></strong>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedSteamboatCompany() -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to place the Steamboat token in\\n        Holland, Chicago Connections, St Louis, Toledo (D14) or Wheeling (G19)</h4>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.RETURN_TRAIN -->\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\">Choose Trains</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $data.currentCompanyTrains() -->\\n            <li>\\n                <div class=\\\"card d-inline-flex bg-route-train\\\"\\n                     data-bind=\\\"click: function() {$parent.selectTrainToReturn($data); }, style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' }\\\">\\n\\n                    <div class=\\\"bg-route-train-border\\\"\\n                         data-bind=\\\"css: 'bg-route-border-' + ($parent.selectedTrainToReturn() === $data.id  ? '1' : '0')+ ' ' + ($parent.selectedTrainToReturn() === $data.id ? 'bg-route-train-big-border' : 'bg-route-train-small-border')\\\"></div>\\n                </div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.BUY_PRIVATES -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Choose a private:</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $root.game().state().currentPlayer().getPrivates() -->\\n            <button class=\\\"btn btn-sm mr-2\\\"\\n                    data-bind=\\\"click: function() {$parent.selectPrivate($data.id); },style: { opacity: !$parent.selectedPrivateId() || $parent.selectedPrivateId() === $data.id ? 1 : 0.2}, css: ($parent.selectedPrivateId() === $data.id  ? 'btn-warning text-dark' : 'btn-secondary text-white') \\\">\\n                <span class=\\\"h6\\\" data-bind=\\\"text: $data.name\\\"></span>\\n            </button>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedPrivateId() -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">For how much?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"input-group justify-content-center\\\">\\n            <div class=\\\"input-group-prepend\\\">\\n                <span class=\\\"input-group-text\\\" data-bind=\\\"text: '$'\\\"></span>\\n            </div>\\n            <input type=\\\"number\\\" maxlength=\\\"3\\\" pattern=\\\"[0-9]*\\\" min=\\\"1\\\" max=\\\"60\\\" inputmode=\\\"numeric\\\"\\n                   style=\\\"max-width: 72px;\\\" class=\\\"form-control no-spinners\\\"\\n                   data-bind=\\\"value: privatePrice, valueUpdate: 'keyup', attr: { placeholder: '1-' + maxPrivateCost()}\\\">\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedPrivateId() === 'cwi' && $data.privatePrice() -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Take over the token?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: $data.useCWIToken() ? 'btn-warning' : 'btn-secondary', click: function() { $data.useCWIToken(true) }\\\">\\n                Yes\\n            </button>\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: !$data.useCWIToken() ? 'btn-warning' : 'btn-secondary', click: function() { $data.useCWIToken(false) }\\\">\\n                No\\n            </button>\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n\\n\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.USE_PRIVATES -->\\n    <!-- ko if: $data.useablePrivates().length > 1 && !$data.isMiddleOfPrivateLays() -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\"\\n        data-bind=\\\"html: $data.useablePrivates().length > 1 ? 'Choose a private:' : '&nbsp;'\\\"></h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $data.useablePrivates() -->\\n            <button class=\\\"btn btn-sm mr-2\\\"\\n                    data-bind=\\\"click: function() {$parent.selectPrivate($data.id); },style: { opacity: !$parent.selectedPrivateId() || $parent.selectedPrivateId() === $data.id ? 1 : 0.2}, css: ($parent.selectedPrivateId() === $data.id  ? 'btn-warning text-dark' : 'btn-secondary text-white') \\\">\\n                <span class=\\\"h6\\\" data-bind=\\\"text: $data.name\\\"></span>\\n            </button>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedPrivateId() === 'oandi' -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to lay up to two O&I tiles (F14\\n        and/or F16)</h4>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedPrivateId() === 'mc' -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to lay up to two MC tiles (B10\\n        and/or B12)</h4>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedPrivateId() === 'lsl' -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to upgrade Toledo (D14) or Cleveland\\n        (E17)</h4>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedPrivateId() === 'meat' -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to place the Meat Packing token in\\n        Chicago (D6) or St Louis</h4>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedPrivateId() === 'boat' -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to place the Steamboat token in\\n        Holland, Chicago Connections, St Louis, Toledo (D14) or Wheeling (G19)</h4>\\n    <!-- /ko -->\\n    <!-- ko if: $data.isMiddleOfPrivateLays() -->\\n    <div class=\\\"d-flex justify-content-center mt-3\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-danger mr-1\\\"\\n                data-bind=\\\"click: function() {$data.skipSecondPrivateLay();}\\\">Skip Second Tile\\n        </button>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedAction() === $data.Actions.ISSUE_SHARES -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">How many shares?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <!-- ko foreach: _.range(1, $data.getNumCanIssue()+1) -->\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.numberOfShares($index()+1); }\\\"></button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedAction() === $data.Actions.REDEEM_SHARES -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">How many shares?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <!-- ko foreach: _.range(1, $data.getNumCanRedeem()+1) -->\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.numberOfShares($index()+1); }\\\"></button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedAction() === $data.Actions.LAY_TRACK -->\\n    <h4 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Use the map below to lay track or add a token</h4>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedAction() === $data.Actions.RUN_ROUTES -->\\n    <!-- ko if: $data.companyTrains().length > 0 -->\\n    <h5 class=\\\"mt-3 mb-0 text-center font-weight-light alert-heading\\\">Operate Trains</h5>\\n    <div style=\\\"font-size:14px;\\\" class=\\\"mt-0 mb-3 text-center alert-heading\\\">(Choose trains and draw routes on map\\n        below)\\n    </div>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $data.companyTrains() -->\\n            <li>\\n                <div class=\\\"card d-inline-flex bg-route-train\\\"\\n                     data-bind=\\\"style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' },click: function() { $parent.selectTrain($data)} \\\">\\n                    <div class=\\\"bg-route-train-border\\\"\\n                         data-bind=\\\"css: 'bg-route-border-' + $data.route.color + ' ' + ($parent.selectedTrain() === $data.id ? 'bg-route-train-big-border' : 'bg-route-train-small-border')\\\"></div>\\n                    <div style=\\\"border-radius:4px; padding:0 5px;position:absolute;top:-5px;right:-5px;color:white\\\"\\n                         data-bind=\\\"css: 'bg-route-' + $data.route.color\\\"><span style=\\\"font-size:16px;font-weight:600\\\"\\n                                                                                data-bind=\\\"text: '$' + $data.route.revenue()\\\"></span>\\n                    </div>\\n                </div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedTrain() && $data.canAllocateRevenue()-->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\"\\n        data-bind=\\\"text: 'Allocate $' + $data.runRevenue() + ' revenue'\\\"></h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: $data.selectedAllocation() === $data.Allocations.NONE ? 'btn-warning' : 'btn-secondary', click: function() {  $data.selectAllocation($data.Allocations.NONE); }\\\">\\n                <div>Withhold</div>\\n                <div style=\\\"font-size:12px;\\\" data-bind=\\\"html: '&#x21E0; price'\\\"></div>\\n            </button>\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: $data.selectedAllocation() === $data.Allocations.HALF ? 'btn-warning' : 'btn-secondary', click: function() { $data.selectAllocation($data.Allocations.HALF); }\\\">\\n                <div>Pay Half</div>\\n                <div style=\\\"font-size:12px;\\\" data-bind=\\\"text: $data.halfPayResult()\\\"></div>\\n            </button>\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: $data.selectedAllocation() === $data.Allocations.FULL ? 'btn-warning' : 'btn-secondary', click: function() { $data.selectAllocation($data.Allocations.FULL); }\\\">\\n                <div>Pay Full</div>\\n                <div style=\\\"font-size:12px;\\\" data-bind=\\\"text: $data.fullPayResult()\\\"></div>\\n            </button>\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.BUY_TRAINS -->\\n    <!-- ko if: $data.canBuyTrainFromCompany() -->\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\">Buy from</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko if: $data.canBuyTrainFromBank() || $data.canEmergencyBuy()-->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$data.selectedTrainSource('bank'); },style: { opacity: !$data.selectedTrainSource() || $data.selectedTrainSource() === 'bank' ? 1 : 0.2}, css: 'bg-secondary'+ ' text-white'\\\">\\n                <strong class=\\\"h5\\\">Bank</strong>\\n            </li>\\n            <!-- /ko -->\\n            <!-- ko foreach: $data.getCompaniesWithTrains() -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$parent.selectedTrainSource($data.id); },style: { opacity: !$parent.selectedTrainSource() || $parent.selectedTrainSource() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.nickname\\\"></strong>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedTrainSource() && $data.selectedTrainSource() === 'bank'-->\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\">Choose Trains</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko if: !$data.canEmergencyBuy() -->\\n            <!-- ko foreach: $data.availableBankTrains() -->\\n            <li>\\n                <div data-bind=\\\"style: { opacity: num <= 0 ? .2 : 1 }\\\">\\n                    <div class=\\\"card mb-0 d-inline-flex bg-route-train\\\"\\n                         data-bind=\\\"style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' }\\\">\\n                        <div class=\\\"bg-route-train-border\\\"\\n                             data-bind=\\\"css: 'bg-route-border-0 bg-route-train-small-border'\\\"></div>\\n                        <div class=\\\"bg-route-0\\\"\\n                             style=\\\"border-radius:4px; padding:0 5px;position:absolute;top:-5px;right:-5px;color:white\\\"><span\\n                                style=\\\"font-size:16px;font-weight:600\\\"\\n                                data-bind=\\\"text: '$' + $data.cost\\\"></span>\\n                        </div>\\n                    </div>\\n                    <div class=\\\"mb-2\\\">\\n                        <span style=\\\"font-size:14px\\\" data-bind=\\\"text: $data.available + ' remaining'\\\"></span>\\n                    </div>\\n                    <div>\\n                        <!-- ko foreach: _.range(1, $data.num+1) -->\\n                        <button type=\\\"button\\\" class=\\\"btn\\\"\\n                                data-bind=\\\"text: $data, css: $parents[1].isBankTrainSelectedForPurchase($parent.type, $data) ? 'btn-warning' : 'btn-secondary', click: function() { $parents[1].selectBankTrainForPurchase($parent.type, $data) }\\\"></button>\\n                        <!-- /ko -->\\n                    </div>\\n                </div>\\n            </li>\\n            <!-- /ko -->\\n            <!-- /ko -->\\n            <!-- ko if: $data.canEmergencyBuy() -->\\n            <!-- ko foreach: $data.getTrainsAvailableToForceBuy() -->\\n            <li>\\n                <div class=\\\"card d-inline-flex bg-route-train\\\"\\n                     data-bind=\\\"style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' },click: function() { $parent.selectForcedTrainForPurchase($data)} \\\">\\n                    <div class=\\\"bg-route-train-border\\\"\\n                         data-bind=\\\"css: 'bg-route-border-0 ' + ($parent.selectedForcedTrainForPurchase() === $data.type ? 'bg-route-train-big-border' : 'bg-route-train-small-border')\\\"></div>\\n                    <div class=\\\"bg-route-0\\\"\\n                         style=\\\"border-radius:4px; padding:0 5px;position:absolute;top:-5px;right:-5px;color:white\\\"><span\\n                            style=\\\"font-size:16px;font-weight:600\\\"\\n                            data-bind=\\\"text: '$' + $data.cost\\\"></span>\\n                    </div>\\n                </div>\\n            </li>\\n            <!-- /ko -->\\n\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.canEmergencyBuy() && $data.selectedForcedTrainForPurchase() && $data.needsStockSales() -->\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\"\\n        data-bind=\\\"text: 'Sell Shares' + ($data.moneyNeededAfterCurrentStockSales() > 0 ? ' - $' + $data.moneyNeededAfterCurrentStockSales() + ' needed' : '')\\\">\\n        Sell Shares</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $data.sharesForSale() -->\\n            <li>\\n                <div class=\\\"mr-2\\\" data-bind=\\\"style: { opacity: num <= 0 ? .2 : 1 }\\\">\\n                    <div class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mb-2\\\" style=\\\"cursor:pointer;\\\"\\n                         data-bind=\\\"style: { opacity: 1 }, css: 'bg-' + $data.company.id + ' text-' + $data.company.id\\\">\\n                        <strong class=\\\"h5\\\" data-bind=\\\"text: $data.company.nickname\\\"></strong>\\n                        <div data-bind=\\\"text: '$' + $data.company.price()\\\"></div>\\n                    </div>\\n                    <div>\\n                        <!-- ko foreach: _.range(1, $data.num+1) -->\\n                        <button type=\\\"button\\\" class=\\\"btn\\\"\\n                                data-bind=\\\"text: $data, css: $parents[1].isStockSelectedForSale($parent.company.id, $data) ? 'btn-warning' : 'btn-secondary', click: function() { $parents[1].selectStockForSale($parent.company.id, $data)}\\\"></button>\\n                        <!-- /ko -->\\n                    </div>\\n                </div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.selectedTrainSource() && $data.selectedTrainSource() !== 'bank'-->\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\">Choose Trains</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $data.availableCompanyTrains() -->\\n            <li>\\n                <div class=\\\"card d-inline-flex bg-route-train\\\"\\n                     data-bind=\\\"click: function() {$parent.selectCompanyTrainForPurchase($data); }, style: { 'margin-left': $index() === 0 ? '0' : '10px', backgroundImage: 'url(' + $root.rootPath + 'images/trains/' + $data.type + '.png)' }\\\">\\n\\n                    <div class=\\\"bg-route-train-border\\\"\\n                         data-bind=\\\"css: 'bg-route-border-' + ($parent.isCompanyTrainSelectedForPurchase($data.id) ? '1' : '0')+ ' ' + ($parent.isCompanyTrainSelectedForPurchase($data.id) ? 'bg-route-train-big-border' : 'bg-route-train-small-border')\\\"></div>\\n                </div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedCompanyTrainsForPurchase().length > 0 -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">For how much?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"input-group justify-content-center\\\">\\n            <div class=\\\"input-group-prepend\\\">\\n                <span class=\\\"input-group-text\\\" data-bind=\\\"text: '$'\\\"></span>\\n            </div>\\n            <input type=\\\"number\\\" maxlength=\\\"3\\\" pattern=\\\"[0-9]*\\\" min=\\\"1\\\" max=\\\"60\\\" inputmode=\\\"numeric\\\"\\n                   style=\\\"max-width: 72px;\\\" class=\\\"form-control no-spinners\\\"\\n                   data-bind=\\\"value: companyTrainPurchasePrice, valueUpdate: 'keyup', attr: { placeholder: $data.selectedCompanyTrainsForPurchase().length + '-' + $data.maxCompanyTrainPurchasePrice()}\\\">\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.action() -->\\n    <div class=\\\"d-flex justify-content-center mt-3\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-primary mr-1\\\"\\n                data-bind=\\\"click: $data.commit, text: $data.action().confirmation($root.game().state())\\\"></button>\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-danger mr-1\\\" data-bind=\\\"click: $data.reset\\\">Cancel</button>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n</div>\\n<!-- /ko -->\\n\";";
 
 /***/ }),
 /* 115 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<div class=\\\"text-center\\\" style=\\\"min-width:150px;max-width:280px;\\\">\\n    <!-- ko if: getOwnedPublicCompanies().length > 0 -->\\n    <div class=\\\"card mb-2\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #868e96;\\\">\\n        <table class=\\\"table text-center m-0\\\">\\n            <tbody>\\n            <tr>\\n                <th colspan=\\\"2\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\"\\n                    class=\\\"border-0 font-weight-normal p-0 bg-secondary text-white\\\"\\n                    data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Shares\\n                </th>\\n            </tr>\\n            <!-- ko foreach: getOwnedPublicCompanies() -->\\n            <tr>\\n                <td class=\\\"border-0 font-weight-normal  p-0\\\" scope=\\\"row\\\"\\n                    data-bind=\\\"css: $root.game().state().currentCompanyId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row-medium' : 'bg-light'\\\">\\n                    <div class=\\\"p-1 pl-2 pr-2\\\">\\n                        <div data-bind=\\\"text:$data.nickname\\\"></div>\\n                    </div>\\n                </td>\\n                <td class=\\\"pt-1 pb-1 border-0 \\\"\\n                    data-bind=\\\"css: $root.game().state().currentCompanyId() === $data.id ? 'bg-warning' : $index() % 2 ? 'bg-table-row-medium' : 'bg-light'\\\">\\n                    <div data-bind=\\\"text:$parent.numSharesOwnedOfCompany($data.id)\\\"></div>\\n                </td>\\n            </tr>\\n            <!-- /ko -->\\n            </tbody>\\n        </table>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: getPrivates().length > 0 -->\\n    <div class=\\\"card mb-2\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #868e96;\\\">\\n        <table class=\\\"table text-center m-0\\\">\\n            <tbody>\\n            <tr>\\n                <th scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0 bg-secondary text-white\\\"\\n                    data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Privates\\n                </th>\\n            </tr>\\n            <!-- ko foreach: _.sortBy(getPrivates(), 'name') -->\\n            <tr>\\n                <td class=\\\"border-0 font-weight-normal p-0\\\" scope=\\\"row\\\"\\n                    data-bind=\\\"css: $index() %2 ? 'bg-table-row-medium' : 'bg-light'\\\">\\n                    <div class=\\\"p-1 pl-2 pr-2\\\">\\n                        <div data-bind=\\\"text:$data.name\\\"></div>\\n                    </div>\\n                </td>\\n            </tr>\\n            <!-- /ko -->\\n            </tbody>\\n        </table>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $root.game().state().isStockRound() && getActionsForCurrentRound().length > 0 -->\\n    <div class=\\\"card mb-2\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #868e96;\\\">\\n        <table class=\\\"table text-center m-0\\\">\\n            <tbody>\\n            <tr>\\n                <th scope=\\\"col\\\" style=\\\"height:10px;\\\"\\n                    class=\\\"border-0 font-weight-normal p-0 bg-secondary text-white\\\"\\n                    data-bind=\\\"\\\">Round Actions\\n                </th>\\n            </tr>\\n            <!-- ko foreach: getActionsForCurrentRound() -->\\n            <tr>\\n                <td class=\\\"border-0 font-weight-normal p-0\\\" scope=\\\"row\\\"\\n                    data-bind=\\\"css: $index() %2 ? 'bg-table-row-medium' : 'bg-light'\\\">\\n                    <div class=\\\"p-1 px-3\\\">\\n                        <div data-bind=\\\"text:$data.summary($root.game().state())\\\"></div>\\n                    </div>\\n                </td>\\n            </tr>\\n            <!-- /ko -->\\n            </tbody>\\n        </table>\\n    </div>\\n    <!-- /ko -->\\n</div>\";";
+module.exports = "module.exports = \"<div class=\\\"text-center\\\">\\n    <div class=\\\"bg-dark\\\" style=\\\"padding:10px;width:100%\\\">\\n        <table class=\\\"table text-center bg-dark m-0\\\">\\n            <thead>\\n            <tr>\\n                <th colspan=\\\"3\\\" scope=\\\"col\\\" class=\\\"border-0\\\"></th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <th class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</th>\\n                <th scope=\\\"col\\\" class=\\\"border-0 font-weight-normal pt-2 pb-2\\\"\\n                    data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\"><h5 class=\\\"font-weight-normal mb-0\\\"\\n                                                                                data-bind=\\\"text:$data.nickname\\\"></h5>\\n                </th>\\n\\n                <!-- /ko -->\\n            </tr>\\n            </thead>\\n            <tbody>\\n            <tr>\\n                <th scope=\\\"col\\\"class=\\\"border-0 font-weight-normal p-0 text-white text-center\\\"><div class=\\\"p-1\\\">\\n                        Player\\n                    </div></th>\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <th class=\\\"border-0 font-weight-normal p-0 text-center text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1\\\">\\n                        Cash\\n                    </div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <th scope=\\\"col\\\" class=\\\"table-col-spacer p-0 border-0\\\" style=\\\"height:10px;\\\"></th>\\n                <th scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                    data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Player Shares\\n                </th>\\n                <!-- /ko -->\\n            </tr>\\n            <!-- ko foreach: $data.players() -->\\n            <tr>\\n                <th class=\\\"border-0 font-weight-normal\\\" scope=\\\"row\\\"\\n                    data-bind=\\\"css: $parent.currentPlayerId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row' : 'bg-light'\\\">\\n                    <div class=\\\"d-inline-flex align-items-center\\\">\\n                        <!-- ko if: $data.id === $root.game().state().priorityDealPlayerId() -->\\n        <img style=\\\"height:20px;margin-right:10px;\\\" data-bind=\\\"attr: { src: $root.rootPath + 'images/pd.png' }\\\"/><!-- /ko -->\\n                        <h5 class=\\\"m-0 font-weight-normal \\\" data-bind=\\\"text:$data.name()\\\"></h5></div></th>\\n                <td class=\\\"table-col-spacer p-0 border-0\\\"\\n                    data-bind=\\\"css: $root.game().state().currentPlayerId() === $data.id ? 'bg-warning': 'bg-dark'\\\">\\n                    &nbsp;\\n                </td>\\n                <th class=\\\"border-0 font-weight-normal text-center\\\" style=\\\"width:1%;white-space:nowrap\\\" scope=\\\"row\\\"\\n                    data-bind=\\\"css: $parent.currentPlayerId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row' : 'bg-light'\\\">\\n                    <h5 class=\\\"m-0 font-weight-normal \\\" data-bind=\\\"text:'$' + $data.cash()\\\"></h5></th>\\n                <!-- ko foreach: $parent.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\"\\n                    data-bind=\\\"css: $root.game().state().currentPlayerId() === $parent.id ? 'bg-warning': 'bg-dark'\\\">\\n                    &nbsp;\\n                </td>\\n                <td class=\\\"border-0\\\"\\n                    data-bind=\\\"css: $root.game().state().currentPlayerId() === $parent.id ? 'bg-warning' : $parentContext.$index() % 2 ? 'bg-table-row' : 'bg-light'\\\">\\n                    <h5 class=\\\"m-0 font-weight-normal text-dark\\\"\\n                        data-bind=\\\"text:$parent.numSharesOwnedOfCompany($data.id)\\\"></h5></td>\\n                <!-- /ko -->\\n            </tr>\\n            <!-- /ko -->\\n            <tr>\\n                <th colspan=\\\"\\\" scope=\\\"col\\\" class=\\\"table-col-spacer p-0 border-0\\\" style=\\\"height:10px;\\\"\\n                    data-bind=\\\"attr: { 'colspan': ($data.openCompanies().length *2) + 3}\\\"></th>\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 p-0\\\"></th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <th scope=\\\"col\\\" class=\\\"table-col-spacer p-0 border-0\\\" style=\\\"height:10px;\\\"></th>\\n                <th scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                    data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Avail. Shares\\n                </th>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" class=\\\"border-0 font-weight-normal p-0 text-right text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1 pr-2\\\">\\n                        <div>Price</div>\\n                    </div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <td class=\\\"bg-light pt-1 pb-1 border-0 \\\">\\n                    <div data-bind=\\\"text: '$' + $data.price()\\\"></div>\\n                </td>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" class=\\\"border-0 font-weight-normal p-0 text-right text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1 pr-2\\\">\\n                        <div>Market</div>\\n                    </div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <td class=\\\"bg-table-row pt-1 pb-1 border-0 \\\">\\n                    <div data-bind=\\\"text: $root.game().state().bank.numSharesOwnedOfCompany($data.id)\\\"></div>\\n                </td>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" class=\\\"border-0 font-weight-normal p-0 text-right text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1\\\">\\n                        <div>Treasury</div>\\n                    </div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <td class=\\\"bg-light pt-1 pb-1 border-0 \\\">\\n                    <div class=\\\"\\\"\\n                         data-bind=\\\"text: $data.shares()\\\"></div>\\n                </td>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"\\\" scope=\\\"col\\\" class=\\\"table-col-spacer p-0 border-0\\\" style=\\\"height:10px;\\\"\\n                    data-bind=\\\"attr: { 'colspan': ($data.openCompanies().length *2) + 3}\\\"></th>\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 p-0\\\"></th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <th scope=\\\"col\\\" class=\\\"table-col-spacer p-0 border-0\\\" style=\\\"height:10px;\\\"></th>\\n                <th scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0\\\"\\n                    data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Assets\\n                </th>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" class=\\\"border-0 font-weight-normal p-0 text-right text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1\\\">\\n                        Trains\\n                    </div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <td class=\\\"pt-1 pb-1 bg-light border-0\\\"\\n                    data-bind=\\\"text: _.join(_.map($data.getNonPhasedOutTrains(), train=>train.getName()).sort(), ' ')\\\"></td>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" class=\\\"border-0 font-weight-normal p-0 text-right text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1\\\">Cash</div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <td class=\\\"pt-1 pb-1 bg-table-row border-0\\\">\\n                    <div data-bind=\\\"text: '$' + $data.cash()\\\"></div>\\n                </td>\\n                <!-- /ko -->\\n            </tr>\\n            <tr>\\n                <th colspan=\\\"3\\\" class=\\\"border-0 font-weight-normal p-0 text-right text-white\\\" scope=\\\"row\\\">\\n                    <div class=\\\"p-1\\\">\\n                        Tokens\\n                    </div>\\n                </th>\\n                <!-- ko foreach: $data.openCompanies() -->\\n                <td class=\\\"table-col-spacer p-0 border-0\\\">&nbsp;</td>\\n                <td class=\\\"pt-1 pb-1 bg-light border-0\\\" data-bind=\\\"text:$data.tokens() + '/' + $data.startTokens\\\"></td>\\n                <!-- /ko -->\\n            </tr>\\n            </tbody>\\n\\n        </table>\\n    </div>\\n\\n</div>\";";
 
 /***/ }),
 /* 116 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<!-- ko foreach: $data.players() -->\\n<div class=\\\"card d-inline-flex text-center pr-3 pl-3 pt-1 pb-1 rounded-0 border-bottom-0 border-right-0\\\"\\n     style=\\\"min-width:10rem;cursor:pointer;height:100%;\\\"\\n     data-bind=\\\"css: $parent.currentPlayerId() !== $data.id ? 'bg-light text-dark' : 'bg-warning text-dark', popover: $data.popoverParams\\\">\\n    <div class=\\\"d-inline-flex justify-content-center align-items-center\\\">\\n        <!-- ko if: $data.id === $root.game().state().priorityDealPlayerId() -->\\n        <img style=\\\"height:15px;margin-right:10px;\\\" data-bind=\\\"attr: { src: $root.rootPath + 'images/pd.png' }\\\"/><!-- /ko --><h5\\n            class=\\\"mb-0\\\" data-bind=\\\"text: user().username\\\"></h5>\\n    </div>\\n    <div class=\\\"d-flex justify-content-between text-center mt-1\\\">\\n        <div class=\\\"mr-3\\\">\\n            <div style=\\\"font-size:10px;margin-bottom:-5px;\\\">cash</div>\\n            <div style=\\\"font-size:.9rem\\\"\\n                 data-bind=\\\"text: (!$root.game().state().isPrivateDraft() || $root.game().isDraftRevealed() && $root.game().state().currentPlayerId() === $data.id) ? '$' + cash() : '&nbsp;'\\\"></div>\\n        </div>\\n        <div class=\\\"mr-3\\\">\\n            <div style=\\\"font-size:10px;margin-bottom:-5px;\\\">certs</div>\\n            <div style=\\\"font-size:.9rem\\\"\\n                 data-bind=\\\"text: (!$root.game().state().isPrivateDraft() || $root.game().isDraftRevealed() && $root.game().state().currentPlayerId() === $data.id) ? certificates().length + '/' + $parent.certLimit() : '&nbsp;'\\\"></div>\\n        </div>\\n        <div>\\n            <div style=\\\"font-size:10px;margin-bottom:-5px;\\\">worth</div>\\n            <div style=\\\"font-size:.9rem\\\"\\n                 data-bind=\\\"text: (!$root.game().state().isPrivateDraft() || $root.game().isDraftRevealed() && $root.game().state().currentPlayerId() === $data.id) ? '$' + getNetWorth() : '&nbsp;'\\\"></div>\\n        </div>\\n    </div>\\n</div>\\n<!-- ko if: $index() !== $parent.players().length -1 -->\\n<div class=\\\"d-inline-flex\\\" style=\\\"width:0px\\\"></div>\\n<!-- /ko -->\\n<!-- /ko -->\\n\";";
+module.exports = "module.exports = \"<div class=\\\"text-center\\\" style=\\\"min-width:150px;max-width:280px;\\\">\\n    <!-- ko if: getOwnedPublicCompanies().length > 0 -->\\n    <div class=\\\"card mb-2\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #868e96;\\\">\\n        <table class=\\\"table text-center m-0\\\">\\n            <tbody>\\n            <tr>\\n                <th colspan=\\\"2\\\" scope=\\\"col\\\" style=\\\"height:10px;\\\"\\n                    class=\\\"border-0 font-weight-normal p-0 bg-secondary text-white\\\"\\n                    data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Shares\\n                </th>\\n            </tr>\\n            <!-- ko foreach: getOwnedPublicCompanies() -->\\n            <tr>\\n                <td class=\\\"border-0 font-weight-normal p-0\\\" scope=\\\"row\\\" style=\\\"width:50%\\\"\\n                    data-bind=\\\"css: $root.game().state().currentCompanyId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row-medium' : 'bg-light'\\\">\\n                    <div class=\\\"p-1 pl-2 pr-2\\\">\\n                        <div class=\\\"px-2\\\" style=\\\"border-radius:.35rem\\\" data-bind=\\\"text:$data.nickname, css: 'bg-' + $data.id + ' text-' + $data.id\\\"></div>\\n                    </div>\\n                </td>\\n                <td class=\\\"pt-1 pb-1 border-0 \\\" style=\\\"width:50%\\\"\\n                    data-bind=\\\"css: $root.game().state().currentCompanyId() === $data.id ? 'bg-warning' : $index() % 2 ? 'bg-table-row-medium' : 'bg-light'\\\">\\n                    <div data-bind=\\\"text:$parent.numSharesOwnedOfCompany($data.id)\\\"></div>\\n                </td>\\n            </tr>\\n            <!-- /ko -->\\n            </tbody>\\n        </table>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: getPrivates().length > 0 -->\\n    <div class=\\\"card mb-2\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #868e96;\\\">\\n        <table class=\\\"table text-center m-0\\\">\\n            <tbody>\\n            <tr>\\n                <th scope=\\\"col\\\" style=\\\"height:10px;\\\" class=\\\"border-0 font-weight-normal p-0 bg-secondary text-white\\\"\\n                    data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id\\\">Privates\\n                </th>\\n            </tr>\\n            <!-- ko foreach: _.sortBy(getPrivates(), 'name') -->\\n            <tr>\\n                <td class=\\\"border-0 font-weight-normal p-0\\\" scope=\\\"row\\\"\\n                    data-bind=\\\"css: $index() %2 ? 'bg-table-row-medium' : 'bg-light'\\\">\\n                    <div class=\\\"p-1 pl-2 pr-2\\\">\\n                        <div data-bind=\\\"text:$data.name\\\"></div>\\n                    </div>\\n                </td>\\n            </tr>\\n            <!-- /ko -->\\n            </tbody>\\n        </table>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $root.game().state().isStockRound() && getActionsForCurrentRound().length > 0 -->\\n    <div class=\\\"card mb-2\\\" style=\\\"overflow:hidden;border-radius:.7rem;border:3px solid #868e96;\\\">\\n        <table class=\\\"table text-center m-0\\\">\\n            <tbody>\\n            <tr>\\n                <th scope=\\\"col\\\" style=\\\"height:10px;\\\"\\n                    class=\\\"border-0 font-weight-normal p-0 bg-secondary text-white\\\"\\n                    data-bind=\\\"\\\">Round Actions\\n                </th>\\n            </tr>\\n            <!-- ko foreach: getActionsForCurrentRound() -->\\n            <tr>\\n                <td class=\\\"border-0 font-weight-normal p-0\\\" scope=\\\"row\\\"\\n                    data-bind=\\\"css: $index() %2 ? 'bg-table-row-medium' : 'bg-light'\\\">\\n                    <div class=\\\"p-1 px-3\\\">\\n                        <div data-bind=\\\"text:$data.summary($root.game().state())\\\"></div>\\n                    </div>\\n                </td>\\n            </tr>\\n            <!-- /ko -->\\n            </tbody>\\n        </table>\\n    </div>\\n    <!-- /ko -->\\n</div>\";";
 
 /***/ }),
 /* 117 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<div class=\\\"d-flex flex-nowrap\\\" style=\\\"overflow:scroll;\\\">\\n    <!-- ko foreach: _.values($data.stockBoard.stockBoard()) -->\\n    <div class=\\\"d-inline-flex card rounded-0 text-center text-secondary pb-3\\\"\\n         style=\\\"min-width:50px;width:100%;min-height:50px;\\\"\\n         data-bind=\\\"style: { backgroundColor: $index() % 2 == 0 ? '#f2f2f2' : '#FFF', 'border-left': $data.value === 40 ? '2px solid #ffe300' : '0', 'border-right': $data.value === 150 ? '2px solid #ffe300' : '0', 'border-top': $data.value >= 40 && $data.value <= 150 ? '2px solid #ffe300' : '0', 'border-bottom': $data.value >= 40 && $data.value <= 150 ? '2px solid #ffe300' : '0'  }\\\">\\n        <div class=\\\"card-title mb-0\\\">\\n            <h6 data-bind=\\\"text:$data.value\\\"></h6>\\n        </div>\\n        <!-- ko foreach: $data.companies() -->\\n            <div class=\\\"\\\" style=\\\"height:25px;font-size:1em;margin-bottom:2px;\\\" data-bind=\\\"text:$root.game().state().getCompany($data).nickname,css: 'bg-' + $data + ' text-' + $data\\\"></div>\\n        <!-- /ko -->\\n    </div>\\n    <!-- /ko -->\\n</div>\";";
+module.exports = "module.exports = \"<!-- ko foreach: $data.players() -->\\n<div class=\\\"card d-inline-flex text-center pr-3 pl-3 pt-1 pb-1 rounded-0 border-bottom-0 border-right-0\\\"\\n     style=\\\"min-width:10rem;cursor:pointer;height:100%;\\\"\\n     data-bind=\\\"css: $parent.currentPlayerId() !== $data.id ? 'bg-light text-dark' : 'bg-warning text-dark', popover: $data.popoverParams\\\">\\n    <div class=\\\"d-inline-flex justify-content-center align-items-center\\\">\\n        <!-- ko if: $data.id === $root.game().state().priorityDealPlayerId() -->\\n        <img style=\\\"height:15px;margin-right:10px;\\\" data-bind=\\\"attr: { src: $root.rootPath + 'images/pd.png' }\\\"/><!-- /ko --><h5\\n            class=\\\"mb-0\\\" data-bind=\\\"text: user().username\\\"></h5>\\n    </div>\\n    <div class=\\\"d-flex justify-content-between text-center mt-1\\\">\\n        <div class=\\\"mr-3\\\">\\n            <div style=\\\"font-size:10px;margin-bottom:-5px;\\\">cash</div>\\n            <div style=\\\"font-size:.9rem\\\"\\n                 data-bind=\\\"text: (!$root.game().state().isPrivateDraft() || $root.game().isDraftRevealed() && $root.game().state().currentPlayerId() === $data.id) ? '$' + cash() : '&nbsp;'\\\"></div>\\n        </div>\\n        <div class=\\\"mr-3\\\">\\n            <div style=\\\"font-size:10px;margin-bottom:-5px;\\\">certs</div>\\n            <div style=\\\"font-size:.9rem\\\"\\n                 data-bind=\\\"text: (!$root.game().state().isPrivateDraft() || $root.game().isDraftRevealed() && $root.game().state().currentPlayerId() === $data.id) ? certificates().length + '/' + $parent.certLimit() : '&nbsp;'\\\"></div>\\n        </div>\\n        <div>\\n            <div style=\\\"font-size:10px;margin-bottom:-5px;\\\">worth</div>\\n            <div style=\\\"font-size:.9rem\\\"\\n                 data-bind=\\\"text: (!$root.game().state().isPrivateDraft() || $root.game().isDraftRevealed() && $root.game().state().currentPlayerId() === $data.id) ? '$' + getNetWorth() : '&nbsp;'\\\"></div>\\n        </div>\\n    </div>\\n</div>\\n<!-- ko if: $index() !== $parent.players().length -1 -->\\n<div class=\\\"d-inline-flex\\\" style=\\\"width:0px\\\"></div>\\n<!-- /ko -->\\n<!-- /ko -->\\n\";";
 
 /***/ }),
 /* 118 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<!-- ko if: $data -->\\n<div class=\\\"row d-flex justify-content-center text-center align-items-center bg-light\\\" style=\\\"min-height:50vh;\\\">\\n    <div class=\\\"col\\\">\\n        <div class=\\\"col-lg-8 col-xl-7 mx-auto\\\">\\n            <div class=\\\"\\\"><h2 class=\\\"font-weight-light p-2 pb-0 m-0\\\">Choose a private company</h2>\\n                <!-- ko if: $data.revealed() -->\\n                <!-- ko if: $root.game().state().currentPlayer().getPrivateNames().length > 0 -->\\n                <div class=\\\"font-weight-light text-dark mb-3\\\" style=\\\"font-size:1.3rem\\\" data-bind=\\\"text: 'Already chosen: ' + _.join($root.game().state().currentPlayer().getPrivateNames(), ', ')\\\"></div>\\n                <!-- /ko -->\\n                <!-- ko foreach: $data.privatesOffered() -->\\n                <div class=\\\"card d-inline-flex mb-3 mr-3\\\"\\n                     style=\\\"overflow:hidden;background-size:contain;cursor:pointer;min-width:250px;min-height:160px;box-shadow:3px 3px 10px #ccc\\\"\\n                     data-bind=\\\"style: { backgroundImage: 'url(' + $root.rootPath + 'images/privates/' + $data.id + '.png)', borderWidth: $parent.selectedPrivateId() === $data.id ? '3px' : '1px' },click: $parent.selectPrivate.bind($parent, $data.id), css: {'border-warning': $parent.selectedPrivateId() === $data.id }\\\">\\n                    <!--<div data-bind=\\\"text: _.startsWith($data.id, 'pass') ? '' : $data.cost\\\"></div>-->\\n                </div>\\n                <!-- /ko -->\\n                <div>\\n                    <!-- ko if: $data.privatesOffered().length === 1 && $data.privatesOffered()[0].cost !== $data.privatesOffered()[0].baseCost -->\\n                        <h3 class=\\\"font-weight-light\\\" data-bind=\\\"text: 'Discounted to $' + $data.privatesOffered()[0].cost\\\"></h3>\\n                    <!-- /ko -->\\n                    <div class=\\\"d-inline-flex\\\">\\n                        <button type=\\\"button\\\" class=\\\"btn btn-warning\\\"\\n                                data-bind=\\\"click: pass, visible: $data.privatesOffered().length === 1 && $data.privatesOffered()[0].cost !== 0\\\">\\n                            Pass\\n                        </button>\\n                    </div>\\n                    <div class=\\\"d-inline-flex\\\">\\n                        <button type=\\\"button\\\" class=\\\"btn btn-primary\\\"\\n                                data-bind=\\\"click: commit, visible: selectedPrivateId()\\\">Confirm\\n                        </button>\\n                    </div>\\n                </div>\\n                <!-- /ko -->\\n                <!-- ko if: !$data.revealed() -->\\n                <button class=\\\"btn btn-large\\\" data-bind=\\\"click: function() {$data.revealed(true)}\\\">Reveal Choices</button>\\n                <!-- /ko -->\\n            </div>\\n        </div>\\n    </div>\\n</div>\\n<!-- /ko -->\";";
+module.exports = "module.exports = \"<div class=\\\"d-flex flex-nowrap\\\" style=\\\"overflow:scroll;\\\">\\n    <!-- ko foreach: _.values($data.stockBoard.stockBoard()) -->\\n    <div class=\\\"d-inline-flex card rounded-0 text-center text-secondary pb-3\\\"\\n         style=\\\"min-width:50px;width:100%;min-height:50px;\\\"\\n         data-bind=\\\"style: { backgroundColor: $index() % 2 == 0 ? '#f2f2f2' : '#FFF', 'border-left': $data.value === 40 ? '2px solid #ffe300' : '0', 'border-right': $data.value === 150 ? '2px solid #ffe300' : '0', 'border-top': $data.value >= 40 && $data.value <= 150 ? '2px solid #ffe300' : '0', 'border-bottom': $data.value >= 40 && $data.value <= 150 ? '2px solid #ffe300' : '0'  }\\\">\\n        <div class=\\\"card-title mb-0\\\">\\n            <h6 data-bind=\\\"text:$data.value\\\"></h6>\\n        </div>\\n        <!-- ko foreach: $data.companies() -->\\n            <div class=\\\"\\\" style=\\\"height:25px;font-size:1em;margin-bottom:2px;\\\" data-bind=\\\"text:$root.game().state().getCompany($data).nickname,css: 'bg-' + $data + ' text-' + $data\\\"></div>\\n        <!-- /ko -->\\n    </div>\\n    <!-- /ko -->\\n</div>\";";
 
 /***/ }),
 /* 119 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<!-- ko if: isStockRound() -->\\n<img style=\\\"position:absolute;width:56px;height:56px;top:58px;left:13px;\\\" data-bind=\\\"attr: {'src': $root.rootPath + 'images/tokens/stockround.png' }\\\"/>\\n<!-- /ko -->\\n<!-- ko if: isOperatingRound1() -->\\n<img style=\\\"position:absolute;width:56px;height:56px;top:12px;left:93px;\\\" data-bind=\\\"attr: {'src': $root.rootPath + 'images/tokens/or1.png' }\\\"/>\\n<!-- /ko -->\\n<!-- ko if: isOperatingRound2() -->\\n<img style=\\\"position:absolute;width:56px;height:56px;top:105px;left:93px;\\\" data-bind=\\\"attr: {'src': $root.rootPath + 'images/tokens/or2.png' }\\\"/>\\n<!-- /ko -->\";";
+module.exports = "module.exports = \"<!-- ko if: $data -->\\n<div class=\\\"row d-flex justify-content-center text-center align-items-center bg-light\\\" style=\\\"min-height:50vh;\\\">\\n    <div class=\\\"col\\\">\\n        <div class=\\\"col-lg-8 col-xl-7 mx-auto\\\">\\n            <div class=\\\"\\\"><h2 class=\\\"font-weight-light p-2 pb-0 m-0\\\">Choose a private company</h2>\\n                <!-- ko if: $data.revealed() -->\\n                <!-- ko if: $root.game().state().currentPlayer().getPrivateNames().length > 0 -->\\n                <div class=\\\"font-weight-light text-dark mb-3\\\" style=\\\"font-size:1.3rem\\\" data-bind=\\\"text: 'Already chosen: ' + _.join($root.game().state().currentPlayer().getPrivateNames(), ', ')\\\"></div>\\n                <!-- /ko -->\\n                <!-- ko foreach: $data.privatesOffered() -->\\n                <div class=\\\"card d-inline-flex mb-3 mr-3\\\"\\n                     style=\\\"overflow:hidden;background-size:contain;cursor:pointer;min-width:250px;min-height:160px;box-shadow:3px 3px 10px #ccc\\\"\\n                     data-bind=\\\"style: { backgroundImage: 'url(' + $root.rootPath + 'images/privates/' + $data.id + '.png)', borderWidth: $parent.selectedPrivateId() === $data.id ? '3px' : '1px' },click: $parent.selectPrivate.bind($parent, $data.id), css: {'border-warning': $parent.selectedPrivateId() === $data.id }\\\">\\n                    <!--<div data-bind=\\\"text: _.startsWith($data.id, 'pass') ? '' : $data.cost\\\"></div>-->\\n                </div>\\n                <!-- /ko -->\\n                <div>\\n                    <!-- ko if: $data.privatesOffered().length === 1 && $data.privatesOffered()[0].cost !== $data.privatesOffered()[0].baseCost -->\\n                        <h3 class=\\\"font-weight-light\\\" data-bind=\\\"text: 'Discounted to $' + $data.privatesOffered()[0].cost\\\"></h3>\\n                    <!-- /ko -->\\n                    <div class=\\\"d-inline-flex\\\">\\n                        <button type=\\\"button\\\" class=\\\"btn btn-warning\\\"\\n                                data-bind=\\\"click: pass, visible: $data.privatesOffered().length === 1 && $data.privatesOffered()[0].cost !== 0\\\">\\n                            Pass\\n                        </button>\\n                    </div>\\n                    <div class=\\\"d-inline-flex\\\">\\n                        <button type=\\\"button\\\" class=\\\"btn btn-primary\\\"\\n                                data-bind=\\\"click: commit, visible: selectedPrivateId()\\\">Confirm\\n                        </button>\\n                    </div>\\n                </div>\\n                <!-- /ko -->\\n                <!-- ko if: !$data.revealed() -->\\n                <button class=\\\"btn btn-large\\\" data-bind=\\\"click: function() {$data.revealed(true)}\\\">Reveal Choices</button>\\n                <!-- /ko -->\\n            </div>\\n        </div>\\n    </div>\\n</div>\\n<!-- /ko -->\";";
 
 /***/ }),
 /* 120 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<!-- ko if: $data && ($root.game().state().currentPlayer().canSell() || $root.game().state().currentPlayer().canBuy() || $root.game().state().currentPlayer().canPass())-->\\n<div class=\\\"alert alert-dark rounded-0 border-top-0 border-right-0 border-left-0 m-0 p-3 d-flex flex-column justify-content-center\\\"\\n     role=\\\"alert\\\">\\n\\n\\n    <h5 class=\\\"text-center font-weight-light alert-heading\\\">Choose an action</h5>\\n\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <!-- ko if: $root.game().state().currentPlayer().canSell() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.SELL); }, css: $data.selectedAction() === $data.Actions.SELL ? 'active btn-danger' : 'btn-light' \\\">\\n            Sell\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $root.game().state().currentPlayer().canBuy() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.BUY); },css: $data.selectedAction() === $data.Actions.BUY ? 'active btn-success' : 'btn-light' \\\">\\n            Buy\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $root.game().state().currentPlayer().canPass() -->\\n        <button class=\\\"btn btn-sm \\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.PASS); },css: $data.selectedAction() === $data.Actions.PASS ? 'active btn-secondary' : 'btn-light' \\\">\\n            Pass\\n        </button>\\n        <!-- /ko -->\\n    </div>\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.SELL -->\\n    <!-- ko if: $root.game().state().currentPlayer().hasSharesToSell() -->\\n    <div class=\\\"mt-3 d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: _.values($root.game().state().currentPlayer().sharesCanSell()) -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$parent.selectCompany($data.id); },style: { opacity: !$parent.selectedCompanyId() || $parent.selectedCompanyId() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.company.nickname\\\"></strong>\\n                <div data-bind=\\\"text: $data.shares + ' @ $' + $data.company.price()\\\"></div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedCompany() && $root.game().state().currentPlayer().sharesCanSell()[$data.selectedCompany().id] -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">How many shares?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <!-- ko foreach: _.range(1, $root.game().state().currentPlayer().sharesCanSell()[$data.selectedCompany().id].shares + 1) -->\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.numberOfShares($index()+1); }\\\"></button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedAction() === $data.Actions.BUY -->\\n    <div class=\\\"mt-3 d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $root.game().state().currentPlayer().companiesCanBuy() -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$parent.selectedCompanyId($data.id); },style: { opacity: !$parent.selectedCompanyId() || $parent.selectedCompanyId() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <div data-bind=\\\"text: $data.opened() ? '' : 'open'\\\"></div>\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.nickname\\\"></strong>\\n                <div data-bind=\\\"text: $data.opened() ? '$' + $data.price() : ''\\\"></div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedCompany() && !$data.selectedCompany().opened()-->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Choose an initial stock price</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <!-- ko foreach: $data.getParRange() -->\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"text: $data, css: $parent.openingPriceIndex() === $index()+4 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.openingPriceIndex($index()+4); }\\\"></button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedCompany() && $data.selectedCompany().opened() && $data.bankShares() && $data.treasuryShares() -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Choose a share source</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n\\n            <button type=\\\"button\\\" class=\\\"btn mr-1\\\"\\n                    data-bind=\\\"css: $data.chosenShareSource() === $data.ShareSources.MARKET ? 'btn-warning' : 'btn-secondary', click: function() { $data.chosenShareSource($data.ShareSources.MARKET); }\\\"><strong class=\\\"h4 mr-2 align-middle\\\" data-bind=\\\"text: $data.bankShares()\\\"></strong><span class=\\\"align-middle\\\">market</span></button>\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: $data.chosenShareSource() === $data.ShareSources.TREASURY ? 'btn-warning' : 'btn-secondary', click: function() { $data.chosenShareSource($data.ShareSources.TREASURY); }\\\"><strong class=\\\"h4 mr-2 align-middle\\\" data-bind=\\\"text: $data.treasuryShares()\\\"></strong><span class=\\\"align-middle\\\">treasury</span></button>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.action() -->\\n    <div class=\\\"d-flex justify-content-center mt-3\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-primary mr-1\\\" data-bind=\\\"click: $data.commit, text: $data.action().confirmation($root.game().state())\\\"></button>\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-danger mr-1\\\" data-bind=\\\"click: $data.reset\\\">Cancel</button>\\n    </div>\\n    <!-- /ko -->\\n\\n</div>\\n<!-- /ko -->\\n\";";
+module.exports = "module.exports = \"<!-- ko if: isStockRound() -->\\n<img style=\\\"position:absolute;width:56px;height:56px;top:58px;left:13px;\\\" data-bind=\\\"attr: {'src': $root.rootPath + 'images/tokens/stockround.png' }\\\"/>\\n<!-- /ko -->\\n<!-- ko if: isOperatingRound1() -->\\n<img style=\\\"position:absolute;width:56px;height:56px;top:12px;left:93px;\\\" data-bind=\\\"attr: {'src': $root.rootPath + 'images/tokens/or1.png' }\\\"/>\\n<!-- /ko -->\\n<!-- ko if: isOperatingRound2() -->\\n<img style=\\\"position:absolute;width:56px;height:56px;top:105px;left:93px;\\\" data-bind=\\\"attr: {'src': $root.rootPath + 'images/tokens/or2.png' }\\\"/>\\n<!-- /ko -->\";";
 
 /***/ }),
 /* 121 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<div class=\\\"p-3\\\">\\n    <ul class=\\\"nav mb-3\\\">\\n        <li class=\\\"nav-item bg-phase1\\\" style=\\\"border-radius:.5rem;\\\">\\n            <a class=\\\"nav-link text-phase1\\\" href=\\\"#\\\"\\n               data-bind=\\\"css: { active : $data.manifest.activeTileSet() === $data.manifest.TileColorIDs.YELLOW}, click:function() { $data.manifest.setActiveTileSet($data.manifest.TileColorIDs.YELLOW); }\\\">Yellow</a>\\n        </li>\\n        <li class=\\\"nav-item bg-phase2 ml-2\\\" style=\\\"border-radius:.5rem;\\\">\\n            <a class=\\\"nav-link text-phase2\\\" href=\\\"#\\\"\\n               data-bind=\\\"css: { active : $data.manifest.activeTileSet() === $data.manifest.TileColorIDs.GREEN}, click:function() { $data.manifest.setActiveTileSet($data.manifest.TileColorIDs.GREEN); }\\\">Green</a>\\n        </li>\\n        <li class=\\\"nav-item bg-phase3 ml-2\\\" style=\\\"border-radius:.5rem;\\\">\\n            <a class=\\\"nav-link text-phase3\\\" href=\\\"#\\\"\\n               data-bind=\\\"css: { active : $data.manifest.activeTileSet() === $data.manifest.TileColorIDs.BROWN}, click:function() { $data.manifest.setActiveTileSet($data.manifest.TileColorIDs.BROWN); }\\\">Brown</a>\\n        </li>\\n        <li class=\\\"nav-item bg-phase4 ml-2\\\" style=\\\"border-radius:.5rem;\\\">\\n            <a class=\\\"nav-link text-phase4\\\" href=\\\"#\\\"\\n               data-bind=\\\"css: { active : $data.manifest.activeTileSet() === $data.manifest.TileColorIDs.GRAY}, click:function() { $data.manifest.setActiveTileSet($data.manifest.TileColorIDs.GRAY); }\\\">Gray</a>\\n        </li>\\n    </ul>\\n\\n    <div class=\\\"d-flex flex-wrap m-auto\\\">\\n        <!-- ko foreach: $data.manifest.activeTiles() -->\\n        <div class=\\\"position-relative\\\">\\n\\n            <h5 class=\\\"position-absolute\\\" style=\\\"top:0;left:10px;\\\"\\n                data-bind=\\\"text: $data.remaining === -1 ? '&#x221e;' : $data.remaining \\\"></h5>\\n\\n                <div class=\\\"mr-1 mb-1\\\" style=\\\"width:126px;height:144px;\\\"\\n                     data-bind=\\\"style: { opacity : $data.remaining === 0 ? .5 : 1 }, template: {name : 'views/tiles/' + $parent.manifest.getTemplateName($data.id), data: $data.tile }, popover: $parent.manifest.popoverParams\\\"></div>\\n        </div>\\n        <!-- /ko -->\\n    </div>\\n</div>\";";
+module.exports = "module.exports = \"<!-- ko if: $data && ($root.game().state().currentPlayer().canSell() || $root.game().state().currentPlayer().canBuy() || $root.game().state().currentPlayer().canPass())-->\\n<div class=\\\"alert alert-dark rounded-0 border-top-0 border-right-0 border-left-0 m-0 p-3 d-flex flex-column justify-content-center\\\"\\n     role=\\\"alert\\\">\\n\\n\\n    <h5 class=\\\"text-center font-weight-light alert-heading\\\">Choose an action</h5>\\n\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <!-- ko if: $root.game().state().currentPlayer().canSell() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.SELL); }, css: $data.selectedAction() === $data.Actions.SELL ? 'active btn-danger' : 'btn-light' \\\">\\n            Sell\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $root.game().state().currentPlayer().canBuy() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.BUY); },css: $data.selectedAction() === $data.Actions.BUY ? 'active btn-success' : 'btn-light' \\\">\\n            Buy\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $root.game().state().currentPlayer().canPass() -->\\n        <button class=\\\"btn btn-sm \\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.PASS); },css: $data.selectedAction() === $data.Actions.PASS ? 'active btn-secondary' : 'btn-light' \\\">\\n            Pass\\n        </button>\\n        <!-- /ko -->\\n    </div>\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.SELL -->\\n    <!-- ko if: $root.game().state().currentPlayer().hasSharesToSell() -->\\n    <div class=\\\"mt-3 d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: _.values($root.game().state().currentPlayer().sharesCanSell()) -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$parent.selectCompany($data.id); },style: { opacity: !$parent.selectedCompanyId() || $parent.selectedCompanyId() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.company.nickname\\\"></strong>\\n                <div data-bind=\\\"text: $data.shares + ' @ $' + $data.company.price()\\\"></div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedCompany() && $root.game().state().currentPlayer().sharesCanSell()[$data.selectedCompany().id] -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">How many shares?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <!-- ko foreach: _.range(1, $root.game().state().currentPlayer().sharesCanSell()[$data.selectedCompany().id].shares + 1) -->\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.numberOfShares($index()+1); }\\\"></button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedAction() === $data.Actions.BUY -->\\n    <div class=\\\"mt-3 d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $root.game().state().currentPlayer().companiesCanBuy() -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$parent.selectedCompanyId($data.id); },style: { opacity: !$parent.selectedCompanyId() || $parent.selectedCompanyId() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <div data-bind=\\\"text: $data.opened() ? '' : 'open'\\\"></div>\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.nickname\\\"></strong>\\n                <div data-bind=\\\"text: $data.opened() ? '$' + $data.price() : ''\\\"></div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedCompany() && !$data.selectedCompany().opened()-->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Choose an initial stock price</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <!-- ko foreach: $data.getParRange() -->\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"text: $data, css: $parent.openingPriceIndex() === $index()+4 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.openingPriceIndex($index()+4); }\\\"></button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedCompany() && $data.selectedCompany().opened() && $data.bankShares() && $data.treasuryShares() -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Choose a share source</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n\\n            <button type=\\\"button\\\" class=\\\"btn mr-1\\\"\\n                    data-bind=\\\"css: $data.chosenShareSource() === $data.ShareSources.MARKET ? 'btn-warning' : 'btn-secondary', click: function() { $data.chosenShareSource($data.ShareSources.MARKET); }\\\"><strong class=\\\"h4 mr-2 align-middle\\\" data-bind=\\\"text: $data.bankShares()\\\"></strong><span class=\\\"align-middle\\\">market</span></button>\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: $data.chosenShareSource() === $data.ShareSources.TREASURY ? 'btn-warning' : 'btn-secondary', click: function() { $data.chosenShareSource($data.ShareSources.TREASURY); }\\\"><strong class=\\\"h4 mr-2 align-middle\\\" data-bind=\\\"text: $data.treasuryShares()\\\"></strong><span class=\\\"align-middle\\\">treasury</span></button>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.action() -->\\n    <div class=\\\"d-flex justify-content-center mt-3\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-primary mr-1\\\" data-bind=\\\"click: $data.commit, text: $data.action().confirmation($root.game().state())\\\"></button>\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-danger mr-1\\\" data-bind=\\\"click: $data.reset\\\">Cancel</button>\\n    </div>\\n    <!-- /ko -->\\n\\n</div>\\n<!-- /ko -->\\n\";";
 
 /***/ }),
 /* 122 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<div data-bind=\\\"style: { width: $parent.manifest.getUpgradesForTile($data.id).length === 1 ? '126px' : '256px'} \\\">\\n    <div class=\\\"d-flex flex-wrap m-auto\\\">\\n        <!-- ko foreach: $parent.manifest.getUpgradesForTile($data.id) -->\\n        <div class=\\\"position-relative\\\">\\n            <h5 class=\\\"position-absolute\\\" style=\\\"top:0;left:10px;\\\"\\n                data-bind=\\\"text: $data.remaining === -1 ? '&#x221e;' : $data.remaining \\\"></h5>\\n            <div class=\\\"mr-1 mb-1\\\" style=\\\"width:124px;height:144px;\\\"\\n                 data-bind=\\\"style: { opacity : $data.remaining === 0 ? .5 : 1 }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.tile.id), data: $data.tile }\\\"></div>\\n        </div>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $parent.manifest.getUpgradesForTile($data.id).length === 0 -->\\n        <h3 class=\\\"text-dark\\\">No Upgrades</h3>\\n        <!-- /ko -->\\n    </div>\\n\\n</div>\";";
+module.exports = "module.exports = \"<div class=\\\"p-3\\\">\\n    <ul class=\\\"nav mb-3\\\">\\n        <li class=\\\"nav-item bg-phase1\\\" style=\\\"border-radius:.5rem;\\\">\\n            <a class=\\\"nav-link text-phase1\\\" href=\\\"#\\\"\\n               data-bind=\\\"css: { active : $data.manifest.activeTileSet() === $data.manifest.TileColorIDs.YELLOW}, click:function() { $data.manifest.setActiveTileSet($data.manifest.TileColorIDs.YELLOW); }\\\">Yellow</a>\\n        </li>\\n        <li class=\\\"nav-item bg-phase2 ml-2\\\" style=\\\"border-radius:.5rem;\\\">\\n            <a class=\\\"nav-link text-phase2\\\" href=\\\"#\\\"\\n               data-bind=\\\"css: { active : $data.manifest.activeTileSet() === $data.manifest.TileColorIDs.GREEN}, click:function() { $data.manifest.setActiveTileSet($data.manifest.TileColorIDs.GREEN); }\\\">Green</a>\\n        </li>\\n        <li class=\\\"nav-item bg-phase3 ml-2\\\" style=\\\"border-radius:.5rem;\\\">\\n            <a class=\\\"nav-link text-phase3\\\" href=\\\"#\\\"\\n               data-bind=\\\"css: { active : $data.manifest.activeTileSet() === $data.manifest.TileColorIDs.BROWN}, click:function() { $data.manifest.setActiveTileSet($data.manifest.TileColorIDs.BROWN); }\\\">Brown</a>\\n        </li>\\n        <li class=\\\"nav-item bg-phase4 ml-2\\\" style=\\\"border-radius:.5rem;\\\">\\n            <a class=\\\"nav-link text-phase4\\\" href=\\\"#\\\"\\n               data-bind=\\\"css: { active : $data.manifest.activeTileSet() === $data.manifest.TileColorIDs.GRAY}, click:function() { $data.manifest.setActiveTileSet($data.manifest.TileColorIDs.GRAY); }\\\">Gray</a>\\n        </li>\\n    </ul>\\n\\n    <div class=\\\"d-flex flex-wrap m-auto\\\">\\n        <!-- ko foreach: $data.manifest.activeTiles() -->\\n        <div class=\\\"position-relative\\\">\\n\\n            <h5 class=\\\"position-absolute\\\" style=\\\"top:0;left:10px;\\\"\\n                data-bind=\\\"text: $data.remaining === -1 ? '&#x221e;' : $data.remaining \\\"></h5>\\n\\n                <div class=\\\"mr-1 mb-1\\\" style=\\\"width:126px;height:144px;\\\"\\n                     data-bind=\\\"style: { opacity : $data.remaining === 0 ? .5 : 1 }, template: {name : 'views/tiles/' + $parent.manifest.getTemplateName($data.id), data: $data.tile }, popover: $parent.manifest.popoverParams\\\"></div>\\n        </div>\\n        <!-- /ko -->\\n    </div>\\n</div>\";";
 
 /***/ }),
 /* 123 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(0,-8)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n    </g>\\n</svg>\";";
+module.exports = "module.exports = \"<div data-bind=\\\"style: { width: $parent.manifest.getUpgradesForTile($data.id).length === 1 ? '126px' : '256px'} \\\">\\n    <div class=\\\"d-flex flex-wrap m-auto\\\">\\n        <!-- ko foreach: $parent.manifest.getUpgradesForTile($data.id) -->\\n        <div class=\\\"position-relative\\\">\\n            <h5 class=\\\"position-absolute\\\" style=\\\"top:0;left:10px;\\\"\\n                data-bind=\\\"text: $data.remaining === -1 ? '&#x221e;' : $data.remaining \\\"></h5>\\n            <div class=\\\"mr-1 mb-1\\\" style=\\\"width:124px;height:144px;\\\"\\n                 data-bind=\\\"style: { opacity : $data.remaining === 0 ? .5 : 1 }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.tile.id), data: $data.tile }\\\"></div>\\n        </div>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $parent.manifest.getUpgradesForTile($data.id).length === 0 -->\\n        <h3 class=\\\"text-dark\\\">No Upgrades</h3>\\n        <!-- /ko -->\\n    </div>\\n\\n</div>\";";
 
 /***/ }),
 /* 124 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:174px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(87,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-76,-21)\\\">\\n            <polygon transform=\\\"rotate(30)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\"\\n                     data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(30)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getRoutedConnection([-1,1]) -->\\n\\n        <g transform=\\\"translate(-39,29)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\"\\n                     data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,1]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n\\n    </g>\\n</svg>\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(0,-8)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n    </g>\\n</svg>\";";
 
 /***/ }),
 /* 125 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 30 -54 L 12 -18\\\"></path>\\n\\n        <circle cx=\\\"4\\\" cy=\\\"-34\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n\\n        <!-- ko if: $data.hasRoutedConnection([0,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 30 -54 L 12 -18\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,7]), 'stroke-width': $data.getOuterStrokeWidth([0,7]) }\\\"></path>\\n        <!-- /ko -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 30 -54 L 12 -18\\\"></path>\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"4\\\" cy=\\\"-34\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n        data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <circle cx=\\\"4\\\" cy=\\\"-34\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-16\\\" y=\\\"-54\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-16\\\" y=\\\"-54\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:174px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(87,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-76,-21)\\\">\\n            <polygon transform=\\\"rotate(30)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\"\\n                     data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(30)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getRoutedConnection([-1,1]) -->\\n\\n        <g transform=\\\"translate(-39,29)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\"\\n                     data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,1]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n\\n    </g>\\n</svg>\";";
 
 /***/ }),
 /* 126 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:130px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,65)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-63,41)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 30 -54 L 12 -18\\\"></path>\\n\\n        <circle cx=\\\"4\\\" cy=\\\"-34\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n\\n        <!-- ko if: $data.hasRoutedConnection([0,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 30 -54 L 12 -18\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,7]), 'stroke-width': $data.getOuterStrokeWidth([0,7]) }\\\"></path>\\n        <!-- /ko -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 30 -54 L 12 -18\\\"></path>\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"4\\\" cy=\\\"-34\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n        data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <circle cx=\\\"4\\\" cy=\\\"-34\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-16\\\" y=\\\"-54\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-16\\\" y=\\\"-54\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\\n\";";
 
 /***/ }),
 /* 127 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <defs>\\n        <clipPath id=\\\"298-clip\\\">\\n            <polygon stroke=\\\"black\\\"\\n                     points=\\\"0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796\\\"></polygon>\\n        </clipPath>\\n    </defs>\\n    <g xmlns=\\\"http://www.w3.org/2000/svg\\\" fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" pointer-events=\\\"all\\\"\\n       transform=\\\"translate(63,72)\\\" clip-path=\\\"url(#298-clip)\\\">\\n\\n        <polygon fill=\\\"#5fb479\\\" stroke=\\\"black\\\" stroke-width=\\\"2\\\"\\n                 points=\\\"0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796\\\"\\n                 data-bind=\\\"attr: { fill: $data.colorId === 'y' ? '#ffe300' : $data.colorId === 'g' ? '#5fb479' : $data.colorId === 'b' ? '#c18157' : '#d2d2d4'}  \\\"></polygon>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 C 17.22,-29.83 34.45,0 62,0\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 11.82,20.47 31,53.69\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 L -31,53.69\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 -23.64,0 -62,0\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 C 17.22,-29.83 34.45,0 62,0\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 11.82,20.47 31,53.69\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 L -31,53.69\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 -23.64,0 -62,0\\\"></path>\\n\\n\\n        <!-- ko if: $data.getRoutedConnection([0,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 C 17.22,-29.83 34.45,0 62,0\\\"\\n              data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,7]), 'stroke-width': $data.getOuterStrokeWidth([0,7]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 C 17.22,-29.83 34.45,0 62,0\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([0,8]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 11.82,20.47 31,53.69\\\"\\n              data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,8]), 'stroke-width': $data.getOuterStrokeWidth([0,8]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 11.82,20.47 31,53.69\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([0,9]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 L -31,53.69\\\"\\n              data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,9]), 'stroke-width': $data.getOuterStrokeWidth([0,9]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 L -31,53.69\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([0,10]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 -23.64,0 -62,0\\\"\\n              data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,10]), 'stroke-width': $data.getOuterStrokeWidth([0,10]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 -23.64,0 -62,0\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasMeat() -->\\n        <g transform=\\\"translate(-39, -50)\\\">\\n        <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"26px\\\" width=\\\"26px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/meat.png' }, css: 'pos-boat' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors(7) -->\\n        <circle cx=\\\"40\\\" cy=\\\"-6\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(7), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(7) }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- ko foreach: $data.getRoutedCityColors(8) -->\\n        <circle cx=\\\"40\\\" cy=\\\"-3\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\" transform=\\\"rotate(60 0 0)\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(8), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(8) }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors(9) -->\\n        <circle cx=\\\"40\\\" cy=\\\"0\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\" transform=\\\"rotate(120 0 0)\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(9), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(9) }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- ko foreach: $data.getRoutedCityColors(10) -->\\n        <circle cx=\\\"40\\\" cy=\\\"3\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\" transform=\\\"rotate(180 0 0)\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(10), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(10) }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <circle cx=\\\"40\\\" cy=\\\"-6\\\" r=\\\"21\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <circle cx=\\\"40\\\" cy=\\\"-3\\\" r=\\\"21\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\" transform=\\\"rotate(60 0 0)\\\"></circle>\\n        <circle cx=\\\"40\\\" cy=\\\"0\\\" r=\\\"21\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\" transform=\\\"rotate(120 0 0)\\\"></circle>\\n        <circle cx=\\\"40\\\" cy=\\\"3\\\" r=\\\"21\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\" transform=\\\"rotate(180 0 0)\\\"></circle>\\n\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n            <image xlink:href=\\\"\\\" x=\\\"-5\\\" y=\\\"-58\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(8).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"20\\\" y=\\\"-23\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(8)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if:  $data.getReservedTokensForCity(9).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"15\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(9)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(9).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"15\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(9)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(10).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-42\\\" y=\\\"13\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(10)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n\\n        <g transform=\\\"translate(0, -51)\\\">\\n            <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"13\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <text x=\\\"0\\\" y=\\\"2\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.4\\\"\\n                  font-size=\\\"16\\\" alignment-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\"\\n                  data-bind=\\\"text:$data.revenue, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\">\\n            </text>\\n        </g>\\n\\n        <!-- ko if: !$data.hasMeat() -->\\n        <text x=\\\"-33\\\" y=\\\"-26\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n              font-size=\\\"20\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\">CHI\\n        </text>\\n        <!-- /ko -->\\n        <polygon fill=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"2\\\"\\n                 points=\\\"0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796\\\"></polygon>\\n\\n    </g>\\n</svg>\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:130px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,65)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-63,41)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\";";
 
 /***/ }),
 /* 128 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:304px;height:110px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(152,55)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(113,40)\\\">\\n            <polygon transform=\\\"rotate(330)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(330)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasSteamboat() -->\\n        <image xlink:href=\\\"\\\" x=\\\"35\\\" y=\\\"-45\\\" height=\\\"45px\\\" width=\\\"45px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/boat.png' }\\\"></image>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <defs>\\n        <clipPath id=\\\"298-clip\\\">\\n            <polygon stroke=\\\"black\\\"\\n                     points=\\\"0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796\\\"></polygon>\\n        </clipPath>\\n    </defs>\\n    <g xmlns=\\\"http://www.w3.org/2000/svg\\\" fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" pointer-events=\\\"all\\\"\\n       transform=\\\"translate(63,72)\\\" clip-path=\\\"url(#298-clip)\\\">\\n\\n        <polygon fill=\\\"#5fb479\\\" stroke=\\\"black\\\" stroke-width=\\\"2\\\"\\n                 points=\\\"0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796\\\"\\n                 data-bind=\\\"attr: { fill: $data.colorId === 'y' ? '#ffe300' : $data.colorId === 'g' ? '#5fb479' : $data.colorId === 'b' ? '#c18157' : '#d2d2d4'}  \\\"></polygon>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 C 17.22,-29.83 34.45,0 62,0\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 11.82,20.47 31,53.69\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 L -31,53.69\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 -23.64,0 -62,0\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 C 17.22,-29.83 34.45,0 62,0\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 11.82,20.47 31,53.69\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 L -31,53.69\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 -23.64,0 -62,0\\\"></path>\\n\\n\\n        <!-- ko if: $data.getRoutedConnection([0,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 C 17.22,-29.83 34.45,0 62,0\\\"\\n              data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,7]), 'stroke-width': $data.getOuterStrokeWidth([0,7]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 C 17.22,-29.83 34.45,0 62,0\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([0,8]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 11.82,20.47 31,53.69\\\"\\n              data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,8]), 'stroke-width': $data.getOuterStrokeWidth([0,8]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 11.82,20.47 31,53.69\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([0,9]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 L -31,53.69\\\"\\n              data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,9]), 'stroke-width': $data.getOuterStrokeWidth([0,9]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 L -31,53.69\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([0,10]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 -23.64,0 -62,0\\\"\\n              data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,10]), 'stroke-width': $data.getOuterStrokeWidth([0,10]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 31,-53.69 C 11.82,-20.47 -23.64,0 -62,0\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasMeat() -->\\n        <g transform=\\\"translate(-39, -50)\\\">\\n        <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"26px\\\" width=\\\"26px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/meat.png' }, css: 'pos-boat' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors(7) -->\\n        <circle cx=\\\"40\\\" cy=\\\"-6\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(7), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(7) }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- ko foreach: $data.getRoutedCityColors(8) -->\\n        <circle cx=\\\"40\\\" cy=\\\"-3\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\" transform=\\\"rotate(60 0 0)\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(8), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(8) }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors(9) -->\\n        <circle cx=\\\"40\\\" cy=\\\"0\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\" transform=\\\"rotate(120 0 0)\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(9), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(9) }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- ko foreach: $data.getRoutedCityColors(10) -->\\n        <circle cx=\\\"40\\\" cy=\\\"3\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\" transform=\\\"rotate(180 0 0)\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(10), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(10) }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <circle cx=\\\"40\\\" cy=\\\"-6\\\" r=\\\"21\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <circle cx=\\\"40\\\" cy=\\\"-3\\\" r=\\\"21\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\" transform=\\\"rotate(60 0 0)\\\"></circle>\\n        <circle cx=\\\"40\\\" cy=\\\"0\\\" r=\\\"21\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\" transform=\\\"rotate(120 0 0)\\\"></circle>\\n        <circle cx=\\\"40\\\" cy=\\\"3\\\" r=\\\"21\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\" transform=\\\"rotate(180 0 0)\\\"></circle>\\n\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n            <image xlink:href=\\\"\\\" x=\\\"-5\\\" y=\\\"-58\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(8).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"20\\\" y=\\\"-23\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(8)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if:  $data.getReservedTokensForCity(9).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"15\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(9)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(9).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"15\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(9)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(10).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-42\\\" y=\\\"13\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(10)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n\\n        <g transform=\\\"translate(0, -51)\\\">\\n            <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"13\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <text x=\\\"0\\\" y=\\\"2\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.4\\\"\\n                  font-size=\\\"16\\\" alignment-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\"\\n                  data-bind=\\\"text:$data.revenue, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\">\\n            </text>\\n        </g>\\n\\n        <!-- ko if: !$data.hasMeat() -->\\n        <text x=\\\"-33\\\" y=\\\"-26\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n              font-size=\\\"20\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\">CHI\\n        </text>\\n        <!-- /ko -->\\n        <polygon fill=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"2\\\"\\n                 points=\\\"0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796\\\"></polygon>\\n\\n    </g>\\n</svg>\";";
 
 /***/ }),
 /* 129 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <circle cx=\\\"25\\\" cy=\\\"20\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <circle cx=\\\"25\\\" cy=\\\"20\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"5\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"5\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:304px;height:110px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(152,55)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(113,40)\\\">\\n            <polygon transform=\\\"rotate(330)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(330)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasSteamboat() -->\\n        <image xlink:href=\\\"\\\" x=\\\"35\\\" y=\\\"-45\\\" height=\\\"45px\\\" width=\\\"45px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/boat.png' }\\\"></image>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
 
 /***/ }),
 /* 130 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<!-- ko if: $data.colorId !== 'i' -->\\n<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n        <polygon fill=\\\"#ffe300\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n                 points=\\\"0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796\\\"\\n                 data-bind=\\\"attr: { fill: $data.colorId === 'y' ? '#ffe300' : $data.colorId === 'g' ? '#5fb479' : $data.colorId === 'b' ? '#c18157' : '#d2d2d4'}  \\\"></polygon>\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-50\\\" y=\\\"-26\\\" width=\\\"100\\\" height=\\\"52\\\" rx=\\\"26\\\" ry=\\\"26\\\" fill=\\\"white\\\"></rect>\\n        </g>\\n        <!-- /ko -->\\n\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedConnections() -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data), stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-50\\\" y=\\\"-26\\\" width=\\\"100\\\" height=\\\"52\\\" rx=\\\"26\\\" ry=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                  data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></rect>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-23\\\" y=\\\"-23\\\" width=\\\"46\\\" height=\\\"46\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></rect>\\n            <circle cx=\\\"-23\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <circle cx=\\\"23\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        </g>\\n\\n        <!-- ko if: $data.getReservedTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(-40, -31)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- ko if: $data.getReservedTokensForCity(7).length > 1 -->\\n        <g transform=\\\"translate(0, -8)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[1] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(0, -8)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getReservedTokensForCity(7).length === 0 -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(-40, -31)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(7).length > 1 -->\\n        <g transform=\\\"translate(0, -8)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n\\n        <!-- ko if: $data.getRevenue() -->\\n        <g transform=\\\"translate(0, -48)\\\">\\n            <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"13\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <text x=\\\"0\\\" y=\\\"2\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.4\\\"\\n                  font-size=\\\"16\\\" alignment-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\"\\n                  data-bind=\\\"css: 'pos-value' + ($data.position ? $data.position() : 0), text: $data.getRevenue()\\\">\\n            </text>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if:  $data.hasSteamboat() -->\\n        <g transform=\\\"translate(27, -38)\\\">\\n        <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"26px\\\" width=\\\"26px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/boat.png' }, css: 'pos-boat' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n\\n        <text x=\\\"0\\\" y=\\\"58\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.2\\\"\\n              font-size=\\\"12\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\" data-bind=\\\"text: $data.id\\\">\\n        </text>\\n    </g>\\n</svg>\\n<!-- /ko -->\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <circle cx=\\\"25\\\" cy=\\\"20\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <circle cx=\\\"25\\\" cy=\\\"20\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"5\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"5\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
 
 /***/ }),
 /* 131 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<!-- ko if: $data.colorId !== 'i' -->\\n<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n        <polygon fill=\\\"#ffe300\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n                 points=\\\"0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796\\\"\\n                 data-bind=\\\"attr: { fill: $data.colorId === 'y' ? '#ffe300' : $data.colorId === 'g' ? '#5fb479' : $data.colorId === 'b' ? '#c18157' : '#d2d2d4'}  \\\"></polygon>\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data) }\\\"></path>\\n        <!-- /ko -->\\n\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedConnections() -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data), stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n        \\n        <text x=\\\"0\\\" y=\\\"58\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.2\\\"\\n              font-size=\\\"12\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\" data-bind=\\\"text: $data.id\\\">\\n        </text>\\n    </g>\\n</svg>\\n<!-- /ko -->\\n\";";
+module.exports = "module.exports = \"<!-- ko if: $data.colorId !== 'i' -->\\n<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n        <polygon fill=\\\"#ffe300\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n                 points=\\\"0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796\\\"\\n                 data-bind=\\\"attr: { fill: $data.colorId === 'y' ? '#ffe300' : $data.colorId === 'g' ? '#5fb479' : $data.colorId === 'b' ? '#c18157' : '#d2d2d4'}  \\\"></polygon>\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-50\\\" y=\\\"-26\\\" width=\\\"100\\\" height=\\\"52\\\" rx=\\\"26\\\" ry=\\\"26\\\" fill=\\\"white\\\"></rect>\\n        </g>\\n        <!-- /ko -->\\n\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedConnections() -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data), stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-50\\\" y=\\\"-26\\\" width=\\\"100\\\" height=\\\"52\\\" rx=\\\"26\\\" ry=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                  data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></rect>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-23\\\" y=\\\"-23\\\" width=\\\"46\\\" height=\\\"46\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></rect>\\n            <circle cx=\\\"-23\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <circle cx=\\\"23\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        </g>\\n\\n        <!-- ko if: $data.getReservedTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(-40, -31)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- ko if: $data.getReservedTokensForCity(7).length > 1 -->\\n        <g transform=\\\"translate(0, -8)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[1] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(0, -8)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getReservedTokensForCity(7).length === 0 -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(-40, -31)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(7).length > 1 -->\\n        <g transform=\\\"translate(0, -8)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n\\n        <!-- ko if: $data.getRevenue() -->\\n        <g transform=\\\"translate(0, -48)\\\">\\n            <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"13\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <text x=\\\"0\\\" y=\\\"2\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.4\\\"\\n                  font-size=\\\"16\\\" alignment-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\"\\n                  data-bind=\\\"css: 'pos-value' + ($data.position ? $data.position() : 0), text: $data.getRevenue()\\\">\\n            </text>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if:  $data.hasSteamboat() -->\\n        <g transform=\\\"translate(27, -38)\\\">\\n        <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"26px\\\" width=\\\"26px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/boat.png' }, css: 'pos-boat' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n\\n        <text x=\\\"0\\\" y=\\\"58\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.2\\\"\\n              font-size=\\\"12\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\" data-bind=\\\"text: $data.id\\\">\\n        </text>\\n    </g>\\n</svg>\\n<!-- /ko -->\\n\";";
 
 /***/ }),
 /* 132 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:250px;height:122px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(125,61)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-85,-47)\\\">\\n            <polygon transform=\\\"rotate(150)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(150)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n\\n    </g>\\n</svg>\";";
+module.exports = "module.exports = \"<!-- ko if: $data.colorId !== 'i' -->\\n<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n        <polygon fill=\\\"#ffe300\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n                 points=\\\"0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796\\\"\\n                 data-bind=\\\"attr: { fill: $data.colorId === 'y' ? '#ffe300' : $data.colorId === 'g' ? '#5fb479' : $data.colorId === 'b' ? '#c18157' : '#d2d2d4'}  \\\"></polygon>\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data) }\\\"></path>\\n        <!-- /ko -->\\n\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedConnections() -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data), stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n        \\n        <text x=\\\"0\\\" y=\\\"58\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.2\\\"\\n              font-size=\\\"12\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\" data-bind=\\\"text: $data.id\\\">\\n        </text>\\n    </g>\\n</svg>\\n<!-- /ko -->\\n\";";
 
 /***/ }),
 /* 133 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <circle cx=\\\"-2\\\" cy=\\\"-40\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <circle cx=\\\"-2\\\" cy=\\\"-40\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-22\\\" y=\\\"-60\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-22\\\" y=\\\"-60\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:250px;height:122px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(125,61)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-85,-47)\\\">\\n            <polygon transform=\\\"rotate(150)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(150)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n\\n    </g>\\n</svg>\";";
 
 /***/ }),
 /* 134 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.hasSteamboat() -->\\n        <image xlink:href=\\\"\\\" x=\\\"-50\\\" y=\\\"8\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/boat.png' }\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(63,7)\\\">\\n            <polygon transform=\\\"rotate(270)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(270)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n    </g>\\n</svg>\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <circle cx=\\\"-2\\\" cy=\\\"-40\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <circle cx=\\\"-2\\\" cy=\\\"-40\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-22\\\" y=\\\"-60\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-22\\\" y=\\\"-60\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
 
 /***/ }),
 /* 135 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedConnections() -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data), stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n    </g>\\n</svg>\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.hasSteamboat() -->\\n        <image xlink:href=\\\"\\\" x=\\\"-50\\\" y=\\\"8\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/boat.png' }\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(63,7)\\\">\\n            <polygon transform=\\\"rotate(270)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(270)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n    </g>\\n</svg>\";";
 
 /***/ }),
 /* 136 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 33 -54 L 12 -18\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 62 0 C 40,0 13,-12 13 -12\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -30 -54 C -26,-45 0,-15 0 -15\\\"></path>\\n\\n        <circle cx=\\\"3\\\" cy=\\\"-26\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n\\n        <!-- ko if: $data.hasRoutedConnection([0,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 33 -54 L 12 -18\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,7]), 'stroke-width': $data.getOuterStrokeWidth([0,7]) }\\\"></path>\\n        <!-- /ko -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 33 -54 L 12 -18\\\"></path>\\n\\n        <!-- ko if: $data.hasRoutedConnection([1,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 62 0 C 40,0 13,-12 13 -12\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([1,7]), 'stroke-width': $data.getOuterStrokeWidth([1,7]) }\\\"></path>\\n        <!-- /ko -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 62 0 C 40,0 13,-12 13 -12\\\"></path>\\n\\n        <!-- ko if: $data.hasRoutedConnection([5,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -30 -54 C -26,-45 0,-15 0 -15\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([5,7]), 'stroke-width': $data.getOuterStrokeWidth([5,7]) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M -30 -54 C -26,-45 0,-15 0 -15\\\"></path>\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"3\\\" cy=\\\"-26\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n        data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <circle cx=\\\"3\\\" cy=\\\"-26\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-17\\\" y=\\\"-46\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-17\\\" y=\\\"-46\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedConnections() -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data), stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n    </g>\\n</svg>\";";
 
 /***/ }),
 /* 137 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <circle cx=\\\"-7\\\" cy=\\\"4\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <circle cx=\\\"-7\\\" cy=\\\"4\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-27\\\" y=\\\"-17\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 33 -54 L 12 -18\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 62 0 C 40,0 13,-12 13 -12\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -30 -54 C -26,-45 0,-15 0 -15\\\"></path>\\n\\n        <circle cx=\\\"3\\\" cy=\\\"-26\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n\\n        <!-- ko if: $data.hasRoutedConnection([0,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 33 -54 L 12 -18\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,7]), 'stroke-width': $data.getOuterStrokeWidth([0,7]) }\\\"></path>\\n        <!-- /ko -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 33 -54 L 12 -18\\\"></path>\\n\\n        <!-- ko if: $data.hasRoutedConnection([1,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 62 0 C 40,0 13,-12 13 -12\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([1,7]), 'stroke-width': $data.getOuterStrokeWidth([1,7]) }\\\"></path>\\n        <!-- /ko -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 62 0 C 40,0 13,-12 13 -12\\\"></path>\\n\\n        <!-- ko if: $data.hasRoutedConnection([5,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -30 -54 C -26,-45 0,-15 0 -15\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([5,7]), 'stroke-width': $data.getOuterStrokeWidth([5,7]) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M -30 -54 C -26,-45 0,-15 0 -15\\\"></path>\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"3\\\" cy=\\\"-26\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n        data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <circle cx=\\\"3\\\" cy=\\\"-26\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-17\\\" y=\\\"-46\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-17\\\" y=\\\"-46\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\\n\";";
 
 /***/ }),
 /* 138 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-24,-56)\\\">\\n            <polygon transform=\\\"rotate(150)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(150)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,1]) -->\\n        <g transform=\\\"translate(38,-48)\\\">\\n            <polygon transform=\\\"rotate(210)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,1]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(210)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <circle cx=\\\"-7\\\" cy=\\\"4\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <circle cx=\\\"-7\\\" cy=\\\"4\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-27\\\" y=\\\"-17\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
 
 /***/ }),
 /* 139 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.hasRoutedConnection([0,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 15,-35 C 20,-40 23,-40  31,-53.69\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,7]), 'stroke-width': $data.getOuterStrokeWidth([0,7]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 15,-35 C 20,-40 23,-40  31,-53.69\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasRoutedConnection([1,8]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 50,0 L 62,0\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([1,8]), 'stroke-width': $data.getOuterStrokeWidth([1,8]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 50,0 L 62,0\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasRoutedConnection([2,9]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 25,43 L 31,53.69\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([2,9]), 'stroke-width': $data.getOuterStrokeWidth([2,9]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 25,43 L 31,53.69\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasRoutedConnection([3,10]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -33 30 C -21,40 -21, 40 -31 53.69\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([3,10]), 'stroke-width': $data.getOuterStrokeWidth([3,10]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M -33 30 C -21,40 -21, 40 -31 53.69\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors(7) -->\\n        <circle cx=\\\"-1\\\" cy=\\\"-43\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(7), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(7) }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors(8) -->\\n        <circle cx=\\\"35\\\" cy=\\\"-10\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(8), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(8) }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors(9) -->\\n        <circle cx=\\\"8\\\" cy=\\\"35\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(9), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(9) }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors(10) -->\\n        <circle cx=\\\"-38\\\" cy=\\\"21\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(10), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(10) }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-21\\\" y=\\\"-63\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getTokensForCity(8).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"15\\\" y=\\\"-29\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(8)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if:  $data.getReservedTokensForCity(9).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-11\\\" y=\\\"16\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(9)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(9).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-11\\\" y=\\\"16\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(9)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getTokensForCity(10).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-58\\\" y=\\\"2\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(10)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasMeat() -->\\n        <image xlink:href=\\\"\\\" x=\\\"-22\\\" y=\\\"-20\\\" height=\\\"35px\\\" width=\\\"35px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/meat.png' }\\\"></image>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-24,-56)\\\">\\n            <polygon transform=\\\"rotate(150)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(150)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,1]) -->\\n        <g transform=\\\"translate(38,-48)\\\">\\n            <polygon transform=\\\"rotate(210)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,1]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(210)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\";";
 
 /***/ }),
 /* 140 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <!-- /ko -->\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.hasRoutedConnection([0,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 15,-35 C 20,-40 23,-40  31,-53.69\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([0,7]), 'stroke-width': $data.getOuterStrokeWidth([0,7]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 15,-35 C 20,-40 23,-40  31,-53.69\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasRoutedConnection([1,8]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 50,0 L 62,0\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([1,8]), 'stroke-width': $data.getOuterStrokeWidth([1,8]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 50,0 L 62,0\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasRoutedConnection([2,9]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 25,43 L 31,53.69\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([2,9]), 'stroke-width': $data.getOuterStrokeWidth([2,9]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 25,43 L 31,53.69\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasRoutedConnection([3,10]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -33 30 C -21,40 -21, 40 -31 53.69\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([3,10]), 'stroke-width': $data.getOuterStrokeWidth([3,10]) }\\\"></path>\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M -33 30 C -21,40 -21, 40 -31 53.69\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors(7) -->\\n        <circle cx=\\\"-1\\\" cy=\\\"-43\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(7), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(7) }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors(8) -->\\n        <circle cx=\\\"35\\\" cy=\\\"-10\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(8), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(8) }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors(9) -->\\n        <circle cx=\\\"8\\\" cy=\\\"35\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(9), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(9) }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors(10) -->\\n        <circle cx=\\\"-38\\\" cy=\\\"21\\\" r=\\\"24\\\" fill=\\\"white\\\" stroke=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(10), 'stroke-dashoffset': $index()*$parent.getCityDashOffset(10) }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-21\\\" y=\\\"-63\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getTokensForCity(8).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"15\\\" y=\\\"-29\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(8)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if:  $data.getReservedTokensForCity(9).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-11\\\" y=\\\"16\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(9)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(9).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-11\\\" y=\\\"16\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(9)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getTokensForCity(10).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-58\\\" y=\\\"2\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(10)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasMeat() -->\\n        <image xlink:href=\\\"\\\" x=\\\"-22\\\" y=\\\"-20\\\" height=\\\"35px\\\" width=\\\"35px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/meat.png' }\\\"></image>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
 
 /***/ }),
 /* 141 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(0 0 0)\\\">\\n            <rect x=\\\"-50\\\" y=\\\"-26\\\" width=\\\"100\\\" height=\\\"52\\\" rx=\\\"26\\\" ry=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                  data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></rect>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(0 0 0)\\\">\\n            <rect x=\\\"-23\\\" y=\\\"-23\\\" width=\\\"46\\\" height=\\\"46\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></rect>\\n            <circle cx=\\\"-23\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <circle cx=\\\"23\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n\\n            <!-- ko if: $data.getReservedTokensForCity(7).length > 0 -->\\n            <image xlink:href=\\\"\\\" x=\\\"-43\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n            <!-- ko if: $data.getReservedTokensForCity(7).length > 1 -->\\n            <image xlink:href=\\\"\\\" x=\\\"3\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[1] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n            <!-- /ko -->\\n            <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n            <image xlink:href=\\\"\\\" x=\\\"3\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n            <!-- /ko -->\\n            <!-- /ko -->\\n            <!-- ko if: $data.getReservedTokensForCity(7).length === 0 -->\\n            <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n            <image xlink:href=\\\"\\\" x=\\\"-43\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n            <!-- /ko -->\\n            <!-- ko if: $data.getTokensForCity(7).length > 1 -->\\n            <image xlink:href=\\\"\\\" x=\\\"3\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n            <!-- /ko -->\\n            <!-- /ko -->\\n        </g>\\n\\n    </g>\\n</svg>\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <!-- /ko -->\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
 
 /***/ }),
 /* 142 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:188px;height:178px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(94,89)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-31,-62)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,1]) -->\\n        <g transform=\\\"translate(-54,-5)\\\">\\n            <polygon transform=\\\"rotate(150)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,1]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(150)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,2]) -->\\n        <g transform=\\\"translate(-94,45)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,2]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(0 0 0)\\\">\\n            <rect x=\\\"-50\\\" y=\\\"-26\\\" width=\\\"100\\\" height=\\\"52\\\" rx=\\\"26\\\" ry=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                  data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></rect>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(0 0 0)\\\">\\n            <rect x=\\\"-23\\\" y=\\\"-23\\\" width=\\\"46\\\" height=\\\"46\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></rect>\\n            <circle cx=\\\"-23\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <circle cx=\\\"23\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n\\n            <!-- ko if: $data.getReservedTokensForCity(7).length > 0 -->\\n            <image xlink:href=\\\"\\\" x=\\\"-43\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n            <!-- ko if: $data.getReservedTokensForCity(7).length > 1 -->\\n            <image xlink:href=\\\"\\\" x=\\\"3\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[1] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n            <!-- /ko -->\\n            <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n            <image xlink:href=\\\"\\\" x=\\\"3\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n            <!-- /ko -->\\n            <!-- /ko -->\\n            <!-- ko if: $data.getReservedTokensForCity(7).length === 0 -->\\n            <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n            <image xlink:href=\\\"\\\" x=\\\"-43\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n            <!-- /ko -->\\n            <!-- ko if: $data.getTokensForCity(7).length > 1 -->\\n            <image xlink:href=\\\"\\\" x=\\\"3\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n            <!-- /ko -->\\n            <!-- /ko -->\\n        </g>\\n\\n    </g>\\n</svg>\\n\";";
 
 /***/ }),
 /* 143 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <circle cx=\\\"6\\\" cy=\\\"-4\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <circle cx=\\\"6\\\" cy=\\\"-4\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-14\\\" y=\\\"-24\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-14\\\" y=\\\"-24\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:188px;height:178px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(94,89)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-31,-62)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,1]) -->\\n        <g transform=\\\"translate(-54,-5)\\\">\\n            <polygon transform=\\\"rotate(150)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,1]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(150)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,2]) -->\\n        <g transform=\\\"translate(-94,45)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,2]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\";";
 
 /***/ }),
 /* 144 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 62 0 C 40,0 13,-12 13 -12\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -62 0 C -40,0 -13,-12 -13 -12\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -30 -54 C -26,-45 0,-18 0 -18\\\"></path>\\n\\n        <circle cx=\\\"0\\\" cy=\\\"-11\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n\\n        <!-- ko if: $data.hasRoutedConnection([1,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 62 0 C 40,0 13,-12 13 -12\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([1,7]), 'stroke-width': $data.getOuterStrokeWidth([1,7]) }\\\"></path>\\n        <!-- /ko -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 62 0 C 40,0 13,-12 13 -12\\\"></path>\\n\\n        <!-- ko if: $data.hasRoutedConnection([4,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -62 0 C -40,0 -13,-12 -13 -12\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([4,7]), 'stroke-width': $data.getOuterStrokeWidth([4,7]) }\\\"></path>\\n        <!-- /ko -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M -62 0 C -40,0 -13,-12 -13 -12\\\"></path>\\n\\n        <!-- ko if: $data.hasRoutedConnection([5,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -30 -54 C -26,-45 0,-18 0 -18\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([5,7]), 'stroke-width': $data.getOuterStrokeWidth([5,7]) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M -30 -54 C -26,-45 0,-18 0 -18\\\"></path>\\n\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"-11\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n        data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <circle cx=\\\"0\\\" cy=\\\"-11\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-31\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-31\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <circle cx=\\\"6\\\" cy=\\\"-4\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <circle cx=\\\"6\\\" cy=\\\"-4\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-14\\\" y=\\\"-24\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-14\\\" y=\\\"-24\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\\n\";";
 
 /***/ }),
 /* 145 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:128px;height:128px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(64,64)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-63,19)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n    </g>\\n</svg>\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 62 0 C 40,0 13,-12 13 -12\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -62 0 C -40,0 -13,-12 -13 -12\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -30 -54 C -26,-45 0,-18 0 -18\\\"></path>\\n\\n        <circle cx=\\\"0\\\" cy=\\\"-11\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n\\n        <!-- ko if: $data.hasRoutedConnection([1,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 62 0 C 40,0 13,-12 13 -12\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([1,7]), 'stroke-width': $data.getOuterStrokeWidth([1,7]) }\\\"></path>\\n        <!-- /ko -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 62 0 C 40,0 13,-12 13 -12\\\"></path>\\n\\n        <!-- ko if: $data.hasRoutedConnection([4,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -62 0 C -40,0 -13,-12 -13 -12\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([4,7]), 'stroke-width': $data.getOuterStrokeWidth([4,7]) }\\\"></path>\\n        <!-- /ko -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M -62 0 C -40,0 -13,-12 -13 -12\\\"></path>\\n\\n        <!-- ko if: $data.hasRoutedConnection([5,7]) -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M -30 -54 C -26,-45 0,-18 0 -18\\\" data-bind=\\\"attr: { stroke: $data.getOuterStrokeColor([5,7]), 'stroke-width': $data.getOuterStrokeWidth([5,7]) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M -30 -54 C -26,-45 0,-18 0 -18\\\"></path>\\n\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"-11\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n        data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <circle cx=\\\"0\\\" cy=\\\"-11\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-31\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-31\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\\n\";";
 
 /***/ }),
 /* 146 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:254px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,127)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-24,-103)\\\">\\n            <polygon transform=\\\"rotate(210)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\"\\n                     data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(210)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,1]) -->\\n        <g transform=\\\"translate(1,-45)\\\">\\n            <polygon transform=\\\"rotate(270)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\"\\n                     data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,1]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(270)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasSteamboat() -->\\n        <image xlink:href=\\\"\\\" x=\\\"10\\\" y=\\\"10\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/boat.png' }\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if: $data.hasMeat() -->\\n        <image xlink:href=\\\"\\\" x=\\\"10\\\" y=\\\"55\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/meat.png' }\\\"></image>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:128px;height:128px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(64,64)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-63,19)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\" data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n    </g>\\n</svg>\";";
 
 /***/ }),
 /* 147 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 32 54 C 25,45 16,12 16 12\\\"\\n              data-bind=\\\"attr: { stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"16\\\" cy=\\\"12\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- /ko -->\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 32 54 C 25,45 16,12 16 12\\\"></path>\\n\\n        <!-- ko foreach: $data.getRoutedConnections() -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 32 54 C 25,45 16,12 16 12\\\"\\n              data-bind=\\\"attr: { stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 32 54 C 25,45 16,12 16 12\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <circle cx=\\\"16\\\" cy=\\\"12\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"16\\\" cy=\\\"12\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-4\\\" y=\\\"-8\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-4\\\" y=\\\"-8\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasSteamboat() -->\\n        <g transform=\\\"translate(-55, 7)\\\">\\n        <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"26px\\\" width=\\\"26px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/boat.png' }, css: 'pos-boat' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:254px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,127)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-24,-103)\\\">\\n            <polygon transform=\\\"rotate(210)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\"\\n                     data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(210)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,1]) -->\\n        <g transform=\\\"translate(1,-45)\\\">\\n            <polygon transform=\\\"rotate(270)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\"\\n                     data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,1]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(270)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasSteamboat() -->\\n        <image xlink:href=\\\"\\\" x=\\\"10\\\" y=\\\"10\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/boat.png' }\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if: $data.hasMeat() -->\\n        <image xlink:href=\\\"\\\" x=\\\"10\\\" y=\\\"55\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/meat.png' }\\\"></image>\\n        <!-- /ko -->\\n    </g>\\n</svg>\\n\";";
 
 /***/ }),
 /* 148 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<svg style=\\\"width:188px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(94,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-93,-8)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\"\\n                     data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n    </g>\\n</svg>\";";
+module.exports = "module.exports = \"<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 32 54 C 25,45 16,12 16 12\\\"\\n              data-bind=\\\"attr: { stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"16\\\" cy=\\\"12\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- /ko -->\\n\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 32 54 C 25,45 16,12 16 12\\\"></path>\\n\\n        <!-- ko foreach: $data.getRoutedConnections() -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"M 32 54 C 25,45 16,12 16 12\\\"\\n              data-bind=\\\"attr: { stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"M 32 54 C 25,45 16,12 16 12\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <circle cx=\\\"16\\\" cy=\\\"12\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"16\\\" cy=\\\"12\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-4\\\" y=\\\"-8\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-4\\\" y=\\\"-8\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.hasSteamboat() -->\\n        <g transform=\\\"translate(-55, 7)\\\">\\n        <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"26px\\\" width=\\\"26px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/boat.png' }, css: 'pos-boat' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n\\n    </g>\\n</svg>\\n\";";
 
 /***/ }),
 /* 149 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<!-- ko if: $data.colorId !== 'i' -->\\n<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n        <polygon fill=\\\"#ffe300\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n                 points=\\\"0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796\\\"\\n                 data-bind=\\\"attr: { fill: $data.colorId === 'y' ? '#ffe300' : $data.colorId === 'g' ? '#5fb479' : $data.colorId === 'b' ? '#c18157' : '#d2d2d4'}  \\\"></polygon>\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-50\\\" y=\\\"-26\\\" width=\\\"100\\\" height=\\\"52\\\" rx=\\\"26\\\" ry=\\\"26\\\" fill=\\\"white\\\"></rect>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 3 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <circle cx=\\\"-23\\\" cy=\\\"-13\\\" r=\\\"25\\\" fill=\\\"white\\\"></circle>\\n            <circle cx=\\\"23\\\" cy=\\\"-13\\\" r=\\\"25\\\" fill=\\\"white\\\"></circle>\\n            <circle cx=\\\"0\\\" cy=\\\"27\\\" r=\\\"25\\\" fill=\\\"white\\\"></circle>\\n            <rect x=\\\"-26\\\" y=\\\"-38\\\" width=\\\"52\\\" height=\\\"52\\\" fill=\\\"white\\\"></rect>\\n            <rect x=\\\"-26\\\" y=\\\"-38\\\" width=\\\"52\\\" height=\\\"52\\\" fill=\\\"white\\\" transform=\\\"rotate(120 0 0)\\\"></rect>\\n            <rect x=\\\"-26\\\" y=\\\"-38\\\" width=\\\"52\\\" height=\\\"52\\\" fill=\\\"white\\\" transform=\\\"rotate(240 0 0)\\\"></rect>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n\\n        <!-- ko foreach: $data.getRoutedConnections() -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data), stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-50\\\" y=\\\"-26\\\" width=\\\"100\\\" height=\\\"52\\\" rx=\\\"26\\\" ry=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                  data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></rect>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 3 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <path d=\\\"M -26 -40 L 26 -40 A 26 26 0 0 1 46 0 L 23 41 A 26 26 0 0 1 -23 41 L -46 0 A 26 26 0 0 1 -26 -40\\\"\\n                  fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                  data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></path>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-23\\\" y=\\\"-23\\\" width=\\\"46\\\" height=\\\"46\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></rect>\\n            <circle cx=\\\"-23\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <circle cx=\\\"23\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        </g>\\n\\n        <!-- ko if: $data.getReservedTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(-40, -31)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- ko if: $data.getReservedTokensForCity(7).length > 1 -->\\n        <g transform=\\\"translate(40, -31)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[1] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(0, -8)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getReservedTokensForCity(7).length === 0 -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(-40, -31)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(7).length > 1 -->\\n        <g transform=\\\"translate(0, -8)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 3 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-23\\\" y=\\\"-36\\\" width=\\\"46\\\" height=\\\"46\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></rect>\\n            <rect x=\\\"-23\\\" y=\\\"-36\\\" width=\\\"46\\\" height=\\\"46\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n                  transform=\\\"rotate(120 0 0)\\\"></rect>\\n            <rect x=\\\"-23\\\" y=\\\"-36\\\" width=\\\"46\\\" height=\\\"46\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n                  transform=\\\"rotate(240 0 0)\\\"></rect>\\n            <circle cx=\\\"-23\\\" cy=\\\"-13\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <circle cx=\\\"23\\\" cy=\\\"-13\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <circle cx=\\\"0\\\" cy=\\\"27\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        </g>\\n\\n        <!-- ko if: $data.getReservedTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(-34, -43)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(6, -20)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 1 -->\\n        <g transform=\\\"translate(-34, 3)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getReservedTokensForCity(7).length === 0 -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(-34, -43)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(7).length > 1 -->\\n        <g transform=\\\"translate(6, -20)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 2 -->\\n        <g transform=\\\"translate(-34, 3)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[2] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- /ko -->\\n\\n\\n        <!-- ko if: $data.getRevenue() -->\\n        <!-- ko if: $data.cities[7].maxTokens < 3 -->\\n        <g transform=\\\"translate(0, -46)\\\">\\n            <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"13\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <text x=\\\"0\\\" y=\\\"2\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.4\\\"\\n                  font-size=\\\"16\\\" alignment-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\"\\n                  data-bind=\\\"css: 'pos-value' + ($data.position ? $data.position() : 0), text: $data.getRevenue()\\\">\\n            </text>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $data.cities[7].maxTokens === 3 -->\\n        <g transform=\\\"translate(-50, 28)\\\">\\n            <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"10\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <text x=\\\"0\\\" y=\\\"2\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.4\\\"\\n                  font-size=\\\"14\\\" alignment-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\"\\n                  data-bind=\\\"css: 'pos-value' + ($data.position ? $data.position() : 0), text: $data.getRevenue()\\\">60\\n            </text>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <text x=\\\"-39\\\" y=\\\"-16\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n              font-size=\\\"24\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\">Z\\n        </text>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 2 -->\\n        <text x=\\\"-44\\\" y=\\\"34\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n              font-size=\\\"24\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\">Z\\n        </text>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 3 -->\\n        <text x=\\\"-50\\\" y=\\\"-18\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n              font-size=\\\"24\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\">Z\\n        </text>\\n        <!-- /ko -->\\n\\n        <text x=\\\"0\\\" y=\\\"61\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.2\\\"\\n              font-size=\\\"12\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\" data-bind=\\\"text: $data.id\\\">\\n        </text>\\n    </g>\\n</svg>\\n<!-- /ko -->\\n\";";
+module.exports = "module.exports = \"<svg style=\\\"width:188px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(94,72)\\\" pointer-events=\\\"none\\\">\\n\\n        <!-- ko if: $data.getRoutedConnection([-1,0]) -->\\n        <g transform=\\\"translate(-93,-8)\\\">\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"\\\" points=\\\"-8,0 8,-60 24,0\\\"\\n                     data-bind=\\\"attr: { fill: $data.getOuterStrokeColor([-1,0]) }\\\"></polygon>\\n            <polygon transform=\\\"rotate(90)\\\" fill=\\\"black\\\" points=\\\"0,0 8,-31 16,0\\\"></polygon>\\n        </g>\\n        <!-- /ko -->\\n    </g>\\n</svg>\";";
 
 /***/ }),
 /* 150 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<div class=\\\"d-inline-flex text-center text-secondary\\\">\\n    <div class=\\\"card border-0 bg-transparent\\\" style=\\\"width:205px;margin-right:12px;height:212px;\\\">\\n        <div class=\\\"m-auto\\\">\\n            <h1 class=\\\"display-1 mb-0\\\" data-bind=\\\"text:bank.trainsByPhase()['I']\\\"></h1>\\n            <div style=\\\"margin-top:-10px;\\\">remaining</div>\\n        </div>\\n    </div>\\n    <div class=\\\"card border-0 bg-transparent\\\" style=\\\"width:205px;margin-right:12px;height:212px;\\\">\\n        <div class=\\\"m-auto\\\">\\n            <h1 class=\\\"display-1\\\" data-bind=\\\"text:bank.trainsByPhase()['II']\\\"></h1>\\n            <div style=\\\"margin-top:-10px;\\\">remaining</div>\\n        </div>\\n    </div>\\n    <div class=\\\"card border-0 bg-transparent\\\" style=\\\"width:205px;margin-right:12px;height:212px;\\\">\\n        <div class=\\\"m-auto\\\">\\n            <h1 class=\\\"display-1\\\" data-bind=\\\"text:bank.trainsByPhase()['III']\\\"></h1>\\n            <div style=\\\"margin-top:-10px;\\\">remaining</div>\\n        </div>\\n    </div>\\n    <div class=\\\"card border-0 bg-transparent\\\" style=\\\"width:205px;margin-right:12px;height:212px;\\\">\\n        <div class=\\\"m-auto\\\">\\n            <h1 class=\\\"display-1\\\">&#x221E;</h1>\\n            <div style=\\\"margin-top:-10px;\\\">remaining</div>\\n        </div>\\n    </div>\\n</div>\";";
+module.exports = "module.exports = \"<!-- ko if: $data.colorId !== 'i' -->\\n<svg style=\\\"width:126px;height:144px;\\\">\\n    <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"translate(63,72)\\\" pointer-events=\\\"none\\\">\\n        <polygon fill=\\\"#ffe300\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n                 points=\\\"0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796\\\"\\n                 data-bind=\\\"attr: { fill: $data.colorId === 'y' ? '#ffe300' : $data.colorId === 'g' ? '#5fb479' : $data.colorId === 'b' ? '#c18157' : '#d2d2d4'}  \\\"></polygon>\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data),  stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"white\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-50\\\" y=\\\"-26\\\" width=\\\"100\\\" height=\\\"52\\\" rx=\\\"26\\\" ry=\\\"26\\\" fill=\\\"white\\\"></rect>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 3 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <circle cx=\\\"-23\\\" cy=\\\"-13\\\" r=\\\"25\\\" fill=\\\"white\\\"></circle>\\n            <circle cx=\\\"23\\\" cy=\\\"-13\\\" r=\\\"25\\\" fill=\\\"white\\\"></circle>\\n            <circle cx=\\\"0\\\" cy=\\\"27\\\" r=\\\"25\\\" fill=\\\"white\\\"></circle>\\n            <rect x=\\\"-26\\\" y=\\\"-38\\\" width=\\\"52\\\" height=\\\"52\\\" fill=\\\"white\\\"></rect>\\n            <rect x=\\\"-26\\\" y=\\\"-38\\\" width=\\\"52\\\" height=\\\"52\\\" fill=\\\"white\\\" transform=\\\"rotate(120 0 0)\\\"></rect>\\n            <rect x=\\\"-26\\\" y=\\\"-38\\\" width=\\\"52\\\" height=\\\"52\\\" fill=\\\"white\\\" transform=\\\"rotate(240 0 0)\\\"></rect>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko foreach: $data.connections -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n\\n        <!-- ko foreach: $data.getRoutedConnections() -->\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"white\\\" stroke-width=\\\"13\\\"\\n              d=\\\"\\\"\\n              data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data), stroke: $parent.getOuterStrokeColor($data), 'stroke-width': $parent.getOuterStrokeWidth($data) }\\\"></path>\\n        <path fill=\\\"none\\\" pointer-events=\\\"none\\\" stroke=\\\"black\\\" stroke-width=\\\"9\\\"\\n              d=\\\"\\\" data-bind=\\\"attr: { d: $parent.getDrawingInstructions($data,true) }\\\"></path>\\n        <!-- /ko -->\\n\\n\\n        <!-- ko foreach: $data.getRoutedCityColors() -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></circle>\\n        <!-- /ko -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-50\\\" y=\\\"-26\\\" width=\\\"100\\\" height=\\\"52\\\" rx=\\\"26\\\" ry=\\\"26\\\" fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                  data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></rect>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $parent.cities[7].maxTokens === 3 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <path d=\\\"M -26 -40 L 26 -40 A 26 26 0 0 1 46 0 L 23 41 A 26 26 0 0 1 -23 41 L -46 0 A 26 26 0 0 1 -26 -40\\\"\\n                  fill=\\\"none\\\" stroke-width=\\\"8\\\"\\n                  data-bind=\\\"attr: { stroke: $data, 'stroke-dasharray':$parent.getCityDashArray(), 'stroke-dashoffset': $index()*$parent.getCityDashOffset() }\\\"></path>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        <!-- ko if:  $data.getReservedTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- ko if:  $data.getTokensForCity(7).length > 0 -->\\n        <image xlink:href=\\\"\\\" x=\\\"-20\\\" y=\\\"-20\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n               data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-value' + ($data.position ? $data.position() : 0)\\\"></image>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 2 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-23\\\" y=\\\"-23\\\" width=\\\"46\\\" height=\\\"46\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></rect>\\n            <circle cx=\\\"-23\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <circle cx=\\\"23\\\" cy=\\\"0\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        </g>\\n\\n        <!-- ko if: $data.getReservedTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(-40, -31)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- ko if: $data.getReservedTokensForCity(7).length > 1 -->\\n        <g transform=\\\"translate(40, -31)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[1] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(0, -8)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getReservedTokensForCity(7).length === 0 -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(-40, -31)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(7).length > 1 -->\\n        <g transform=\\\"translate(0, -8)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 3 -->\\n        <g fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\" transform=\\\"rotate(30 0 0)\\\">\\n            <rect x=\\\"-23\\\" y=\\\"-36\\\" width=\\\"46\\\" height=\\\"46\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></rect>\\n            <rect x=\\\"-23\\\" y=\\\"-36\\\" width=\\\"46\\\" height=\\\"46\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n                  transform=\\\"rotate(120 0 0)\\\"></rect>\\n            <rect x=\\\"-23\\\" y=\\\"-36\\\" width=\\\"46\\\" height=\\\"46\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n                  transform=\\\"rotate(240 0 0)\\\"></rect>\\n            <circle cx=\\\"-23\\\" cy=\\\"-13\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <circle cx=\\\"23\\\" cy=\\\"-13\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <circle cx=\\\"0\\\" cy=\\\"27\\\" r=\\\"23\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n        </g>\\n\\n        <!-- ko if: $data.getReservedTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(-34, -43)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getReservedTokensForCity(7)[0] + '-r.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(6, -20)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 1 -->\\n        <g transform=\\\"translate(-34, 3)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getReservedTokensForCity(7).length === 0 -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 0 -->\\n        <g transform=\\\"translate(-34, -43)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[0] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.getTokensForCity(7).length > 1 -->\\n        <g transform=\\\"translate(6, -20)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[1] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $data.getTokensForCity(7).length > 2 -->\\n        <g transform=\\\"translate(-34, 3)\\\">\\n            <image xlink:href=\\\"\\\" x=\\\"0\\\" y=\\\"0\\\" height=\\\"40px\\\" width=\\\"40px\\\"\\n                   data-bind=\\\"attr: {'xlink:href': $root.rootPath + 'images/tokens/' + $data.getTokensForCity(7)[2] + '.png' }, css: 'pos-token' + ($data.position ? $data.position() : 0)\\\"></image>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- /ko -->\\n\\n\\n        <!-- ko if: $data.getRevenue() -->\\n        <!-- ko if: $data.cities[7].maxTokens < 3 -->\\n        <g transform=\\\"translate(0, -46)\\\">\\n            <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"13\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <text x=\\\"0\\\" y=\\\"2\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.4\\\"\\n                  font-size=\\\"16\\\" alignment-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\"\\n                  data-bind=\\\"css: 'pos-value' + ($data.position ? $data.position() : 0), text: $data.getRevenue()\\\">\\n            </text>\\n        </g>\\n        <!-- /ko -->\\n        <!-- ko if: $data.cities[7].maxTokens === 3 -->\\n        <g transform=\\\"translate(-50, 28)\\\">\\n            <circle cx=\\\"0\\\" cy=\\\"0\\\" r=\\\"10\\\" fill=\\\"white\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"></circle>\\n            <text x=\\\"0\\\" y=\\\"2\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.4\\\"\\n                  font-size=\\\"14\\\" alignment-baseline=\\\"middle\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\"\\n                  data-bind=\\\"css: 'pos-value' + ($data.position ? $data.position() : 0), text: $data.getRevenue()\\\">60\\n            </text>\\n        </g>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 1 -->\\n        <text x=\\\"-39\\\" y=\\\"-16\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n              font-size=\\\"24\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\">Z\\n        </text>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 2 -->\\n        <text x=\\\"-44\\\" y=\\\"34\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n              font-size=\\\"24\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\">Z\\n        </text>\\n        <!-- /ko -->\\n\\n        <!-- ko if: $data.cities[7].maxTokens === 3 -->\\n        <text x=\\\"-50\\\" y=\\\"-18\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"1\\\"\\n              font-size=\\\"24\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\">Z\\n        </text>\\n        <!-- /ko -->\\n\\n        <text x=\\\"0\\\" y=\\\"61\\\" fill=\\\"black\\\" stroke=\\\"black\\\" stroke-width=\\\"0.2\\\"\\n              font-size=\\\"12\\\" text-anchor=\\\"middle\\\" visibility=\\\"inherit\\\" data-bind=\\\"text: $data.id\\\">\\n        </text>\\n    </g>\\n</svg>\\n<!-- /ko -->\\n\";";
 
 /***/ }),
 /* 151 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<div class=\\\"p-3\\\">\\n    <ul class=\\\"nav mb-3\\\">\\n        <!-- ko foreach: _.reverse($data.roundHistory.getAllRounds()) -->\\n        <li class=\\\"nav-item\\\" style=\\\"border-radius:.5rem;\\\"\\n            data-bind=\\\"css: { 'ml-2' : $index() !== 0, 'bg-light': $root.game().history().selectedRound() !== $data.id, 'bg-warning': $root.game().history().selectedRound() === $data.id }\\\">\\n            <a class=\\\"nav-link text-dark\\\" href=\\\"#\\\"\\n               data-bind=\\\"click:function() { $root.game().history().selectRound($data.id); },text:$data.getRoundName()\\\"></a>\\n        </li>\\n        <!-- /ko -->\\n    </ul>\\n</div>\\n<!-- ko if: $root.game().history().selectedRound() -->\\n<div class=\\\"px-3\\\">\\n    <ul class=\\\"mb-3 list-unstyled d-inline-block\\\" style=\\\"min-width:50%;\\\">\\n        <!-- ko foreach: $root.game().history().getTurnsForRound($root.game().history().selectedRound()) -->\\n        <!-- ko if: $data.getActions().length > 0 -->\\n        <div class=\\\"mb-3\\\" style=\\\"border:1px solid #CCC;border-radius:.7rem;overflow:hidden;\\\">\\n            <ul class=\\\"list-unstyled \\\">\\n                <li scope=\\\"col\\\" class=\\\"text-white font-weight-normal bg-history-header px-3 py-1\\\" style=\\\"font-size:1.2rem\\\"\\n                    data-bind=\\\"text: $root.game().state().playersById()[$data.playerId].name()\\\">\\n                </li>\\n                <!-- ko foreach: $data.getActions() -->\\n                <li class=\\\"p-2 px-3\\\" style=\\\"border-top:1px solid #CCC;\\\"\\n                    data-bind=\\\"css: $index() % 2 ? 'bg-light' : '', text:$data.summary($root.game().state())\\\"></li>\\n                <!-- ko foreach: $data.details($root.game().state()) -->\\n                <li class=\\\"p-1 pr-3\\\" style=\\\" padding-left: 50px !important;\\\"\\n                    data-bind=\\\"style: { 'border-top': $index() === 0 ? '1px solid #CCC' : '' }, css: 'bg-history-payout', text:$data\\\"></li>\\n                <!-- /ko -->\\n                <!-- /ko -->\\n            </ul>\\n        </div>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n    </ul>\\n</div>\\n<!-- /ko -->\";";
+module.exports = "module.exports = \"<div class=\\\"d-inline-flex text-center text-secondary\\\">\\n    <div class=\\\"card border-0 bg-transparent\\\" style=\\\"width:205px;margin-right:12px;height:212px;\\\">\\n        <div class=\\\"m-auto\\\">\\n            <h1 class=\\\"display-1 mb-0\\\" data-bind=\\\"text:bank.trainsByPhase()['I']\\\"></h1>\\n            <div style=\\\"margin-top:-10px;\\\">remaining</div>\\n        </div>\\n    </div>\\n    <div class=\\\"card border-0 bg-transparent\\\" style=\\\"width:205px;margin-right:12px;height:212px;\\\">\\n        <div class=\\\"m-auto\\\">\\n            <h1 class=\\\"display-1\\\" data-bind=\\\"text:bank.trainsByPhase()['II']\\\"></h1>\\n            <div style=\\\"margin-top:-10px;\\\">remaining</div>\\n        </div>\\n    </div>\\n    <div class=\\\"card border-0 bg-transparent\\\" style=\\\"width:205px;margin-right:12px;height:212px;\\\">\\n        <div class=\\\"m-auto\\\">\\n            <h1 class=\\\"display-1\\\" data-bind=\\\"text:bank.trainsByPhase()['III']\\\"></h1>\\n            <div style=\\\"margin-top:-10px;\\\">remaining</div>\\n        </div>\\n    </div>\\n    <div class=\\\"card border-0 bg-transparent\\\" style=\\\"width:205px;margin-right:12px;height:212px;\\\">\\n        <div class=\\\"m-auto\\\">\\n            <h1 class=\\\"display-1\\\">&#x221E;</h1>\\n            <div style=\\\"margin-top:-10px;\\\">remaining</div>\\n        </div>\\n    </div>\\n</div>\";";
 
 /***/ }),
 /* 152 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<!-- ko if: $data.turnHistory.currentTurn() && $data.turnHistory.currentTurn().getCurrentSummaries().length > 0 -->\\n<div class=\\\"alert alert-primary rounded-0 pt-1 pb-1 border-top-0 border-right-0 border-left-0 m-0\\\" role=\\\"alert\\\">\\n    <div class=\\\"d-flex align-items-center\\\">\\n        <div class=\\\"ml-2 mr-3\\\">\\n            <h4 class=\\\"alert-heading font-weight-light mb-0\\\">Turn Summary</h4>\\n        </div>\\n        <ul class=\\\"list-unstyled font-weight-light ml-0 mb-0 d-flex mr-3 flex-wrap\\\" style=\\\"margin-top:-4px;\\\">\\n            <!-- ko foreach: $data.turnHistory.currentTurn().getCurrentSummaries() -->\\n            <li class=\\\"alert alert-light pl-2 pr-2 pt-1 pb-1 m-0 mr-1 mt-1\\\">\\n                <strong data-bind=\\\"text:$data.summary\\\"></strong>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n        <div class=\\\"ml-auto d-flex flex-nowrap\\\">\\n            <!-- ko if: $data.actionHistory.canUndo() -->\\n            <button type=\\\"button\\\" class=\\\"btn btn-sm btn-danger mr-1\\\" data-bind=\\\"click: function() { $root.game().sequence.undoLastAction(); }\\\">Undo</button>\\n            <!-- /ko -->\\n            <!-- ko if: !$data.isOperatingRound() || ($root.game().operatingRound().canEndTurn() && !$root.game().operatingRound().interruptionNeeded()) -->\\n            <button type=\\\"button\\\" class=\\\"btn btn-sm btn-success\\\" data-bind=\\\"click: function() { $root.game().sequence.finishTurn(); }\\\">End Turn</button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n</div>\\n<!-- /ko -->\";";
+module.exports = "module.exports = \"<div class=\\\"p-3\\\">\\n    <ul class=\\\"nav mb-3\\\">\\n        <!-- ko foreach: _.reverse($data.roundHistory.getAllRounds()) -->\\n        <li class=\\\"nav-item\\\" style=\\\"border-radius:.5rem;\\\"\\n            data-bind=\\\"css: { 'ml-2' : $index() !== 0, 'bg-light': $root.game().history().selectedRound() !== $data.id, 'bg-warning': $root.game().history().selectedRound() === $data.id }\\\">\\n            <a class=\\\"nav-link text-dark\\\" href=\\\"#\\\"\\n               data-bind=\\\"click:function() { $root.game().history().selectRound($data.id); },text:$data.getRoundName()\\\"></a>\\n        </li>\\n        <!-- /ko -->\\n    </ul>\\n</div>\\n<!-- ko if: $root.game().history().selectedRound() -->\\n<div class=\\\"px-3\\\">\\n    <ul class=\\\"mb-3 list-unstyled d-inline-block\\\" style=\\\"min-width:50%;\\\">\\n        <!-- ko foreach: $root.game().history().getTurnsForRound($root.game().history().selectedRound()) -->\\n        <!-- ko if: $data.getActions().length > 0 -->\\n        <div class=\\\"mb-3\\\" style=\\\"border:1px solid #CCC;border-radius:.7rem;overflow:hidden;\\\">\\n            <ul class=\\\"list-unstyled \\\">\\n                <li scope=\\\"col\\\" class=\\\"text-white font-weight-normal bg-history-header px-3 py-1\\\" style=\\\"font-size:1.2rem\\\"\\n                    data-bind=\\\"text: $root.game().state().playersById()[$data.playerId].name()\\\">\\n                </li>\\n                <!-- ko foreach: $data.getActions() -->\\n                <li class=\\\"p-2 px-3\\\" style=\\\"border-top:1px solid #CCC;\\\"\\n                    data-bind=\\\"css: $index() % 2 ? 'bg-light' : '', text:$data.summary($root.game().state())\\\"></li>\\n                <!-- ko foreach: $data.details($root.game().state()) -->\\n                <li class=\\\"p-1 pr-3\\\" style=\\\" padding-left: 50px !important;\\\"\\n                    data-bind=\\\"style: { 'border-top': $index() === 0 ? '1px solid #CCC' : '' }, css: 'bg-history-payout', text:$data\\\"></li>\\n                <!-- /ko -->\\n                <!-- /ko -->\\n            </ul>\\n        </div>\\n        <!-- /ko -->\\n        <!-- /ko -->\\n    </ul>\\n</div>\\n<!-- /ko -->\";";
 
 /***/ }),
 /* 153 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<div class=\\\"alert alert-warning rounded-0 border-top-0 border-right-0 border-left-0 m-0 p-3 d-flex flex-column justify-content-center\\\"\\n     role=\\\"alert\\\">\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"ml-2 mr-3\\\">\\n            <h1 class=\\\"alert-heading font-weight-light mb-0\\\" data-bind=\\\"text: $data.playersById()[$data.winner()].name() + ' wins!'\\\"></h1>\\n        </div>\\n    </div>\\n</div>\";";
+module.exports = "module.exports = \"<!-- ko if: $data.turnHistory.currentTurn() && $data.turnHistory.currentTurn().getCurrentSummaries().length > 0 -->\\n<div class=\\\"alert alert-primary rounded-0 pt-1 pb-1 border-top-0 border-right-0 border-left-0 m-0\\\" role=\\\"alert\\\">\\n    <div class=\\\"d-flex align-items-center\\\">\\n        <div class=\\\"ml-2 mr-3\\\">\\n            <h4 class=\\\"alert-heading font-weight-light mb-0\\\">Turn Summary</h4>\\n        </div>\\n        <ul class=\\\"list-unstyled font-weight-light ml-0 mb-0 d-flex mr-3 flex-wrap\\\" style=\\\"margin-top:-4px;\\\">\\n            <!-- ko foreach: $data.turnHistory.currentTurn().getCurrentSummaries() -->\\n            <li class=\\\"alert alert-light pl-2 pr-2 pt-1 pb-1 m-0 mr-1 mt-1\\\">\\n                <strong data-bind=\\\"text:$data.summary\\\"></strong>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n        <div class=\\\"ml-auto d-flex flex-nowrap\\\">\\n            <!-- ko if: $data.actionHistory.canUndo() -->\\n            <button type=\\\"button\\\" class=\\\"btn btn-sm btn-danger mr-1\\\" data-bind=\\\"click: function() { $root.game().sequence.undoLastAction(); }\\\">Undo</button>\\n            <!-- /ko -->\\n            <!-- ko if: !$data.isOperatingRound() || ($root.game().operatingRound().canEndTurn() && !$root.game().operatingRound().interruptionNeeded()) -->\\n            <button type=\\\"button\\\" class=\\\"btn btn-sm btn-success\\\" data-bind=\\\"click: function() { $root.game().sequence.finishTurn(); }\\\">End Turn</button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n</div>\\n<!-- /ko -->\";";
 
 /***/ }),
 /* 154 */
+/***/ (function(module, exports) {
+
+module.exports = "module.exports = \"<div class=\\\"alert alert-warning rounded-0 border-top-0 border-right-0 border-left-0 m-0 p-3 d-flex flex-column justify-content-center\\\"\\n     role=\\\"alert\\\">\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"ml-2 mr-3\\\">\\n            <h1 class=\\\"alert-heading font-weight-light mb-0\\\" data-bind=\\\"text: $data.playersById()[$data.winner()].name() + ' wins!'\\\"></h1>\\n        </div>\\n    </div>\\n</div>\";";
+
+/***/ }),
+/* 155 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // knockout-delegatedEvents 0.6.1 | (c) 2015 Ryan Niemeyer |  http://www.opensource.org/licenses/mit-license
 !function(a){ true?a(__webpack_require__(1),exports):"function"==typeof define&&define.amd?define(["knockout","exports"],a):a(ko,ko.actions={})}(function(a,b){function c(b,c,d,e){for(var f="data-"+e+"-parent";c&&1===c.nodeType&&!c.disabled&&!c.hasAttribute(f);)c=c!==d?c.parentNode:null;if(c){var g=c.getAttribute(f),h="true"===g?b:b[g];return h&&"function"==typeof h?{method:h,element:c,owner:a.dataFor(d)}:void 0}}function d(b,c,d){for(var e,f,g,h,k="data-"+d,l=i+d,m=j+d,n="data-"+d+"-parent";!e&&b&&b!==c;)1!==b.nodeType||b.disabled||(g?(e=a.utils.domData.get(b,m),e&&(e="true"===g?e:e[g],f=a.dataFor(b))):(e=b.getAttribute(k)||a.utils.domData.get(b,l),e||(g=b.getAttribute(n),g&&(h=b)))),e||(b=b.parentNode);return e?{method:e,element:h||b,owner:f}:void 0}function e(c,d,e,f){return function(g){var h=f(g.target||g.srcElement,d,c);if(h){var i,j,k,l,m,n,o=h.element,p=h.method,q=h.owner;if(p){if(j=a.contextFor(o)){for(;o&&o!==d;){if(o.disabled)return;o=o.parentNode}i=j.$data,"string"==typeof p?(p in b?(m=b[p],m&&(k="function"==typeof m?m:m.action,q=m.owner||i)):i&&i[p]&&"function"==typeof i[p]&&(k=i[p],q=i),k||(l=a.utils.arrayFirst(j.$parents,function(a){return a[p]&&"function"==typeof a[p]}),k=l&&l[p],q=l)):"function"==typeof p&&(k=p,q=q||i)}k&&(n="submit"===c?k.call(i,g.target):k.call(q,i,g),n!==!0&&(g.preventDefault?g.preventDefault():g.returnValue=!1),e!==!0&&(g.cancelBubble=!0,"function"==typeof g.stopPropagation&&g.stopPropagation()))}}}}function f(a,b){return a+b.substr(0,1).toUpperCase()+b.slice(1)}function g(b,c){a.bindingHandlers[b]||(a.bindingHandlers[b]={init:function(b,d){var e=d();a.utils.domData.set(b,c,e)}})}function h(a){g(f("delegated",a),i+a),g(f("delegatedParent",a),j+a)}var i="ko_delegated_",j="ko_delegated_parent_";a.bindingHandlers.delegatedHandler={init:function(b,c,g){var i=a.utils.unwrapObservable(c())||[];"string"==typeof i&&(i=[i]),a.utils.arrayForEach(i,function(c){var i=g.get(f("delegated",c+"Bubble"))===!0;h(c),a.utils.registerEventHandler(b,c,e(c,b,i,d))})}},a.bindingHandlers.delegatedParentHandler={init:function(b,d,g){var h=a.utils.unwrapObservable(d());a.utils.objectForEach(h,function(d){var i=g.get(f("delegated",d+"Bubble"))===!0;a.utils.registerEventHandler(b,d,e(d,b,i,c.bind(null,h[d])))})}}});
 
 /***/ }),
-/* 155 */
+/* 156 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -52062,13 +52116,13 @@ Popper.Defaults = Defaults;
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(20)))
 
 /***/ }),
-/* 156 */
+/* 157 */
 /***/ (function(module, exports, __webpack_require__) {
 
 // style-loader: Adds some css to the DOM by adding a <style> tag
 
 // load the styles
-var content = __webpack_require__(94);
+var content = __webpack_require__(95);
 if(typeof content === 'string') content = [[module.i, content, '']];
 // Prepare cssTransformation
 var transform;
@@ -52076,7 +52130,7 @@ var transform;
 var options = {}
 options.transform = transform
 // add the styles to the DOM
-var update = __webpack_require__(157)(content, options);
+var update = __webpack_require__(158)(content, options);
 if(content.locals) module.exports = content.locals;
 // Hot Module Replacement
 if(false) {
@@ -52093,7 +52147,7 @@ if(false) {
 }
 
 /***/ }),
-/* 157 */
+/* 158 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /*
@@ -52139,7 +52193,7 @@ var singleton = null;
 var	singletonCounter = 0;
 var	stylesInsertedAtTop = [];
 
-var	fixUrls = __webpack_require__(158);
+var	fixUrls = __webpack_require__(159);
 
 module.exports = function(list, options) {
 	if (typeof DEBUG !== "undefined" && DEBUG) {
@@ -52452,7 +52506,7 @@ function updateLink (link, options, obj) {
 
 
 /***/ }),
-/* 158 */
+/* 159 */
 /***/ (function(module, exports) {
 
 
@@ -52547,7 +52601,7 @@ module.exports = function (css) {
 
 
 /***/ }),
-/* 159 */
+/* 160 */
 /***/ (function(module, exports) {
 
 /**
@@ -52576,7 +52630,7 @@ module.exports = bytesToUuid;
 
 
 /***/ }),
-/* 160 */
+/* 161 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {// Unique ID creation requires a high quality random # generator.  In the
@@ -52616,11 +52670,11 @@ module.exports = rng;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(20)))
 
 /***/ }),
-/* 161 */
+/* 162 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var rng = __webpack_require__(160);
-var bytesToUuid = __webpack_require__(159);
+var rng = __webpack_require__(161);
+var bytesToUuid = __webpack_require__(160);
 
 function v4(options, buf, offset) {
   var i = buf && offset || 0;
@@ -52651,7 +52705,7 @@ module.exports = v4;
 
 
 /***/ }),
-/* 162 */
+/* 163 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -52679,67 +52733,67 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 163 */
+/* 164 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var map = {
-	"./index.html": 97,
-	"./open-iconic/sprite/open-iconic.html": 98,
-	"./open-iconic/sprite/sprite.html": 99,
-	"./views/bugReport.html": 100,
-	"./views/cell.html": 101,
-	"./views/cellPopover.html": 102,
-	"./views/companies.html": 103,
-	"./views/dashboard/dashboard.html": 104,
-	"./views/dashboard/games.html": 105,
-	"./views/dashboard/newGame.html": 106,
-	"./views/draft.html": 107,
-	"./views/game/game.html": 108,
-	"./views/grid.html": 109,
-	"./views/limits.html": 110,
-	"./views/market.html": 111,
-	"./views/operatingCompany.html": 112,
-	"./views/operatingRound.html": 113,
-	"./views/ownership.html": 114,
-	"./views/playerPopover.html": 115,
-	"./views/players.html": 116,
-	"./views/priceTrack.html": 117,
-	"./views/privateDraft.html": 118,
-	"./views/rounds.html": 119,
-	"./views/stockRound.html": 120,
-	"./views/tileManifest.html": 121,
-	"./views/tileUpgradePopover.html": 122,
-	"./views/tiles/binghamton.html": 123,
-	"./views/tiles/buffalo.html": 124,
-	"./views/tiles/cairo.html": 125,
-	"./views/tiles/charleston.html": 126,
-	"./views/tiles/chicago.html": 127,
-	"./views/tiles/chicagoConnections.html": 128,
-	"./views/tiles/cincinnati.html": 129,
-	"./views/tiles/city.html": 130,
-	"./views/tiles/common.html": 131,
-	"./views/tiles/cumberland.html": 132,
-	"./views/tiles/fortWayne.html": 133,
-	"./views/tiles/holland.html": 134,
-	"./views/tiles/homewood.html": 135,
-	"./views/tiles/huntington.html": 136,
-	"./views/tiles/indianapolis.html": 137,
-	"./views/tiles/louisville.html": 138,
-	"./views/tiles/mapChicago.html": 139,
-	"./views/tiles/mapCommon.html": 140,
-	"./views/tiles/mapDoubleCity.html": 141,
-	"./views/tiles/pittsburgh.html": 142,
-	"./views/tiles/portHuron.html": 143,
-	"./views/tiles/salamanca.html": 144,
-	"./views/tiles/sarnia.html": 145,
-	"./views/tiles/stLouis.html": 146,
-	"./views/tiles/wheeling.html": 147,
-	"./views/tiles/windsor.html": 148,
-	"./views/tiles/z.html": 149,
-	"./views/trains.html": 150,
-	"./views/turnHistory.html": 151,
-	"./views/turnsummary.html": 152,
-	"./views/winner.html": 153
+	"./index.html": 98,
+	"./open-iconic/sprite/open-iconic.html": 99,
+	"./open-iconic/sprite/sprite.html": 100,
+	"./views/bugReport.html": 101,
+	"./views/cell.html": 102,
+	"./views/cellPopover.html": 103,
+	"./views/companies.html": 104,
+	"./views/dashboard/dashboard.html": 105,
+	"./views/dashboard/games.html": 106,
+	"./views/dashboard/newGame.html": 107,
+	"./views/draft.html": 108,
+	"./views/game/game.html": 109,
+	"./views/grid.html": 110,
+	"./views/limits.html": 111,
+	"./views/market.html": 112,
+	"./views/operatingCompany.html": 113,
+	"./views/operatingRound.html": 114,
+	"./views/ownership.html": 115,
+	"./views/playerPopover.html": 116,
+	"./views/players.html": 117,
+	"./views/priceTrack.html": 118,
+	"./views/privateDraft.html": 119,
+	"./views/rounds.html": 120,
+	"./views/stockRound.html": 121,
+	"./views/tileManifest.html": 122,
+	"./views/tileUpgradePopover.html": 123,
+	"./views/tiles/binghamton.html": 124,
+	"./views/tiles/buffalo.html": 125,
+	"./views/tiles/cairo.html": 126,
+	"./views/tiles/charleston.html": 127,
+	"./views/tiles/chicago.html": 128,
+	"./views/tiles/chicagoConnections.html": 129,
+	"./views/tiles/cincinnati.html": 130,
+	"./views/tiles/city.html": 131,
+	"./views/tiles/common.html": 132,
+	"./views/tiles/cumberland.html": 133,
+	"./views/tiles/fortWayne.html": 134,
+	"./views/tiles/holland.html": 135,
+	"./views/tiles/homewood.html": 136,
+	"./views/tiles/huntington.html": 137,
+	"./views/tiles/indianapolis.html": 138,
+	"./views/tiles/louisville.html": 139,
+	"./views/tiles/mapChicago.html": 140,
+	"./views/tiles/mapCommon.html": 141,
+	"./views/tiles/mapDoubleCity.html": 142,
+	"./views/tiles/pittsburgh.html": 143,
+	"./views/tiles/portHuron.html": 144,
+	"./views/tiles/salamanca.html": 145,
+	"./views/tiles/sarnia.html": 146,
+	"./views/tiles/stLouis.html": 147,
+	"./views/tiles/wheeling.html": 148,
+	"./views/tiles/windsor.html": 149,
+	"./views/tiles/z.html": 150,
+	"./views/trains.html": 151,
+	"./views/turnHistory.html": 152,
+	"./views/turnsummary.html": 153,
+	"./views/winner.html": 154
 };
 function webpackContext(req) {
 	return __webpack_require__(webpackContextResolve(req));
@@ -52755,10 +52809,10 @@ webpackContext.keys = function webpackContextKeys() {
 };
 webpackContext.resolve = webpackContextResolve;
 module.exports = webpackContext;
-webpackContext.id = 163;
+webpackContext.id = 164;
 
 /***/ }),
-/* 164 */
+/* 165 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(33);

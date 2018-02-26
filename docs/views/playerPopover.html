@@ -11,13 +11,13 @@
             </tr>
             <!-- ko foreach: getOwnedPublicCompanies() -->
             <tr>
-                <td class="border-0 font-weight-normal  p-0" scope="row"
+                <td class="border-0 font-weight-normal p-0" scope="row" style="width:50%"
                     data-bind="css: $root.game().state().currentCompanyId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row-medium' : 'bg-light'">
                     <div class="p-1 pl-2 pr-2">
-                        <div data-bind="text:$data.nickname"></div>
+                        <div class="px-2" style="border-radius:.35rem" data-bind="text:$data.nickname, css: 'bg-' + $data.id + ' text-' + $data.id"></div>
                     </div>
                 </td>
-                <td class="pt-1 pb-1 border-0 "
+                <td class="pt-1 pb-1 border-0 " style="width:50%"
                     data-bind="css: $root.game().state().currentCompanyId() === $data.id ? 'bg-warning' : $index() % 2 ? 'bg-table-row-medium' : 'bg-light'">
                     <div data-bind="text:$parent.numSharesOwnedOfCompany($data.id)"></div>
                 </td>
