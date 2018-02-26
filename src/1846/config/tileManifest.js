@@ -918,7 +918,7 @@ const Manifest = {
     },
     611: {
         upgrades: [51],
-        count: 1
+        count: 4
     },
     619: {
         upgrades: [611],
