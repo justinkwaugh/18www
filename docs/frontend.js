@@ -44328,7 +44328,7 @@ class Dashboard {
 
         this.activePanel = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(ActivePanelIDs.ACTIVE_GAMES);
         this.ActivePanelIDs = ActivePanelIDs;
-        this.rootPath = '/';
+        this.rootPath = '/18www/';
         this.rootPathForHistory = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
             if (this.rootPath === '/') {
                 return this.rootPath;
