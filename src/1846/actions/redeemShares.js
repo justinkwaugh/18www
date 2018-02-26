@@ -8,6 +8,7 @@ class RedeemShares extends Action {
 
         this.companyId = args.companyId;
         this.count = args.count;
+        this.price = args.price;
     }
 
     doExecute(state) {
