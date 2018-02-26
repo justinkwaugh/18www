@@ -134,6 +134,10 @@ class Company extends Serializable {
         return this.numTrainsForLimit() > CurrentGame().state().trainLimit();
     }
 
+    isAtTrainLimit() {
+        return this.numTrainsForLimit() === CurrentGame().state().trainLimit();
+    }
+
     getRunnableTrains() {
         return _.filter(this.trains(), train=> !train.purchased && !train.rusted());
     }

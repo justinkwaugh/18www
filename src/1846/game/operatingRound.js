@@ -395,7 +395,11 @@ class OperatingRound {
             return false;
         }
 
-        return CurrentGame().state().currentPlayer().getPrivates().length > 0 && company.cash() > 0;
+        if (company.cash() <= 0) {
+            return false;
+        }
+
+        return this.getPurchaseablePrivates().length > 0 && company.cash() > 0;
     }
 
     canUsePrivates() {
@@ -593,6 +597,14 @@ class OperatingRound {
                                                     });
         skipAction.execute(CurrentGame().state());
         CurrentGame().saveLocalState();
+    }
+
+    getPurchaseablePrivates() {
+        return _.reject(CurrentGame().state().currentPlayer().getPrivates(), privateCo => {
+            if (privateCo.type === CompanyTypes.INDEPENDANT && CurrentGame().state().currentCompany().isAtTrainLimit()) {
+                return true;
+            }
+        });
     }
 
     getCompaniesWithTrains() {
@@ -983,7 +995,7 @@ class OperatingRound {
             return true;
         }
         const company = state.currentCompany();
-        return (!company && this.hasPlacedSteamboatThisTurn()) || (this.hasRunRoutesThisTurn() && (company.numTrainsForLimit() > 0 || this.hasGoneBankrupt() || this.noPresidentAndCannotBuyTrain()));
+        return (!company && this.hasPlacedSteamboatThisTurn()) || (this.midInterruption() && !this.mustReturnTrain()) || (this.hasRunRoutesThisTurn() && (company.numTrainsForLimit() > 0 || this.hasGoneBankrupt() || this.noPresidentAndCannotBuyTrain()));
     }
 
     getTrainsAvailableToForceBuy() {

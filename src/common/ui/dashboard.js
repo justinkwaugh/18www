@@ -67,12 +67,12 @@ class Dashboard {
             this.checkNavigation(state);
         });
 
-        // _.delay(()=> {
-        //     this.fileInput = document.getElementById('fileInput');
-        //     this.fileInput.addEventListener('change', (e) => {
-        //         this.loadState();
-        //     });
-        // },1000);
+        _.delay(()=> {
+            this.fileInput = document.getElementById('fileInput');
+            this.fileInput.addEventListener('change', (e) => {
+                this.loadState();
+            });
+        },2000);
 
         Events.emit('app-ready');
     }
