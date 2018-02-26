@@ -1197,6 +1197,7 @@ class OperatingRound {
         this.useCWIToken(false);
         this.selectedSteamboatCompany(null);
         Events.emit('clearRoutes');
+        Events.emit('cancelTilePreview');
     }
 
     commit() {

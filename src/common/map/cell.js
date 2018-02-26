@@ -119,9 +119,7 @@ class Cell {
                 return openCities;
             }
 
-            const tokenableCities = _.filter(openCities,
-                                             cityId => this.depthFirstSearchForStation(companyId, cityId, {},null,[]));
-            return tokenableCities;
+            return _.filter(openCities, cityId => this.depthFirstSearchForStation(companyId, cityId, {},[]));
 
         });
 
@@ -230,8 +228,6 @@ class Cell {
             }
 
             return true;
-
-            return this.isRouteable(train.route);
         });
 
         this.popoverParams = ko.computed(() => {
@@ -255,26 +251,6 @@ class Cell {
 
     gridRestoredHandler() {
         this.tokenCheckTrigger(1);
-    }
-
-
-    isRouteable(route) {
-        if (route.cells().length === 0 && this.tile().hasTokenForCompany(CurrentGame().state().currentCompany().id)) {
-            return true;
-        }
-
-        return _.isNumber(_(_.range(0, 6)).find((edgeIndex) => {
-            if (!this.hasConnectionAtIndex(edgeIndex)) {
-                return;
-            }
-
-            const neighbor = this.neighbors[edgeIndex];
-            if (!neighbor) {
-                return;
-            }
-
-            return route.containsCell(neighbor.id);
-        }));
     }
 
     isOhioIndianaTiles() {
@@ -317,20 +293,6 @@ class Cell {
     ohioIndianaBlocked() {
         const ohioIndiana = CurrentGame().state().getCompany(CompanyIDs.OHIO_INDIANA);
         return ohioIndiana && this.isOhioIndianaTiles() && !ohioIndiana.closed() && !ohioIndiana.used();
-    }
-
-    getConnectedCompanies() {
-        const companies = [];
-        const visited = [];
-        _(_.range(0, 6)).each((edgeIndex) => {
-            if (!this.hasConnectionAtIndex(edgeIndex)) {
-                return;
-            }
-
-            this.checkNeighborConnection(null, edgeIndex, visited, companies, [])
-        });
-
-        return _.uniq(companies);
     }
 
     getUpgradeTiles() {
@@ -458,6 +420,11 @@ class Cell {
     }
 
     getAllowedTilePositionData(oldTile, newTileId) {
+        const state = CurrentGame().state();
+        if (!state.isOperatingRound()) {
+            return [];
+        }
+
         const oandi = this.isOhioIndianaLay();
         const mc = this.isMichiganCentralLay();
         if (oandi || mc) {
@@ -465,14 +432,10 @@ class Cell {
                                                    (this.id === 'F14' || this.id === 'B10') ? 1 : 4);
         }
 
-        // console.log('Checking tile positions for ' + this.id);
-
         const visited = {};
+
         const validEdges = {};
-        const state = CurrentGame().state();
-        if (!state.isOperatingRound()) {
-            return [];
-        }
+        const invalidEdges = {};
 
         const company = state.currentCompany();
         const baseCost = this.getBaseCost(oldTile);
@@ -500,10 +463,12 @@ class Cell {
             // Check off map
             const connectionOffMap = _.find(addedConnections, (connection) => {
                 if (connection[0] < 7 && !this.neighbors[connection[0]]) {
+                    invalidEdges[connection[0]] = true;
                     return true;
                 }
 
                 if (connection[1] < 7 && !this.neighbors[connection[1]]) {
+                    invalidEdges[connection[1]] = true;
                     return true;
                 }
             });
@@ -521,39 +486,43 @@ class Cell {
                 });
 
             // Check new track for a path back to station
-            // console.log('Checking tile ' + this.id + ' for valid neighbor connections for new tile id ' + newTileId + ' and position ' + pos);
             const connectionToStation = this.isLSLLay() || _.find(addedConnections,
                                                                   (connection) => {
                                                                       const connectionStart = connection[0];
                                                                       const connectionEnd = connection[1];
-                                                                      // console.log('connection: [' + connection[0] + ','+connection[1] + '] => [' + connectionStart + ',' + connectionEnd+']');
 
                                                                       if (validEdges[connectionStart] || validEdges[connectionEnd]) {
                                                                           return true;
                                                                       }
 
-                                                                      if (connectionStart < 7) {
+                                                                      const connectionId = this.getCellConnectionId(connection);
+
+                                                                      if (connectionStart < 7 && !invalidEdges[connectionStart]) {
                                                                           const isEdgeValid = this.checkNeighborConnection(
                                                                               company.id,
                                                                               connectionStart,
-                                                                              visited, null, [this.id + '-' + this.getConnectionId(connection)]);
+                                                                              visited, [connectionId]);
                                                                           if (isEdgeValid) {
-                                                                              // console.log('Connection found');
                                                                               validEdges[connectionStart] = true;
                                                                               return true;
+                                                                          }
+                                                                          else {
+                                                                              invalidEdges[connectionStart] = true;
                                                                           }
 
                                                                       }
 
-                                                                      if (connectionEnd < 7) {
+                                                                      if (connectionEnd < 7 && !invalidEdges[connectionEnd]) {
                                                                           const isEdgeValid = this.checkNeighborConnection(
                                                                               company.id,
                                                                               connectionEnd,
-                                                                              visited, null, [this.id + '-' + this.getConnectionId(connection)]);
+                                                                              visited, [connectionId]);
                                                                           if (isEdgeValid) {
-                                                                              // console.log('Connection found');
                                                                               validEdges[connectionEnd] = true;
                                                                               return true;
+                                                                          }
+                                                                          else {
+                                                                              invalidEdges[connectionEnd] = true;
                                                                           }
 
                                                                       }
@@ -606,18 +575,18 @@ class Cell {
             let connected = false;
 
             if (connection[0] < 7) {
-                connected = this.checkNeighborConnection(companyId, connection[0], visited, null, []);
+                connected = this.checkNeighborConnection(companyId, connection[0], visited, []);
             }
 
             if (!connected && connection[1] < 7) {
-                connected = this.checkNeighborConnection(companyId, connection[1], visited, null, []);
+                connected = this.checkNeighborConnection(companyId, connection[1], visited, []);
             }
             return connected;
         });
 
     }
 
-    checkNeighborConnection(companyId, edgeIndex, visited, companies, currentSearchPath) {
+    checkNeighborConnection(companyId, edgeIndex, visited, currentSearchPath) {
 
         const hasLocalStation = this.tile().hasTokenForCompany(companyId);
         if (hasLocalStation) {
@@ -636,11 +605,10 @@ class Cell {
         }
 
         return neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint,
-                                                   visited, companies, currentSearchPath);
+                                                   visited, currentSearchPath);
     }
 
-    depthFirstSearchForStation(companyId, connectionStart, visited, companies, currentSearchPath) {
-        // console.log('In Cell ' + this.id + ' starting at connection ' + connectionStart);
+    depthFirstSearchForStation(companyId, connectionStart, visited, currentSearchPath) {
         const connections = _.map(this.tile().getConnectionsToPoint(connectionStart), connection => {
             return connection[0] === connectionStart ? connection : [connection[1], connection[0]];
         });
@@ -648,7 +616,7 @@ class Cell {
         let found = false;
 
         _.each(connections, connection => {
-            const directionalConnectionId = this.id + '-' + connection[0] + '-' + connection[1]; //this.getConnectionId(connection);
+            const directionalConnectionId = this.id + '-' + this.getConnectionId(connection,true);
             const connectionId = this.id + '-' + this.getConnectionId(connection);
             if (visited[directionalConnectionId] || _.indexOf(currentSearchPath, connectionId) >= 0) {
                 return;
@@ -659,18 +627,12 @@ class Cell {
                 currentSearchPath.push(connectionId);
             }
 
-            // start a new search from the connection point
             if (connection[1] > 6) {
 
                 // check for city / token
                 if (companyId && this.tile().hasTokenForCompany(companyId, connection[1])) {
-                    // console.log('Found token!');
                     found = true;
-                    // console.log('current search path: ' + JSON.stringify(currentSearchPath));
                     return false;
-                }
-                else if (!companyId) {
-                    companies.push.apply(companies, this.tile().getTokensForCity(connection[1]));
                 }
 
                 // Check blocked
@@ -679,7 +641,7 @@ class Cell {
                 }
 
                 // console.log('Starting new search on this tile from local city ' + connection[1]);
-                found = this.depthFirstSearchForStation(companyId, connection[1], visited, companies, currentSearchPath);
+                found = this.depthFirstSearchForStation(companyId, connection[1], visited, currentSearchPath);
             }
             else {
                 const connectionEnd = Tile.getOffsetIndexForPosition(connection[1], this.tile().position());
@@ -690,15 +652,10 @@ class Cell {
                 const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(connectionEnd);
                 const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
                 if (neighborConnectionPoint >= 0) {
-                    // console.log(
-                    //     'Starting new search on neighbor ' + neighbor.id + ' from point ' + neighborConnectionPoint);
                     found = neighbor.depthFirstSearchForStation(companyId,
                                                                 neighborConnectionPoint,
                                                                 visited,
-                                                                companies, currentSearchPath);
-                }
-                else {
-                    // console.log('Neighbor not connected');
+                                                                currentSearchPath);
                 }
             }
 
@@ -716,8 +673,17 @@ class Cell {
     }
 
 
-    getConnectionId(connection) {
-        return Math.min(connection[0], connection[1]) + '-' + Math.max(connection[0], connection[1]);
+    getCellConnectionId(connection, directional) {
+        return this.id + '-' + this.getConnectionId(connection, directional);
+    }
+
+    getConnectionId(connection, directional) {
+        if(directional) {
+            return connection[0] + '-' + connection[1];
+        }
+        else {
+            return Math.min(connection[0], connection[1]) + '-' + Math.max(connection[0], connection[1]);
+        }
     }
 
     hasConnectionAtIndex(index) {
@@ -827,17 +793,6 @@ class Cell {
 
     static getNeighboringConnectionIndex(index) {
         return (index + 3) % 6;
-    }
-
-    addToCurrentRoute() {
-        const train = CurrentGame().operatingRound().selectedTrain();
-        if (!train) {
-            return false;
-        }
-
-        if (this.isRouteable(train.route)) {
-            train.route.addCell(this.id);
-        }
     }
 
     previewTile(tileId) {

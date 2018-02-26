@@ -235,6 +235,7 @@ class Grid extends BaseGrid {
         Events.on('global:mouseup', () => { this.globalMouseUpHandler(); });
         Events.on('global:mouseout', () => { this.globalMouseOutHandler(); });
         Events.on('tileUpdated', (cellId) => { this.tileUpdatedHandler(cellId); });
+        Events.on('cancelTilePreview', () => { this.tilePreviewCancelHandler(); });
     }
 
     stateUpdatedHandler() {
@@ -270,6 +271,15 @@ class Grid extends BaseGrid {
 
     tileUpdatedHandler(cellId) {
         this.cellsById()[cellId].tile(CurrentGame().state().tilesByCellId[cellId]);
+    }
+
+    tilePreviewCancelHandler() {
+        _.each(this.cellsById(), cell=> {
+           if(cell.preview()) {
+               cell.cancelPreview();
+               return false;
+           }
+        });
     }
 
     createCells(state) {
