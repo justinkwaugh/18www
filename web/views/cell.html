@@ -18,7 +18,8 @@
             <!-- ko if: $data.canEdit() || $data.canRoute() -->
             <polygon pointer-events="all" class="tile-border" fill="none" stroke="none" stroke-width="0"
                      points="" data-bind="attr: { points: $data.outline }" data-mouseover="onMouseOver"
-                     data-mousedown="onMouseDown" data-mouseout="onMouseOut" data-touchstart="onTouchStart" data-touchmove="onTouchMove" data-touchend="onTouchEnd"></polygon>
+                     data-mousedown="onMouseDown" data-mouseout="onMouseOut" data-touchstart="onTouchStart"
+                     data-touchmove="onTouchMove" data-touchend="onTouchEnd"></polygon>
             <!-- /ko -->
         </g>
     </svg>
@@ -34,10 +35,31 @@
     </button>
     <button type="button" style="min-width:35px;" class="btn btn-sm btn-light font-weight-bold"
             data-bind="visible: $data.allowedPreviewPositions().length > 1, click: $data.nextPreviewPosition"><img
-            alt="rotate" style="width:16px; height:16px;" data-bind="attr: { src: $root.rootPath + 'open-iconic/svg/reload.svg' }"/>
+            alt="rotate" style="width:16px; height:16px;"
+            data-bind="attr: { src: $root.rootPath + 'open-iconic/svg/reload.svg' }"/>
     </button>
     <button type="button" style="min-width:35px;" class="btn btn-sm btn-success"
             data-bind="click: function() { $data.commitPreview($root.game().state());}">OK
     </button>
+</div>
+
+<div style="pointer-events:none;position:absolute;z-index:99" data-bind="style: { top: $data.top +'px', left: $data.left + 'px'}">
+    <svg xmlns="http://www.w3.org/2000/svg" pointer-events="none"
+         data-bind="style: { width: $data.width +'px', height: $data.height + 'px'}">
+        <defs>
+            <clipPath id="" data-bind="attr: { id: 'tile-clip' + $data.id }">
+                <polygon stroke="black"
+                         points="" data-bind="attr: { points: $data.outline }"></polygon>
+            </clipPath>
+        </defs>
+        <g clip-path="url(#tile-clip)" pointer-events="all" class="tile" xmlns="http://www.w3.org/2000/svg"
+           fill-opacity="1" visibility="inherit"
+           data-bind="attr: { 'clip-path': 'url(#tile-clip' + $data.id + ')', transform: 'translate(' + Math.floor($data.width/2) + ', ' + Math.floor($data.height/2)+')' }">
+
+            <polygon pointer-events="all" class="tile-border" fill="none" stroke="none" stroke-width="0"
+                     points="" data-bind="attr: { points: $data.outline }, click: $data.nextPreviewPosition" ></polygon>
+        </g>
+    </svg>
+    <!-- /ko -->
 </div>
 <!-- /ko -->
