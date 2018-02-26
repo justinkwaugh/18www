@@ -46,7 +46,7 @@ class Dashboard {
 
         this.activePanel = ko.observable(ActivePanelIDs.ACTIVE_GAMES);
         this.ActivePanelIDs = ActivePanelIDs;
-        this.rootPath = '/18www/';
+        this.rootPath = '/';
         this.rootPathForHistory = ko.computed(() => {
             if (this.rootPath === '/') {
                 return this.rootPath;

@@ -69,7 +69,7 @@
     "start-dev": "./node_modules/.bin/webpack-dev-server --open --inline --hot",
     "test-once": "./node_modules/.bin/karma start --single-run",
     "test": "./node_modules/.bin/karma start",
-    "bundle": "./node_modules/.bin/webpack",
+    "bundle": "./node_modules/.bin/webpack --config webpack.config.prod.js",
     "prestart": "npm run bundle"
   },
   "repository": {
