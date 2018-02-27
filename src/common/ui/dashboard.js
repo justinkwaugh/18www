@@ -11,6 +11,7 @@ import Events from 'common/util/events';
 import History from 'common/util/history';
 import LZString from 'lz-string';
 import Serializable from 'common/model/serializable';
+import BrowserDetect from 'common/util/browserDetect';
 
 const ActivePanelIDs = {
     ACTIVE_GAMES: 'active_games',
@@ -36,6 +37,7 @@ function getParameterByName(name, url) {
 
 class Dashboard {
     constructor() {
+        this.isIE = BrowserDetect.isIE();
         this.game = ko.computed(() => {
             return CurrentGame();
         });

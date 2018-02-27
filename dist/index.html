@@ -6,11 +6,16 @@
     <link href="open-iconic/font/css/open-iconic-bootstrap.css" rel="stylesheet">
 </head>
 <body style="background-color:#FFF" data-bind="event: {mouseup: onMouseUp, mouseout: onMouseOut}">
+<!-- ko if: $root.isIE -->
+<div data-bind="template: { name: 'views/noIE' }"></div>
+<!-- /ko -->
+<!-- ko if: !$root.isIE -->
 <!-- ko if: $root.game() -->
 <div data-bind="template: { name: 'views/game/game' }"></div>
 <!-- /ko -->
 <!-- ko if: !$root.game() -->
 <div data-bind="template: { name: 'views/dashboard/dashboard' }"></div>
+<!-- /ko -->
 <!-- /ko -->
 
 <script src="frontend.js"></script>
