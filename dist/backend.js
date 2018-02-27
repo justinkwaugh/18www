@@ -68,64 +68,90 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* WEBPACK VAR INJECTION */(function(__dirname) {/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_express__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_express___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_express__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_path__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_path___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_path__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_api_register__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash__);
+/* WEBPACK VAR INJECTION */(function(__dirname) {
 
+var _express = __webpack_require__(2);
 
+var _express2 = _interopRequireDefault(_express);
 
+var _path = __webpack_require__(5);
 
+var _path2 = _interopRequireDefault(_path);
+
+var _register = __webpack_require__(1);
+
+var _register2 = _interopRequireDefault(_register);
+
+var _lodash = __webpack_require__(4);
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 console.log('why? ' + __dirname);
 
-const testFolder = __dirname;
-const fs = __webpack_require__(3);
+var testFolder = __dirname;
+var fs = __webpack_require__(3);
 
-fs.readdir(testFolder, (err, files) => {
-    __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(files, file => {
+fs.readdir(testFolder, function (err, files) {
+    _lodash2.default.each(files, function (file) {
         console.log(file);
     });
 });
 
-const app = __WEBPACK_IMPORTED_MODULE_0_express___default()();
-app.use(__WEBPACK_IMPORTED_MODULE_0_express___default.a.static(__WEBPACK_IMPORTED_MODULE_1_path___default.a.resolve(__WEBPACK_IMPORTED_MODULE_1_path___default.a.join(__dirname, '/Users/justin/PycharmProjects/18www/dist'))));
+var app = (0, _express2.default)();
+app.use(_express2.default.static(_path2.default.resolve(_path2.default.join(__dirname, '/Users/justin/PycharmProjects/18www/dist'))));
 
-app.get('/', (req, res) => {
-    res.sendFile('index.html', { root: __WEBPACK_IMPORTED_MODULE_1_path___default.a.join(__dirname, '/Users/justin/PycharmProjects/18www/dist') });
+app.get('/', function (req, res) {
+    res.sendFile('index.html', { root: _path2.default.join(__dirname, '/Users/justin/PycharmProjects/18www/dist') });
 });
 
-app.get('/api/register', (req, res) => {
-    __WEBPACK_IMPORTED_MODULE_2_common_api_register__["a" /* default */].registerUser();
+app.get('/api/register', function (req, res) {
+    _register2.default.registerUser();
     res.json('{}');
 });
 
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`App listening on port ${PORT}`);
+var PORT = process.env.PORT || 8080;
+app.listen(PORT, function () {
+    console.log('App listening on port ' + PORT);
     console.log('Press Ctrl+C to quit.');
 });
-/* WEBPACK VAR INJECTION */}.call(__webpack_exports__, "/"))
+/* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
 /* 1 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-class Register {
-    static registerUser(args) {
-        args = args || {};
-    }
-}
 
-/* harmony default export */ __webpack_exports__["a"] = (Register);
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Register = function () {
+    function Register() {
+        _classCallCheck(this, Register);
+    }
+
+    _createClass(Register, null, [{
+        key: "registerUser",
+        value: function registerUser(args) {
+            args = args || {};
+        }
+    }]);
+
+    return Register;
+}();
+
+exports.default = Register;
 
 /***/ }),
 /* 2 */
