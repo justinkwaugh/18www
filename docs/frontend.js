@@ -47846,7 +47846,7 @@ var LocalStore = function () {
         key: 'storeCompressed',
         value: function storeCompressed(key, value, namespace) {
             var storage = LocalStore.getStorage();
-            var compressed = _browserDetect2.default.isIE() ? _lzString2.default.compressToEncodedURIComponent() : _lzString2.default.compress(value);
+            var compressed = _browserDetect2.default.isIE() ? _lzString2.default.compressToEncodedURIComponent(value) : _lzString2.default.compress(value);
             storage.setItem(namespace ? namespace + ':' + key : key, compressed);
         }
     }, {
@@ -47860,7 +47860,7 @@ var LocalStore = function () {
         value: function loadCompressed(key, namespace) {
             var storage = LocalStore.getStorage();
             var item = storage.getItem(namespace ? namespace + ':' + key : key);
-            var decompressed = _browserDetect2.default.isIE() ? _lzString2.default.decompressFromEncodedURIComponent() : _lzString2.default.decompress(item);
+            var decompressed = _browserDetect2.default.isIE() ? _lzString2.default.decompressFromEncodedURIComponent(value) : _lzString2.default.decompress(item);
             return decompressed || item;
         }
     }]);
