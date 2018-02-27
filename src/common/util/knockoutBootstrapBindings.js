@@ -133,3 +133,12 @@ ko.extenders.numeric = function(target, max) {
     //return the new computed observable
     return result;
 };
+
+ko.subscribable.fn.subscribeChanged = function (callback) {
+    let savedValue = this.peek();
+    return this.subscribe(function (latestValue) {
+        const oldValue = savedValue;
+        savedValue = latestValue;
+        callback(latestValue, oldValue);
+    });
+};
