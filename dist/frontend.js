@@ -23359,7 +23359,7 @@ const CompanyTypes = {
  */
 module.exports = (function(){
 
-    var anyBase = __webpack_require__(34);
+    var anyBase = __webpack_require__(35);
     var uuidV4 = __webpack_require__(162);
 
     var flickrBase58 = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -23540,16 +23540,18 @@ const TrainIDs = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_1846_config_roundTypes__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_game_privateDraft__ = __webpack_require__(66);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_game_stockRound__ = __webpack_require__(69);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_actions_setPriorityDeal__ = __webpack_require__(55);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_actions_setOperatingOrder__ = __webpack_require__(54);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_actions_adjustStockPrices__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_actions_privateIncome__ = __webpack_require__(49);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_common_util_events__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_1846_config_companyIds__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_1846_actions_updateSequence__ = __webpack_require__(58);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_11_lodash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_game_operatingRound__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_actions_setPriorityDeal__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_actions_setOperatingOrder__ = __webpack_require__(55);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_actions_adjustStockPrices__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_1846_actions_privateIncome__ = __webpack_require__(50);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_common_util_events__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_1846_config_companyIds__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_1846_actions_updateSequence__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_12_lodash__);
+
 
 
 
@@ -23566,24 +23568,24 @@ const TrainIDs = {
 class Sequence {
 
     static undoLastAction() {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().state().turnHistory.currentTurn().undoLast();
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().saveLocalState();
-        __WEBPACK_IMPORTED_MODULE_8_common_util_events__["a" /* default */].emit('undo');
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().state().turnHistory.currentTurn().undoLast();
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().saveLocalState();
+        __WEBPACK_IMPORTED_MODULE_9_common_util_events__["a" /* default */].emit('undo');
     }
 
     static undoToRoundStart(roundId) {
-        this.undoToIndex(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().state().roundHistory.getRound(roundId).actionStartIndex);
+        this.undoToIndex(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().state().roundHistory.getRound(roundId).actionStartIndex);
     }
 
     static undoToTurnStart(turnId) {
-        this.undoToIndex(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().state().turnHistory.getTurn(turnId).actionStartIndex);
+        this.undoToIndex(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().state().turnHistory.getTurn(turnId).actionStartIndex);
     }
 
     static undoToIndex(index) {}
 
     static interruptTurn(interruptionType) {
-        __WEBPACK_IMPORTED_MODULE_8_common_util_events__["a" /* default */].emit('turnEnd');
-        const game = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])();
+        __WEBPACK_IMPORTED_MODULE_9_common_util_events__["a" /* default */].emit('turnEnd');
+        const game = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])();
         const state = game.state();
         state.interruptionType(interruptionType);
         state.interruptedCompanyId(state.currentCompanyId());
@@ -23593,11 +23595,11 @@ class Sequence {
         // if local
         state.actionHistory.commit();
         this.nextOutOfTurn();
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().saveLocalState();
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().saveLocalState();
     }
 
     static finishTurn() {
-        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().state();
+        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().state();
         if (state.interruptionType()) {
             state.turnHistory.currentTurn().commitActionGroup();
 
@@ -23606,7 +23608,7 @@ class Sequence {
             this.nextOutOfTurn();
         } else {
             state.turnHistory.commitTurn();
-            __WEBPACK_IMPORTED_MODULE_8_common_util_events__["a" /* default */].emit('turnEnd');
+            __WEBPACK_IMPORTED_MODULE_9_common_util_events__["a" /* default */].emit('turnEnd');
 
             //commit to server
 
@@ -23618,15 +23620,15 @@ class Sequence {
                 this.nextRoundPhaseAndTurn();
             }
         }
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().saveLocalState();
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().saveLocalState();
     }
 
     static nextOutOfTurn() {
-        const game = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])();
+        const game = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])();
         const state = game.state();
 
         // Train limit checks
-        const companyWithTooManyTrains = __WEBPACK_IMPORTED_MODULE_11_lodash___default.a.find(state.publicCompanies, company => {
+        const companyWithTooManyTrains = __WEBPACK_IMPORTED_MODULE_12_lodash___default.a.find(state.publicCompanies, company => {
             return company.hasTooManyTrains();
         });
 
@@ -23640,29 +23642,29 @@ class Sequence {
         }
 
         const presidentPlayerId = state.currentCompany().president();
-        const nextPresidentIndex = __WEBPACK_IMPORTED_MODULE_11_lodash___default.a.findIndex(state.players(), player => player.id === presidentPlayerId);
+        const nextPresidentIndex = __WEBPACK_IMPORTED_MODULE_12_lodash___default.a.findIndex(state.players(), player => player.id === presidentPlayerId);
         state.currentPlayerIndex(nextPresidentIndex);
     }
 
     static endGame() {
-        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().state();
+        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().state();
         state.roundHistory.commitRound();
-        new __WEBPACK_IMPORTED_MODULE_10_1846_actions_updateSequence__["a" /* default */]({ winner: __WEBPACK_IMPORTED_MODULE_11_lodash___default.a.maxBy(state.players(), player => player.getNetWorth()).id }).execute(state);
+        new __WEBPACK_IMPORTED_MODULE_11_1846_actions_updateSequence__["a" /* default */]({ winner: __WEBPACK_IMPORTED_MODULE_12_lodash___default.a.maxBy(state.players(), player => player.getNetWorth()).id }).execute(state);
     }
 
     static nextRoundPhaseAndTurn() {
-        const game = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])();
+        const game = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])();
         const state = game.state();
 
         const currentRound = state.roundHistory.getCurrentRound();
 
         if (!currentRound) {
             state.roundHistory.startRound(__WEBPACK_IMPORTED_MODULE_0_1846_config_roundTypes__["a" /* default */].PRIVATE_DRAFT, 1);
-            new __WEBPACK_IMPORTED_MODULE_10_1846_actions_updateSequence__["a" /* default */]({ playerIndex: state.players().length - 1 }).execute(state);
+            new __WEBPACK_IMPORTED_MODULE_11_1846_actions_updateSequence__["a" /* default */]({ playerIndex: state.players().length - 1 }).execute(state);
             game.privateDraft(new __WEBPACK_IMPORTED_MODULE_1_1846_game_privateDraft__["a" /* default */]());
         } else if (currentRound.roundType === __WEBPACK_IMPORTED_MODULE_0_1846_config_roundTypes__["a" /* default */].PRIVATE_DRAFT) {
             if (state.undraftedPrivateIds().length > 0) {
-                new __WEBPACK_IMPORTED_MODULE_10_1846_actions_updateSequence__["a" /* default */]({ playerIndex: Sequence.nextPlayerIndex(null, true) }).execute(state);
+                new __WEBPACK_IMPORTED_MODULE_11_1846_actions_updateSequence__["a" /* default */]({ playerIndex: Sequence.nextPlayerIndex(null, true) }).execute(state);
                 game.privateDraft(new __WEBPACK_IMPORTED_MODULE_1_1846_game_privateDraft__["a" /* default */]());
             } else {
                 Sequence.onPrivateDraftEnd(game);
@@ -23672,7 +23674,7 @@ class Sequence {
             if (state.firstPassIndex() === nextPlayer) {
                 Sequence.onStockRoundEnd(game);
             } else {
-                new __WEBPACK_IMPORTED_MODULE_10_1846_actions_updateSequence__["a" /* default */]({ playerIndex: nextPlayer }).execute(state);
+                new __WEBPACK_IMPORTED_MODULE_11_1846_actions_updateSequence__["a" /* default */]({ playerIndex: nextPlayer }).execute(state);
             }
         } else if (currentRound.roundType === __WEBPACK_IMPORTED_MODULE_0_1846_config_roundTypes__["a" /* default */].OPERATING_ROUND_1 || currentRound.roundType === __WEBPACK_IMPORTED_MODULE_0_1846_config_roundTypes__["a" /* default */].OPERATING_ROUND_2) {
             const nextCompanyIndex = Sequence.getNextCompanyIndex(state);
@@ -23688,7 +23690,7 @@ class Sequence {
     static onPrivateDraftEnd(game) {
         const state = game.state();
         state.roundHistory.commitRound();
-        new __WEBPACK_IMPORTED_MODULE_10_1846_actions_updateSequence__["a" /* default */]({ playerIndex: 0 }).execute(state);
+        new __WEBPACK_IMPORTED_MODULE_11_1846_actions_updateSequence__["a" /* default */]({ playerIndex: 0 }).execute(state);
         game.privateDraft(null);
         game.stockRound(new __WEBPACK_IMPORTED_MODULE_2_1846_game_stockRound__["a" /* default */]());
         state.roundHistory.startRound(__WEBPACK_IMPORTED_MODULE_0_1846_config_roundTypes__["a" /* default */].STOCK_ROUND, 1);
@@ -23697,15 +23699,15 @@ class Sequence {
 
     static onStockRoundEnd(game) {
         const state = game.state();
-        new __WEBPACK_IMPORTED_MODULE_3_1846_actions_setPriorityDeal__["a" /* default */]({ playerIndex: state.firstPassIndex() }).execute(state);
-        new __WEBPACK_IMPORTED_MODULE_5_1846_actions_adjustStockPrices__["a" /* default */]({}).execute(state);
+        new __WEBPACK_IMPORTED_MODULE_4_1846_actions_setPriorityDeal__["a" /* default */]({ playerIndex: state.firstPassIndex() }).execute(state);
+        new __WEBPACK_IMPORTED_MODULE_6_1846_actions_adjustStockPrices__["a" /* default */]({}).execute(state);
         const currentRoundNumber = state.roundNumber();
         state.roundHistory.commitRound();
 
         game.stockRound(null);
         state.roundHistory.startRound(__WEBPACK_IMPORTED_MODULE_0_1846_config_roundTypes__["a" /* default */].OPERATING_ROUND_1);
-        new __WEBPACK_IMPORTED_MODULE_4_1846_actions_setOperatingOrder__["a" /* default */]({ operatingOrder: state.stockBoard.getOperatingOrder(currentRoundNumber === 1) }).execute(state);
-        new __WEBPACK_IMPORTED_MODULE_6_1846_actions_privateIncome__["a" /* default */]({}).execute(state);
+        new __WEBPACK_IMPORTED_MODULE_5_1846_actions_setOperatingOrder__["a" /* default */]({ operatingOrder: state.stockBoard.getOperatingOrder(currentRoundNumber === 1) }).execute(state);
+        new __WEBPACK_IMPORTED_MODULE_7_1846_actions_privateIncome__["a" /* default */]({}).execute(state);
         if (!Sequence.doSteamboat(state)) {
             Sequence.setNextCompanyAndPlayer(state, 0);
         }
@@ -23714,8 +23716,8 @@ class Sequence {
 
     static onOperatingRoundEnd(game, currentRoundType) {
         const state = game.state();
-        __WEBPACK_IMPORTED_MODULE_11_lodash___default.a.each(state.publicCompanies, company => {
-            __WEBPACK_IMPORTED_MODULE_11_lodash___default.a.each(company.trains(), train => {
+        __WEBPACK_IMPORTED_MODULE_12_lodash___default.a.each(state.publicCompanies, company => {
+            __WEBPACK_IMPORTED_MODULE_12_lodash___default.a.each(company.trains(), train => {
                 train.purchased = false;
             });
         });
@@ -23723,8 +23725,8 @@ class Sequence {
         if (currentRoundType === __WEBPACK_IMPORTED_MODULE_0_1846_config_roundTypes__["a" /* default */].OPERATING_ROUND_1) {
             state.roundHistory.commitRound();
             state.roundHistory.startRound(__WEBPACK_IMPORTED_MODULE_0_1846_config_roundTypes__["a" /* default */].OPERATING_ROUND_2);
-            new __WEBPACK_IMPORTED_MODULE_4_1846_actions_setOperatingOrder__["a" /* default */]({ operatingOrder: state.stockBoard.getOperatingOrder() }).execute(state);
-            new __WEBPACK_IMPORTED_MODULE_6_1846_actions_privateIncome__["a" /* default */]({}).execute(state);
+            new __WEBPACK_IMPORTED_MODULE_5_1846_actions_setOperatingOrder__["a" /* default */]({ operatingOrder: state.stockBoard.getOperatingOrder() }).execute(state);
+            new __WEBPACK_IMPORTED_MODULE_7_1846_actions_privateIncome__["a" /* default */]({}).execute(state);
             if (!Sequence.doSteamboat(state)) {
                 Sequence.setNextCompanyAndPlayer(state, 0);
             }
@@ -23735,7 +23737,7 @@ class Sequence {
                 const currentRoundNumber = state.roundNumber();
                 state.roundHistory.commitRound();
                 state.roundHistory.startRound(__WEBPACK_IMPORTED_MODULE_0_1846_config_roundTypes__["a" /* default */].STOCK_ROUND, currentRoundNumber + 1);
-                new __WEBPACK_IMPORTED_MODULE_10_1846_actions_updateSequence__["a" /* default */]({ playerIndex: state.priorityDealIndex(), companyId: null, firstPassIndex: null }).execute(state);
+                new __WEBPACK_IMPORTED_MODULE_11_1846_actions_updateSequence__["a" /* default */]({ playerIndex: state.priorityDealIndex(), companyId: null, firstPassIndex: null }).execute(state);
                 game.stockRound(new __WEBPACK_IMPORTED_MODULE_2_1846_game_stockRound__["a" /* default */]());
                 game.showOwnership();
             }
@@ -23746,17 +23748,17 @@ class Sequence {
         // In case of bankruptcy causing change of presidency but still no train...
         const company = state.currentCompany();
         if (company && !company.closed() && company.president() && company.getNonPhasedOutTrains().length === 0) {
-            return __WEBPACK_IMPORTED_MODULE_11_lodash___default.a.indexOf(state.operatingOrder(), state.currentCompanyId());
+            return __WEBPACK_IMPORTED_MODULE_12_lodash___default.a.indexOf(state.operatingOrder(), state.currentCompanyId());
         }
 
-        return company ? __WEBPACK_IMPORTED_MODULE_11_lodash___default.a.indexOf(state.operatingOrder(), state.currentCompanyId()) + 1 : 0;
+        return company ? __WEBPACK_IMPORTED_MODULE_12_lodash___default.a.indexOf(state.operatingOrder(), state.currentCompanyId()) + 1 : 0;
     }
 
     static doSteamboat(state) {
         const steamboatOwner = Sequence.getSteamboatOwner();
         if (steamboatOwner) {
-            const steamboatOwnerIndex = __WEBPACK_IMPORTED_MODULE_11_lodash___default.a.findIndex(state.players(), player => player.id === steamboatOwner.id);
-            new __WEBPACK_IMPORTED_MODULE_10_1846_actions_updateSequence__["a" /* default */]({ playerIndex: steamboatOwnerIndex, companyId: null }).execute(state);
+            const steamboatOwnerIndex = __WEBPACK_IMPORTED_MODULE_12_lodash___default.a.findIndex(state.players(), player => player.id === steamboatOwner.id);
+            new __WEBPACK_IMPORTED_MODULE_11_1846_actions_updateSequence__["a" /* default */]({ playerIndex: steamboatOwnerIndex, companyId: null }).execute(state);
             return true;
         }
         return false;
@@ -23768,17 +23770,20 @@ class Sequence {
 
         let presidentPlayerId = nextCompany.president();
         if (!presidentPlayerId) {
-            presidentPlayerId = __WEBPACK_IMPORTED_MODULE_11_lodash___default()(state.players()).reject(player => player.bankrupt()).sample().id;
+            presidentPlayerId = __WEBPACK_IMPORTED_MODULE_12_lodash___default()(state.players()).reject(player => player.bankrupt()).sample().id;
         }
-        const nextPresidentIndex = __WEBPACK_IMPORTED_MODULE_11_lodash___default.a.findIndex(state.players(), player => player.id === presidentPlayerId);
+        const nextPresidentIndex = __WEBPACK_IMPORTED_MODULE_12_lodash___default.a.findIndex(state.players(), player => player.id === presidentPlayerId);
 
-        new __WEBPACK_IMPORTED_MODULE_10_1846_actions_updateSequence__["a" /* default */]({ playerIndex: nextPresidentIndex, companyId }).execute(state);
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().selectedCompany(state.currentCompanyId());
+        new __WEBPACK_IMPORTED_MODULE_11_1846_actions_updateSequence__["a" /* default */]({ playerIndex: nextPresidentIndex, companyId }).execute(state);
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().selectedCompany(state.currentCompanyId());
+        if (__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().operatingRound().canLayTrackOrToken()) {
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().operatingRound().selectAction(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().operatingRound().Actions.LAY_TRACK);
+        }
     }
 
     static nextPlayerIndex(fromIndex, reverse) {
-        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().state();
-        if (!__WEBPACK_IMPORTED_MODULE_11_lodash___default.a.isNumber(fromIndex)) {
+        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().state();
+        if (!__WEBPACK_IMPORTED_MODULE_12_lodash___default.a.isNumber(fromIndex)) {
             fromIndex = state.currentPlayerIndex();
         }
 
@@ -23798,7 +23803,7 @@ class Sequence {
 
     static restore() {
 
-        const game = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])();
+        const game = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])();
         const state = game.state();
         const currentRound = state.roundHistory.getCurrentRound();
         if (!currentRound) {
@@ -23810,22 +23815,22 @@ class Sequence {
             game.stockRound(new __WEBPACK_IMPORTED_MODULE_2_1846_game_stockRound__["a" /* default */]());
             game.showOwnership();
         } else {
-            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().selectedCompany(state.currentCompanyId());
+            __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().selectedCompany(state.currentCompanyId());
         }
     }
 
     static getSteamboatOwner() {
-        return __WEBPACK_IMPORTED_MODULE_11_lodash___default.a.find(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().state().players(), player => {
-            return player.hasPrivate(__WEBPACK_IMPORTED_MODULE_9_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY);
+        return __WEBPACK_IMPORTED_MODULE_12_lodash___default.a.find(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().state().players(), player => {
+            return player.hasPrivate(__WEBPACK_IMPORTED_MODULE_10_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY);
         });
     }
 
     static isGameOverDueToBankBreaking() {
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().state().bank.cash() <= 0;
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().state().bank.cash() <= 0;
     }
 
     static isGameOverDueToBankruptcy() {
-        return __WEBPACK_IMPORTED_MODULE_11_lodash___default.a.filter(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_7_common_game_currentGame__["a" /* default */])().state().players(), player => !player.bankrupt()).length === 1;
+        return __WEBPACK_IMPORTED_MODULE_12_lodash___default.a.filter(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().state().players(), player => !player.bankrupt()).length === 1;
     }
 }
 
@@ -24964,7 +24969,7 @@ TileManifest.registerClass();
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_model_serializable__ = __webpack_require__(4);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_game_currentGame__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_routeColors__ = __webpack_require__(60);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_routeColors__ = __webpack_require__(61);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_config_tileManifest__ = __webpack_require__(18);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_1846_config_offBoardIds__ = __webpack_require__(16);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_1846_config_mapTileIds__ = __webpack_require__(15);
@@ -36319,7 +36324,7 @@ const TerrainTypes = {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_baseGame__ = __webpack_require__(75);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_map_grid__ = __webpack_require__(70);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_companies__ = __webpack_require__(59);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_companies__ = __webpack_require__(60);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_state_state__ = __webpack_require__(72);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_game_player__ = __webpack_require__(65);
@@ -36333,8 +36338,8 @@ const TerrainTypes = {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_1846_game_stockBoard__ = __webpack_require__(67);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_common_util_events__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_1846_game_sequence__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_1846_game_operatingRound__ = __webpack_require__(63);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_1846_game_history__ = __webpack_require__(62);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_1846_game_operatingRound__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_1846_game_history__ = __webpack_require__(63);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_16_1846_config_roundTypes__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_17_lz_string__ = __webpack_require__(23);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_17_lz_string___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_17_lz_string__);
@@ -36545,4028 +36550,26 @@ class Game extends __WEBPACK_IMPORTED_MODULE_0_common_game_baseGame__["a" /* def
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_model_serializable__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__ = __webpack_require__(3);
-
-
-
-class ActionGroup extends __WEBPACK_IMPORTED_MODULE_0_common_model_serializable__["a" /* default */] {
-    constructor(definition) {
-        definition = definition || {};
-        super(definition);
-
-        this.type = definition.type;
-        this.id = definition.id;
-        this.actionStartIndex = definition.actionStartIndex;
-        this.actionEndIndex = definition.actionEndIndex;
-    }
-
-    commit() {
-        this.actionEndIndex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().actionHistory.currentIndex();
-    }
-
-    undo() {
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().actionHistory.undoRange(this.actionStartIndex, this.actionEndIndex);
-    }
-
-    getActions() {
-        if (this.actionEndIndex <= this.actionStartIndex) {
-            return [];
-        }
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().actionHistory.getActionRange(this.actionStartIndex, this.actionEndIndex);
-    }
-
-    getSummaries() {
-        if (this.actionEndIndex <= this.actionStartIndex) {
-            return [];
-        }
-
-        return _(this.getActions()).invokeMap('summary', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state()).map((summary, index) => {
-            return {
-                index: this.actionStartIndex + index,
-                type: 'action',
-                summary
-            };
-        }).value();
-    }
-
-    getInstructions() {
-        if (this.actionEndIndex <= this.actionStartIndex) {
-            return [];
-        }
-
-        return _(this.getActions()).invokeMap('instructions', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state()).map((instructions, index) => {
-            return _.map(instructions, instruction => {
-                return {
-                    index: this.actionStartIndex + index,
-                    type: 'action',
-                    instruction
-                };
-            });
-        }).flatten().value();
-    }
-
-    getDetails() {
-        if (this.actionEndIndex <= this.actionStartIndex) {
-            return [];
-        }
-
-        return _(this.getActions()).invokeMap('details', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state()).map((details, index) => {
-            return {
-                index: this.actionStartIndex + index,
-                type: 'action',
-                details
-            };
-        }).value();
-    }
-
-    isWithinRange(startIndex, endIndex) {
-        return this.actionStartIndex >= startIndex && (endIndex && this.actionEndIndex <= endIndex || !endIndex);
-    }
-}
-
-ActionGroup.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (ActionGroup);
-
-/***/ }),
-/* 29 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_short_uuid__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__ = __webpack_require__(92);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__ = __webpack_require__(4);
-
-
-
-
-
-class GameRecord extends __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__["a" /* default */] {
-    constructor(definition) {
-        super(definition);
-
-        this.id = definition.id || __WEBPACK_IMPORTED_MODULE_0_short_uuid___default()().new();
-        this.type = definition.type;
-        this.name = definition.name;
-        this.location = definition.location;
-        this.players = definition.players;
-        this.startDate = definition.startDate;
-        this.endDate = definition.endDate;
-        this.winner = definition.winner;
-        this.round = definition.round;
-        this.turn = definition.turn;
-    }
-
-    create(currentState, initialState) {
-        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].store(this.id, this.serialize(), 'games');
-        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].storeCompressed(this.id, initialState.serialize(), 'initialstate');
-        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].storeCompressed(this.id, currentState.serialize(), 'currentstate');
-    }
-
-    loadCurrentState() {
-        return __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__["a" /* default */].deserialize(__WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].loadCompressed(this.id, 'currentstate'));
-    }
-
-    loadRawCurrentState() {
-        return __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].load(this.id, 'currentstate');
-    }
-
-    save(state) {
-        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].store(this.id, this.serialize(), 'games');
-        if (state) {
-            __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].storeCompressed(this.id, state.serialize(), 'currentstate');
-        }
-    }
-
-    static load(id) {
-        return __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__["a" /* default */].deserialize(__WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].load(id, 'games'));
-    }
-
-    static list() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(__WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].list('games'), game => {
-            return GameRecord.deserialize(game);
-        });
-    }
-}
-
-GameRecord.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (GameRecord);
-
-/***/ }),
-/* 30 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_map_tile__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__ = __webpack_require__(18);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_1846_actions_layTrack__ = __webpack_require__(46);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_1846_actions_addToken__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_1846_actions_placeMeat__ = __webpack_require__(47);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_1846_actions_placeSteamboat__ = __webpack_require__(48);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_common_util_events__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_1846_config_terrainTypes__ = __webpack_require__(26);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__ = __webpack_require__(16);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-const CellCosts = {
-    C15: 40,
-    F18: 40,
-    G17: 40,
-    H16: 40,
-    H14: 60
-};
-
-const FreeICCells = {
-    E5: true,
-    F6: true,
-    G5: true,
-    H6: true,
-    J4: true
-};
-
-const FreeTunnelBlasterCells = {
-    F18: true,
-    G17: true,
-    H16: true,
-    H14: true
-};
-
-const ReservedTokens = {
-    I5: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL,
-    E11: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].PENNSYLVANIA,
-    D20: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].ERIE,
-    H12: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO
-};
-
-// Could optimize by storing known connections to stations on tiles, but would always need to refresh those if a
-// token is placed, as it can break a connection by blocking
-
-class Cell {
-    constructor(data) {
-        data = data || {};
-
-        this.id = data.id;
-        this.top = data.top || 0;
-        this.left = data.left || 0;
-        this.row = data.row || 0;
-        this.col = data.col || 0;
-        this.width = data.width || 126;
-        this.height = data.height || 144;
-        this.outline = data.outline || '0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796';
-        this.tile = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(data.tile);
-        this.preview = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(data.preview);
-        this.allowedPreviewPositionData = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable({});
-        this.allowedPreviewPositions = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(this.allowedPreviewPositionData(), 'position');
-        });
-        this.neighbors = data.neighbors || [null, null, null, null, null, null];
-        this.connectionCosts = data.connectionCosts || {};
-        this.visibleTile = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            return this.preview() || this.tile();
-        });
-        this.upgradeTiles = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
-                return [];
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
-                return [];
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany()) {
-                return [];
-            }
-
-            return this.getUpgradeTiles();
-        });
-
-        this.tokenCheckTrigger = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable().extend({ notify: 'always' });
-
-        this.tokenableCities = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
-                return [];
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
-                return [];
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany()) {
-                return [];
-            }
-
-            if (!this.tile()) {
-                return [];
-            }
-
-            this.tokenCheckTrigger();
-
-            const companyId = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId();
-            const openCities = this.tile().getOpenCities(companyId);
-
-            if (openCities.length > 0 && this.id === 'H12' && companyId === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO) {
-                return openCities;
-            }
-
-            if (openCities.length > 0 && this.id === 'E11' && companyId === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].PENNSYLVANIA) {
-                return openCities;
-            }
-
-            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(openCities, cityId => this.depthFirstSearchForStation(companyId, cityId, {}, []));
-        });
-
-        this.canToken = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
-                return false;
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
-                return false;
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany()) {
-                return false;
-            }
-
-            if (this.tile().getOpenCities(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId()).length === 0) {
-                return false;
-            }
-
-            const turn = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().turnHistory.currentTurn();
-            if (!turn) {
-                return false;
-            }
-
-            const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
-            if (!company.tokens()) {
-                return false;
-            }
-
-            const hasTokened = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(turn.getActions(), action => {
-                return action.getTypeName() === 'AddToken';
-            });
-
-            if (hasTokened) {
-                return false;
-            }
-
-            if (this.tokenableCities().length === 0) {
-                return false;
-            }
-
-            const cost = this.getTokenCost();
-            if (company.cash() < cost) {
-                return false;
-            }
-
-            return true;
-        });
-
-        this.canEdit = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
-                return false;
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
-                return false;
-            }
-
-            const steamboat = this.canPlaceSteamboat();
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany() && !steamboat) {
-                return false;
-            }
-
-            const layingTrack = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().selectedAction() === __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().Actions.LAY_TRACK;
-            const oandi = this.isOhioIndianaLay();
-            const mc = this.isMichiganCentralLay();
-            const lsl = this.isLSLLay();
-            const meat = this.canPlaceMeat();
-
-            if (!layingTrack && !oandi && !mc && !lsl && !meat && !steamboat) {
-                return false;
-            }
-
-            if (this.isMichiganCentralLay() && !this.michiganCentralBlocked() || this.isOhioIndianaLay() && !this.ohioIndianaBlocked()) {
-                return false;
-            }
-
-            if (!this.isMichiganCentralLay() && this.michiganCentralBlocked()) {
-                return false;
-            }
-
-            if (!this.isOhioIndianaLay() && this.ohioIndianaBlocked()) {
-                return false;
-            }
-
-            return this.upgradeTiles().length > 0 || this.canToken() || meat || steamboat;
-        });
-
-        this.canRoute = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
-                return false;
-            }
-
-            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
-                return false;
-            }
-
-            const train = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().selectedTrain();
-            if (!train) {
-                return false;
-            }
-
-            return true;
-        });
-
-        this.popoverParams = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            return {
-                enabledObservable: this.canEdit,
-                placement: 'right',
-                trigger: this.preview() ? 'manual' : 'click',
-                closestDiv: true,
-                content: '<div data-bind="template: { name: \'views/cellPopover\' }"></div>'
-            };
-        });
-
-        __WEBPACK_IMPORTED_MODULE_12_common_util_events__["a" /* default */].on('trackLaid', () => {
-            this.trackLaidHandler();
-        });
-        __WEBPACK_IMPORTED_MODULE_12_common_util_events__["a" /* default */].on('gridRestored', () => {
-            this.gridRestoredHandler();
-        });
-    }
-
-    trackLaidHandler() {
-        this.tokenCheckTrigger(1);
-    }
-
-    gridRestoredHandler() {
-        this.tokenCheckTrigger(1);
-    }
-
-    isOhioIndianaTiles() {
-        return this.id === 'F14' || this.id === 'F16';
-    }
-
-    isMichiganCentralTiles() {
-        return this.id === 'B10' || this.id === 'B12';
-    }
-
-    isOhioIndianaLay() {
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isOhioIndianaAbility() && this.isOhioIndianaTiles();
-    }
-
-    isMichiganCentralLay() {
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isMichiganCentralAbility() && this.isMichiganCentralTiles();
-    }
-
-    isLSLLay() {
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isLSLAbility() && (this.id === 'D14' || this.id === 'E17');
-    }
-
-    canUpgrade() {
-        return this.isLSLLay() || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().hasUpgradedTrackThisTurn();
-    }
-
-    canPlaceMeat() {
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isMeatPackingAbility() && (this.id === 'D6' || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].ST_LOUIS);
-    }
-
-    canPlaceSteamboat() {
-        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isSteamboatAbility() && (this.id === 'D14' || this.id === 'G19' || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].HOLLAND || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].CHICAGO_CONNECTIONS || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].ST_LOUIS);
-    }
-
-    michiganCentralBlocked() {
-        const michiganCentral = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().getCompany(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL);
-        return michiganCentral && this.isMichiganCentralTiles() && !michiganCentral.closed() && !michiganCentral.used();
-    }
-
-    ohioIndianaBlocked() {
-        const ohioIndiana = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().getCompany(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].OHIO_INDIANA);
-        return ohioIndiana && this.isOhioIndianaTiles() && !ohioIndiana.closed() && !ohioIndiana.used();
-    }
-
-    getUpgradeTiles() {
-        if (this.isOhioIndianaLay() || this.isMichiganCentralLay()) {
-            return this.getOhioIndianaOrMichiganCentralTiles();
-        }
-
-        if (!this.isLSLLay() && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().hasLaidTwoTrackThisTurn()) {
-            return [];
-        }
-
-        const phase = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentPhaseId();
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().manifest.getUpgradesForTile(this.tile().id) || [], upgrade => {
-
-            if (upgrade.tile.colorId !== __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW && (phase === __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__["a" /* default */].PHASE_I || !this.canUpgrade())) {
-                return false;
-            }
-
-            if (phase === __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__["a" /* default */].PHASE_II && __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf([__WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].GREEN, __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW], upgrade.tile.colorId) < 0) {
-                return false;
-            }
-
-            if (phase === __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__["a" /* default */].PHASE_III && __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf([__WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].BROWN, __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].GREEN, __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW], upgrade.tile.colorId) < 0) {
-                return false;
-            }
-
-            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
-        });
-    }
-
-    getOhioIndianaOrMichiganCentralTiles() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().manifest.getUpgradesForTile(this.tile().id) || [], upgrade => {
-            if (upgrade.tile.colorId !== __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW) {
-                return false;
-            }
-
-            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
-        });
-    }
-
-    getTokenCost() {
-        const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
-        let cost = 80;
-        if (ReservedTokens[this.id] === company.id) {
-            cost = 40;
-            if (company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO || company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].PENNSYLVANIA) {
-                const connected = this.isConnectedToStation(company.id);
-                if (!connected) {
-                    cost = company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO ? 100 : 60;
-                }
-            }
-        }
-        return cost;
-    }
-
-    getBaseCost(oldTile) {
-        if (this.isLSLLay()) {
-            return 0;
-        }
-
-        if (!oldTile.map) {
-            return 20;
-        }
-
-        const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
-        let cost = CellCosts[this.id] || 20;
-
-        if (company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL && FreeICCells[this.id]) {
-            cost = 0;
-        }
-
-        if (company.hasPrivate(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY) && FreeTunnelBlasterCells[this.id]) {
-            cost = 0;
-        }
-
-        return cost;
-    }
-
-    getPrivatePairPositionData(oldTile, newTileId, neighborEdge) {
-
-        const neighbor = this.neighbors[neighborEdge];
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(0, 6)).map(pos => {
-            const connections = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(newTileId, pos);
-            if (neighbor.tile().colorId === __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW) {
-                const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(neighborEdge);
-                const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
-                if (neighborConnectionPoint < 0) {
-                    return false;
-                }
-
-                const connectsToNeighbor = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(connections, connection => {
-                    return connection[0] === neighborEdge || connection[1] === neighborEdge;
-                });
-                if (!connectsToNeighbor) {
-                    return false;
-                }
-            }
-            const connectionOffMap = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(connections, connection => {
-                if (connection[0] < 7 && !this.neighbors[connection[0]]) {
-                    return true;
-                }
-
-                if (connection[1] < 7 && !this.neighbors[connection[1]]) {
-                    return true;
-                }
-            });
-
-            if (connectionOffMap) {
-                return null;
-            }
-            return {
-                position: pos,
-                cost: 0
-            };
-        }).compact().keyBy('position').value();
-    }
-
-    getAllowedTilePositionData(oldTile, newTileId) {
-        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state();
-        if (!state.isOperatingRound()) {
-            return [];
-        }
-
-        const oandi = this.isOhioIndianaLay();
-        const mc = this.isMichiganCentralLay();
-        if (oandi || mc) {
-            return this.getPrivatePairPositionData(oldTile, newTileId, this.id === 'F14' || this.id === 'B10' ? 1 : 4);
-        }
-
-        const visited = {};
-
-        const validEdges = {};
-        const invalidEdges = {};
-
-        const company = state.currentCompany();
-        const baseCost = this.getBaseCost(oldTile);
-        if (company.cash() < baseCost) {
-            return [];
-        }
-
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(0, 6)).map(pos => {
-            // Check against existing tile connections
-            const oldConnectionsIds = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionIdsForPosition(oldTile.id, oldTile.position());
-            const newConnectionsIds = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionIdsForPosition(newTileId, pos);
-
-            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.difference(oldConnectionsIds, newConnectionsIds).length > 0) {
-                return null;
-            }
-
-            const addedConnectionIds = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.difference(newConnectionsIds, oldConnectionsIds);
-            const addedConnections = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(newTileId, pos)).filter(connection => {
-                return this.tile().hasCity() || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(addedConnectionIds, this.getConnectionId(connection)) >= 0;
-            }).value();
-
-            // Check off map
-            const connectionOffMap = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(addedConnections, connection => {
-                if (connection[0] < 7 && !this.neighbors[connection[0]]) {
-                    invalidEdges[connection[0]] = true;
-                    return true;
-                }
-
-                if (connection[1] < 7 && !this.neighbors[connection[1]]) {
-                    invalidEdges[connection[1]] = true;
-                    return true;
-                }
-            });
-
-            if (connectionOffMap) {
-                return null;
-            }
-
-            // Check for connection costs
-            const existingConnectionPoints = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(oldTile.id, oldTile.position())).flatten().uniq().value();
-            const connectionCosts = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(addedConnections).flatten().uniq().difference(existingConnectionPoints).sumBy(edgeIndex => {
-                return this.getConnectionCost(edgeIndex);
-            });
-
-            // Check new track for a path back to station
-            const connectionToStation = this.isLSLLay() || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(addedConnections, connection => {
-                const connectionStart = connection[0];
-                const connectionEnd = connection[1];
-
-                if (validEdges[connectionStart] || validEdges[connectionEnd]) {
-                    return true;
-                }
-
-                const connectionId = this.getCellConnectionId(connection);
-
-                if (connectionStart < 7 && !invalidEdges[connectionStart]) {
-                    const isEdgeValid = this.checkNeighborConnection(company.id, connectionStart, visited, [connectionId]);
-                    if (isEdgeValid) {
-                        validEdges[connectionStart] = true;
-                        return true;
-                    } else {
-                        invalidEdges[connectionStart] = true;
-                    }
-                }
-
-                if (connectionEnd < 7 && !invalidEdges[connectionEnd]) {
-                    const isEdgeValid = this.checkNeighborConnection(company.id, connectionEnd, visited, [connectionId]);
-                    if (isEdgeValid) {
-                        validEdges[connectionEnd] = true;
-                        return true;
-                    } else {
-                        invalidEdges[connectionEnd] = true;
-                    }
-                }
-            });
-
-            if (!connectionToStation) {
-                return null;
-            }
-
-            const totalCost = baseCost + connectionCosts;
-            if (company.cash() < totalCost) {
-                return null;
-            }
-
-            return {
-                position: pos,
-                cost: totalCost
-            };
-        }).compact().keyBy('position').value();
-    }
-
-    getConnectionCost(edgeIndex) {
-        if (edgeIndex > 6) {
-            return 0;
-        }
-
-        const costData = this.connectionCosts[edgeIndex];
-        if (!costData) {
-            return 0;
-        }
-
-        if (costData.type === __WEBPACK_IMPORTED_MODULE_13_1846_config_terrainTypes__["a" /* default */].TUNNEL) {
-            const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
-            if (company.hasPrivate(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY)) {
-                return 0;
-            }
-        }
-
-        const neighbor = this.neighbors[edgeIndex];
-        const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
-        const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
-        return neighborConnectionPoint >= 0 ? costData.cost : 0;
-    }
-
-    isConnectedToStation(companyId) {
-        const connections = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(this.tile().id, this.tile().position());
-        const visited = {};
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(connections, connection => {
-            let connected = false;
-
-            if (connection[0] < 7) {
-                connected = this.checkNeighborConnection(companyId, connection[0], visited, []);
-            }
-
-            if (!connected && connection[1] < 7) {
-                connected = this.checkNeighborConnection(companyId, connection[1], visited, []);
-            }
-            return connected;
-        });
-    }
-
-    checkNeighborConnection(companyId, edgeIndex, visited, currentSearchPath) {
-
-        const hasLocalStation = this.tile().hasTokenForCompany(companyId);
-        if (hasLocalStation) {
-            return true;
-        }
-
-        const neighbor = this.neighbors[edgeIndex];
-        if (!neighbor) {
-            return false;
-        }
-        // console.log('Checking neighbor ' + neighbor.id + ' for connection to station');
-        const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
-        const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
-        if (neighborConnectionPoint < 0) {
-            return false;
-        }
-
-        return neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint, visited, currentSearchPath);
-    }
-
-    depthFirstSearchForStation(companyId, connectionStart, visited, currentSearchPath) {
-        const connections = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(this.tile().getConnectionsToPoint(connectionStart), connection => {
-            return connection[0] === connectionStart ? connection : [connection[1], connection[0]];
-        });
-
-        let found = false;
-
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(connections, connection => {
-            const directionalConnectionId = this.id + '-' + this.getConnectionId(connection, true);
-            const connectionId = this.id + '-' + this.getConnectionId(connection);
-            if (visited[directionalConnectionId] || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(currentSearchPath, connectionId) >= 0) {
-                return;
-            }
-
-            visited[directionalConnectionId] = true;
-            if (currentSearchPath) {
-                currentSearchPath.push(connectionId);
-            }
-
-            if (connection[1] > 6) {
-
-                // check for city / token
-                if (companyId && this.tile().hasTokenForCompany(companyId, connection[1])) {
-                    found = true;
-                    return false;
-                }
-
-                // Check blocked
-                if (this.tile().isBlockedForCompany(companyId, connection[1])) {
-                    return false;
-                }
-
-                // console.log('Starting new search on this tile from local city ' + connection[1]);
-                found = this.depthFirstSearchForStation(companyId, connection[1], visited, currentSearchPath);
-            } else {
-                const connectionEnd = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position());
-                const neighbor = this.neighbors[connectionEnd];
-                if (!neighbor) {
-                    return;
-                }
-                const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(connectionEnd);
-                const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
-                if (neighborConnectionPoint >= 0) {
-                    found = neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint, visited, currentSearchPath);
-                }
-            }
-
-            if (found) {
-                return false;
-            }
-        });
-        if (currentSearchPath) {
-            currentSearchPath.pop();
-        }
-
-        return found;
-    }
-
-    getCellConnectionId(connection, directional) {
-        return this.id + '-' + this.getConnectionId(connection, directional);
-    }
-
-    getConnectionId(connection, directional) {
-        if (directional) {
-            return connection[0] + '-' + connection[1];
-        } else {
-            return Math.min(connection[0], connection[1]) + '-' + Math.max(connection[0], connection[1]);
-        }
-    }
-
-    hasConnectionAtIndex(index) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
-            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position()) === index) {
-                return true;
-            }
-
-            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position()) === index) {
-                return true;
-            }
-        });
-    }
-
-    getConnectionsToCell(cell) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.neighbors).map((neighbor, index) => {
-            if (!neighbor || neighbor.id !== cell.id) {
-                return;
-            }
-            return this.getConnectionsToIndex(cell, index);
-        }).compact().flatten().value();
-    }
-
-    getConnectionEdgeToCell(cell) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.findIndex(this.neighbors, neighbor => neighbor && neighbor.id === cell.id);
-    }
-
-    getAllConnectionEdgesToCell(cell) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.neighbors).map((neighbor, index) => neighbor && neighbor.id === cell.id ? index : null).reject(index => __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isNull(index)).value();
-    }
-
-    getConnectionsFromNeighborToNeighbor(neighborOne, neighborTwo, invalidConnectionIds) {
-        const edgeOne = this.getConnectionEdgeToCell(neighborOne);
-        const edgeTwo = this.getConnectionEdgeToCell(neighborTwo);
-
-        if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.keys(this.tile().cities).length > 0) {
-            let edgePairs = [[edgeOne, edgeTwo]];
-            if (neighborTwo.offboard) {
-                const edges = this.getAllConnectionEdgesToCell(neighborTwo);
-                if (edges.length > 1) {
-                    edgePairs = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(edges, edge => [edgeOne, edge]);
-                }
-            } else if (neighborOne.offboard) {
-                const edges = this.getAllConnectionEdgesToCell(neighborOne);
-                if (edges.length > 1) {
-                    edgePairs = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(edges, edge => [edge, edgeTwo]);
-                }
-            }
-
-            return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.tile().cities).map(city => {
-                return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(edgePairs).map(edgePair => __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.compact([this.getConnectionToEdges(edgePair[0], city.id), this.getConnectionToEdges(edgePair[1], city.id)])).reject(result => {
-                    const resultConnectionIds = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(result, connection => __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionId(connection));
-                    return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.intersection(resultConnectionIds, invalidConnectionIds).length > 0;
-                }).first();
-            }).find(connections => connections.length === 2);
-        } else {
-            return [this.getConnectionToEdges(edgeOne, edgeTwo)];
-        }
-    }
-
-    getConnectionToEdges(start, end) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
-            const offsetStart = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position());
-            const offsetEnd = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position());
-            return (offsetStart === start || offsetStart === end) && (offsetEnd === start || offsetEnd === end);
-        });
-    }
-
-    getConnectionPointAtIndex(neighbor, index) {
-        const connection = this.hasConnectionAtIndex(index);
-        if (connection) {
-            return __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position()) === index ? connection[0] : connection[1];
-        }
-        return -1;
-    }
-
-    getConnectionsToIndex(neighbor, index) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
-            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position()) === index) {
-                return true;
-            }
-
-            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position()) === index) {
-                return true;
-            }
-        });
-    }
-
-    getConnectionsToPoint(neighbor, index) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
-            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], 0) === index) {
-                return true;
-            }
-
-            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], 0) === index) {
-                return true;
-            }
-        });
-    }
-
-    static getNeighboringConnectionIndex(index) {
-        return (index + 3) % 6;
-    }
-
-    previewTile(tileId) {
-        const tile = __WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].createTile(tileId);
-        this.allowedPreviewPositionData(this.getAllowedTilePositionData(this.tile(), tileId));
-        tile.position(this.allowedPreviewPositions()[0]);
-        this.preview(tile);
-    }
-
-    nextPreviewPosition() {
-        const currentPosition = this.preview().position();
-        const allowedPositions = this.allowedPreviewPositions();
-        const currentIndex = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(allowedPositions, currentPosition);
-        const nextIndex = (currentIndex + 1) % allowedPositions.length;
-        this.preview().position(allowedPositions[nextIndex]);
-    }
-
-    cancelPreview() {
-        this.preview(null);
-        this.allowedPreviewPositionData({});
-    }
-
-    commitPreview() {
-        const previewTile = this.preview();
-        const privateId = this.isLSLLay() ? __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].LAKE_SHORE_LINE : this.isMichiganCentralLay() ? __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL : this.isOhioIndianaLay() ? __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].OHIO_INDIANA : null;
-        const layTrack = new __WEBPACK_IMPORTED_MODULE_8_1846_actions_layTrack__["a" /* default */]({
-            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId(),
-            cellId: this.id,
-            tileId: previewTile.id,
-            position: previewTile.position(),
-            cost: this.allowedPreviewPositionData()[previewTile.position()].cost,
-            privateId,
-            privateDone: privateId && (this.isLSLLay() || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().numPrivateTrackLays(privateId) === 1)
-        });
-        layTrack.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
-        this.cancelPreview();
-    }
-
-    tokenCity(cityId) {
-        const addToken = new __WEBPACK_IMPORTED_MODULE_9_1846_actions_addToken__["a" /* default */]({
-            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId(),
-            cityId: cityId,
-            cellId: this.id,
-            cost: this.getTokenCost()
-        });
-        addToken.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
-        this.cancelPreview();
-    }
-
-    placeMeat() {
-        const placeMeat = new __WEBPACK_IMPORTED_MODULE_10_1846_actions_placeMeat__["a" /* default */]({
-            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId(),
-            privateId: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY,
-            cellId: this.id
-        });
-        placeMeat.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
-        this.cancelPreview();
-    }
-
-    placeSteamboat() {
-        const placeSteamboat = new __WEBPACK_IMPORTED_MODULE_11_1846_actions_placeSteamboat__["a" /* default */]({
-            playerId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId() ? null : __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentPlayerId(),
-            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId() || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().selectedSteamboatCompany(),
-            cellId: this.id
-        });
-        placeSteamboat.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
-        this.cancelPreview();
-    }
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (Cell);
-
-/***/ }),
-/* 31 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_actions_startCompany__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_common_model_serializable__ = __webpack_require__(4);
-
-
-
-
-
-
-
-
-class Company extends __WEBPACK_IMPORTED_MODULE_6_common_model_serializable__["a" /* default */] {
-    constructor(definition) {
-        super();
-        definition = definition || {};
-        this.id = definition.id;
-        this.name = definition.name || 'Anonymous';
-        this.nickname = definition.nickname || 'Anon';
-        this.type = definition.type;
-        this.homeCellId = definition.homeCellId;
-
-        this.certificates = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.certificates);
-        this.shares = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(this.certificates(), 'shares');
-        });
-        this.cash = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.cash || 0);
-        this.tokens = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.tokens || 0);
-        this.startTokens = definition.startTokens;
-        this.privates = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.privates || []);
-        this.trains = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.trains || []);
-        this.president = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.president);
-        this.parPriceIndex = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.parPriceIndex || 0);
-        this.priceIndex = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.priceIndex || 0);
-        this.price = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
-            return __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].price(this.priceIndex() || 0);
-        });
-        this.lastRun = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.lastRun || 0);
-        this.opened = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.opened || false);
-        this.closed = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.closed || false);
-        this.operated = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.operated || false);
-        this.routes = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.routes || []);
-    }
-
-    addCash(amount) {
-        this.cash(this.cash() + amount);
-    }
-
-    removeCash(amount) {
-        this.cash(this.cash() - amount);
-    }
-
-    start(state, playerId) {
-        new __WEBPACK_IMPORTED_MODULE_4_1846_actions_startCompany__["a" /* default */]({ playerId, companyId: this.id, startIndex: 7 }).execute(state);
-    }
-
-    addCerts(certs) {
-        this.certificates.push.apply(this.certificates, certs);
-    }
-
-    removeCerts(count) {
-        return this.certificates.splice(0, count);
-    }
-
-    numCanIssue() {
-        const numBankShares = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.numSharesOwnedOfCompany(this.id);
-        const playerShares = 10 - this.shares() - numBankShares;
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.max([0, __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.min([this.shares(), playerShares - numBankShares])]);
-    }
-
-    cashFromForcedIssues(numIssued) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.reduce(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(1, numIssued + 1), (sum, value) => {
-            return sum + __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftPrice(this.priceIndex(), value);
-        }, 0);
-    }
-
-    getPrivates() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.privates()).map(cert => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().getCompany(cert.companyId)).reject(company => company.closed()).sortBy('name').value();
-    }
-
-    hasPrivate(id) {
-        const privateCert = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(this.privates(), cert => cert.companyId === id);
-        if (!privateCert) {
-            return false;
-        }
-
-        const privateCo = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().getCompany(privateCert.companyId);
-        return !privateCo.closed() || privateCo.id === __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].MAIL_CONTRACT;
-    }
-
-    addPrivate(cert) {
-        this.privates.push(cert);
-    }
-
-    removePrivate(id) {
-        const privates = this.privates.remove(cert => cert.companyId === id);
-        return privates.length > 0 ? privates[0] : null;
-    }
-
-    addTrain(train) {
-        this.trains.push(train);
-    }
-
-    addTrains(trains) {
-        this.trains.push.apply(this.trains, trains);
-    }
-
-    getTrainById(trainId) {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(this.trains(), train => train.id === trainId);
-    }
-
-    removeTrainById(trainId) {
-        const removed = this.trains.remove(train => train.id === trainId);
-        return removed.length > 0 ? removed[0] : null;
-    }
-
-    removeTrainsById(trainIds) {
-        return this.trains.remove(train => __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(trainIds, train.id) >= 0);
-    }
-
-    updateTrains(trains) {
-        this.trains.valueWillMutate();
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(trains, train => {
-            const index = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.findIndex(this.trains(), oldTrain => oldTrain.id === train.id);
-            if (index >= 0) {
-                this.trains()[index] = train;
-            }
-        });
-        this.trains.valueHasMutated();
-    }
-
-    numTrainsForLimit() {
-        return this.getNonPhasedOutTrains().length;
-    }
-
-    hasTooManyTrains() {
-        return this.numTrainsForLimit() > __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().trainLimit();
-    }
-
-    isAtTrainLimit() {
-        return this.numTrainsForLimit() === __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().trainLimit();
-    }
-
-    getRunnableTrains() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(this.trains(), train => !train.purchased && !train.rusted());
-    }
-
-    getNonPhasedOutTrains() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.trains()).filter(train => !train.phasedOut() && !train.rusted()).sortBy(train => train.type).value();
-    }
-
-    getPhasedOutTrains() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(this.trains(), train => train.phasedOut() && !train.rusted());
-    }
-
-    getNonRustedTrains() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(this.trains(), train => !train.rusted());
-    }
-
-    getAvailableRouteColor() {
-        const currentColors = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(this.getNonRustedTrains(), train => train.route.color);
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(1, 5)).difference(currentColors).first();
-    }
-
-    calculateRevenue() {
-        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(this.trains(), train => train.route.revenue());
-    }
-
-    useToken() {
-        this.tokens(this.tokens() - 1);
-    }
-
-    returnToken() {
-        this.tokens(this.tokens() + 1);
-    }
-
-    close() {
-        // remove from operating order
-        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state();
-        const playerCerts = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().players()).map(player => {
-            return [player.id, player.removeAllCertsForCompany(this.id)];
-        }).fromPairs().value();
-
-        const bankCerts = state.bank.removeAllCertsForCompany(this.id);
-
-        const tokens = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId).map(tile => {
-            if (tile.hasTokenForCompany(this.id)) {
-                return [tile.id, tile.removeToken(this.id)];
-            }
-            return null;
-        }).compact().fromPairs().value();
-        const reservedTokens = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId).map(tile => {
-            if (tile.hasReservedTokenForCompany(this.id)) {
-                return [tile.id, tile.removeReservedToken(this.id)];
-            }
-            return null;
-        }).compact().fromPairs().value();
-
-        const cash = this.cash();
-        state.bank.addCash(cash);
-        this.cash(0);
-
-        let meatTileId = null;
-        if (this.hasPrivate(__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY)) {
-            const tile = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId, tile => {
-                return tile.hasMeat();
-            });
-            tile.hasMeat(false);
-            meatTileId = tile.id;
-        }
-
-        let steamboatTileId = null;
-        if (this.hasPrivate(__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY)) {
-            const tile = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId, tile => {
-                return tile.hasSteamboat();
-            });
-            tile.hasSteamboat(false);
-            steamboatTileId = tile.id;
-        }
-
-        this.closed(true);
-
-        return {
-            id: this.id,
-            playerCerts,
-            bankCerts,
-            tokens,
-            reservedTokens,
-            meatTileId,
-            steamboatTileId,
-            cash
-        };
-    }
-
-    unclose(closeData) {
-        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state();
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(closeData.playerCerts, (certs, playerId) => {
-            const player = state.playersById()[playerId];
-            player.addCerts(certs);
-        });
-
-        state.bank.addCerts(closeData.bankCerts);
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId, tile => {
-            const token = closeData.tokens[tile.id];
-            if (token) {
-                const splitToken = token.split('|');
-                tile.addToken(splitToken[1], splitToken[0]);
-            }
-            const reservedToken = closeData.reservedTokens[tile.id];
-            if (reservedToken) {
-                const splitToken = reservedToken.split('|');
-                tile.addReservedToken(splitToken[1], splitToken[0]);
-            }
-
-            if (closeData.meatTileId === tile.id) {
-                tile.hasMeat(true);
-            }
-            if (closeData.steamboatTileId === tile.id) {
-                tile.hasSteamboat(true);
-            }
-        });
-        state.bank.removeCash(closeData.cash);
-        this.cash(closeData.cash);
-        this.closed(false);
-    }
-
-    phaseOut(phase) {
-        const phasedOutTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
-            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(phasedOutTrains, train.type) >= 0) {
-                train.phasedOut(true);
-            }
-        });
-    }
-
-    unphaseOut(phase) {
-        const phasedOutTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
-            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(phasedOutTrains, train.type) >= 0) {
-                train.phasedOut(false);
-            }
-        });
-    }
-
-    rust(phase) {
-        const rustedTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
-            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(rustedTrains, train.type) >= 0) {
-                train.rusted(true);
-            }
-        });
-    }
-
-    unrust(phase) {
-        const rustedTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
-            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(rustedTrains, train.type) >= 0 && train.phasedOut(true)) {
-                train.rusted(false);
-            }
-        });
-    }
-
-}
-
-Company.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (Company);
-
-/***/ }),
-/* 32 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid__ = __webpack_require__(9);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_short_uuid__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_serializable__ = __webpack_require__(4);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_model_route__ = __webpack_require__(85);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_trainDefinitions__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_knockout__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_knockout__);
-
-
-
-
-
-
-class Train extends __WEBPACK_IMPORTED_MODULE_1_common_model_serializable__["a" /* default */] {
-    constructor(data) {
-        super();
-        data = data || {};
-        this.id = data.id || __WEBPACK_IMPORTED_MODULE_0_short_uuid___default()().new();
-        this.type = data.type;
-        this.lastRoute = data.lastRoute;
-        this.route = data.route || new __WEBPACK_IMPORTED_MODULE_2_common_model_route__["a" /* default */]({ trainType: this.type, color: 1, companyId: data.companyId });
-        this.purchased = data.purchased;
-        this.phasedOut = __WEBPACK_IMPORTED_MODULE_4_knockout___default.a.observable(data.phasedOut);
-        this.rusted = __WEBPACK_IMPORTED_MODULE_4_knockout___default.a.observable(data.rusted);
-    }
-    getName() {
-        return __WEBPACK_IMPORTED_MODULE_3_1846_config_trainDefinitions__["a" /* default */][this.type].name;
-    }
-}
-
-Train.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (Train);
-
-/***/ }),
-/* 33 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bootstrap__ = __webpack_require__(94);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bootstrap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bootstrap__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_bootstrap_dist_css_bootstrap_min_css__ = __webpack_require__(157);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_bootstrap_dist_css_bootstrap_min_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_bootstrap_dist_css_bootstrap_min_css__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_ui_dashboard__ = __webpack_require__(87);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_knockout__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_knockout__);
-
-
-
-
-__webpack_require__(93);
-
-const dashboard = new __WEBPACK_IMPORTED_MODULE_2_common_ui_dashboard__["a" /* default */]();
-__WEBPACK_IMPORTED_MODULE_3_knockout___default.a.applyBindings(dashboard);
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var Converter = __webpack_require__(35);
-
-/**
- * Function get source and destination alphabet and return convert function
- *
- * @param {string|Array} srcAlphabet
- * @param {string|Array} dstAlphabet
- *
- * @returns {function(number|Array)}
- */
-function anyBase(srcAlphabet, dstAlphabet) {
-    var converter = new Converter(srcAlphabet, dstAlphabet);
-    /**
-     * Convert function
-     *
-     * @param {string|Array} number
-     *
-     * @return {string|Array} number
-     */
-    return function (number) {
-        return converter.convert(number);
-    }
-};
-
-anyBase.BIN = '01';
-anyBase.OCT = '01234567';
-anyBase.DEC = '0123456789';
-anyBase.HEX = '0123456789abcdef';
-
-module.exports = anyBase;
-
-/***/ }),
-/* 35 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * Converter
- *
- * @param {string|Array} srcAlphabet
- * @param {string|Array} dstAlphabet
- * @constructor
- */
-function Converter(srcAlphabet, dstAlphabet) {
-    if (!srcAlphabet || !dstAlphabet || !srcAlphabet.length || !dstAlphabet.length) {
-        throw new Error('Bad alphabet');
-    }
-    this.srcAlphabet = srcAlphabet;
-    this.dstAlphabet = dstAlphabet;
-}
-
-/**
- * Convert number from source alphabet to destination alphabet
- *
- * @param {string|Array} number - number represented as a string or array of points
- *
- * @returns {string|Array}
- */
-Converter.prototype.convert = function(number) {
-    var i, divide, newlen,
-    numberMap = {},
-    fromBase = this.srcAlphabet.length,
-    toBase = this.dstAlphabet.length,
-    length = number.length,
-    result = typeof number === 'string' ? '' : [];
-
-    if (!this.isValid(number)) {
-        throw new Error('Number "' + number + '" contains of non-alphabetic digits (' + this.srcAlphabet + ')');
-    }
-
-    if (this.srcAlphabet === this.dstAlphabet) {
-        return number;
-    }
-
-    for (i = 0; i < length; i++) {
-        numberMap[i] = this.srcAlphabet.indexOf(number[i]);
-    }
-    do {
-        divide = 0;
-        newlen = 0;
-        for (i = 0; i < length; i++) {
-            divide = divide * fromBase + numberMap[i];
-            if (divide >= toBase) {
-                numberMap[newlen++] = parseInt(divide / toBase, 10);
-                divide = divide % toBase;
-            } else if (newlen > 0) {
-                numberMap[newlen++] = 0;
-            }
-        }
-        length = newlen;
-        result = this.dstAlphabet.slice(divide, divide + 1).concat(result);
-    } while (newlen !== 0);
-
-    return result;
-};
-
-/**
- * Valid number with source alphabet
- *
- * @param {number} number
- *
- * @returns {boolean}
- */
-Converter.prototype.isValid = function(number) {
-    var i = 0;
-    for (; i < number.length; ++i) {
-        if (this.srcAlphabet.indexOf(number[i]) === -1) {
-            return false;
-        }
-    }
-    return true;
-};
-
-module.exports = Converter;
-
-/***/ }),
-/* 36 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
-
-
-
-class AddToken extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-
-        this.cellId = args.cellId;
-        this.cityId = args.cityId;
-        this.companyId = args.companyId;
-        this.cost = args.cost;
-        this.reserved = args.reserved;
-        this.oldRoutes = args.oldRoutes || {};
-    }
-
-    doExecute(state) {
-        const company = state.getCompany(this.companyId);
-        const tile = state.tilesByCellId[this.cellId];
-        tile.addToken(this.companyId, this.cityId);
-        if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(tile.getReservedTokensForCity(this.cityId), reservedToken => this.companyId === reservedToken)) {
-            this.reserved = true;
-            tile.removeReservedToken(this.companyId);
-        }
-        company.useToken();
-        company.removeCash(this.cost);
-        state.bank.addCash(this.cost);
-
-        this.updateRoutes(state);
-    }
-
-    doUndo(state) {
-        const company = state.getCompany(this.companyId);
-        company.returnToken();
-        const tile = state.tilesByCellId[this.cellId];
-        tile.removeToken(this.companyId, this.cityId);
-        if (this.reserved) {
-            tile.addReservedToken(this.companyId);
-        }
-        company.addCash(this.cost);
-        state.bank.removeCash(this.cost);
-        this.undoRoutes(state);
-    }
-
-    updateRoutes(state) {
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(state.allCompaniesById(), company => {
-            if (company.closed()) {
-                return;
-            }
-            __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(company.getNonRustedTrains(), train => {
-                if (!train.route.isValid()) {
-                    this.oldRoutes[train.route.id] = train.route.clone();
-                    train.route.clear();
-                }
-            });
-        });
-    }
-
-    undoRoutes(state) {
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(state.allCompaniesById(), company => {
-            if (company.closed()) {
-                return;
-            }
-            __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(company.getNonRustedTrains(), train => {
-                const oldRoute = this.oldRoutes[train.route.id];
-                if (oldRoute) {
-                    train.route = oldRoute.clone();
-                }
-            });
-        });
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        return company.nickname + ' tokened ' + this.cellId + ' for $' + this.cost;
-    }
-}
-
-AddToken.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (AddToken);
-
-/***/ }),
-/* 37 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_prices__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash__);
-
-
-
-
-
-class AdjustStockPrices extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-        this.oldStockboardCompanies = args.oldStockboardCompanies;
-    }
-
-    doExecute(state) {
-        this.oldStockboardCompanies = state.stockBoard.getPopulatedStockboardCompanies;
-        const operatingOrder = state.stockBoard.getOperatingOrder();
-        // Handle company closing
-        __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(operatingOrder, companyId => {
-            const company = state.getCompany(companyId);
-            if (!company.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].PUBLIC) {
-                return;
-            }
-
-            if (!company.opened()) {
-                return;
-            }
-
-            if (state.bank.numSharesOwnedOfCompany(company.id) > 0) {
-                company.priceIndex(__WEBPACK_IMPORTED_MODULE_2_1846_config_prices__["a" /* default */].leftIndex(company.priceIndex()));
-            } else if (company.shares() === 0) {
-                company.priceIndex(__WEBPACK_IMPORTED_MODULE_2_1846_config_prices__["a" /* default */].rightIndex(company.priceIndex()));
-            }
-        });
-    }
-
-    doUndo(state) {
-        __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(state.publicCompanies, company => {
-            if (!company.opened()) {
-                return;
-            }
-
-            if (state.bank.numSharesOwnedOfCompany(company.id) > 0) {
-                company.priceIndex(__WEBPACK_IMPORTED_MODULE_2_1846_config_prices__["a" /* default */].rightIndex(company.priceIndex()));
-            } else if (company.shares() === 0) {
-                company.priceIndex(__WEBPACK_IMPORTED_MODULE_2_1846_config_prices__["a" /* default */].leftIndex(company.priceIndex()));
-            }
-        });
-        state.stockboard.restoreStockboardCompanies(this.oldStockboardCompanies);
-    }
-
-    summary(state) {
-        return 'adjusted prices';
-    }
-}
-
-AdjustStockPrices.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (AdjustStockPrices);
-
-/***/ }),
-/* 38 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash__);
-
-
-
-
-
-class BuyPrivate extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-
-        this.playerId = args.playerId;
-        this.privateId = args.privateId;
-        this.companyId = args.companyId;
-        this.price = args.price;
-        this.addedToken = args.addedToken;
-        this.ignoreToken = args.ignoreToken;
-        this.oldBoatCo = args.oldBoatCo;
-    }
-
-    doExecute(state) {
-        const player = state.playersById()[this.playerId];
-        const company = state.getCompany(this.companyId);
-        const privateCompany = state.getCompany(this.privateId);
-
-        if (privateCompany.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].INDEPENDANT) {
-            company.addCash(privateCompany.cash());
-            privateCompany.closed(true);
-            const train = privateCompany.trains()[0].clone();
-            train.route.color = company.getAvailableRouteColor();
-            train.route.companyId = company.id;
-            train.purchased = true;
-            train.route.clear();
-            company.addTrain(train);
-            const cellId = privateCompany.id === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].MICHIGAN_SOUTHERN ? 'C15' : 'G9';
-            const tile = state.tilesByCellId[cellId];
-            tile.removeToken(privateCompany.id);
-            if (!tile.hasTokenForCompany(this.companyId)) {
-                tile.addToken(this.companyId);
-                this.addedToken = true;
-            }
-        }
-
-        if (this.privateId === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].CHICAGO_WESTERN_INDIANA) {
-            const tile = state.tilesByCellId['D6'];
-            tile.removeReservedToken(this.privateId, 9);
-            if (!tile.hasTokenForCompany(this.companyId) && !this.ignoreToken) {
-                tile.addToken(this.companyId, 9);
-                this.addedToken = true;
-            }
-        }
-
-        if (this.privateId === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY) {
-            __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(state.tilesByCellId, tile => {
-                if (tile.hasSteamboat()) {
-                    this.oldBoatCo = tile.hasSteamboat();
-                    tile.hasSteamboat(this.companyId);
-                    return false;
-                }
-            });
-        }
-
-        const cert = player.removePrivate(this.privateId);
-        company.addPrivate(cert);
-        company.removeCash(this.price);
-        player.addCash(this.price);
-    }
-
-    doUndo(state) {
-        const player = state.playersById()[this.playerId];
-        const company = state.getCompany(this.companyId);
-        const privateCompany = state.getCompany(this.privateId);
-
-        if (privateCompany.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].INDEPENDANT) {
-            company.removeCash(privateCompany.cash());
-            privateCompany.closed(false);
-            company.removeTrainById(privateCompany.trains()[0].id);
-            const cellId = privateCompany.id === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].MICHIGAN_SOUTHERN ? 'C15' : 'G9';
-            const tile = state.tilesByCellId[cellId];
-            if (this.addedToken) {
-                tile.removeToken(this.companyId);
-            }
-            tile.addToken(privateCompany.id);
-        }
-
-        if (this.privateId === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].CHICAGO_WESTERN_INDIANA) {
-            const tile = state.tilesByCellId['D6'];
-            if (this.addedToken) {
-                tile.removeToken(this.companyId, 9);
-            }
-            tile.addReservedToken(this.privateId);
-        }
-
-        if (this.privateId === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY && this.oldBoatCo) {
-            __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(state.tilesByCellId, tile => {
-                if (tile.hasSteamboat()) {
-                    tile.hasSteamboat(this.oldBoatCo);
-                    return false;
-                }
-            });
-        }
-
-        const cert = company.removePrivate(this.privateId);
-        player.addCert(cert);
-        player.removeCash(this.price);
-        company.addCash(this.price);
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        const privateCompany = state.getCompany(this.privateId);
-        return company.nickname + ' purchased ' + privateCompany.name + ' for $' + this.price;
-    }
-
-    confirmation(state) {
-        const privateCompany = state.getCompany(this.privateId);
-        return 'Confirm purchase of ' + privateCompany.name + ' for $' + this.price;
-    }
-}
-
-BuyPrivate.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (BuyPrivate);
-
-/***/ }),
-/* 39 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__ = __webpack_require__(6);
-
-
-
-class BuyShare extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-
-        this.playerId = args.playerId;
-        this.companyId = args.companyId;
-        this.treasury = args.treasury;
-        this.startIndex = args.startIndex;
-        this.firstPassIndex = args.firstPassIndex;
-        this.oldPresidentId = args.oldPresidentId;
-    }
-
-    doExecute(state) {
-        const player = state.playersById()[this.playerId];
-        const company = state.getCompany(this.companyId);
-        this.startIndex = company.priceIndex();
-        this.firstPassIndex = state.firstPassIndex();
-
-        // validate things
-        // cash
-        // max ownership
-        // cert limit
-        // source
-
-        const cash = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(company.priceIndex());
-        player.removeCash(cash);
-
-        let cert = null;
-        if (this.treasury) {
-            company.cash(company.cash() + cash);
-            cert = company.certificates.pop();
-        } else {
-            state.bank.cash(state.bank.cash() - cash);
-            // Only pres share in bank, buying from bank
-            if (!company.president() && player.sharesPerCompany()[this.companyId] === 1 && state.bank.numSharesOwnedOfCompany(this.companyId) === 2) {
-                const nonPresidentCerts = player.removeNonPresidentCertsForCompany(1, this.companyId);
-                cert = state.bank.removePresidentCertForCompany(this.companyId);
-                state.bank.addCerts(nonPresidentCerts);
-                this.oldPresidentId = 'bank';
-                company.president(player.id);
-            } else {
-                cert = state.bank.removeNonPresidentCertsForCompany(1, this.companyId)[0];
-            }
-        }
-        player.certificates.push(cert);
-
-        const currentPresident = !company.president() ? state.bank : state.playersById()[company.president()];
-        if (!company.president() && player.sharesPerCompany()[this.companyId] === 2 || company.president() && currentPresident.sharesPerCompany()[this.companyId] < player.sharesPerCompany()[this.companyId]) {
-            const nonPresidentCerts = player.removeNonPresidentCertsForCompany(2, this.companyId);
-            const presidentCert = currentPresident.removePresidentCertForCompany(this.companyId);
-
-            player.addCert(presidentCert);
-            currentPresident.addCerts(nonPresidentCerts);
-
-            this.oldPresidentId = !company.president() ? 'bank' : currentPresident.id;
-            company.president(player.id);
-        }
-
-        state.firstPassIndex(null);
-    }
-
-    doUndo(state) {
-        const player = state.playersById()[this.playerId];
-        const company = state.getCompany(this.companyId);
-        const cash = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(company.priceIndex());
-
-        state.firstPassIndex(this.firstPassIndex);
-
-        // Was only pres share in bank, buying from bank
-        if (this.oldPresidentId === 'bank' && !this.treasury && state.bank.numSharesOwnedOfCompany(this.companyId) === 1) {
-            state.bank.removeCash(cash);
-            player.addCash(cash);
-            const presidentCert = player.removePresidentCertForCompany(this.companyId);
-            const nonPresidentCerts = state.bank.removeNonPresidentCertsForCompany(1, this.companyId);
-            state.bank.addCert(presidentCert);
-            player.addCerts(nonPresidentCerts);
-            company.president(null);
-            return;
-        }
-
-        if (this.oldPresidentId) {
-            const oldPresident = this.oldPresidentId === 'bank' ? state.bank : state.playersById()[this.oldPresidentId];
-            const nonPresidentCerts = oldPresident.removeNonPresidentCertsForCompany(2, this.companyId);
-            const presidentCert = player.removePresidentCertForCompany(this.companyId);
-
-            oldPresident.addCert(presidentCert);
-            player.addCerts(nonPresidentCerts);
-
-            company.president(this.oldPresidentId === 'bank' ? null : oldPresident.id);
-        }
-
-        const cert = player.removeNonPresidentCertsForCompany(1, this.companyId)[0];
-        if (this.treasury) {
-            company.removeCash(cash);
-            company.certificates.push(cert);
-        } else {
-            state.bank.removeCash(cash);
-            state.bank.certificates.push(cert);
-        }
-        player.addCash(cash);
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        return 'Bought 1 ' + company.nickname + ' for $' + __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex) + ' from ' + (this.treasury ? 'the treasury' : 'the market');
-    }
-
-    confirmation(state) {
-        const company = state.getCompany(this.companyId);
-        const startIndex = company.priceIndex();
-        return 'Confirm Buy 1 ' + company.nickname + ' for $' + __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(startIndex) + ' from ' + (this.treasury ? 'the treasury' : 'the market');
-    }
-}
-
-BuyShare.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (BuyShare);
-
-/***/ }),
-/* 40 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_train__ = __webpack_require__(32);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__ = __webpack_require__(11);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__ = __webpack_require__(10);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_lodash__);
-
-
-
-
-
-
-
-
-const NumberWords = ['zero', 'one', 'two', 'three', 'four'];
-
-class BuyTrains extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-
-        this.companyId = args.companyId;
-        this.playerId = args.playerId;
-        this.trains = args.trains;
-        this.source = args.source;
-        this.trainIds = args.trainIds || [];
-        this.oldPhase = args.oldPhase;
-        this.closedPrivatesData = args.closedPrivatesData;
-        this.meatTileId = args.meatTileId;
-        this.steamboatTileId = args.steamboatTileId;
-        this.cost = args.cost;
-        this.forced = args.forced;
-        this.numIssued = args.numIssued;
-        this.stockSales = args.stockSales;
-        this.closedCompanies = args.closedCompanies || {};
-        this.presidentChanges = args.presidentChanges || {};
-        this.oldCompanyCash = args.oldCompanyCash;
-        this.oldCompanyPriceIndices = args.oldCompanyPriceIndices || {};
-        this.oldPlayerCerts = args.oldPlayerCerts || [];
-        this.oldPlayerCash = args.oldPlayerCash;
-        this.oldBankCash = args.oldBankCash;
-        this.oldReservedTokens = args.oldReservedTokens || {};
-    }
-
-    doExecute(state) {
-        const company = state.getCompany(this.companyId);
-        if (this.forced) {
-            const player = state.playersById()[this.playerId];
-            const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][this.trains[0]];
-            const trainType = this.trains[0];
-            const cost = trainDefinition.cost;
-            this.oldCompanyCash = company.cash();
-            this.oldCompanyPriceIndices[this.companyId] = company.priceIndex();
-            this.oldPlayerCash = player.cash();
-            this.oldBankCash = state.bank.cash();
-
-            if (this.numIssued) {
-                const certs = company.removeCerts(this.numIssued);
-                state.bank.addCerts(certs);
-                company.addCash(company.cashFromForcedIssues(this.numIssued));
-                company.priceIndex(__WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftIndex(company.priceIndex(), this.numIssued));
-            }
-
-            if (this.stockSales) {
-                __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.stockSales, (amount, companyId) => {
-                    const ownedCompany = state.getCompany(companyId);
-                    const isPresident = player.isPresidentOfCompany(companyId);
-                    const closing = isPresident && __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftIndex(company.priceIndex()) === 0;
-
-                    if (closing) {
-                        this.closedCompanies[companyId] = ownedCompany.close();
-                    } else {
-                        const cashForShares = ownedCompany.price() * amount;
-                        player.addCash(cashForShares);
-                        state.bank.removeCash(cashForShares);
-
-                        if (isPresident) {
-                            if (player.sharesPerCompany()[this.companyId] - amount < 2) {
-                                const target = __WEBPACK_IMPORTED_MODULE_6_lodash___default()(state.players()).filter(otherPlayer => player.id !== otherPlayer.id && otherPlayer.sharesPerCompany()[companyId] >= 2).sortBy(otherPlayer => {
-                                    return otherPlayer.order() > player.order() ? otherPlayer.order() : otherPlayer.order() + 10;
-                                }).first();
-
-                                if (target) {
-                                    const nonPresidentCerts = target.removeNonPresidentCertsForCompany(2, companyId);
-                                    const presidentCert = player.removePresidentCertForCompany(companyId);
-
-                                    target.addCert(presidentCert);
-                                    player.addCerts(nonPresidentCerts);
-                                    ownedCompany.president(target.id);
-                                    this.presidentChanges[companyId] = target.id;
-                                }
-                            }
-
-                            if (companyId !== this.companyId) {
-                                this.oldCompanyPriceIndices[companyId] = ownedCompany.priceIndex();
-                            }
-
-                            ownedCompany.priceIndex(__WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftIndex(ownedCompany.priceIndex()));
-                        }
-
-                        const certs = player.removeNonPresidentCertsForCompany(amount, companyId);
-                        this.oldPlayerCerts.push.apply(this.oldPlayerCerts, __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(certs, 'id'));
-                        state.bank.addCerts(certs);
-                    }
-                });
-            }
-
-            const playerCashNeeded = cost - company.cash();
-            if (playerCashNeeded) {
-                player.removeCash(playerCashNeeded);
-                company.addCash(playerCashNeeded);
-            }
-
-            company.removeCash(cost);
-            state.bank.addCash(cost);
-            state.bank.removeTrains(trainType, 1);
-
-            const newTrain = new __WEBPACK_IMPORTED_MODULE_1_common_model_train__["a" /* default */]({ type: trainType });
-            newTrain.route.color = company.getAvailableRouteColor();
-            newTrain.route.companyId = company.id;
-            newTrain.purchased = true;
-            company.addTrain(newTrain);
-            this.trainIds.push(newTrain.id);
-
-            const newPhase = this.getNewPhase(state, trainType);
-            if (newPhase) {
-                this.oldPhase = state.currentPhaseId();
-                state.currentPhaseId(newPhase);
-                this.doPhaseChange(state, newPhase);
-            }
-        } else if (this.source === 'bank') {
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.trains, (amount, type) => {
-                const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][type];
-                const cost = amount * trainDefinition.cost;
-                company.removeCash(cost);
-                state.bank.addCash(cost);
-                state.bank.removeTrains(type, amount);
-                const newTrains = __WEBPACK_IMPORTED_MODULE_6_lodash___default()(__WEBPACK_IMPORTED_MODULE_6_lodash___default.a.range(0, amount)).map(value => new __WEBPACK_IMPORTED_MODULE_1_common_model_train__["a" /* default */]({ type })).value();
-                __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(newTrains, newTrain => {
-                    newTrain.route.color = company.getAvailableRouteColor();
-                    newTrain.route.companyId = company.id;
-                    newTrain.purchased = true;
-                    company.addTrain(newTrain);
-                    this.trainIds.push(newTrain.id);
-                });
-
-                const newPhase = this.getNewPhase(state, type);
-                if (newPhase) {
-                    this.oldPhase = state.currentPhaseId();
-                    state.currentPhaseId(newPhase);
-                    this.doPhaseChange(state, newPhase);
-                }
-            });
-        } else {
-            const sellingCompany = state.getCompany(this.source);
-            this.trains = __WEBPACK_IMPORTED_MODULE_6_lodash___default()(sellingCompany.removeTrainsById(this.trainIds)).map(train => train.clone()).sortBy(train => train.type).value();
-            const trainsToAdd = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(this.trains, train => {
-                const newTrain = train.clone();
-                newTrain.route.color = company.getAvailableRouteColor();
-                newTrain.route.companyId = company.id;
-                newTrain.route.clear();
-                newTrain.purchased = true;
-                return newTrain;
-            });
-            company.addTrains(trainsToAdd);
-            sellingCompany.addCash(this.cost);
-            company.removeCash(this.cost);
-        }
-    }
-
-    doUndo(state) {
-        const company = state.getCompany(this.companyId);
-        if (this.forced) {
-            const player = state.playersById()[this.playerId];
-            const trainType = this.trains[0];
-
-            state.bank.addTrains(trainType, 1);
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.trainIds, id => {
-                company.removeTrainById(id);
-            });
-
-            if (this.oldPhase) {
-                const currentPhase = state.currentPhaseId();
-                state.currentPhaseId(this.oldPhase);
-                this.undoPhaseChange(state, currentPhase);
-            }
-
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.stockSales, (amount, companyId) => {
-                const certs = state.bank.removeNonPresidentCertsForCompany(amount, companyId);
-                player.addCerts(certs);
-            });
-
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.presidentChanges, (otherPlayerId, companyId) => {
-                if (otherPlayerId) {
-                    const otherPresident = state.playersById()[otherPlayerId];
-                    const nonPresidentCerts = player.removeNonPresidentCertsForCompany(2, companyId);
-                    const presidentCert = otherPresident.removePresidentCertForCompany(companyId);
-
-                    player.addCert(presidentCert);
-                    otherPresident.addCerts(nonPresidentCerts);
-                }
-                company.president(player.id);
-            });
-
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.closedCompanies, (closeData, companyId) => {
-                const closedCompany = state.getCompany(companyId);
-                closedCompany.unclose(closeData);
-            });
-
-            if (this.numIssued) {
-                const certs = state.bank.removeNonPresidentCertsForCompany(this.numIssued, this.companyId);
-                company.addCerts(certs);
-            }
-
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.oldCompanyPriceIndices, (index, companyId) => {
-                const otherCompany = state.getCompany(companyId);
-                otherCompany.priceIndex(index);
-            });
-
-            player.cash(this.oldPlayerCash);
-            company.cash(this.oldCompanyCash);
-            state.bank.cash(this.oldBankCash);
-        } else if (this.source === 'bank') {
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.trains, (amount, type) => {
-                const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][type];
-                const cost = amount * trainDefinition.cost;
-                company.addCash(cost);
-                state.bank.removeCash(cost);
-                state.bank.addTrains(type, amount);
-                __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.trainIds, id => {
-                    company.removeTrainById(id);
-                });
-            });
-
-            if (this.oldPhase) {
-                const currentPhase = state.currentPhaseId();
-                state.currentPhaseId(this.oldPhase);
-                this.undoPhaseChange(state, currentPhase);
-            }
-        } else {
-            const sellingCompany = state.getCompany(this.source);
-            company.removeTrainsById(this.trainIds);
-            sellingCompany.addTrains(__WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(this.trains, train => train.clone()));
-            sellingCompany.removeCash(this.cost);
-            company.addCash(this.cost);
-        }
-    }
-
-    doPhaseChange(state, newPhase) {
-
-        if (newPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_III) {
-            const closedPrivatesData = [];
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.publicCompanies, company => {
-                company.phaseOut(__WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_I);
-            });
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.privateCompanies, company => {
-                if (!company.closed()) {
-                    closedPrivatesData.push(company.close());
-                }
-            });
-            this.closedPrivatesData = closedPrivatesData;
-            console.log('setting train limit to 3');
-            state.trainLimit(3);
-            this.recalculateRouteRevenue(state);
-        } else if (newPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_IV) {
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.publicCompanies, company => {
-                company.phaseOut(__WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_II);
-                company.rust(__WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_I);
-            });
-            const meatTile = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.find(state.tilesByCellId, tile => {
-                return tile.hasMeat();
-            });
-
-            if (meatTile) {
-                meatTile.hasMeat(false);
-                this.meatTileId = meatTile.id;
-            }
-            const steamBoatTile = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.find(state.tilesByCellId, tile => {
-                return tile.hasSteamboat();
-            });
-
-            if (steamBoatTile) {
-                steamBoatTile.hasSteamboat(false);
-                this.steamboatTileId = steamBoatTile.id;
-            }
-            state.trainLimit(2);
-
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.tilesByCellId, tile => {
-                if (tile.reservedTokens().length > 0) {
-                    this.oldReservedTokens[tile.id] = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.clone(tile.reservedTokens());
-                    tile.reservedTokens([]);
-                }
-            });
-        }
-    }
-
-    undoPhaseChange(state, newPhase) {
-        if (newPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_III) {
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.publicCompanies, company => {
-                company.unphaseOut(__WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_I);
-            });
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.closedPrivatesData || [], closeData => {
-                const company = state.getCompany(closeData.id);
-                company.unclose(closeData);
-            });
-            console.log('setting train limit to 4');
-            state.trainLimit(4);
-            this.recalculateRouteRevenue(state);
-        } else if (newPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_IV) {
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.publicCompanies, company => {
-                company.unphaseOut(__WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_II);
-                company.unrust(__WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_I);
-            });
-
-            if (this.meatTileId) {
-                const tile = state.tilesByCellId[this.meatTileId];
-                tile.hasMeat(true);
-            }
-
-            if (this.steamboatTileId) {
-                const tile = state.tilesByCellId[this.steamboatTileId];
-                tile.hasSteamboat(true);
-            }
-            state.trainLimit(3);
-
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.oldReservedTokens, (tokens, tileId) => {
-                const tile = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.find(state.tilesByCellId, tile => tile.id === tileId);
-                tile.reservedTokens(__WEBPACK_IMPORTED_MODULE_6_lodash___default.a.clone(tokens));
-            });
-        }
-    }
-
-    recalculateRouteRevenue(state) {
-        __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.allCompaniesById(), company => {
-            if (company.closed()) {
-                return;
-            }
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(company.getNonRustedTrains(), train => {
-                train.route.calculateRevenue();
-            });
-        });
-    }
-
-    getNewPhase(state, type) {
-        const currentPhase = state.currentPhaseId();
-        if (currentPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_I && (type === __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__["a" /* default */].TRAIN_3_5 || type === __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__["a" /* default */].TRAIN_4)) {
-            return __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_II;
-        } else if (currentPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_II && (type === __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__["a" /* default */].TRAIN_4_6 || type === __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__["a" /* default */].TRAIN_5)) {
-            return __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_III;
-        } else if (currentPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_III && (type === __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__["a" /* default */].TRAIN_6 || type === __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__["a" /* default */].TRAIN_7_8)) {
-            return __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_IV;
-        }
-        return null;
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        const descData = this.getTrainDescriptionsAndCost(state, true);
-        const source = this.source === 'bank' ? 'the bank' : state.getCompany(this.source).nickname;
-        const suffix = this.getSuffix(company, true);
-        return company.nickname + ' bought ' + __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.join(descData.desc, ', ') + ' from ' + source + ' for $' + descData.cost + suffix;
-    }
-
-    confirmation(state) {
-        const prefix = 'Confirm buy ';
-        const company = state.getCompany(this.companyId);
-        const descData = this.getTrainDescriptionsAndCost(state);
-        const source = this.source === 'bank' ? 'the bank' : state.getCompany(this.source).nickname;
-        const suffix = this.getSuffix(company, true);
-        return prefix + __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.join(descData.desc, ', ') + ' from ' + source + ' for $' + descData.cost + suffix;
-    }
-
-    getSuffix(company, summary) {
-        let text = '';
-        if (!this.forced) {
-            return text;
-        }
-        if (this.numIssued > 0) {
-            text += (summary ? ' issuing ' : ' issued ') + this.numIssued + ' share' + (this.numIssued === 1 ? '' : 's') + ' - stock drops to $' + __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftPrice(company.priceIndex(), this.numIssued);
-        }
-        return text;
-    }
-
-    getTrainDescriptionsAndCost(state, summary) {
-        const result = {
-            desc: [],
-            cost: 0
-        };
-        if (this.forced) {
-            const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][this.trains[0]];
-            result.desc = ['a ' + trainDefinition.name + 'T'];
-            result.cost = trainDefinition.cost;
-        } else if (this.source === 'bank') {
-            const data = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.reduce(this.trains, (accumulator, amount, type) => {
-                const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][type];
-                const cost = amount * trainDefinition.cost;
-                accumulator.desc.push(NumberWords[amount] + ' ' + trainDefinition.name + 'T');
-                accumulator.cost += cost;
-                return accumulator;
-            }, { desc: [], cost: 0 });
-            result.desc = data.desc;
-            result.cost = data.cost;
-        } else {
-            if (!summary) {
-                const sellingCompany = state.getCompany(this.source);
-                result.desc = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(this.trainIds, trainId => {
-                    const train = sellingCompany.getTrainById(trainId);
-                    if (!train) {
-                        return '';
-                    }
-                    const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][train.type];
-                    return trainDefinition.name + 'T';
-                });
-            } else {
-                result.desc = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(this.trains, train => {
-                    const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][train.type];
-                    return trainDefinition.name + 'T';
-                });
-            }
-            result.cost = this.cost;
-        }
-        return result;
-    }
-}
-
-BuyTrains.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (BuyTrains);
-
-/***/ }),
-/* 41 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_game_sequence__ = __webpack_require__(13);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash__);
-
-
-
-
-
-class DeclareBankruptcy extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-        this.companyId = args.companyId;
-        this.playerId = args.playerId;
-        this.numIssued = args.numIssued;
-        this.oldCompanyPriceIndices = args.oldCompanyPriceIndices || {};
-        this.oldCompanyCash = args.oldCompanyCash;
-        this.oldPlayerCash = args.oldPlayerCash;
-        this.oldPlayerCerts = args.oldPlayerCerts || [];
-        this.oldBankCash = args.oldBankCash;
-        this.closedCompanies = args.closedCompanies || {};
-        this.presidentChanges = args.presidentChanges || {};
-        this.oldPriorityDealIndex = args.oldPriorityDealIndex;
-
-        // president changes
-    }
-
-    doExecute(state) {
-        const company = state.getCompany(this.companyId);
-        const player = state.playersById()[this.playerId];
-        this.oldCompanyCash = company.cash();
-        this.oldCompanyPriceIndices[this.companyId] = company.priceIndex();
-        this.oldPlayerCash = player.cash();
-        this.oldBankCash = state.bank.cash();
-
-        // Force issue shares... This can't close the company because we wouldn't allow bankruptcy if it was possible
-        this.numIssued = company.numCanIssue();
-        const certs = company.removeCerts(this.numIssued);
-        state.bank.addCerts(certs);
-        company.addCash(company.cashFromForcedIssues(this.numIssued));
-        company.priceIndex(__WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftIndex(company.priceIndex(), this.numIssued));
-
-        // Sell off all player shares
-        __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(player.ownedCompanyIds(), companyId => {
-
-            const ownedCompany = state.getCompany(companyId);
-            const isPresident = player.isPresidentOfCompany(companyId);
-            const closing = isPresident && __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftIndex(company.priceIndex()) === 0;
-
-            if (closing) {
-                this.closedCompanies[companyId] = ownedCompany.close();
-            } else {
-                const numShares = player.numSharesOwnedOfCompany();
-                const cashForShares = ownedCompany.price() * numShares;
-                player.addCash(cashForShares);
-                state.bank.removeCash(cashForShares);
-
-                if (isPresident) {
-                    const target = __WEBPACK_IMPORTED_MODULE_3_lodash___default()(state.players()).filter(otherPlayer => player.id !== otherPlayer.id && otherPlayer.sharesPerCompany()[companyId] >= 2).sortBy(otherPlayer => {
-                        return otherPlayer.order() > player.order() ? otherPlayer.order() : otherPlayer.order() + 10;
-                    }).first();
-
-                    if (target) {
-                        const nonPresidentCerts = target.removeNonPresidentCertsForCompany(2, companyId);
-                        const presidentCert = player.removePresidentCertForCompany(companyId);
-
-                        target.addCert(presidentCert);
-                        player.addCerts(nonPresidentCerts);
-                        ownedCompany.president(target.id);
-                        this.presidentChanges[companyId] = target.id;
-                    } else {
-                        ownedCompany.president(null);
-                        this.presidentChanges[companyId] = null;
-                    }
-                    if (companyId !== this.companyId) {
-                        this.oldCompanyPriceIndices[companyId] = ownedCompany.priceIndex();
-                    }
-                    ownedCompany.priceIndex(__WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftIndex(ownedCompany.priceIndex()));
-                }
-
-                const certs = player.removeAllCertsForCompany(companyId);
-                this.oldPlayerCerts.push.apply(this.oldPlayerCerts, __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.map(certs, 'id'));
-                state.bank.addCerts(certs);
-            }
-        });
-
-        // Put money in company
-        company.addCash(player.cash());
-        player.cash(0);
-        player.bankrupt(true);
-
-        this.oldPriorityDealIndex = state.priorityDealIndex();
-
-        if (state.priorityDealIndex() === state.currentPlayerIndex()) {
-            state.priorityDealIndex(__WEBPACK_IMPORTED_MODULE_2_1846_game_sequence__["a" /* default */].nextPlayerIndex(this.oldPriorityDealIndex));
-        }
-    }
-
-    doUndo(state) {
-        const company = state.getCompany(this.companyId);
-        const player = state.playersById()[this.playerId];
-
-        state.priorityDealIndex(this.oldPriorityDealIndex);
-        player.bankrupt(false);
-        player.cash(this.oldPlayerCash);
-        company.cash(this.oldCompanyCash);
-        state.bank.cash(this.oldBankCash);
-
-        const certs = state.bank.removeCertsById(this.oldPlayerCerts);
-        player.addCerts(certs);
-
-        __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(this.presidentChanges, (otherPlayerId, companyId) => {
-            if (otherPlayerId) {
-                const otherPresident = state.playersById()[otherPlayerId];
-                const nonPresidentCerts = player.removeNonPresidentCertsForCompany(2, companyId);
-                const presidentCert = otherPresident.removePresidentCertForCompany(companyId);
-
-                player.addCert(presidentCert);
-                otherPresident.addCerts(nonPresidentCerts);
-            }
-            company.president(player.id);
-        });
-
-        __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(this.closedCompanies, (closeData, companyId) => {
-            const closedCompany = state.getCompany(companyId);
-            closedCompany.unclose(closeData);
-        });
-
-        if (this.numIssued) {
-            const certs = state.bank.removeNonPresidentCertsForCompany(this.numIssued, this.companyId);
-            company.addCerts(certs);
-        }
-
-        __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(this.oldCompanyPriceIndices, (index, companyId) => {
-            const otherCompany = state.getCompany(companyId);
-            otherCompany.priceIndex(index);
-        });
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        const player = state.playersById()[this.playerId];
-        return player.name() + ' declared bankruptcy';
-    }
-
-    confirmation(state) {
-        return 'Confirm bankruptcy';
-    }
-}
-
-DeclareBankruptcy.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (DeclareBankruptcy);
-
-/***/ }),
-/* 42 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
-
-
-
-class DraftPass extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-
-        this.playerId = args.playerId;
-        this.privateId = args.privateId;
-    }
-
-    doExecute(state) {
-        const privateCompany = state.privateCompaniesById()[this.privateId];
-        privateCompany.cost -= 10;
-    }
-
-    doUndo(state) {}
-
-    summary(state) {
-        const privateCompany = state.privateCompaniesById()[this.privateId];
-        return 'Passed on ' + privateCompany.name;
-    }
-}
-
-DraftPass.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (DraftPass);
-
-/***/ }),
-/* 43 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_companyIds__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
-
-
-
-
-class DraftPrivate extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-
-        this.playerId = args.playerId;
-        this.privateId = args.privateId;
-        this.offeredIds = args.offeredIds;
-    }
-
-    doExecute(state) {
-        const player = state.playersById()[this.playerId];
-        const privateCompany = state.privateCompaniesById()[this.privateId];
-        if (!__WEBPACK_IMPORTED_MODULE_2_lodash___default.a.startsWith(this.privateId, 'pass')) {
-            player.cash(player.cash() - privateCompany.cost);
-            state.bank.cash(state.bank.cash() + privateCompany.cost);
-            player.certificates.push(privateCompany.certificates.pop());
-
-            if (this.privateId === __WEBPACK_IMPORTED_MODULE_1_1846_config_companyIds__["a" /* default */].MICHIGAN_SOUTHERN || this.privateId === __WEBPACK_IMPORTED_MODULE_1_1846_config_companyIds__["a" /* default */].BIG_4) {
-                privateCompany.president(this.playerId);
-            }
-        }
-        state.undraftedPrivateIds.removeAll(this.offeredIds);
-        state.undraftedPrivateIds.push.apply(state.undraftedPrivateIds, __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.shuffle(__WEBPACK_IMPORTED_MODULE_2_lodash___default.a.without(this.offeredIds, this.privateId)));
-    }
-
-    doUndo(state) {}
-
-    summary(state) {
-        const privateCompany = state.privateCompaniesById()[this.privateId];
-        const passed = __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.startsWith(this.privateId, 'pass');
-        return 'Drafted ' + (passed ? ' Pass card' : privateCompany.name);
-    }
-
-}
-
-DraftPrivate.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (DraftPrivate);
-
-/***/ }),
-/* 44 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-
-
-class ForceIssueCloesCompany extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-        this.companyId = args.companyId;
-        this.playerId = args.playerId;
-        this.count = args.count;
-        this.closeData = args.closeData;
-    }
-
-    doExecute(state) {
-        const company = state.getCompany(this.companyId);
-        this.closeData = company.close();
-    }
-
-    doUndo(state) {
-        const company = state.getCompany(this.companyId);
-        company.unclose(this.closeData);
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        return company.nickname + '\'s stock moved to $0 due to force issuing ' + this.count + ' shares for a train buy, closing the company';
-    }
-
-    confirmation(state) {
-        const company = state.getCompany(this.companyId);
-        return 'Confirm company close due to force issuing ' + this.count + ' shares for train buy';
-    }
-}
-
-ForceIssueCloesCompany.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (ForceIssueCloesCompany);
-
-/***/ }),
-/* 45 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__ = __webpack_require__(6);
-
-
-
-class IssueShares extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-
-        this.companyId = args.companyId;
-        this.count = args.count;
-        this.price = args.price;
-    }
-
-    doExecute(state) {
-        const company = state.getCompany(this.companyId);
-        const index = company.priceIndex();
-        this.price = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftPrice(index);
-
-        const cash = this.price * this.count;
-        company.addCash(cash);
-        state.bank.removeCash(cash);
-
-        const certs = company.removeCerts(this.count);
-        state.bank.addCerts(certs);
-    }
-
-    doUndo(state) {
-        const company = state.getCompany(this.companyId);
-
-        const cash = this.price * this.count;
-        company.removeCash(cash);
-        state.bank.addCash(cash);
-
-        const certs = state.bank.removeNonPresidentCertsForCompany(this.count, this.companyId);
-        company.addCerts(certs);
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        return company.nickname + ' issued ' + this.count + ' shares at $' + this.price;
-    }
-
-    confirmation(state) {
-        const company = state.getCompany(this.companyId);
-        const index = company.priceIndex();
-        const price = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftPrice(index);
-        return 'Confirm issue ' + this.count + ' shares at $' + price;
-    }
-}
-
-IssueShares.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (IssueShares);
-
-/***/ }),
-/* 46 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_mapTileIds__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_tileColorIds__ = __webpack_require__(21);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_util_events__ = __webpack_require__(7);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_lodash__);
-
-
-
-
-
-
-class LayTrack extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-
-        this.cellId = args.cellId;
-        this.tileId = args.tileId;
-        this.position = args.position;
-        this.oldTileId = args.oldTileId;
-        this.oldTilePosition = args.oldTilePosition;
-        this.companyId = args.companyId;
-        this.upgrade = args.upgrade;
-        this.cost = args.cost;
-        this.privateId = args.privateId;
-        this.privateDone = args.privateDone;
-    }
-
-    doExecute(state) {
-        const company = state.getCompany(this.companyId);
-        const oldTile = state.tilesByCellId[this.cellId];
-        this.oldTileId = oldTile.id;
-        this.oldTilePosition = oldTile.position();
-        this.upgrade = __WEBPACK_IMPORTED_MODULE_4_lodash___default.a.indexOf([__WEBPACK_IMPORTED_MODULE_2_1846_config_tileColorIds__["a" /* default */].YELLOW, __WEBPACK_IMPORTED_MODULE_2_1846_config_tileColorIds__["a" /* default */].GREEN, __WEBPACK_IMPORTED_MODULE_2_1846_config_tileColorIds__["a" /* default */].BROWN], oldTile.colorId) >= 0;
-        const newTile = state.manifest.getTile(this.tileId, this.oldTileId);
-        newTile.position(this.position);
-        oldTile.copyToTile(newTile);
-        state.tilesByCellId[this.cellId] = newTile;
-
-        company.removeCash(this.cost);
-        state.bank.addCash(this.cost);
-
-        if (this.privateId && this.privateDone) {
-            const privateCompany = state.getCompany(this.privateId);
-            privateCompany.used(true);
-        }
-
-        __WEBPACK_IMPORTED_MODULE_3_common_util_events__["a" /* default */].emit('tileUpdated', this.cellId);
-        __WEBPACK_IMPORTED_MODULE_3_common_util_events__["a" /* default */].emit('trackLaid');
-        if (this.upgrade) {
-            this.upgradeRoutes(state, this.cellId, oldTile, newTile);
-        }
-    }
-
-    doUndo(state) {
-        const company = state.getCompany(this.companyId);
-        const newTile = state.tilesByCellId[this.cellId];
-        const oldTile = state.manifest.getTile(this.oldTileId, this.tileId);
-        oldTile.position(this.oldTilePosition);
-        newTile.copyToTile(oldTile);
-        state.tilesByCellId[this.cellId] = oldTile;
-
-        if (this.privateId && this.privateDone) {
-            const privateCompany = state.getCompany(this.privateId);
-            privateCompany.used(false);
-        }
-
-        company.addCash(this.cost);
-        state.bank.removeCash(this.cost);
-        __WEBPACK_IMPORTED_MODULE_3_common_util_events__["a" /* default */].emit('tileUpdated', this.cellId);
-        __WEBPACK_IMPORTED_MODULE_3_common_util_events__["a" /* default */].emit('trackLaid', this);
-        if (this.upgrade) {
-            this.upgradeRoutes(state, this.cellId, newTile, oldTile);
-        }
-    }
-
-    upgradeRoutes(state, cellId, oldTile, newTile) {
-        __WEBPACK_IMPORTED_MODULE_4_lodash___default.a.each(state.allCompaniesById(), company => {
-            if (company.closed()) {
-                return;
-            }
-            __WEBPACK_IMPORTED_MODULE_4_lodash___default.a.each(company.getNonRustedTrains(), train => {
-                train.route.upgradeConnections(this.cellId, oldTile, newTile);
-            });
-        });
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        const privateCompany = state.getCompany(this.privateId);
-        return company.nickname + (privateCompany ? ' used ' + privateCompany.name + ' to lay' : ' laid') + ' a #' + this.tileId + ' tile at ' + this.cellId + ' for $' + this.cost;
-    }
-}
-
-LayTrack.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (LayTrack);
-
-/***/ }),
-/* 47 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-
-
-class PlaceMeat extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-        this.companyId = args.companyId;
-        this.privateId = args.privateId;
-        this.cellId = args.cellId;
-    }
-
-    doExecute(state) {
-        const privateCompany = state.getCompany(this.privateId);
-        privateCompany.used(true);
-        const tile = state.tilesByCellId[this.cellId];
-        tile.hasMeat(this.companyId);
-        this.recalculateRouteRevenue(state);
-    }
-
-    doUndo(state) {
-        const privateCompany = state.getCompany(this.privateId);
-        privateCompany.used(false);
-        const tile = state.tilesByCellId[this.cellId];
-        tile.hasMeat(null);
-        this.recalculateRouteRevenue(state);
-    }
-
-    recalculateRouteRevenue(state) {
-        _.each(state.allCompaniesById(), company => {
-            if (company.closed()) {
-                return;
-            }
-            _.each(company.getNonRustedTrains(), train => {
-                train.route.calculateRevenue();
-            });
-        });
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        const location = this.cellId === 'D6' ? 'Chicago' : 'St Louis';
-        return company.nickname + ' placed meat packing token in ' + location;
-    }
-}
-
-PlaceMeat.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (PlaceMeat);
-
-/***/ }),
-/* 48 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_offBoardIds__ = __webpack_require__(16);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
-
-
-
-
-const LocationNames = {
-    [__WEBPACK_IMPORTED_MODULE_1_1846_config_offBoardIds__["a" /* default */].CHICAGO_CONNECTIONS]: 'Chicago Connections',
-    [__WEBPACK_IMPORTED_MODULE_1_1846_config_offBoardIds__["a" /* default */].HOLLAND]: 'Holland',
-    [__WEBPACK_IMPORTED_MODULE_1_1846_config_offBoardIds__["a" /* default */].ST_LOUIS]: 'St Louis',
-    D14: 'Toledo',
-    G19: 'Wheeling'
-};
-
-class PlaceSteamboat extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-        this.playerId = args.playerId;
-        this.companyId = args.companyId;
-        this.cellId = args.cellId;
-        this.oldCellId = args.oldCellId;
-        this.oldCompanyId = args.oldCompanyId;
-    }
-
-    doExecute(state) {
-        const tile = state.tilesByCellId[this.cellId];
-        this.oldCellId = __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.findKey(state.tilesByCellId, tile => tile.hasSteamboat());
-        if (this.oldCellId) {
-            const oldTile = state.tilesByCellId[this.oldCellId];
-            this.oldCompanyId = oldTile.hasSteamboat();
-            oldTile.hasSteamboat(null);
-        }
-        tile.hasSteamboat(this.companyId);
-        this.recalculateRouteRevenue(state);
-    }
-
-    doUndo(state) {
-        const tile = state.tilesByCellId[this.cellId];
-        tile.hasSteamboat(null);
-        if (this.oldCellId) {
-            state.tilesByCellId[this.oldCellId].hasSteamboat(this.oldCompanyId);
-        }
-        this.recalculateRouteRevenue(state);
-    }
-
-    recalculateRouteRevenue(state) {
-        __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(state.allCompaniesById(), company => {
-            if (company.closed()) {
-                return;
-            }
-            __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(company.getNonRustedTrains(), train => {
-                train.route.calculateRevenue();
-            });
-        });
-    }
-
-    summary(state) {
-        const player = state.playersById()[this.playerId];
-        const company = state.getCompany(this.companyId);
-        return (player ? player.name() : company.nickname) + ' placed steamboat token' + (player ? ' assigned to ' + company.nickname : '') + ' in ' + LocationNames[this.cellId];
-    }
-}
-
-PlaceSteamboat.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (PlaceSteamboat);
-
-/***/ }),
-/* 49 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
-
-
-
-class PrivateIncome extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-    }
-
-    doExecute(state) {
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(state.players(), player => {
-            const cash = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(player.getPrivates(), privateCo => privateCo.income);
-            player.addCash(cash);
-        });
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(state.publicCompanies, company => {
-            const cash = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(company.getPrivates(), privateCo => privateCo.income);
-            company.addCash(cash);
-        });
-    }
-
-    doUndo(state) {
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(state.players(), player => {
-            const cash = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(player.getPrivates(), privateCo => privateCo.income);
-            player.removeCash(cash);
-        });
-        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(state.publicCompanies, company => {
-            const cash = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(company.getPrivates(), privateCo => privateCo.income);
-            company.removeCash(cash);
-        });
-    }
-
-    summary(state) {
-        return 'Private income paid';
-    }
-}
-
-PrivateIncome.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (PrivateIncome);
-
-/***/ }),
-/* 50 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__ = __webpack_require__(6);
-
-
-
-class RedeemShares extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-
-        this.companyId = args.companyId;
-        this.count = args.count;
-        this.price = args.price;
-    }
-
-    doExecute(state) {
-        const company = state.getCompany(this.companyId);
-        const index = company.priceIndex();
-        this.price = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].rightPrice(index);
-
-        const cash = this.price * this.count;
-        company.removeCash(cash);
-        state.bank.addCash(cash);
-
-        const certs = state.bank.removeNonPresidentCertsForCompany(this.count, this.companyId);
-        company.addCerts(certs);
-    }
-
-    doUndo(state) {
-        const company = state.getCompany(this.companyId);
-
-        const cash = this.price * this.count;
-        company.addCash(cash);
-        state.bank.removeCash(cash);
-
-        const certs = company.removeCerts(this.count);
-        state.bank.addCerts(certs);
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        return company.nickname + ' redeemed ' + this.count + ' shares at $' + this.price;
-    }
-
-    confirmation(state) {
-        const company = state.getCompany(this.companyId);
-        const index = company.priceIndex();
-        const price = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].rightPrice(index);
-        return 'Confirm redeem ' + this.count + ' shares at $' + price;
-    }
-}
-
-RedeemShares.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (RedeemShares);
-
-/***/ }),
-/* 51 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_trainDefinitions__ = __webpack_require__(11);
-
-
-
-class ReturnTrain extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-        this.companyId = args.companyId;
-        this.trainId = args.trainId;
-        this.train = args.train;
-    }
-
-    doExecute(state) {
-        const company = state.getCompany(this.companyId);
-        this.train = company.removeTrainById(this.trainId).clone();
-        state.bank.addTrains(this.train.type, 1);
-    }
-
-    doUndo(state) {
-        const company = state.getCompany(this.companyId);
-        state.bank.removeTrains(this.train.type, 1);
-        company.addTrain(this.train.clone());
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        const trainDefinition = __WEBPACK_IMPORTED_MODULE_1_1846_config_trainDefinitions__["a" /* default */][this.train.type];
-        return company.nickname + ' returned a ' + trainDefinition.name + 'T to the bank';
-    }
-
-    confirmation(state) {
-        const company = state.getCompany(this.companyId);
-        const train = company.getTrainById(this.trainId);
-        const trainDefinition = __WEBPACK_IMPORTED_MODULE_1_1846_config_trainDefinitions__["a" /* default */][train.type];
-        return 'Confirm return ' + trainDefinition.name + 'T to the bank?';
-    }
-}
-
-ReturnTrain.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (ReturnTrain);
-
-/***/ }),
-/* 52 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_trainNames__ = __webpack_require__(61);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__ = __webpack_require__(25);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_lodash__);
-
-
-
-
-
-
-
-
-class RunRoutes extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-
-        this.playerId = args.playerId;
-        this.companyId = args.companyId;
-        this.trains = args.trains;
-        this.revenue = args.revenue;
-        this.allocation = args.allocation;
-        this.oldLastRun = args.oldLastRun;
-        this.oldPriceIndex = args.oldPriceIndex;
-        this.newPriceIndex = args.newPriceIndex;
-        this.oldCompaniesForPriceIndex = args.oldCompaniesForPriceIndex;
-        this.oldTrains = args.oldTrains;
-        this.closeData = args.closeData;
-        this.oldOperated = args.oldOperated;
-        this.playerPayouts = args.playerPayouts || {};
-        this.companyPayout = args.companyPayout || 0;
-    }
-
-    doExecute(state) {
-        const company = state.getCompany(this.companyId);
-        const player = state.playersById()[this.playerId];
-        this.oldTrains = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(company.trains(), train => train.clone());
-        this.oldPriceIndex = company.priceIndex();
-        this.oldCompaniesForPriceIndex = state.stockBoard.getCompaniesForPriceIndex(this.oldPriceIndex);
-        this.oldLastRun = company.lastRun();
-        this.oldOperated = company.operated();
-        this.revenue = this.calculateRevenue(state);
-        const companyIncome = this.calculateCompanyIncome(company, this.revenue, this.allocation);
-        const payout = this.calculatePayout(this.revenue, this.allocation);
-
-        // Update and pay company
-        company.lastRun(this.revenue);
-
-        if (companyIncome > 0) {
-            state.bank.removeCash(companyIncome);
-            company.addCash(companyIncome);
-            this.companyPayout = companyIncome;
-        }
-
-        // Pay players
-        if (company.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].INDEPENDANT) {
-            if (this.revenue > 0) {
-                const halfPayout = this.revenue / 2;
-                state.bank.removeCash(halfPayout);
-                player.addCash(halfPayout);
-                this.playerPayouts[player.id] = halfPayout;
-            }
-        } else {
-            if (this.allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].NONE || this.revenue === 0) {
-                company.priceIndex(__WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftIndex(this.oldPriceIndex, !company.president() && company.numTrainsForLimit() === 0 ? 2 : 1));
-            } else {
-                company.priceIndex(__WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].rightIndex(this.oldPriceIndex, this.calculateStockMovement(payout, company.price())));
-            }
-
-            const payoutPerShare = payout / 10;
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.players(), player => {
-                const cash = player.numSharesOwnedOfCompany(this.companyId) * payoutPerShare;
-                if (cash > 0) {
-                    state.bank.removeCash(cash);
-                    player.addCash(cash);
-                    this.playerPayouts[player.id] = cash;
-                }
-            });
-        }
-
-        company.updateTrains(__WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(this.trains, train => train.clone()));
-        __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(company.trains(), train => {
-            if (train.phasedOut()) {
-                train.phasedOut(false);
-                train.rusted(true);
-            }
-        });
-
-        if (company.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].PUBLIC && company.priceIndex() === 0) {
-            this.closeData = company.close();
-        }
-        company.operated(true);
-        this.newPriceIndex = company.priceIndex();
-    }
-
-    doUndo(state) {
-        const company = state.getCompany(this.companyId);
-        const player = state.playersById()[this.playerId];
-        const companyIncome = this.calculateCompanyIncome(company, this.revenue, this.allocation);
-        const payout = this.calculatePayout(this.revenue, this.allocation);
-
-        if (this.closeData) {
-            company.unclose(this.closeData);
-        }
-
-        // Unpay players
-        if (company.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].INDEPENDANT) {
-            state.bank.addCash(this.revenue / 2);
-            player.removeCash(this.revenue / 2);
-        } else {
-            company.priceIndex(this.oldPriceIndex);
-            const payoutPerShare = payout / 10;
-            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.players(), player => {
-                const cash = player.numSharesOwnedOfCompany(this.companyId) * payoutPerShare;
-                state.bank.addCash(cash);
-                player.removeCash(cash);
-            });
-            state.stockBoard.setCompaniesForPriceIndex(this.oldPriceIndex, this.oldCompaniesForPriceIndex);
-        }
-
-        // Update and unpay company
-        state.bank.addCash(companyIncome);
-        company.removeCash(companyIncome);
-        company.trains(__WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(this.oldTrains, train => train.clone()));
-        company.lastRun(this.oldLastRun);
-        company.operated(this.oldOperated);
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        const payout = this.calculatePayout(this.revenue, this.allocation);
-        const movement = this.revenue === 0 || this.allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].NONE ? -1 : this.calculateStockMovement(payout, __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].price(this.oldPriceIndex));
-        const newPrice = __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].price(this.newPriceIndex);
-        const allocationText = this.revenue > 0 ? ' and ' + this.getAllocationText(this.allocation, true) : '';
-        const trainText = this.trains.length === 0 ? 'no trains' : 'its ' + __WEBPACK_IMPORTED_MODULE_6_lodash___default()(this.trains).map(train => __WEBPACK_IMPORTED_MODULE_3_1846_config_trainNames__["a" /* default */][train.type]).join(',') + ' train' + (this.trains.length > 1 ? 's' : '') + ' for $' + this.revenue + allocationText;
-        const stockText = company.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].INDEPENDANT ? '' : ' - share price ' + this.getMovementText(movement) + ' $' + newPrice;
-        return company.nickname + ' ran ' + trainText + stockText;
-    }
-
-    confirmation(state) {
-        const revenue = this.calculateRevenue(state);
-        const allocationText = this.revenue > 0 ? ' and ' + this.getAllocationText(this.allocation) : '';
-        return 'Confirm run trains for $' + revenue + allocationText;
-    }
-
-    details(state) {
-        const company = state.getCompany(this.companyId);
-        const details = [];
-        if (this.companyPayout) {
-            details.push(company.nickname + ' receives $' + this.companyPayout);
-        }
-        __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.playerPayouts, (amount, id) => {
-            const player = state.playersById()[id];
-            details.push(player.name() + ' receives $' + amount);
-        });
-        return details;
-    }
-
-    calculateRevenue(state) {
-        const company = state.getCompany(this.companyId);
-        let revenue = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.sumBy(this.trains, train => train.route.revenue());
-        if (company.hasPrivate(__WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].MAIL_CONTRACT)) {
-            revenue += (__WEBPACK_IMPORTED_MODULE_6_lodash___default()(this.trains).map(train => train.route.numStops()).max() || 0) * 10;
-        }
-        return revenue;
-    }
-
-    calculateCompanyIncome(company, revenue, allocation) {
-        let companyIncome = 0;
-        if (company.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].INDEPENDANT) {
-            companyIncome = revenue / 2;
-        } else if (allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].NONE) {
-            companyIncome = revenue;
-        } else if (allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].HALF) {
-            const halfRevenue = revenue / 2;
-            const remainder = halfRevenue % 10;
-            const withheld = halfRevenue - remainder;
-            const payout = halfRevenue + remainder;
-            const payoutPerShare = payout / 10;
-            companyIncome = withheld + payoutPerShare * company.shares();
-        } else {
-            companyIncome = revenue / 10 * company.shares();
-        }
-        return companyIncome;
-    }
-
-    calculatePayout(revenue, allocation) {
-        let payout = 0;
-        if (allocation !== __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].NONE) {
-            if (allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].HALF) {
-                const halfRevenue = revenue / 2;
-                const remainder = halfRevenue % 10;
-                payout = halfRevenue + remainder;
-            } else {
-                payout = revenue;
-            }
-        }
-        return payout;
-    }
-
-    calculateStockMovement(revenue, currentPrice) {
-        if (revenue < currentPrice) {
-            return 0;
-        } else if (revenue < currentPrice * 2) {
-            return 1;
-        } else if (revenue < currentPrice * 3 || currentPrice < 165) {
-            return 2;
-        } else {
-            return 3;
-        }
-    }
-
-    getAllocationText(allocation, past) {
-        if (allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].NONE) {
-            return past ? 'withheld' : 'withhold';
-        } else if (allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].HALF) {
-            return past ? 'paid half' : 'pay half';
-        } else if (allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].FULL) {
-            return past ? 'paid full' : 'pay full';
-        }
-    }
-
-    getMovementText(movement) {
-        if (movement < 0) {
-            return 'moved back to';
-        } else if (movement === 0) {
-            return 'stayed at';
-        } else if (movement === 1) {
-            return 'moved to';
-        } else if (movement === 2) {
-            return 'double jumped to';
-        } else if (movement === 3) {
-            return 'triple jumped to';
-        }
-    }
-
-}
-
-RunRoutes.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (RunRoutes);
-
-/***/ }),
-/* 53 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__ = __webpack_require__(6);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_game_validationError__ = __webpack_require__(14);
-
-
-
-
-class SellShares extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-
-        this.playerId = args.playerId;
-        this.companyId = args.companyId;
-        this.count = args.count;
-        this.startIndex = args.startIndex;
-        this.endIndex = args.endIndex;
-        this.forced = args.forced;
-        this.newPresidentId = args.newPresidentId;
-        this.firstPassIndex = args.firstPassIndex;
-        this.oldCompaniesForPriceIndex = args.oldCompaniesForPriceIndex;
-        this.closeData = args.closeData;
-    }
-
-    doExecute(state) {
-        const player = state.playersById()[this.playerId];
-        const company = state.getCompany(this.companyId);
-        const isPresident = company.president() === this.playerId;
-        this.startIndex = company.priceIndex();
-        this.oldCompaniesForPriceIndex = state.stockBoard.getCompaniesForPriceIndex(this.startIndex);
-
-        // validate things
-        // company has operated or is pres
-        // owns shares
-        // market space
-        // presidency requirement
-
-        state.firstPassIndex(null);
-        this.endIndex = isPresident ? __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftIndex(this.startIndex) : this.startIndex;
-        company.priceIndex(this.endIndex);
-        const cash = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex) * this.count;
-        state.bank.removeCash(cash);
-        player.addCash(cash);
-
-        if (this.endIndex === 0) {
-            this.closeData = company.close();
-        } else {
-            if (isPresident && player.sharesPerCompany()[this.companyId] - this.count < 2) {
-                // Swap director cert
-                const target = _(state.players()).filter(otherPlayer => player.id !== otherPlayer.id && otherPlayer.sharesPerCompany()[this.companyId] >= 2).sortBy(otherPlayer => {
-                    return otherPlayer.order() > player.order() ? otherPlayer.order() : otherPlayer.order() + 10;
-                }).first();
-
-                if (!target) {
-                    throw new __WEBPACK_IMPORTED_MODULE_2_common_game_validationError__["a" /* default */]('Cannot find player to dump company on');
-                }
-
-                const nonPresidentCerts = target.removeNonPresidentCertsForCompany(2, this.companyId);
-                const presidentCert = player.removePresidentCertForCompany(this.companyId);
-
-                target.addCert(presidentCert);
-                player.addCerts(nonPresidentCerts);
-
-                this.newPresidentId = target.id;
-                company.president(target.id);
-            }
-
-            const certs = player.removeNonPresidentCertsForCompany(this.count, this.companyId);
-            state.bank.certificates.push.apply(state.bank.certificates, certs);
-        }
-    }
-
-    doUndo(state) {
-        const player = state.playersById()[this.playerId];
-        const company = state.getCompany(this.companyId);
-
-        const cash = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex) * this.count;
-        state.bank.addCash(cash);
-        player.removeCash(cash);
-        company.priceIndex(this.startIndex);
-        state.stockBoard.setCompaniesForPriceIndex(this.startIndex, this.oldCompaniesForPriceIndex);
-        state.firstPassIndex(this.firstPassIndex);
-
-        if (this.closeData) {
-            company.unclose(this.closeData);
-        } else {
-            const certs = state.bank.removeNonPresidentCertsForCompany(this.count, this.companyId);
-            player.addCerts(certs);
-
-            if (this.newPresidentId) {
-                const newPresident = state.playersById()[this.newPresidentId];
-                const nonPresidentCerts = player.removeNonPresidentCertsForCompany(2, this.companyId);
-                const presidentCert = newPresident.removePresidentCertForCompany(this.companyId);
-
-                player.addCert(presidentCert);
-                newPresident.addCerts(nonPresidentCerts);
-                company.president(player.id);
-            }
-        }
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        return 'Sold ' + this.count + ' ' + company.nickname + ' @ ' + __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex) + (this.closeData ? ' closing the company' : '');
-    }
-
-    confirmation(state) {
-        const company = state.getCompany(this.companyId);
-        const isPresident = company.president() === this.playerId;
-        const endIndex = isPresident ? __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftIndex(this.startIndex) : this.startIndex;
-        return 'Sell ' + this.count + ' ' + company.nickname + ' @ ' + __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(company.priceIndex()) + (endIndex ? ' closing the company' : '');
-    }
-
-}
-
-SellShares.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (SellShares);
-
-/***/ }),
-/* 54 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-
-
-class SetOperatingOrder extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-        this.operatingOrder = args.operatingOrder;
-        this.oldOperatingOrder = args.oldOperatingOrder;
-    }
-
-    doExecute(state) {
-        this.oldOperatingOrder = state.operatingOrder();
-        state.operatingOrder(this.operatingOrder);
-    }
-
-    doUndo(state) {
-        state.operatingOrder(this.oldOperatingOrder);
-    }
-
-    summary(state) {
-        return 'New operating order: ' + _.join(state.operatingOrder(), ',');
-    }
-}
-
-SetOperatingOrder.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (SetOperatingOrder);
-
-/***/ }),
-/* 55 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-
-
-class SetPriorityDeal extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-        this.playerIndex = args.playerIndex;
-        this.oldPlayerIndex = args.oldPlayerIndex;
-    }
-
-    doExecute(state) {
-        this.oldPlayerIndex = state.priorityDealIndex();
-        state.priorityDealIndex(this.playerIndex);
-    }
-
-    doUndo(state) {
-        state.priorityDealIndex(this.oldPlayerIndex);
-    }
-
-    summary(state) {
-        return this.playerIndex + ' has priority deal';
-    }
-}
-
-SetPriorityDeal.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (SetPriorityDeal);
-
-/***/ }),
-/* 56 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-
-
-class SkipSecondPrivateLay extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-        this.companyId = args.companyId;
-        this.privateId = args.privateId;
-    }
-
-    doExecute(state) {
-        const privateCompany = state.getCompany(this.privateId);
-        privateCompany.used(true);
-    }
-
-    doUndo(state) {
-        const privateCompany = state.getCompany(this.privateId);
-        privateCompany.used(false);
-    }
-
-    summary(state) {
-        const company = state.getCompany(this.companyId);
-        const privateCompany = state.getCompany(this.privateId);
-        return company.nickname + ' skipped ' + privateCompany.name + '\'s second tile lay';
-    }
-}
-
-SkipSecondPrivateLay.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (SkipSecondPrivateLay);
-
-/***/ }),
-/* 57 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
-
-
-
-class StockRoundPass extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-        this.playerIndex = args.playerIndex;
-    }
-
-    doExecute(state) {
-        if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isNull(state.firstPassIndex()) || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(state.firstPassIndex())) {
-            state.firstPassIndex(this.playerIndex);
-        }
-    }
-
-    doUndo(state) {
-        state.firstPassIndex(null);
-    }
-
-    summary(state) {
-        return 'Passed';
-    }
-
-    confirmation(state) {
-        return 'Confirm Pass';
-    }
-}
-
-StockRoundPass.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (StockRoundPass);
-
-/***/ }),
-/* 58 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
-
-
-
-class UpdateSequence extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
-
-    constructor(args) {
-        super(args);
-        this.companyId = args.companyId;
-        this.playerIndex = args.playerIndex;
-        this.firstPassIndex = args.firstPassIndex;
-        this.winner = args.winner;
-        this.oldCompanyId = args.oldCompanyId;
-        this.oldPlayerIndex = args.oldPlayerIndex;
-        this.oldFirstPassIndex = args.oldFirstPassIndex;
-    }
-
-    doExecute(state) {
-        if (!__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(this.companyId)) {
-            this.oldCompanyId = state.currentCompanyId();
-            state.currentCompanyId(this.companyId);
-        }
-
-        if (!__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(this.playerIndex)) {
-            this.oldPlayerIndex = state.currentPlayerIndex();
-            state.currentPlayerIndex(this.playerIndex);
-        }
-
-        if (!__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(this.firstPassIndex)) {
-            this.oldFirstPassIndex = state.firstPassIndex();
-            state.firstPassIndex(this.firstPassIndex);
-        }
-
-        if (this.winner) {
-            state.winner(this.winner);
-        }
-    }
-
-    doUndo(state) {
-        if (!__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(this.companyId)) {
-            state.currentCompanyId(this.oldCompanyId);
-        }
-
-        if (!__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(this.playerIndex)) {
-            state.currentPlayerIndex(this.oldPlayerIndex);
-        }
-
-        if (!__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(this.firstPassIndex)) {
-            state.firstPassIndex(this.oldFirstPassIndex);
-        }
-
-        if (this.winner) {
-            state.winner(null);
-        }
-    }
-
-    summary(state) {
-        return '';
-    }
-
-    confirmation(state) {
-        return '';
-    }
-}
-
-UpdateSequence.registerClass();
-
-/* harmony default export */ __webpack_exports__["a"] = (UpdateSequence);
-
-/***/ }),
-/* 59 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_company__ = __webpack_require__(31);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_model_certificate__ = __webpack_require__(83);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_model_privateCompany__ = __webpack_require__(84);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_config_trainIds__ = __webpack_require__(12);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_common_model_train__ = __webpack_require__(32);
-
-
-
-
-
-
-
-
-
-const PublicCompanyDefinitions = {
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].GRAND_TRUNK]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].GRAND_TRUNK,
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
-        name: 'Grand Trunk',
-        nickname: 'GT',
-        tokens: 3,
-        startTokens: 3,
-        homeCellId: 'B16'
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].NEW_YORK_CENTRAL]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].NEW_YORK_CENTRAL,
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
-        name: 'New York Central',
-        nickname: 'NYC',
-        tokens: 4,
-        startTokens: 4,
-        homeCellId: 'D20'
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].ERIE]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].ERIE,
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
-        name: 'Erie',
-        nickname: 'Erie',
-        tokens: 4,
-        startTokens: 4,
-        homeCellId: 'E21'
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].PENNSYLVANIA]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].PENNSYLVANIA,
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
-        name: 'Pennsylvania',
-        nickname: 'PRR',
-        tokens: 5,
-        startTokens: 5,
-        homeCellId: 'F20'
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO,
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
-        name: 'Baltimore & Ohio',
-        nickname: 'B&O',
-        tokens: 4,
-        startTokens: 4,
-        homeCellId: 'G19'
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL,
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
-        name: 'Illinois Central',
-        nickname: 'IC',
-        tokens: 4,
-        startTokens: 4,
-        homeCellId: 'K3'
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].CHESAPEAKE_OHIO]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].CHESAPEAKE_OHIO,
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
-        nickname: 'C&O',
-        name: 'Chesapeake & Ohio',
-        tokens: 4,
-        startTokens: 4,
-        homeCellId: 'I15'
-    }
-};
-
-const PrivateCompanyDefinitions = {
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MICHIGAN_SOUTHERN]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MICHIGAN_SOUTHERN,
-        name: 'Michigan Southern',
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].INDEPENDANT,
-        nickname: 'MS',
-        tokens: 0,
-        startTokens: 1,
-        cost: 140,
-        baseCost: 140,
-        maxBuyInPrice: 60,
-        cash: 80,
-        homeCellId: 'C15',
-        trains: [new __WEBPACK_IMPORTED_MODULE_7_common_model_train__["a" /* default */]({ type: __WEBPACK_IMPORTED_MODULE_6_1846_config_trainIds__["a" /* default */].TRAIN_2, companyId: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MICHIGAN_SOUTHERN })]
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].BIG_4]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].BIG_4,
-        name: 'Big 4',
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].INDEPENDANT,
-        nickname: 'Big 4',
-        tokens: 0,
-        startTokens: 1,
-        cost: 100,
-        baseCost: 100,
-        maxBuyInPrice: 40,
-        cash: 60,
-        homeCellId: 'G9',
-        trains: [new __WEBPACK_IMPORTED_MODULE_7_common_model_train__["a" /* default */]({ type: __WEBPACK_IMPORTED_MODULE_6_1846_config_trainIds__["a" /* default */].TRAIN_2, companyId: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].BIG_4 })]
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].CHICAGO_WESTERN_INDIANA]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].CHICAGO_WESTERN_INDIANA,
-        name: 'Chicago & Western Indiana',
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
-        cost: 60,
-        baseCost: 60,
-        maxBuyInPrice: 60,
-        income: 10
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].OHIO_INDIANA]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].OHIO_INDIANA,
-        name: 'Ohio & Indiana',
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
-        cost: 40,
-        maxBuyInPrice: 40,
-        income: 15,
-        hasAbility: true
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY,
-        name: 'Meat Packing Company',
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
-        cost: 60,
-        baseCost: 60,
-        maxBuyInPrice: 60,
-        income: 15,
-        hasAbility: true
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY,
-        name: 'Steamboat Company',
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
-        cost: 40,
-        baseCost: 40,
-        maxBuyInPrice: 40,
-        income: 10,
-        hasAbility: true
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].LAKE_SHORE_LINE]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].LAKE_SHORE_LINE,
-        name: 'Lake Shore Line',
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
-        cost: 40,
-        baseCost: 40,
-        maxBuyInPrice: 40,
-        income: 15,
-        hasAbility: true
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL,
-        name: 'Michigan Central',
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
-        cost: 40,
-        baseCost: 40,
-        maxBuyInPrice: 40,
-        income: 15,
-        hasAbility: true
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MAIL_CONTRACT]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MAIL_CONTRACT,
-        name: 'Mail Contract',
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
-        cost: 80,
-        baseCost: 80,
-        maxBuyInPrice: 80,
-        income: 0
-    },
-    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY]: {
-        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY,
-        name: 'Tunnel Blasting Company',
-        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
-        cost: 60,
-        baseCost: 60,
-        maxBuyInPrice: 60,
-        income: 20
-    }
-
-};
-
-class Companies {
-    static generatePublicCompanies() {
-        return __WEBPACK_IMPORTED_MODULE_0_lodash___default.a.map(PublicCompanyDefinitions, definition => {
-            definition.certificates = __WEBPACK_IMPORTED_MODULE_0_lodash___default.a.map(__WEBPACK_IMPORTED_MODULE_0_lodash___default.a.range(9), value => {
-                const certDefinition = {
-                    companyId: definition.id,
-                    shares: 1
-                };
-                if (value === 0) {
-                    certDefinition.shares += 1;
-                    certDefinition.president = true;
-                }
-
-                return new __WEBPACK_IMPORTED_MODULE_2_common_model_certificate__["a" /* default */](certDefinition);
-            });
-
-            return new __WEBPACK_IMPORTED_MODULE_1_common_model_company__["a" /* default */](definition);
-        });
-    }
-
-    static generatePrivateCompanies() {
-        return __WEBPACK_IMPORTED_MODULE_0_lodash___default.a.map(PrivateCompanyDefinitions, definition => {
-            definition.certificates = [new __WEBPACK_IMPORTED_MODULE_2_common_model_certificate__["a" /* default */]({
-                companyId: definition.id,
-                shares: 1
-            })];
-            return new __WEBPACK_IMPORTED_MODULE_3_common_model_privateCompany__["a" /* default */](definition);
-        });
-    }
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (Companies);
-
-/***/ }),
-/* 60 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-
-const RouteColors = ['#888', // gray
-'#fd7e14', // orange
-'#007bff', // blue
-'#6f42c1', // purple
-'#e880cb' // pink
-];
-
-/* harmony default export */ __webpack_exports__["a"] = (RouteColors);
-
-/***/ }),
-/* 61 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__ = __webpack_require__(12);
-
-
-const TrainNames = {
-    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_2]: '2',
-    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_3_5]: '3/5',
-    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_4]: '4',
-    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_4_6]: '4/6',
-    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_5]: '5',
-    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_6]: '6',
-    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_7_8]: '7/8'
-};
-
-/* harmony default export */ __webpack_exports__["a"] = (TrainNames);
-
-/***/ }),
-/* 62 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__ = __webpack_require__(3);
-
-
-
-class History {
-    constructor() {
-        this.selectedRound = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable();
-    }
-
-    selectRound(id) {
-        this.selectedRound(id);
-    }
-
-    getTurnsForRound(id) {
-        const round = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().roundHistory.getRound(id);
-        if (!round) {
-            return [];
-        }
-        const turnHistory = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().turnHistory;
-        return turnHistory.getTurnsForRange(round.actionStartIndex, round.actionEndIndex);
-    }
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (History);
-
-/***/ }),
-/* 63 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_actions_issueShares__ = __webpack_require__(45);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_actions_redeemShares__ = __webpack_require__(50);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_actions_buyPrivate__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_actions_issueShares__ = __webpack_require__(46);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_actions_redeemShares__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_actions_buyPrivate__ = __webpack_require__(39);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_1846_config_prices__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_1846_config_allocations__ = __webpack_require__(25);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_1846_actions_runRoutes__ = __webpack_require__(52);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_1846_actions_buyTrains__ = __webpack_require__(40);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_1846_actions_skipSecondPrivateLay__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_1846_actions_runRoutes__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_1846_actions_buyTrains__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_1846_actions_skipSecondPrivateLay__ = __webpack_require__(57);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_common_util_events__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_1846_config_trainDefinitions__ = __webpack_require__(11);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_common_model_companyTypes__ = __webpack_require__(8);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_1846_actions_declareBankruptcy__ = __webpack_require__(41);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16_1846_actions_forceIssueCloseCompany__ = __webpack_require__(44);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17_1846_actions_returnTrain__ = __webpack_require__(51);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_15_1846_actions_declareBankruptcy__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16_1846_actions_forceIssueCloseCompany__ = __webpack_require__(45);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_17_1846_actions_returnTrain__ = __webpack_require__(52);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_18_1846_config_phaseIds__ = __webpack_require__(10);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_19_common_util_browserDetect__ = __webpack_require__(89);
 
@@ -41767,6 +37770,4008 @@ class OperatingRound {
 /* harmony default export */ __webpack_exports__["a"] = (OperatingRound);
 
 /***/ }),
+/* 29 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_model_serializable__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__ = __webpack_require__(3);
+
+
+
+class ActionGroup extends __WEBPACK_IMPORTED_MODULE_0_common_model_serializable__["a" /* default */] {
+    constructor(definition) {
+        definition = definition || {};
+        super(definition);
+
+        this.type = definition.type;
+        this.id = definition.id;
+        this.actionStartIndex = definition.actionStartIndex;
+        this.actionEndIndex = definition.actionEndIndex;
+    }
+
+    commit() {
+        this.actionEndIndex = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().actionHistory.currentIndex();
+    }
+
+    undo() {
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().actionHistory.undoRange(this.actionStartIndex, this.actionEndIndex);
+    }
+
+    getActions() {
+        if (this.actionEndIndex <= this.actionStartIndex) {
+            return [];
+        }
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().actionHistory.getActionRange(this.actionStartIndex, this.actionEndIndex);
+    }
+
+    getSummaries() {
+        if (this.actionEndIndex <= this.actionStartIndex) {
+            return [];
+        }
+
+        return _(this.getActions()).invokeMap('summary', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state()).map((summary, index) => {
+            return {
+                index: this.actionStartIndex + index,
+                type: 'action',
+                summary
+            };
+        }).value();
+    }
+
+    getInstructions() {
+        if (this.actionEndIndex <= this.actionStartIndex) {
+            return [];
+        }
+
+        return _(this.getActions()).invokeMap('instructions', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state()).map((instructions, index) => {
+            return _.map(instructions, instruction => {
+                return {
+                    index: this.actionStartIndex + index,
+                    type: 'action',
+                    instruction
+                };
+            });
+        }).flatten().value();
+    }
+
+    getDetails() {
+        if (this.actionEndIndex <= this.actionStartIndex) {
+            return [];
+        }
+
+        return _(this.getActions()).invokeMap('details', __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state()).map((details, index) => {
+            return {
+                index: this.actionStartIndex + index,
+                type: 'action',
+                details
+            };
+        }).value();
+    }
+
+    isWithinRange(startIndex, endIndex) {
+        return this.actionStartIndex >= startIndex && (endIndex && this.actionEndIndex <= endIndex || !endIndex);
+    }
+}
+
+ActionGroup.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (ActionGroup);
+
+/***/ }),
+/* 30 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_short_uuid__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__ = __webpack_require__(4);
+
+
+
+
+
+class GameRecord extends __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__["a" /* default */] {
+    constructor(definition) {
+        super(definition);
+
+        this.id = definition.id || __WEBPACK_IMPORTED_MODULE_0_short_uuid___default()().new();
+        this.type = definition.type;
+        this.name = definition.name;
+        this.location = definition.location;
+        this.players = definition.players;
+        this.startDate = definition.startDate;
+        this.endDate = definition.endDate;
+        this.winner = definition.winner;
+        this.round = definition.round;
+        this.turn = definition.turn;
+    }
+
+    create(currentState, initialState) {
+        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].store(this.id, this.serialize(), 'games');
+        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].storeCompressed(this.id, initialState.serialize(), 'initialstate');
+        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].storeCompressed(this.id, currentState.serialize(), 'currentstate');
+    }
+
+    loadCurrentState() {
+        return __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__["a" /* default */].deserialize(__WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].loadCompressed(this.id, 'currentstate'));
+    }
+
+    loadRawCurrentState() {
+        return __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].load(this.id, 'currentstate');
+    }
+
+    save(state) {
+        __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].store(this.id, this.serialize(), 'games');
+        if (state) {
+            __WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].storeCompressed(this.id, state.serialize(), 'currentstate');
+        }
+    }
+
+    static load(id) {
+        return __WEBPACK_IMPORTED_MODULE_3_common_model_serializable__["a" /* default */].deserialize(__WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].load(id, 'games'));
+    }
+
+    static list() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(__WEBPACK_IMPORTED_MODULE_2_common_util_localStore__["a" /* default */].list('games'), game => {
+            return GameRecord.deserialize(game);
+        });
+    }
+}
+
+GameRecord.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (GameRecord);
+
+/***/ }),
+/* 31 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_map_tile__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__ = __webpack_require__(18);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_1846_actions_layTrack__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_9_1846_actions_addToken__ = __webpack_require__(37);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_10_1846_actions_placeMeat__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_1846_actions_placeSteamboat__ = __webpack_require__(49);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_12_common_util_events__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13_1846_config_terrainTypes__ = __webpack_require__(26);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__ = __webpack_require__(16);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const CellCosts = {
+    C15: 40,
+    F18: 40,
+    G17: 40,
+    H16: 40,
+    H14: 60
+};
+
+const FreeICCells = {
+    E5: true,
+    F6: true,
+    G5: true,
+    H6: true,
+    J4: true
+};
+
+const FreeTunnelBlasterCells = {
+    F18: true,
+    G17: true,
+    H16: true,
+    H14: true
+};
+
+const ReservedTokens = {
+    I5: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL,
+    E11: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].PENNSYLVANIA,
+    D20: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].ERIE,
+    H12: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO
+};
+
+// Could optimize by storing known connections to stations on tiles, but would always need to refresh those if a
+// token is placed, as it can break a connection by blocking
+
+class Cell {
+    constructor(data) {
+        data = data || {};
+
+        this.id = data.id;
+        this.top = data.top || 0;
+        this.left = data.left || 0;
+        this.row = data.row || 0;
+        this.col = data.col || 0;
+        this.width = data.width || 126;
+        this.height = data.height || 144;
+        this.outline = data.outline || '0,-71.59 62,-35.796 62,35.796 0,71.59 -62,35.796 -62,-35.796';
+        this.tile = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(data.tile);
+        this.preview = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(data.preview);
+        this.allowedPreviewPositionData = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable({});
+        this.allowedPreviewPositions = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(this.allowedPreviewPositionData(), 'position');
+        });
+        this.neighbors = data.neighbors || [null, null, null, null, null, null];
+        this.connectionCosts = data.connectionCosts || {};
+        this.visibleTile = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            return this.preview() || this.tile();
+        });
+        this.upgradeTiles = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
+                return [];
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
+                return [];
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany()) {
+                return [];
+            }
+
+            return this.getUpgradeTiles();
+        });
+
+        this.tokenCheckTrigger = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable().extend({ notify: 'always' });
+
+        this.tokenableCities = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
+                return [];
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
+                return [];
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany()) {
+                return [];
+            }
+
+            if (!this.tile()) {
+                return [];
+            }
+
+            this.tokenCheckTrigger();
+
+            const companyId = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId();
+            const openCities = this.tile().getOpenCities(companyId);
+
+            if (openCities.length > 0 && this.id === 'H12' && companyId === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO) {
+                return openCities;
+            }
+
+            if (openCities.length > 0 && this.id === 'E11' && companyId === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].PENNSYLVANIA) {
+                return openCities;
+            }
+
+            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(openCities, cityId => this.depthFirstSearchForStation(companyId, cityId, {}, []));
+        });
+
+        this.canToken = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
+                return false;
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
+                return false;
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany()) {
+                return false;
+            }
+
+            if (this.tile().getOpenCities(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId()).length === 0) {
+                return false;
+            }
+
+            const turn = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().turnHistory.currentTurn();
+            if (!turn) {
+                return false;
+            }
+
+            const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
+            if (!company.tokens()) {
+                return false;
+            }
+
+            const hasTokened = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(turn.getActions(), action => {
+                return action.getTypeName() === 'AddToken';
+            });
+
+            if (hasTokened) {
+                return false;
+            }
+
+            if (this.tokenableCities().length === 0) {
+                return false;
+            }
+
+            const cost = this.getTokenCost();
+            if (company.cash() < cost) {
+                return false;
+            }
+
+            return true;
+        });
+
+        this.canEdit = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
+                return false;
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
+                return false;
+            }
+
+            const steamboat = this.canPlaceSteamboat();
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany() && !steamboat) {
+                return false;
+            }
+
+            const layingTrack = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().selectedAction() === __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().Actions.LAY_TRACK;
+            const oandi = this.isOhioIndianaLay();
+            const mc = this.isMichiganCentralLay();
+            const lsl = this.isLSLLay();
+            const meat = this.canPlaceMeat();
+
+            if (!layingTrack && !oandi && !mc && !lsl && !meat && !steamboat) {
+                return false;
+            }
+
+            if (this.isMichiganCentralLay() && !this.michiganCentralBlocked() || this.isOhioIndianaLay() && !this.ohioIndianaBlocked()) {
+                return false;
+            }
+
+            if (!this.isMichiganCentralLay() && this.michiganCentralBlocked()) {
+                return false;
+            }
+
+            if (!this.isOhioIndianaLay() && this.ohioIndianaBlocked()) {
+                return false;
+            }
+
+            return this.upgradeTiles().length > 0 || this.canToken() || meat || steamboat;
+        });
+
+        this.canRoute = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])()) {
+                return false;
+            }
+
+            if (!__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().isOperatingRound()) {
+                return false;
+            }
+
+            const train = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().selectedTrain();
+            if (!train) {
+                return false;
+            }
+
+            return true;
+        });
+
+        this.popoverParams = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            return {
+                enabledObservable: this.canEdit,
+                placement: 'right',
+                trigger: this.preview() ? 'manual' : 'click',
+                closestDiv: true,
+                content: '<div data-bind="template: { name: \'views/cellPopover\' }"></div>'
+            };
+        });
+
+        __WEBPACK_IMPORTED_MODULE_12_common_util_events__["a" /* default */].on('trackLaid', () => {
+            this.trackLaidHandler();
+        });
+        __WEBPACK_IMPORTED_MODULE_12_common_util_events__["a" /* default */].on('gridRestored', () => {
+            this.gridRestoredHandler();
+        });
+    }
+
+    trackLaidHandler() {
+        this.tokenCheckTrigger(1);
+    }
+
+    gridRestoredHandler() {
+        this.tokenCheckTrigger(1);
+    }
+
+    isOhioIndianaTiles() {
+        return this.id === 'F14' || this.id === 'F16';
+    }
+
+    isMichiganCentralTiles() {
+        return this.id === 'B10' || this.id === 'B12';
+    }
+
+    isOhioIndianaLay() {
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isOhioIndianaAbility() && this.isOhioIndianaTiles();
+    }
+
+    isMichiganCentralLay() {
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isMichiganCentralAbility() && this.isMichiganCentralTiles();
+    }
+
+    isLSLLay() {
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isLSLAbility() && (this.id === 'D14' || this.id === 'E17');
+    }
+
+    canUpgrade() {
+        return this.isLSLLay() || !__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().hasUpgradedTrackThisTurn();
+    }
+
+    canPlaceMeat() {
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isMeatPackingAbility() && (this.id === 'D6' || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].ST_LOUIS);
+    }
+
+    canPlaceSteamboat() {
+        return __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().isSteamboatAbility() && (this.id === 'D14' || this.id === 'G19' || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].HOLLAND || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].CHICAGO_CONNECTIONS || this.id === __WEBPACK_IMPORTED_MODULE_14_1846_config_offBoardIds__["a" /* default */].ST_LOUIS);
+    }
+
+    michiganCentralBlocked() {
+        const michiganCentral = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().getCompany(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL);
+        return michiganCentral && this.isMichiganCentralTiles() && !michiganCentral.closed() && !michiganCentral.used();
+    }
+
+    ohioIndianaBlocked() {
+        const ohioIndiana = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().getCompany(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].OHIO_INDIANA);
+        return ohioIndiana && this.isOhioIndianaTiles() && !ohioIndiana.closed() && !ohioIndiana.used();
+    }
+
+    getUpgradeTiles() {
+        if (this.isOhioIndianaLay() || this.isMichiganCentralLay()) {
+            return this.getOhioIndianaOrMichiganCentralTiles();
+        }
+
+        if (!this.isLSLLay() && __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().hasLaidTwoTrackThisTurn()) {
+            return [];
+        }
+
+        const phase = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentPhaseId();
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().manifest.getUpgradesForTile(this.tile().id) || [], upgrade => {
+
+            if (upgrade.tile.colorId !== __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW && (phase === __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__["a" /* default */].PHASE_I || !this.canUpgrade())) {
+                return false;
+            }
+
+            if (phase === __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__["a" /* default */].PHASE_II && __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf([__WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].GREEN, __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW], upgrade.tile.colorId) < 0) {
+                return false;
+            }
+
+            if (phase === __WEBPACK_IMPORTED_MODULE_5_1846_config_phaseIds__["a" /* default */].PHASE_III && __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf([__WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].BROWN, __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].GREEN, __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW], upgrade.tile.colorId) < 0) {
+                return false;
+            }
+
+            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
+        });
+    }
+
+    getOhioIndianaOrMichiganCentralTiles() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().manifest.getUpgradesForTile(this.tile().id) || [], upgrade => {
+            if (upgrade.tile.colorId !== __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW) {
+                return false;
+            }
+
+            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.keys(this.getAllowedTilePositionData(this.tile(), upgrade.tile.id)).length > 0;
+        });
+    }
+
+    getTokenCost() {
+        const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
+        let cost = 80;
+        if (ReservedTokens[this.id] === company.id) {
+            cost = 40;
+            if (company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO || company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].PENNSYLVANIA) {
+                const connected = this.isConnectedToStation(company.id);
+                if (!connected) {
+                    cost = company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO ? 100 : 60;
+                }
+            }
+        }
+        return cost;
+    }
+
+    getBaseCost(oldTile) {
+        if (this.isLSLLay()) {
+            return 0;
+        }
+
+        if (!oldTile.map) {
+            return 20;
+        }
+
+        const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
+        let cost = CellCosts[this.id] || 20;
+
+        if (company.id === __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL && FreeICCells[this.id]) {
+            cost = 0;
+        }
+
+        if (company.hasPrivate(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY) && FreeTunnelBlasterCells[this.id]) {
+            cost = 0;
+        }
+
+        return cost;
+    }
+
+    getPrivatePairPositionData(oldTile, newTileId, neighborEdge) {
+
+        const neighbor = this.neighbors[neighborEdge];
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(0, 6)).map(pos => {
+            const connections = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(newTileId, pos);
+            if (neighbor.tile().colorId === __WEBPACK_IMPORTED_MODULE_6_1846_config_tileColorIds__["a" /* default */].YELLOW) {
+                const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(neighborEdge);
+                const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
+                if (neighborConnectionPoint < 0) {
+                    return false;
+                }
+
+                const connectsToNeighbor = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(connections, connection => {
+                    return connection[0] === neighborEdge || connection[1] === neighborEdge;
+                });
+                if (!connectsToNeighbor) {
+                    return false;
+                }
+            }
+            const connectionOffMap = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(connections, connection => {
+                if (connection[0] < 7 && !this.neighbors[connection[0]]) {
+                    return true;
+                }
+
+                if (connection[1] < 7 && !this.neighbors[connection[1]]) {
+                    return true;
+                }
+            });
+
+            if (connectionOffMap) {
+                return null;
+            }
+            return {
+                position: pos,
+                cost: 0
+            };
+        }).compact().keyBy('position').value();
+    }
+
+    getAllowedTilePositionData(oldTile, newTileId) {
+        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state();
+        if (!state.isOperatingRound()) {
+            return [];
+        }
+
+        const oandi = this.isOhioIndianaLay();
+        const mc = this.isMichiganCentralLay();
+        if (oandi || mc) {
+            return this.getPrivatePairPositionData(oldTile, newTileId, this.id === 'F14' || this.id === 'B10' ? 1 : 4);
+        }
+
+        const visited = {};
+
+        const validEdges = {};
+        const invalidEdges = {};
+
+        const company = state.currentCompany();
+        const baseCost = this.getBaseCost(oldTile);
+        if (company.cash() < baseCost) {
+            return [];
+        }
+
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(0, 6)).map(pos => {
+            // Check against existing tile connections
+            const oldConnectionsIds = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionIdsForPosition(oldTile.id, oldTile.position());
+            const newConnectionsIds = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionIdsForPosition(newTileId, pos);
+
+            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.difference(oldConnectionsIds, newConnectionsIds).length > 0) {
+                return null;
+            }
+
+            const addedConnectionIds = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.difference(newConnectionsIds, oldConnectionsIds);
+            const addedConnections = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(newTileId, pos)).filter(connection => {
+                return this.tile().hasCity() || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(addedConnectionIds, this.getConnectionId(connection)) >= 0;
+            }).value();
+
+            // Check off map
+            const connectionOffMap = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(addedConnections, connection => {
+                if (connection[0] < 7 && !this.neighbors[connection[0]]) {
+                    invalidEdges[connection[0]] = true;
+                    return true;
+                }
+
+                if (connection[1] < 7 && !this.neighbors[connection[1]]) {
+                    invalidEdges[connection[1]] = true;
+                    return true;
+                }
+            });
+
+            if (connectionOffMap) {
+                return null;
+            }
+
+            // Check for connection costs
+            const existingConnectionPoints = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(oldTile.id, oldTile.position())).flatten().uniq().value();
+            const connectionCosts = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(addedConnections).flatten().uniq().difference(existingConnectionPoints).sumBy(edgeIndex => {
+                return this.getConnectionCost(edgeIndex);
+            });
+
+            // Check new track for a path back to station
+            const connectionToStation = this.isLSLLay() || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(addedConnections, connection => {
+                const connectionStart = connection[0];
+                const connectionEnd = connection[1];
+
+                if (validEdges[connectionStart] || validEdges[connectionEnd]) {
+                    return true;
+                }
+
+                const connectionId = this.getCellConnectionId(connection);
+
+                if (connectionStart < 7 && !invalidEdges[connectionStart]) {
+                    const isEdgeValid = this.checkNeighborConnection(company.id, connectionStart, visited, [connectionId]);
+                    if (isEdgeValid) {
+                        validEdges[connectionStart] = true;
+                        return true;
+                    } else {
+                        invalidEdges[connectionStart] = true;
+                    }
+                }
+
+                if (connectionEnd < 7 && !invalidEdges[connectionEnd]) {
+                    const isEdgeValid = this.checkNeighborConnection(company.id, connectionEnd, visited, [connectionId]);
+                    if (isEdgeValid) {
+                        validEdges[connectionEnd] = true;
+                        return true;
+                    } else {
+                        invalidEdges[connectionEnd] = true;
+                    }
+                }
+            });
+
+            if (!connectionToStation) {
+                return null;
+            }
+
+            const totalCost = baseCost + connectionCosts;
+            if (company.cash() < totalCost) {
+                return null;
+            }
+
+            return {
+                position: pos,
+                cost: totalCost
+            };
+        }).compact().keyBy('position').value();
+    }
+
+    getConnectionCost(edgeIndex) {
+        if (edgeIndex > 6) {
+            return 0;
+        }
+
+        const costData = this.connectionCosts[edgeIndex];
+        if (!costData) {
+            return 0;
+        }
+
+        if (costData.type === __WEBPACK_IMPORTED_MODULE_13_1846_config_terrainTypes__["a" /* default */].TUNNEL) {
+            const company = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompany();
+            if (company.hasPrivate(__WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY)) {
+                return 0;
+            }
+        }
+
+        const neighbor = this.neighbors[edgeIndex];
+        const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
+        const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
+        return neighborConnectionPoint >= 0 ? costData.cost : 0;
+    }
+
+    isConnectedToStation(companyId) {
+        const connections = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionsForPosition(this.tile().id, this.tile().position());
+        const visited = {};
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(connections, connection => {
+            let connected = false;
+
+            if (connection[0] < 7) {
+                connected = this.checkNeighborConnection(companyId, connection[0], visited, []);
+            }
+
+            if (!connected && connection[1] < 7) {
+                connected = this.checkNeighborConnection(companyId, connection[1], visited, []);
+            }
+            return connected;
+        });
+    }
+
+    checkNeighborConnection(companyId, edgeIndex, visited, currentSearchPath) {
+
+        const hasLocalStation = this.tile().hasTokenForCompany(companyId);
+        if (hasLocalStation) {
+            return true;
+        }
+
+        const neighbor = this.neighbors[edgeIndex];
+        if (!neighbor) {
+            return false;
+        }
+        // console.log('Checking neighbor ' + neighbor.id + ' for connection to station');
+        const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
+        const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
+        if (neighborConnectionPoint < 0) {
+            return false;
+        }
+
+        return neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint, visited, currentSearchPath);
+    }
+
+    depthFirstSearchForStation(companyId, connectionStart, visited, currentSearchPath) {
+        const connections = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(this.tile().getConnectionsToPoint(connectionStart), connection => {
+            return connection[0] === connectionStart ? connection : [connection[1], connection[0]];
+        });
+
+        let found = false;
+
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(connections, connection => {
+            const directionalConnectionId = this.id + '-' + this.getConnectionId(connection, true);
+            const connectionId = this.id + '-' + this.getConnectionId(connection);
+            if (visited[directionalConnectionId] || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(currentSearchPath, connectionId) >= 0) {
+                return;
+            }
+
+            visited[directionalConnectionId] = true;
+            if (currentSearchPath) {
+                currentSearchPath.push(connectionId);
+            }
+
+            if (connection[1] > 6) {
+
+                // check for city / token
+                if (companyId && this.tile().hasTokenForCompany(companyId, connection[1])) {
+                    found = true;
+                    return false;
+                }
+
+                // Check blocked
+                if (this.tile().isBlockedForCompany(companyId, connection[1])) {
+                    return false;
+                }
+
+                // console.log('Starting new search on this tile from local city ' + connection[1]);
+                found = this.depthFirstSearchForStation(companyId, connection[1], visited, currentSearchPath);
+            } else {
+                const connectionEnd = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position());
+                const neighbor = this.neighbors[connectionEnd];
+                if (!neighbor) {
+                    return;
+                }
+                const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(connectionEnd);
+                const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
+                if (neighborConnectionPoint >= 0) {
+                    found = neighbor.depthFirstSearchForStation(companyId, neighborConnectionPoint, visited, currentSearchPath);
+                }
+            }
+
+            if (found) {
+                return false;
+            }
+        });
+        if (currentSearchPath) {
+            currentSearchPath.pop();
+        }
+
+        return found;
+    }
+
+    getCellConnectionId(connection, directional) {
+        return this.id + '-' + this.getConnectionId(connection, directional);
+    }
+
+    getConnectionId(connection, directional) {
+        if (directional) {
+            return connection[0] + '-' + connection[1];
+        } else {
+            return Math.min(connection[0], connection[1]) + '-' + Math.max(connection[0], connection[1]);
+        }
+    }
+
+    hasConnectionAtIndex(index) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
+            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position()) === index) {
+                return true;
+            }
+
+            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position()) === index) {
+                return true;
+            }
+        });
+    }
+
+    getConnectionsToCell(cell) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.neighbors).map((neighbor, index) => {
+            if (!neighbor || neighbor.id !== cell.id) {
+                return;
+            }
+            return this.getConnectionsToIndex(cell, index);
+        }).compact().flatten().value();
+    }
+
+    getConnectionEdgeToCell(cell) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.findIndex(this.neighbors, neighbor => neighbor && neighbor.id === cell.id);
+    }
+
+    getAllConnectionEdgesToCell(cell) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.neighbors).map((neighbor, index) => neighbor && neighbor.id === cell.id ? index : null).reject(index => __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isNull(index)).value();
+    }
+
+    getConnectionsFromNeighborToNeighbor(neighborOne, neighborTwo, invalidConnectionIds) {
+        const edgeOne = this.getConnectionEdgeToCell(neighborOne);
+        const edgeTwo = this.getConnectionEdgeToCell(neighborTwo);
+
+        if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.keys(this.tile().cities).length > 0) {
+            let edgePairs = [[edgeOne, edgeTwo]];
+            if (neighborTwo.offboard) {
+                const edges = this.getAllConnectionEdgesToCell(neighborTwo);
+                if (edges.length > 1) {
+                    edgePairs = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(edges, edge => [edgeOne, edge]);
+                }
+            } else if (neighborOne.offboard) {
+                const edges = this.getAllConnectionEdgesToCell(neighborOne);
+                if (edges.length > 1) {
+                    edgePairs = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(edges, edge => [edge, edgeTwo]);
+                }
+            }
+
+            return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.tile().cities).map(city => {
+                return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(edgePairs).map(edgePair => __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.compact([this.getConnectionToEdges(edgePair[0], city.id), this.getConnectionToEdges(edgePair[1], city.id)])).reject(result => {
+                    const resultConnectionIds = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(result, connection => __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getConnectionId(connection));
+                    return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.intersection(resultConnectionIds, invalidConnectionIds).length > 0;
+                }).first();
+            }).find(connections => connections.length === 2);
+        } else {
+            return [this.getConnectionToEdges(edgeOne, edgeTwo)];
+        }
+    }
+
+    getConnectionToEdges(start, end) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
+            const offsetStart = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position());
+            const offsetEnd = __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position());
+            return (offsetStart === start || offsetStart === end) && (offsetEnd === start || offsetEnd === end);
+        });
+    }
+
+    getConnectionPointAtIndex(neighbor, index) {
+        const connection = this.hasConnectionAtIndex(index);
+        if (connection) {
+            return __WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position()) === index ? connection[0] : connection[1];
+        }
+        return -1;
+    }
+
+    getConnectionsToIndex(neighbor, index) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
+            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], this.tile().position()) === index) {
+                return true;
+            }
+
+            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], this.tile().position()) === index) {
+                return true;
+            }
+        });
+    }
+
+    getConnectionsToPoint(neighbor, index) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(__WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].getTileDefinition(this.tile().id).connections, connection => {
+            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[0], 0) === index) {
+                return true;
+            }
+
+            if (__WEBPACK_IMPORTED_MODULE_2_common_map_tile__["a" /* default */].getOffsetIndexForPosition(connection[1], 0) === index) {
+                return true;
+            }
+        });
+    }
+
+    static getNeighboringConnectionIndex(index) {
+        return (index + 3) % 6;
+    }
+
+    previewTile(tileId) {
+        const tile = __WEBPACK_IMPORTED_MODULE_3_1846_config_tileManifest__["a" /* default */].createTile(tileId);
+        this.allowedPreviewPositionData(this.getAllowedTilePositionData(this.tile(), tileId));
+        tile.position(this.allowedPreviewPositions()[0]);
+        this.preview(tile);
+    }
+
+    nextPreviewPosition() {
+        const currentPosition = this.preview().position();
+        const allowedPositions = this.allowedPreviewPositions();
+        const currentIndex = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(allowedPositions, currentPosition);
+        const nextIndex = (currentIndex + 1) % allowedPositions.length;
+        this.preview().position(allowedPositions[nextIndex]);
+    }
+
+    cancelPreview() {
+        this.preview(null);
+        this.allowedPreviewPositionData({});
+    }
+
+    commitPreview() {
+        const previewTile = this.preview();
+        const privateId = this.isLSLLay() ? __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].LAKE_SHORE_LINE : this.isMichiganCentralLay() ? __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL : this.isOhioIndianaLay() ? __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].OHIO_INDIANA : null;
+        const layTrack = new __WEBPACK_IMPORTED_MODULE_8_1846_actions_layTrack__["a" /* default */]({
+            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId(),
+            cellId: this.id,
+            tileId: previewTile.id,
+            position: previewTile.position(),
+            cost: this.allowedPreviewPositionData()[previewTile.position()].cost,
+            privateId,
+            privateDone: privateId && (this.isLSLLay() || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().numPrivateTrackLays(privateId) === 1)
+        });
+        layTrack.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
+        this.cancelPreview();
+    }
+
+    tokenCity(cityId) {
+        const addToken = new __WEBPACK_IMPORTED_MODULE_9_1846_actions_addToken__["a" /* default */]({
+            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId(),
+            cityId: cityId,
+            cellId: this.id,
+            cost: this.getTokenCost()
+        });
+        addToken.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
+        this.cancelPreview();
+    }
+
+    placeMeat() {
+        const placeMeat = new __WEBPACK_IMPORTED_MODULE_10_1846_actions_placeMeat__["a" /* default */]({
+            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId(),
+            privateId: __WEBPACK_IMPORTED_MODULE_7_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY,
+            cellId: this.id
+        });
+        placeMeat.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
+        this.cancelPreview();
+    }
+
+    placeSteamboat() {
+        const placeSteamboat = new __WEBPACK_IMPORTED_MODULE_11_1846_actions_placeSteamboat__["a" /* default */]({
+            playerId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId() ? null : __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentPlayerId(),
+            companyId: __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state().currentCompanyId() || __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().operatingRound().selectedSteamboatCompany(),
+            cellId: this.id
+        });
+        placeSteamboat.execute(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().state());
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_4_common_game_currentGame__["a" /* default */])().saveLocalState();
+        this.cancelPreview();
+    }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Cell);
+
+/***/ }),
+/* 32 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_actions_startCompany__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_common_model_serializable__ = __webpack_require__(4);
+
+
+
+
+
+
+
+
+class Company extends __WEBPACK_IMPORTED_MODULE_6_common_model_serializable__["a" /* default */] {
+    constructor(definition) {
+        super();
+        definition = definition || {};
+        this.id = definition.id;
+        this.name = definition.name || 'Anonymous';
+        this.nickname = definition.nickname || 'Anon';
+        this.type = definition.type;
+        this.homeCellId = definition.homeCellId;
+
+        this.certificates = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.certificates);
+        this.shares = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(this.certificates(), 'shares');
+        });
+        this.cash = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.cash || 0);
+        this.tokens = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.tokens || 0);
+        this.startTokens = definition.startTokens;
+        this.privates = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.privates || []);
+        this.trains = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.trains || []);
+        this.president = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.president);
+        this.parPriceIndex = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.parPriceIndex || 0);
+        this.priceIndex = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.priceIndex || 0);
+        this.price = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.computed(() => {
+            return __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].price(this.priceIndex() || 0);
+        });
+        this.lastRun = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.lastRun || 0);
+        this.opened = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.opened || false);
+        this.closed = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.closed || false);
+        this.operated = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable(definition.operated || false);
+        this.routes = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observableArray(definition.routes || []);
+    }
+
+    addCash(amount) {
+        this.cash(this.cash() + amount);
+    }
+
+    removeCash(amount) {
+        this.cash(this.cash() - amount);
+    }
+
+    start(state, playerId) {
+        new __WEBPACK_IMPORTED_MODULE_4_1846_actions_startCompany__["a" /* default */]({ playerId, companyId: this.id, startIndex: 7 }).execute(state);
+    }
+
+    addCerts(certs) {
+        this.certificates.push.apply(this.certificates, certs);
+    }
+
+    removeCerts(count) {
+        return this.certificates.splice(0, count);
+    }
+
+    numCanIssue() {
+        const numBankShares = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.numSharesOwnedOfCompany(this.id);
+        const playerShares = 10 - this.shares() - numBankShares;
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.max([0, __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.min([this.shares(), playerShares - numBankShares])]);
+    }
+
+    cashFromForcedIssues(numIssued) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.reduce(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(1, numIssued + 1), (sum, value) => {
+            return sum + __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftPrice(this.priceIndex(), value);
+        }, 0);
+    }
+
+    getPrivates() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.privates()).map(cert => __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().getCompany(cert.companyId)).reject(company => company.closed()).sortBy('name').value();
+    }
+
+    hasPrivate(id) {
+        const privateCert = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(this.privates(), cert => cert.companyId === id);
+        if (!privateCert) {
+            return false;
+        }
+
+        const privateCo = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().getCompany(privateCert.companyId);
+        return !privateCo.closed() || privateCo.id === __WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].MAIL_CONTRACT;
+    }
+
+    addPrivate(cert) {
+        this.privates.push(cert);
+    }
+
+    removePrivate(id) {
+        const privates = this.privates.remove(cert => cert.companyId === id);
+        return privates.length > 0 ? privates[0] : null;
+    }
+
+    addTrain(train) {
+        this.trains.push(train);
+    }
+
+    addTrains(trains) {
+        this.trains.push.apply(this.trains, trains);
+    }
+
+    getTrainById(trainId) {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(this.trains(), train => train.id === trainId);
+    }
+
+    removeTrainById(trainId) {
+        const removed = this.trains.remove(train => train.id === trainId);
+        return removed.length > 0 ? removed[0] : null;
+    }
+
+    removeTrainsById(trainIds) {
+        return this.trains.remove(train => __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(trainIds, train.id) >= 0);
+    }
+
+    updateTrains(trains) {
+        this.trains.valueWillMutate();
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(trains, train => {
+            const index = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.findIndex(this.trains(), oldTrain => oldTrain.id === train.id);
+            if (index >= 0) {
+                this.trains()[index] = train;
+            }
+        });
+        this.trains.valueHasMutated();
+    }
+
+    numTrainsForLimit() {
+        return this.getNonPhasedOutTrains().length;
+    }
+
+    hasTooManyTrains() {
+        return this.numTrainsForLimit() > __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().trainLimit();
+    }
+
+    isAtTrainLimit() {
+        return this.numTrainsForLimit() === __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().trainLimit();
+    }
+
+    getRunnableTrains() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(this.trains(), train => !train.purchased && !train.rusted());
+    }
+
+    getNonPhasedOutTrains() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(this.trains()).filter(train => !train.phasedOut() && !train.rusted()).sortBy(train => train.type).value();
+    }
+
+    getPhasedOutTrains() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(this.trains(), train => train.phasedOut() && !train.rusted());
+    }
+
+    getNonRustedTrains() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.filter(this.trains(), train => !train.rusted());
+    }
+
+    getAvailableRouteColor() {
+        const currentColors = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.map(this.getNonRustedTrains(), train => train.route.color);
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.range(1, 5)).difference(currentColors).first();
+    }
+
+    calculateRevenue() {
+        return __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(this.trains(), train => train.route.revenue());
+    }
+
+    useToken() {
+        this.tokens(this.tokens() - 1);
+    }
+
+    returnToken() {
+        this.tokens(this.tokens() + 1);
+    }
+
+    close() {
+        // remove from operating order
+        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state();
+        const playerCerts = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().players()).map(player => {
+            return [player.id, player.removeAllCertsForCompany(this.id)];
+        }).fromPairs().value();
+
+        const bankCerts = state.bank.removeAllCertsForCompany(this.id);
+
+        const tokens = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId).map(tile => {
+            if (tile.hasTokenForCompany(this.id)) {
+                return [tile.id, tile.removeToken(this.id)];
+            }
+            return null;
+        }).compact().fromPairs().value();
+        const reservedTokens = __WEBPACK_IMPORTED_MODULE_1_lodash___default()(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId).map(tile => {
+            if (tile.hasReservedTokenForCompany(this.id)) {
+                return [tile.id, tile.removeReservedToken(this.id)];
+            }
+            return null;
+        }).compact().fromPairs().value();
+
+        const cash = this.cash();
+        state.bank.addCash(cash);
+        this.cash(0);
+
+        let meatTileId = null;
+        if (this.hasPrivate(__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY)) {
+            const tile = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId, tile => {
+                return tile.hasMeat();
+            });
+            tile.hasMeat(false);
+            meatTileId = tile.id;
+        }
+
+        let steamboatTileId = null;
+        if (this.hasPrivate(__WEBPACK_IMPORTED_MODULE_3_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY)) {
+            const tile = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId, tile => {
+                return tile.hasSteamboat();
+            });
+            tile.hasSteamboat(false);
+            steamboatTileId = tile.id;
+        }
+
+        this.closed(true);
+
+        return {
+            id: this.id,
+            playerCerts,
+            bankCerts,
+            tokens,
+            reservedTokens,
+            meatTileId,
+            steamboatTileId,
+            cash
+        };
+    }
+
+    unclose(closeData) {
+        const state = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state();
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(closeData.playerCerts, (certs, playerId) => {
+            const player = state.playersById()[playerId];
+            player.addCerts(certs);
+        });
+
+        state.bank.addCerts(closeData.bankCerts);
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().tilesByCellId, tile => {
+            const token = closeData.tokens[tile.id];
+            if (token) {
+                const splitToken = token.split('|');
+                tile.addToken(splitToken[1], splitToken[0]);
+            }
+            const reservedToken = closeData.reservedTokens[tile.id];
+            if (reservedToken) {
+                const splitToken = reservedToken.split('|');
+                tile.addReservedToken(splitToken[1], splitToken[0]);
+            }
+
+            if (closeData.meatTileId === tile.id) {
+                tile.hasMeat(true);
+            }
+            if (closeData.steamboatTileId === tile.id) {
+                tile.hasSteamboat(true);
+            }
+        });
+        state.bank.removeCash(closeData.cash);
+        this.cash(closeData.cash);
+        this.closed(false);
+    }
+
+    phaseOut(phase) {
+        const phasedOutTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
+            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(phasedOutTrains, train.type) >= 0) {
+                train.phasedOut(true);
+            }
+        });
+    }
+
+    unphaseOut(phase) {
+        const phasedOutTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
+            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(phasedOutTrains, train.type) >= 0) {
+                train.phasedOut(false);
+            }
+        });
+    }
+
+    rust(phase) {
+        const rustedTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
+            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(rustedTrains, train.type) >= 0) {
+                train.rusted(true);
+            }
+        });
+    }
+
+    unrust(phase) {
+        const rustedTrains = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__["a" /* default */])().state().bank.getTrainsForPhase(phase);
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(this.trains(), train => {
+            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.indexOf(rustedTrains, train.type) >= 0 && train.phasedOut(true)) {
+                train.rusted(false);
+            }
+        });
+    }
+
+}
+
+Company.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (Company);
+
+/***/ }),
+/* 33 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid__ = __webpack_require__(9);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_short_uuid___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_short_uuid__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_serializable__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_model_route__ = __webpack_require__(85);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_trainDefinitions__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_knockout__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_knockout__);
+
+
+
+
+
+
+class Train extends __WEBPACK_IMPORTED_MODULE_1_common_model_serializable__["a" /* default */] {
+    constructor(data) {
+        super();
+        data = data || {};
+        this.id = data.id || __WEBPACK_IMPORTED_MODULE_0_short_uuid___default()().new();
+        this.type = data.type;
+        this.lastRoute = data.lastRoute;
+        this.route = data.route || new __WEBPACK_IMPORTED_MODULE_2_common_model_route__["a" /* default */]({ trainType: this.type, color: 1, companyId: data.companyId });
+        this.purchased = data.purchased;
+        this.phasedOut = __WEBPACK_IMPORTED_MODULE_4_knockout___default.a.observable(data.phasedOut);
+        this.rusted = __WEBPACK_IMPORTED_MODULE_4_knockout___default.a.observable(data.rusted);
+    }
+    getName() {
+        return __WEBPACK_IMPORTED_MODULE_3_1846_config_trainDefinitions__["a" /* default */][this.type].name;
+    }
+}
+
+Train.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (Train);
+
+/***/ }),
+/* 34 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bootstrap__ = __webpack_require__(94);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_bootstrap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_bootstrap__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_bootstrap_dist_css_bootstrap_min_css__ = __webpack_require__(157);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_bootstrap_dist_css_bootstrap_min_css___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_bootstrap_dist_css_bootstrap_min_css__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_ui_dashboard__ = __webpack_require__(87);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_knockout__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_knockout__);
+
+
+
+
+__webpack_require__(93);
+
+const dashboard = new __WEBPACK_IMPORTED_MODULE_2_common_ui_dashboard__["a" /* default */]();
+__WEBPACK_IMPORTED_MODULE_3_knockout___default.a.applyBindings(dashboard);
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Converter = __webpack_require__(36);
+
+/**
+ * Function get source and destination alphabet and return convert function
+ *
+ * @param {string|Array} srcAlphabet
+ * @param {string|Array} dstAlphabet
+ *
+ * @returns {function(number|Array)}
+ */
+function anyBase(srcAlphabet, dstAlphabet) {
+    var converter = new Converter(srcAlphabet, dstAlphabet);
+    /**
+     * Convert function
+     *
+     * @param {string|Array} number
+     *
+     * @return {string|Array} number
+     */
+    return function (number) {
+        return converter.convert(number);
+    }
+};
+
+anyBase.BIN = '01';
+anyBase.OCT = '01234567';
+anyBase.DEC = '0123456789';
+anyBase.HEX = '0123456789abcdef';
+
+module.exports = anyBase;
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * Converter
+ *
+ * @param {string|Array} srcAlphabet
+ * @param {string|Array} dstAlphabet
+ * @constructor
+ */
+function Converter(srcAlphabet, dstAlphabet) {
+    if (!srcAlphabet || !dstAlphabet || !srcAlphabet.length || !dstAlphabet.length) {
+        throw new Error('Bad alphabet');
+    }
+    this.srcAlphabet = srcAlphabet;
+    this.dstAlphabet = dstAlphabet;
+}
+
+/**
+ * Convert number from source alphabet to destination alphabet
+ *
+ * @param {string|Array} number - number represented as a string or array of points
+ *
+ * @returns {string|Array}
+ */
+Converter.prototype.convert = function(number) {
+    var i, divide, newlen,
+    numberMap = {},
+    fromBase = this.srcAlphabet.length,
+    toBase = this.dstAlphabet.length,
+    length = number.length,
+    result = typeof number === 'string' ? '' : [];
+
+    if (!this.isValid(number)) {
+        throw new Error('Number "' + number + '" contains of non-alphabetic digits (' + this.srcAlphabet + ')');
+    }
+
+    if (this.srcAlphabet === this.dstAlphabet) {
+        return number;
+    }
+
+    for (i = 0; i < length; i++) {
+        numberMap[i] = this.srcAlphabet.indexOf(number[i]);
+    }
+    do {
+        divide = 0;
+        newlen = 0;
+        for (i = 0; i < length; i++) {
+            divide = divide * fromBase + numberMap[i];
+            if (divide >= toBase) {
+                numberMap[newlen++] = parseInt(divide / toBase, 10);
+                divide = divide % toBase;
+            } else if (newlen > 0) {
+                numberMap[newlen++] = 0;
+            }
+        }
+        length = newlen;
+        result = this.dstAlphabet.slice(divide, divide + 1).concat(result);
+    } while (newlen !== 0);
+
+    return result;
+};
+
+/**
+ * Valid number with source alphabet
+ *
+ * @param {number} number
+ *
+ * @returns {boolean}
+ */
+Converter.prototype.isValid = function(number) {
+    var i = 0;
+    for (; i < number.length; ++i) {
+        if (this.srcAlphabet.indexOf(number[i]) === -1) {
+            return false;
+        }
+    }
+    return true;
+};
+
+module.exports = Converter;
+
+/***/ }),
+/* 37 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
+
+
+
+class AddToken extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+
+        this.cellId = args.cellId;
+        this.cityId = args.cityId;
+        this.companyId = args.companyId;
+        this.cost = args.cost;
+        this.reserved = args.reserved;
+        this.oldRoutes = args.oldRoutes || {};
+    }
+
+    doExecute(state) {
+        const company = state.getCompany(this.companyId);
+        const tile = state.tilesByCellId[this.cellId];
+        tile.addToken(this.companyId, this.cityId);
+        if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.find(tile.getReservedTokensForCity(this.cityId), reservedToken => this.companyId === reservedToken)) {
+            this.reserved = true;
+            tile.removeReservedToken(this.companyId);
+        }
+        company.useToken();
+        company.removeCash(this.cost);
+        state.bank.addCash(this.cost);
+
+        this.updateRoutes(state);
+    }
+
+    doUndo(state) {
+        const company = state.getCompany(this.companyId);
+        company.returnToken();
+        const tile = state.tilesByCellId[this.cellId];
+        tile.removeToken(this.companyId, this.cityId);
+        if (this.reserved) {
+            tile.addReservedToken(this.companyId);
+        }
+        company.addCash(this.cost);
+        state.bank.removeCash(this.cost);
+        this.undoRoutes(state);
+    }
+
+    updateRoutes(state) {
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(state.allCompaniesById(), company => {
+            if (company.closed()) {
+                return;
+            }
+            __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(company.getNonRustedTrains(), train => {
+                if (!train.route.isValid()) {
+                    this.oldRoutes[train.route.id] = train.route.clone();
+                    train.route.clear();
+                }
+            });
+        });
+    }
+
+    undoRoutes(state) {
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(state.allCompaniesById(), company => {
+            if (company.closed()) {
+                return;
+            }
+            __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(company.getNonRustedTrains(), train => {
+                const oldRoute = this.oldRoutes[train.route.id];
+                if (oldRoute) {
+                    train.route = oldRoute.clone();
+                }
+            });
+        });
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        return company.nickname + ' tokened ' + this.cellId + ' for $' + this.cost;
+    }
+}
+
+AddToken.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (AddToken);
+
+/***/ }),
+/* 38 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_prices__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash__);
+
+
+
+
+
+class AdjustStockPrices extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+        this.oldStockboardCompanies = args.oldStockboardCompanies;
+    }
+
+    doExecute(state) {
+        this.oldStockboardCompanies = state.stockBoard.getPopulatedStockboardCompanies;
+        const operatingOrder = state.stockBoard.getOperatingOrder();
+        // Handle company closing
+        __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(operatingOrder, companyId => {
+            const company = state.getCompany(companyId);
+            if (!company.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].PUBLIC) {
+                return;
+            }
+
+            if (!company.opened()) {
+                return;
+            }
+
+            if (state.bank.numSharesOwnedOfCompany(company.id) > 0) {
+                company.priceIndex(__WEBPACK_IMPORTED_MODULE_2_1846_config_prices__["a" /* default */].leftIndex(company.priceIndex()));
+            } else if (company.shares() === 0) {
+                company.priceIndex(__WEBPACK_IMPORTED_MODULE_2_1846_config_prices__["a" /* default */].rightIndex(company.priceIndex()));
+            }
+        });
+    }
+
+    doUndo(state) {
+        __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(state.publicCompanies, company => {
+            if (!company.opened()) {
+                return;
+            }
+
+            if (state.bank.numSharesOwnedOfCompany(company.id) > 0) {
+                company.priceIndex(__WEBPACK_IMPORTED_MODULE_2_1846_config_prices__["a" /* default */].rightIndex(company.priceIndex()));
+            } else if (company.shares() === 0) {
+                company.priceIndex(__WEBPACK_IMPORTED_MODULE_2_1846_config_prices__["a" /* default */].leftIndex(company.priceIndex()));
+            }
+        });
+        state.stockboard.restoreStockboardCompanies(this.oldStockboardCompanies);
+    }
+
+    summary(state) {
+        return 'adjusted prices';
+    }
+}
+
+AdjustStockPrices.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (AdjustStockPrices);
+
+/***/ }),
+/* 39 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash__);
+
+
+
+
+
+class BuyPrivate extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+
+        this.playerId = args.playerId;
+        this.privateId = args.privateId;
+        this.companyId = args.companyId;
+        this.price = args.price;
+        this.addedToken = args.addedToken;
+        this.ignoreToken = args.ignoreToken;
+        this.oldBoatCo = args.oldBoatCo;
+    }
+
+    doExecute(state) {
+        const player = state.playersById()[this.playerId];
+        const company = state.getCompany(this.companyId);
+        const privateCompany = state.getCompany(this.privateId);
+
+        if (privateCompany.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].INDEPENDANT) {
+            company.addCash(privateCompany.cash());
+            privateCompany.closed(true);
+            const train = privateCompany.trains()[0].clone();
+            train.route.color = company.getAvailableRouteColor();
+            train.route.companyId = company.id;
+            train.purchased = true;
+            train.route.clear();
+            company.addTrain(train);
+            const cellId = privateCompany.id === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].MICHIGAN_SOUTHERN ? 'C15' : 'G9';
+            const tile = state.tilesByCellId[cellId];
+            tile.removeToken(privateCompany.id);
+            if (!tile.hasTokenForCompany(this.companyId)) {
+                tile.addToken(this.companyId);
+                this.addedToken = true;
+            }
+        }
+
+        if (this.privateId === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].CHICAGO_WESTERN_INDIANA) {
+            const tile = state.tilesByCellId['D6'];
+            tile.removeReservedToken(this.privateId, 9);
+            if (!tile.hasTokenForCompany(this.companyId) && !this.ignoreToken) {
+                tile.addToken(this.companyId, 9);
+                this.addedToken = true;
+            }
+        }
+
+        if (this.privateId === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY) {
+            __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(state.tilesByCellId, tile => {
+                if (tile.hasSteamboat()) {
+                    this.oldBoatCo = tile.hasSteamboat();
+                    tile.hasSteamboat(this.companyId);
+                    return false;
+                }
+            });
+        }
+
+        const cert = player.removePrivate(this.privateId);
+        company.addPrivate(cert);
+        company.removeCash(this.price);
+        player.addCash(this.price);
+    }
+
+    doUndo(state) {
+        const player = state.playersById()[this.playerId];
+        const company = state.getCompany(this.companyId);
+        const privateCompany = state.getCompany(this.privateId);
+
+        if (privateCompany.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].INDEPENDANT) {
+            company.removeCash(privateCompany.cash());
+            privateCompany.closed(false);
+            company.removeTrainById(privateCompany.trains()[0].id);
+            const cellId = privateCompany.id === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].MICHIGAN_SOUTHERN ? 'C15' : 'G9';
+            const tile = state.tilesByCellId[cellId];
+            if (this.addedToken) {
+                tile.removeToken(this.companyId);
+            }
+            tile.addToken(privateCompany.id);
+        }
+
+        if (this.privateId === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].CHICAGO_WESTERN_INDIANA) {
+            const tile = state.tilesByCellId['D6'];
+            if (this.addedToken) {
+                tile.removeToken(this.companyId, 9);
+            }
+            tile.addReservedToken(this.privateId);
+        }
+
+        if (this.privateId === __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY && this.oldBoatCo) {
+            __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(state.tilesByCellId, tile => {
+                if (tile.hasSteamboat()) {
+                    tile.hasSteamboat(this.oldBoatCo);
+                    return false;
+                }
+            });
+        }
+
+        const cert = company.removePrivate(this.privateId);
+        player.addCert(cert);
+        player.removeCash(this.price);
+        company.addCash(this.price);
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        const privateCompany = state.getCompany(this.privateId);
+        return company.nickname + ' purchased ' + privateCompany.name + ' for $' + this.price;
+    }
+
+    confirmation(state) {
+        const privateCompany = state.getCompany(this.privateId);
+        return 'Confirm purchase of ' + privateCompany.name + ' for $' + this.price;
+    }
+}
+
+BuyPrivate.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (BuyPrivate);
+
+/***/ }),
+/* 40 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__ = __webpack_require__(6);
+
+
+
+class BuyShare extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+
+        this.playerId = args.playerId;
+        this.companyId = args.companyId;
+        this.treasury = args.treasury;
+        this.startIndex = args.startIndex;
+        this.firstPassIndex = args.firstPassIndex;
+        this.oldPresidentId = args.oldPresidentId;
+    }
+
+    doExecute(state) {
+        const player = state.playersById()[this.playerId];
+        const company = state.getCompany(this.companyId);
+        this.startIndex = company.priceIndex();
+        this.firstPassIndex = state.firstPassIndex();
+
+        // validate things
+        // cash
+        // max ownership
+        // cert limit
+        // source
+
+        const cash = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(company.priceIndex());
+        player.removeCash(cash);
+
+        let cert = null;
+        if (this.treasury) {
+            company.cash(company.cash() + cash);
+            cert = company.certificates.pop();
+        } else {
+            state.bank.cash(state.bank.cash() - cash);
+            // Only pres share in bank, buying from bank
+            if (!company.president() && player.sharesPerCompany()[this.companyId] === 1 && state.bank.numSharesOwnedOfCompany(this.companyId) === 2) {
+                const nonPresidentCerts = player.removeNonPresidentCertsForCompany(1, this.companyId);
+                cert = state.bank.removePresidentCertForCompany(this.companyId);
+                state.bank.addCerts(nonPresidentCerts);
+                this.oldPresidentId = 'bank';
+                company.president(player.id);
+            } else {
+                cert = state.bank.removeNonPresidentCertsForCompany(1, this.companyId)[0];
+            }
+        }
+        player.certificates.push(cert);
+
+        const currentPresident = !company.president() ? state.bank : state.playersById()[company.president()];
+        if (!company.president() && player.sharesPerCompany()[this.companyId] === 2 || company.president() && currentPresident.sharesPerCompany()[this.companyId] < player.sharesPerCompany()[this.companyId]) {
+            const nonPresidentCerts = player.removeNonPresidentCertsForCompany(2, this.companyId);
+            const presidentCert = currentPresident.removePresidentCertForCompany(this.companyId);
+
+            player.addCert(presidentCert);
+            currentPresident.addCerts(nonPresidentCerts);
+
+            this.oldPresidentId = !company.president() ? 'bank' : currentPresident.id;
+            company.president(player.id);
+        }
+
+        state.firstPassIndex(null);
+    }
+
+    doUndo(state) {
+        const player = state.playersById()[this.playerId];
+        const company = state.getCompany(this.companyId);
+        const cash = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(company.priceIndex());
+
+        state.firstPassIndex(this.firstPassIndex);
+
+        // Was only pres share in bank, buying from bank
+        if (this.oldPresidentId === 'bank' && !this.treasury && state.bank.numSharesOwnedOfCompany(this.companyId) === 1) {
+            state.bank.removeCash(cash);
+            player.addCash(cash);
+            const presidentCert = player.removePresidentCertForCompany(this.companyId);
+            const nonPresidentCerts = state.bank.removeNonPresidentCertsForCompany(1, this.companyId);
+            state.bank.addCert(presidentCert);
+            player.addCerts(nonPresidentCerts);
+            company.president(null);
+            return;
+        }
+
+        if (this.oldPresidentId) {
+            const oldPresident = this.oldPresidentId === 'bank' ? state.bank : state.playersById()[this.oldPresidentId];
+            const nonPresidentCerts = oldPresident.removeNonPresidentCertsForCompany(2, this.companyId);
+            const presidentCert = player.removePresidentCertForCompany(this.companyId);
+
+            oldPresident.addCert(presidentCert);
+            player.addCerts(nonPresidentCerts);
+
+            company.president(this.oldPresidentId === 'bank' ? null : oldPresident.id);
+        }
+
+        const cert = player.removeNonPresidentCertsForCompany(1, this.companyId)[0];
+        if (this.treasury) {
+            company.removeCash(cash);
+            company.certificates.push(cert);
+        } else {
+            state.bank.removeCash(cash);
+            state.bank.certificates.push(cert);
+        }
+        player.addCash(cash);
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        return 'Bought 1 ' + company.nickname + ' for $' + __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex) + ' from ' + (this.treasury ? 'the treasury' : 'the market');
+    }
+
+    confirmation(state) {
+        const company = state.getCompany(this.companyId);
+        const startIndex = company.priceIndex();
+        return 'Confirm Buy 1 ' + company.nickname + ' for $' + __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(startIndex) + ' from ' + (this.treasury ? 'the treasury' : 'the market');
+    }
+}
+
+BuyShare.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (BuyShare);
+
+/***/ }),
+/* 41 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_train__ = __webpack_require__(33);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__ = __webpack_require__(11);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_lodash__);
+
+
+
+
+
+
+
+
+const NumberWords = ['zero', 'one', 'two', 'three', 'four'];
+
+class BuyTrains extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+
+        this.companyId = args.companyId;
+        this.playerId = args.playerId;
+        this.trains = args.trains;
+        this.source = args.source;
+        this.trainIds = args.trainIds || [];
+        this.oldPhase = args.oldPhase;
+        this.closedPrivatesData = args.closedPrivatesData;
+        this.meatTileId = args.meatTileId;
+        this.steamboatTileId = args.steamboatTileId;
+        this.cost = args.cost;
+        this.forced = args.forced;
+        this.numIssued = args.numIssued;
+        this.stockSales = args.stockSales;
+        this.closedCompanies = args.closedCompanies || {};
+        this.presidentChanges = args.presidentChanges || {};
+        this.oldCompanyCash = args.oldCompanyCash;
+        this.oldCompanyPriceIndices = args.oldCompanyPriceIndices || {};
+        this.oldPlayerCerts = args.oldPlayerCerts || [];
+        this.oldPlayerCash = args.oldPlayerCash;
+        this.oldBankCash = args.oldBankCash;
+        this.oldReservedTokens = args.oldReservedTokens || {};
+    }
+
+    doExecute(state) {
+        const company = state.getCompany(this.companyId);
+        if (this.forced) {
+            const player = state.playersById()[this.playerId];
+            const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][this.trains[0]];
+            const trainType = this.trains[0];
+            const cost = trainDefinition.cost;
+            this.oldCompanyCash = company.cash();
+            this.oldCompanyPriceIndices[this.companyId] = company.priceIndex();
+            this.oldPlayerCash = player.cash();
+            this.oldBankCash = state.bank.cash();
+
+            if (this.numIssued) {
+                const certs = company.removeCerts(this.numIssued);
+                state.bank.addCerts(certs);
+                company.addCash(company.cashFromForcedIssues(this.numIssued));
+                company.priceIndex(__WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftIndex(company.priceIndex(), this.numIssued));
+            }
+
+            if (this.stockSales) {
+                __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.stockSales, (amount, companyId) => {
+                    const ownedCompany = state.getCompany(companyId);
+                    const isPresident = player.isPresidentOfCompany(companyId);
+                    const closing = isPresident && __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftIndex(company.priceIndex()) === 0;
+
+                    if (closing) {
+                        this.closedCompanies[companyId] = ownedCompany.close();
+                    } else {
+                        const cashForShares = ownedCompany.price() * amount;
+                        player.addCash(cashForShares);
+                        state.bank.removeCash(cashForShares);
+
+                        if (isPresident) {
+                            if (player.sharesPerCompany()[this.companyId] - amount < 2) {
+                                const target = __WEBPACK_IMPORTED_MODULE_6_lodash___default()(state.players()).filter(otherPlayer => player.id !== otherPlayer.id && otherPlayer.sharesPerCompany()[companyId] >= 2).sortBy(otherPlayer => {
+                                    return otherPlayer.order() > player.order() ? otherPlayer.order() : otherPlayer.order() + 10;
+                                }).first();
+
+                                if (target) {
+                                    const nonPresidentCerts = target.removeNonPresidentCertsForCompany(2, companyId);
+                                    const presidentCert = player.removePresidentCertForCompany(companyId);
+
+                                    target.addCert(presidentCert);
+                                    player.addCerts(nonPresidentCerts);
+                                    ownedCompany.president(target.id);
+                                    this.presidentChanges[companyId] = target.id;
+                                }
+                            }
+
+                            if (companyId !== this.companyId) {
+                                this.oldCompanyPriceIndices[companyId] = ownedCompany.priceIndex();
+                            }
+
+                            ownedCompany.priceIndex(__WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftIndex(ownedCompany.priceIndex()));
+                        }
+
+                        const certs = player.removeNonPresidentCertsForCompany(amount, companyId);
+                        this.oldPlayerCerts.push.apply(this.oldPlayerCerts, __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(certs, 'id'));
+                        state.bank.addCerts(certs);
+                    }
+                });
+            }
+
+            const playerCashNeeded = cost - company.cash();
+            if (playerCashNeeded) {
+                player.removeCash(playerCashNeeded);
+                company.addCash(playerCashNeeded);
+            }
+
+            company.removeCash(cost);
+            state.bank.addCash(cost);
+            state.bank.removeTrains(trainType, 1);
+
+            const newTrain = new __WEBPACK_IMPORTED_MODULE_1_common_model_train__["a" /* default */]({ type: trainType });
+            newTrain.route.color = company.getAvailableRouteColor();
+            newTrain.route.companyId = company.id;
+            newTrain.purchased = true;
+            company.addTrain(newTrain);
+            this.trainIds.push(newTrain.id);
+
+            const newPhase = this.getNewPhase(state, trainType);
+            if (newPhase) {
+                this.oldPhase = state.currentPhaseId();
+                state.currentPhaseId(newPhase);
+                this.doPhaseChange(state, newPhase);
+            }
+        } else if (this.source === 'bank') {
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.trains, (amount, type) => {
+                const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][type];
+                const cost = amount * trainDefinition.cost;
+                company.removeCash(cost);
+                state.bank.addCash(cost);
+                state.bank.removeTrains(type, amount);
+                const newTrains = __WEBPACK_IMPORTED_MODULE_6_lodash___default()(__WEBPACK_IMPORTED_MODULE_6_lodash___default.a.range(0, amount)).map(value => new __WEBPACK_IMPORTED_MODULE_1_common_model_train__["a" /* default */]({ type })).value();
+                __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(newTrains, newTrain => {
+                    newTrain.route.color = company.getAvailableRouteColor();
+                    newTrain.route.companyId = company.id;
+                    newTrain.purchased = true;
+                    company.addTrain(newTrain);
+                    this.trainIds.push(newTrain.id);
+                });
+
+                const newPhase = this.getNewPhase(state, type);
+                if (newPhase) {
+                    this.oldPhase = state.currentPhaseId();
+                    state.currentPhaseId(newPhase);
+                    this.doPhaseChange(state, newPhase);
+                }
+            });
+        } else {
+            const sellingCompany = state.getCompany(this.source);
+            this.trains = __WEBPACK_IMPORTED_MODULE_6_lodash___default()(sellingCompany.removeTrainsById(this.trainIds)).map(train => train.clone()).sortBy(train => train.type).value();
+            const trainsToAdd = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(this.trains, train => {
+                const newTrain = train.clone();
+                newTrain.route.color = company.getAvailableRouteColor();
+                newTrain.route.companyId = company.id;
+                newTrain.route.clear();
+                newTrain.purchased = true;
+                return newTrain;
+            });
+            company.addTrains(trainsToAdd);
+            sellingCompany.addCash(this.cost);
+            company.removeCash(this.cost);
+        }
+    }
+
+    doUndo(state) {
+        const company = state.getCompany(this.companyId);
+        if (this.forced) {
+            const player = state.playersById()[this.playerId];
+            const trainType = this.trains[0];
+
+            state.bank.addTrains(trainType, 1);
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.trainIds, id => {
+                company.removeTrainById(id);
+            });
+
+            if (this.oldPhase) {
+                const currentPhase = state.currentPhaseId();
+                state.currentPhaseId(this.oldPhase);
+                this.undoPhaseChange(state, currentPhase);
+            }
+
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.stockSales, (amount, companyId) => {
+                const certs = state.bank.removeNonPresidentCertsForCompany(amount, companyId);
+                player.addCerts(certs);
+            });
+
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.presidentChanges, (otherPlayerId, companyId) => {
+                if (otherPlayerId) {
+                    const otherPresident = state.playersById()[otherPlayerId];
+                    const nonPresidentCerts = player.removeNonPresidentCertsForCompany(2, companyId);
+                    const presidentCert = otherPresident.removePresidentCertForCompany(companyId);
+
+                    player.addCert(presidentCert);
+                    otherPresident.addCerts(nonPresidentCerts);
+                }
+                company.president(player.id);
+            });
+
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.closedCompanies, (closeData, companyId) => {
+                const closedCompany = state.getCompany(companyId);
+                closedCompany.unclose(closeData);
+            });
+
+            if (this.numIssued) {
+                const certs = state.bank.removeNonPresidentCertsForCompany(this.numIssued, this.companyId);
+                company.addCerts(certs);
+            }
+
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.oldCompanyPriceIndices, (index, companyId) => {
+                const otherCompany = state.getCompany(companyId);
+                otherCompany.priceIndex(index);
+            });
+
+            player.cash(this.oldPlayerCash);
+            company.cash(this.oldCompanyCash);
+            state.bank.cash(this.oldBankCash);
+        } else if (this.source === 'bank') {
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.trains, (amount, type) => {
+                const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][type];
+                const cost = amount * trainDefinition.cost;
+                company.addCash(cost);
+                state.bank.removeCash(cost);
+                state.bank.addTrains(type, amount);
+                __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.trainIds, id => {
+                    company.removeTrainById(id);
+                });
+            });
+
+            if (this.oldPhase) {
+                const currentPhase = state.currentPhaseId();
+                state.currentPhaseId(this.oldPhase);
+                this.undoPhaseChange(state, currentPhase);
+            }
+        } else {
+            const sellingCompany = state.getCompany(this.source);
+            company.removeTrainsById(this.trainIds);
+            sellingCompany.addTrains(__WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(this.trains, train => train.clone()));
+            sellingCompany.removeCash(this.cost);
+            company.addCash(this.cost);
+        }
+    }
+
+    doPhaseChange(state, newPhase) {
+
+        if (newPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_III) {
+            const closedPrivatesData = [];
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.publicCompanies, company => {
+                company.phaseOut(__WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_I);
+            });
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.privateCompanies, company => {
+                if (!company.closed()) {
+                    closedPrivatesData.push(company.close());
+                }
+            });
+            this.closedPrivatesData = closedPrivatesData;
+            console.log('setting train limit to 3');
+            state.trainLimit(3);
+            this.recalculateRouteRevenue(state);
+        } else if (newPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_IV) {
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.publicCompanies, company => {
+                company.phaseOut(__WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_II);
+                company.rust(__WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_I);
+            });
+            const meatTile = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.find(state.tilesByCellId, tile => {
+                return tile.hasMeat();
+            });
+
+            if (meatTile) {
+                meatTile.hasMeat(false);
+                this.meatTileId = meatTile.id;
+            }
+            const steamBoatTile = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.find(state.tilesByCellId, tile => {
+                return tile.hasSteamboat();
+            });
+
+            if (steamBoatTile) {
+                steamBoatTile.hasSteamboat(false);
+                this.steamboatTileId = steamBoatTile.id;
+            }
+            state.trainLimit(2);
+
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.tilesByCellId, tile => {
+                if (tile.reservedTokens().length > 0) {
+                    this.oldReservedTokens[tile.id] = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.clone(tile.reservedTokens());
+                    tile.reservedTokens([]);
+                }
+            });
+        }
+    }
+
+    undoPhaseChange(state, newPhase) {
+        if (newPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_III) {
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.publicCompanies, company => {
+                company.unphaseOut(__WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_I);
+            });
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.closedPrivatesData || [], closeData => {
+                const company = state.getCompany(closeData.id);
+                company.unclose(closeData);
+            });
+            console.log('setting train limit to 4');
+            state.trainLimit(4);
+            this.recalculateRouteRevenue(state);
+        } else if (newPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_IV) {
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.publicCompanies, company => {
+                company.unphaseOut(__WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_II);
+                company.unrust(__WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_I);
+            });
+
+            if (this.meatTileId) {
+                const tile = state.tilesByCellId[this.meatTileId];
+                tile.hasMeat(true);
+            }
+
+            if (this.steamboatTileId) {
+                const tile = state.tilesByCellId[this.steamboatTileId];
+                tile.hasSteamboat(true);
+            }
+            state.trainLimit(3);
+
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.oldReservedTokens, (tokens, tileId) => {
+                const tile = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.find(state.tilesByCellId, tile => tile.id === tileId);
+                tile.reservedTokens(__WEBPACK_IMPORTED_MODULE_6_lodash___default.a.clone(tokens));
+            });
+        }
+    }
+
+    recalculateRouteRevenue(state) {
+        __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.allCompaniesById(), company => {
+            if (company.closed()) {
+                return;
+            }
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(company.getNonRustedTrains(), train => {
+                train.route.calculateRevenue();
+            });
+        });
+    }
+
+    getNewPhase(state, type) {
+        const currentPhase = state.currentPhaseId();
+        if (currentPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_I && (type === __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__["a" /* default */].TRAIN_3_5 || type === __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__["a" /* default */].TRAIN_4)) {
+            return __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_II;
+        } else if (currentPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_II && (type === __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__["a" /* default */].TRAIN_4_6 || type === __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__["a" /* default */].TRAIN_5)) {
+            return __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_III;
+        } else if (currentPhase === __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_III && (type === __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__["a" /* default */].TRAIN_6 || type === __WEBPACK_IMPORTED_MODULE_3_1846_config_trainIds__["a" /* default */].TRAIN_7_8)) {
+            return __WEBPACK_IMPORTED_MODULE_4_1846_config_phaseIds__["a" /* default */].PHASE_IV;
+        }
+        return null;
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        const descData = this.getTrainDescriptionsAndCost(state, true);
+        const source = this.source === 'bank' ? 'the bank' : state.getCompany(this.source).nickname;
+        const suffix = this.getSuffix(company, true);
+        return company.nickname + ' bought ' + __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.join(descData.desc, ', ') + ' from ' + source + ' for $' + descData.cost + suffix;
+    }
+
+    confirmation(state) {
+        const prefix = 'Confirm buy ';
+        const company = state.getCompany(this.companyId);
+        const descData = this.getTrainDescriptionsAndCost(state);
+        const source = this.source === 'bank' ? 'the bank' : state.getCompany(this.source).nickname;
+        const suffix = this.getSuffix(company, true);
+        return prefix + __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.join(descData.desc, ', ') + ' from ' + source + ' for $' + descData.cost + suffix;
+    }
+
+    getSuffix(company, summary) {
+        let text = '';
+        if (!this.forced) {
+            return text;
+        }
+        if (this.numIssued > 0) {
+            text += (summary ? ' issuing ' : ' issued ') + this.numIssued + ' share' + (this.numIssued === 1 ? '' : 's') + ' - stock drops to $' + __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftPrice(company.priceIndex(), this.numIssued);
+        }
+        return text;
+    }
+
+    getTrainDescriptionsAndCost(state, summary) {
+        const result = {
+            desc: [],
+            cost: 0
+        };
+        if (this.forced) {
+            const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][this.trains[0]];
+            result.desc = ['a ' + trainDefinition.name + 'T'];
+            result.cost = trainDefinition.cost;
+        } else if (this.source === 'bank') {
+            const data = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.reduce(this.trains, (accumulator, amount, type) => {
+                const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][type];
+                const cost = amount * trainDefinition.cost;
+                accumulator.desc.push(NumberWords[amount] + ' ' + trainDefinition.name + 'T');
+                accumulator.cost += cost;
+                return accumulator;
+            }, { desc: [], cost: 0 });
+            result.desc = data.desc;
+            result.cost = data.cost;
+        } else {
+            if (!summary) {
+                const sellingCompany = state.getCompany(this.source);
+                result.desc = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(this.trainIds, trainId => {
+                    const train = sellingCompany.getTrainById(trainId);
+                    if (!train) {
+                        return '';
+                    }
+                    const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][train.type];
+                    return trainDefinition.name + 'T';
+                });
+            } else {
+                result.desc = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(this.trains, train => {
+                    const trainDefinition = __WEBPACK_IMPORTED_MODULE_2_1846_config_trainDefinitions__["a" /* default */][train.type];
+                    return trainDefinition.name + 'T';
+                });
+            }
+            result.cost = this.cost;
+        }
+        return result;
+    }
+}
+
+BuyTrains.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (BuyTrains);
+
+/***/ }),
+/* 42 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_game_sequence__ = __webpack_require__(13);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_lodash__);
+
+
+
+
+
+class DeclareBankruptcy extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+        this.companyId = args.companyId;
+        this.playerId = args.playerId;
+        this.numIssued = args.numIssued;
+        this.oldCompanyPriceIndices = args.oldCompanyPriceIndices || {};
+        this.oldCompanyCash = args.oldCompanyCash;
+        this.oldPlayerCash = args.oldPlayerCash;
+        this.oldPlayerCerts = args.oldPlayerCerts || [];
+        this.oldBankCash = args.oldBankCash;
+        this.closedCompanies = args.closedCompanies || {};
+        this.presidentChanges = args.presidentChanges || {};
+        this.oldPriorityDealIndex = args.oldPriorityDealIndex;
+
+        // president changes
+    }
+
+    doExecute(state) {
+        const company = state.getCompany(this.companyId);
+        const player = state.playersById()[this.playerId];
+        this.oldCompanyCash = company.cash();
+        this.oldCompanyPriceIndices[this.companyId] = company.priceIndex();
+        this.oldPlayerCash = player.cash();
+        this.oldBankCash = state.bank.cash();
+
+        // Force issue shares... This can't close the company because we wouldn't allow bankruptcy if it was possible
+        this.numIssued = company.numCanIssue();
+        const certs = company.removeCerts(this.numIssued);
+        state.bank.addCerts(certs);
+        company.addCash(company.cashFromForcedIssues(this.numIssued));
+        company.priceIndex(__WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftIndex(company.priceIndex(), this.numIssued));
+
+        // Sell off all player shares
+        __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(player.ownedCompanyIds(), companyId => {
+
+            const ownedCompany = state.getCompany(companyId);
+            const isPresident = player.isPresidentOfCompany(companyId);
+            const closing = isPresident && __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftIndex(company.priceIndex()) === 0;
+
+            if (closing) {
+                this.closedCompanies[companyId] = ownedCompany.close();
+            } else {
+                const numShares = player.numSharesOwnedOfCompany();
+                const cashForShares = ownedCompany.price() * numShares;
+                player.addCash(cashForShares);
+                state.bank.removeCash(cashForShares);
+
+                if (isPresident) {
+                    const target = __WEBPACK_IMPORTED_MODULE_3_lodash___default()(state.players()).filter(otherPlayer => player.id !== otherPlayer.id && otherPlayer.sharesPerCompany()[companyId] >= 2).sortBy(otherPlayer => {
+                        return otherPlayer.order() > player.order() ? otherPlayer.order() : otherPlayer.order() + 10;
+                    }).first();
+
+                    if (target) {
+                        const nonPresidentCerts = target.removeNonPresidentCertsForCompany(2, companyId);
+                        const presidentCert = player.removePresidentCertForCompany(companyId);
+
+                        target.addCert(presidentCert);
+                        player.addCerts(nonPresidentCerts);
+                        ownedCompany.president(target.id);
+                        this.presidentChanges[companyId] = target.id;
+                    } else {
+                        ownedCompany.president(null);
+                        this.presidentChanges[companyId] = null;
+                    }
+                    if (companyId !== this.companyId) {
+                        this.oldCompanyPriceIndices[companyId] = ownedCompany.priceIndex();
+                    }
+                    ownedCompany.priceIndex(__WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftIndex(ownedCompany.priceIndex()));
+                }
+
+                const certs = player.removeAllCertsForCompany(companyId);
+                this.oldPlayerCerts.push.apply(this.oldPlayerCerts, __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.map(certs, 'id'));
+                state.bank.addCerts(certs);
+            }
+        });
+
+        // Put money in company
+        company.addCash(player.cash());
+        player.cash(0);
+        player.bankrupt(true);
+
+        this.oldPriorityDealIndex = state.priorityDealIndex();
+
+        if (state.priorityDealIndex() === state.currentPlayerIndex()) {
+            state.priorityDealIndex(__WEBPACK_IMPORTED_MODULE_2_1846_game_sequence__["a" /* default */].nextPlayerIndex(this.oldPriorityDealIndex));
+        }
+    }
+
+    doUndo(state) {
+        const company = state.getCompany(this.companyId);
+        const player = state.playersById()[this.playerId];
+
+        state.priorityDealIndex(this.oldPriorityDealIndex);
+        player.bankrupt(false);
+        player.cash(this.oldPlayerCash);
+        company.cash(this.oldCompanyCash);
+        state.bank.cash(this.oldBankCash);
+
+        const certs = state.bank.removeCertsById(this.oldPlayerCerts);
+        player.addCerts(certs);
+
+        __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(this.presidentChanges, (otherPlayerId, companyId) => {
+            if (otherPlayerId) {
+                const otherPresident = state.playersById()[otherPlayerId];
+                const nonPresidentCerts = player.removeNonPresidentCertsForCompany(2, companyId);
+                const presidentCert = otherPresident.removePresidentCertForCompany(companyId);
+
+                player.addCert(presidentCert);
+                otherPresident.addCerts(nonPresidentCerts);
+            }
+            company.president(player.id);
+        });
+
+        __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(this.closedCompanies, (closeData, companyId) => {
+            const closedCompany = state.getCompany(companyId);
+            closedCompany.unclose(closeData);
+        });
+
+        if (this.numIssued) {
+            const certs = state.bank.removeNonPresidentCertsForCompany(this.numIssued, this.companyId);
+            company.addCerts(certs);
+        }
+
+        __WEBPACK_IMPORTED_MODULE_3_lodash___default.a.each(this.oldCompanyPriceIndices, (index, companyId) => {
+            const otherCompany = state.getCompany(companyId);
+            otherCompany.priceIndex(index);
+        });
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        const player = state.playersById()[this.playerId];
+        return player.name() + ' declared bankruptcy';
+    }
+
+    confirmation(state) {
+        return 'Confirm bankruptcy';
+    }
+}
+
+DeclareBankruptcy.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (DeclareBankruptcy);
+
+/***/ }),
+/* 43 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
+
+
+
+class DraftPass extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+
+        this.playerId = args.playerId;
+        this.privateId = args.privateId;
+    }
+
+    doExecute(state) {
+        const privateCompany = state.privateCompaniesById()[this.privateId];
+        privateCompany.cost -= 10;
+    }
+
+    doUndo(state) {}
+
+    summary(state) {
+        const privateCompany = state.privateCompaniesById()[this.privateId];
+        return 'Passed on ' + privateCompany.name;
+    }
+}
+
+DraftPass.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (DraftPass);
+
+/***/ }),
+/* 44 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_companyIds__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
+
+
+
+
+class DraftPrivate extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+
+        this.playerId = args.playerId;
+        this.privateId = args.privateId;
+        this.offeredIds = args.offeredIds;
+    }
+
+    doExecute(state) {
+        const player = state.playersById()[this.playerId];
+        const privateCompany = state.privateCompaniesById()[this.privateId];
+        if (!__WEBPACK_IMPORTED_MODULE_2_lodash___default.a.startsWith(this.privateId, 'pass')) {
+            player.cash(player.cash() - privateCompany.cost);
+            state.bank.cash(state.bank.cash() + privateCompany.cost);
+            player.certificates.push(privateCompany.certificates.pop());
+
+            if (this.privateId === __WEBPACK_IMPORTED_MODULE_1_1846_config_companyIds__["a" /* default */].MICHIGAN_SOUTHERN || this.privateId === __WEBPACK_IMPORTED_MODULE_1_1846_config_companyIds__["a" /* default */].BIG_4) {
+                privateCompany.president(this.playerId);
+            }
+        }
+        state.undraftedPrivateIds.removeAll(this.offeredIds);
+        state.undraftedPrivateIds.push.apply(state.undraftedPrivateIds, __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.shuffle(__WEBPACK_IMPORTED_MODULE_2_lodash___default.a.without(this.offeredIds, this.privateId)));
+    }
+
+    doUndo(state) {}
+
+    summary(state) {
+        const privateCompany = state.privateCompaniesById()[this.privateId];
+        const passed = __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.startsWith(this.privateId, 'pass');
+        return 'Drafted ' + (passed ? ' Pass card' : privateCompany.name);
+    }
+
+}
+
+DraftPrivate.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (DraftPrivate);
+
+/***/ }),
+/* 45 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+
+
+class ForceIssueCloesCompany extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+        this.companyId = args.companyId;
+        this.playerId = args.playerId;
+        this.count = args.count;
+        this.closeData = args.closeData;
+    }
+
+    doExecute(state) {
+        const company = state.getCompany(this.companyId);
+        this.closeData = company.close();
+    }
+
+    doUndo(state) {
+        const company = state.getCompany(this.companyId);
+        company.unclose(this.closeData);
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        return company.nickname + '\'s stock moved to $0 due to force issuing ' + this.count + ' shares for a train buy, closing the company';
+    }
+
+    confirmation(state) {
+        const company = state.getCompany(this.companyId);
+        return 'Confirm company close due to force issuing ' + this.count + ' shares for train buy';
+    }
+}
+
+ForceIssueCloesCompany.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (ForceIssueCloesCompany);
+
+/***/ }),
+/* 46 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__ = __webpack_require__(6);
+
+
+
+class IssueShares extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+
+        this.companyId = args.companyId;
+        this.count = args.count;
+        this.price = args.price;
+    }
+
+    doExecute(state) {
+        const company = state.getCompany(this.companyId);
+        const index = company.priceIndex();
+        this.price = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftPrice(index);
+
+        const cash = this.price * this.count;
+        company.addCash(cash);
+        state.bank.removeCash(cash);
+
+        const certs = company.removeCerts(this.count);
+        state.bank.addCerts(certs);
+    }
+
+    doUndo(state) {
+        const company = state.getCompany(this.companyId);
+
+        const cash = this.price * this.count;
+        company.removeCash(cash);
+        state.bank.addCash(cash);
+
+        const certs = state.bank.removeNonPresidentCertsForCompany(this.count, this.companyId);
+        company.addCerts(certs);
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        return company.nickname + ' issued ' + this.count + ' shares at $' + this.price;
+    }
+
+    confirmation(state) {
+        const company = state.getCompany(this.companyId);
+        const index = company.priceIndex();
+        const price = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftPrice(index);
+        return 'Confirm issue ' + this.count + ' shares at $' + price;
+    }
+}
+
+IssueShares.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (IssueShares);
+
+/***/ }),
+/* 47 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_mapTileIds__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_tileColorIds__ = __webpack_require__(21);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_util_events__ = __webpack_require__(7);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_lodash__);
+
+
+
+
+
+
+class LayTrack extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+
+        this.cellId = args.cellId;
+        this.tileId = args.tileId;
+        this.position = args.position;
+        this.oldTileId = args.oldTileId;
+        this.oldTilePosition = args.oldTilePosition;
+        this.companyId = args.companyId;
+        this.upgrade = args.upgrade;
+        this.cost = args.cost;
+        this.privateId = args.privateId;
+        this.privateDone = args.privateDone;
+    }
+
+    doExecute(state) {
+        const company = state.getCompany(this.companyId);
+        const oldTile = state.tilesByCellId[this.cellId];
+        this.oldTileId = oldTile.id;
+        this.oldTilePosition = oldTile.position();
+        this.upgrade = __WEBPACK_IMPORTED_MODULE_4_lodash___default.a.indexOf([__WEBPACK_IMPORTED_MODULE_2_1846_config_tileColorIds__["a" /* default */].YELLOW, __WEBPACK_IMPORTED_MODULE_2_1846_config_tileColorIds__["a" /* default */].GREEN, __WEBPACK_IMPORTED_MODULE_2_1846_config_tileColorIds__["a" /* default */].BROWN], oldTile.colorId) >= 0;
+        const newTile = state.manifest.getTile(this.tileId, this.oldTileId);
+        newTile.position(this.position);
+        oldTile.copyToTile(newTile);
+        state.tilesByCellId[this.cellId] = newTile;
+
+        company.removeCash(this.cost);
+        state.bank.addCash(this.cost);
+
+        if (this.privateId && this.privateDone) {
+            const privateCompany = state.getCompany(this.privateId);
+            privateCompany.used(true);
+        }
+
+        __WEBPACK_IMPORTED_MODULE_3_common_util_events__["a" /* default */].emit('tileUpdated', this.cellId);
+        __WEBPACK_IMPORTED_MODULE_3_common_util_events__["a" /* default */].emit('trackLaid');
+        if (this.upgrade) {
+            this.upgradeRoutes(state, this.cellId, oldTile, newTile);
+        }
+    }
+
+    doUndo(state) {
+        const company = state.getCompany(this.companyId);
+        const newTile = state.tilesByCellId[this.cellId];
+        const oldTile = state.manifest.getTile(this.oldTileId, this.tileId);
+        oldTile.position(this.oldTilePosition);
+        newTile.copyToTile(oldTile);
+        state.tilesByCellId[this.cellId] = oldTile;
+
+        if (this.privateId && this.privateDone) {
+            const privateCompany = state.getCompany(this.privateId);
+            privateCompany.used(false);
+        }
+
+        company.addCash(this.cost);
+        state.bank.removeCash(this.cost);
+        __WEBPACK_IMPORTED_MODULE_3_common_util_events__["a" /* default */].emit('tileUpdated', this.cellId);
+        __WEBPACK_IMPORTED_MODULE_3_common_util_events__["a" /* default */].emit('trackLaid', this);
+        if (this.upgrade) {
+            this.upgradeRoutes(state, this.cellId, newTile, oldTile);
+        }
+    }
+
+    upgradeRoutes(state, cellId, oldTile, newTile) {
+        __WEBPACK_IMPORTED_MODULE_4_lodash___default.a.each(state.allCompaniesById(), company => {
+            if (company.closed()) {
+                return;
+            }
+            __WEBPACK_IMPORTED_MODULE_4_lodash___default.a.each(company.getNonRustedTrains(), train => {
+                train.route.upgradeConnections(this.cellId, oldTile, newTile);
+            });
+        });
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        const privateCompany = state.getCompany(this.privateId);
+        return company.nickname + (privateCompany ? ' used ' + privateCompany.name + ' to lay' : ' laid') + ' a #' + this.tileId + ' tile at ' + this.cellId + ' for $' + this.cost;
+    }
+}
+
+LayTrack.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (LayTrack);
+
+/***/ }),
+/* 48 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+
+
+class PlaceMeat extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+        this.companyId = args.companyId;
+        this.privateId = args.privateId;
+        this.cellId = args.cellId;
+    }
+
+    doExecute(state) {
+        const privateCompany = state.getCompany(this.privateId);
+        privateCompany.used(true);
+        const tile = state.tilesByCellId[this.cellId];
+        tile.hasMeat(this.companyId);
+        this.recalculateRouteRevenue(state);
+    }
+
+    doUndo(state) {
+        const privateCompany = state.getCompany(this.privateId);
+        privateCompany.used(false);
+        const tile = state.tilesByCellId[this.cellId];
+        tile.hasMeat(null);
+        this.recalculateRouteRevenue(state);
+    }
+
+    recalculateRouteRevenue(state) {
+        _.each(state.allCompaniesById(), company => {
+            if (company.closed()) {
+                return;
+            }
+            _.each(company.getNonRustedTrains(), train => {
+                train.route.calculateRevenue();
+            });
+        });
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        const location = this.cellId === 'D6' ? 'Chicago' : 'St Louis';
+        return company.nickname + ' placed meat packing token in ' + location;
+    }
+}
+
+PlaceMeat.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (PlaceMeat);
+
+/***/ }),
+/* 49 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_offBoardIds__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
+
+
+
+
+const LocationNames = {
+    [__WEBPACK_IMPORTED_MODULE_1_1846_config_offBoardIds__["a" /* default */].CHICAGO_CONNECTIONS]: 'Chicago Connections',
+    [__WEBPACK_IMPORTED_MODULE_1_1846_config_offBoardIds__["a" /* default */].HOLLAND]: 'Holland',
+    [__WEBPACK_IMPORTED_MODULE_1_1846_config_offBoardIds__["a" /* default */].ST_LOUIS]: 'St Louis',
+    D14: 'Toledo',
+    G19: 'Wheeling'
+};
+
+class PlaceSteamboat extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+        this.playerId = args.playerId;
+        this.companyId = args.companyId;
+        this.cellId = args.cellId;
+        this.oldCellId = args.oldCellId;
+        this.oldCompanyId = args.oldCompanyId;
+    }
+
+    doExecute(state) {
+        const tile = state.tilesByCellId[this.cellId];
+        this.oldCellId = __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.findKey(state.tilesByCellId, tile => tile.hasSteamboat());
+        if (this.oldCellId) {
+            const oldTile = state.tilesByCellId[this.oldCellId];
+            this.oldCompanyId = oldTile.hasSteamboat();
+            oldTile.hasSteamboat(null);
+        }
+        tile.hasSteamboat(this.companyId);
+        this.recalculateRouteRevenue(state);
+    }
+
+    doUndo(state) {
+        const tile = state.tilesByCellId[this.cellId];
+        tile.hasSteamboat(null);
+        if (this.oldCellId) {
+            state.tilesByCellId[this.oldCellId].hasSteamboat(this.oldCompanyId);
+        }
+        this.recalculateRouteRevenue(state);
+    }
+
+    recalculateRouteRevenue(state) {
+        __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(state.allCompaniesById(), company => {
+            if (company.closed()) {
+                return;
+            }
+            __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(company.getNonRustedTrains(), train => {
+                train.route.calculateRevenue();
+            });
+        });
+    }
+
+    summary(state) {
+        const player = state.playersById()[this.playerId];
+        const company = state.getCompany(this.companyId);
+        return (player ? player.name() : company.nickname) + ' placed steamboat token' + (player ? ' assigned to ' + company.nickname : '') + ' in ' + LocationNames[this.cellId];
+    }
+}
+
+PlaceSteamboat.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (PlaceSteamboat);
+
+/***/ }),
+/* 50 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
+
+
+
+class PrivateIncome extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+    }
+
+    doExecute(state) {
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(state.players(), player => {
+            const cash = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(player.getPrivates(), privateCo => privateCo.income);
+            player.addCash(cash);
+        });
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(state.publicCompanies, company => {
+            const cash = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(company.getPrivates(), privateCo => privateCo.income);
+            company.addCash(cash);
+        });
+    }
+
+    doUndo(state) {
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(state.players(), player => {
+            const cash = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(player.getPrivates(), privateCo => privateCo.income);
+            player.removeCash(cash);
+        });
+        __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.each(state.publicCompanies, company => {
+            const cash = __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.sumBy(company.getPrivates(), privateCo => privateCo.income);
+            company.removeCash(cash);
+        });
+    }
+
+    summary(state) {
+        return 'Private income paid';
+    }
+}
+
+PrivateIncome.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (PrivateIncome);
+
+/***/ }),
+/* 51 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__ = __webpack_require__(6);
+
+
+
+class RedeemShares extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+
+        this.companyId = args.companyId;
+        this.count = args.count;
+        this.price = args.price;
+    }
+
+    doExecute(state) {
+        const company = state.getCompany(this.companyId);
+        const index = company.priceIndex();
+        this.price = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].rightPrice(index);
+
+        const cash = this.price * this.count;
+        company.removeCash(cash);
+        state.bank.addCash(cash);
+
+        const certs = state.bank.removeNonPresidentCertsForCompany(this.count, this.companyId);
+        company.addCerts(certs);
+    }
+
+    doUndo(state) {
+        const company = state.getCompany(this.companyId);
+
+        const cash = this.price * this.count;
+        company.addCash(cash);
+        state.bank.removeCash(cash);
+
+        const certs = company.removeCerts(this.count);
+        state.bank.addCerts(certs);
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        return company.nickname + ' redeemed ' + this.count + ' shares at $' + this.price;
+    }
+
+    confirmation(state) {
+        const company = state.getCompany(this.companyId);
+        const index = company.priceIndex();
+        const price = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].rightPrice(index);
+        return 'Confirm redeem ' + this.count + ' shares at $' + price;
+    }
+}
+
+RedeemShares.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (RedeemShares);
+
+/***/ }),
+/* 52 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_trainDefinitions__ = __webpack_require__(11);
+
+
+
+class ReturnTrain extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+        this.companyId = args.companyId;
+        this.trainId = args.trainId;
+        this.train = args.train;
+    }
+
+    doExecute(state) {
+        const company = state.getCompany(this.companyId);
+        this.train = company.removeTrainById(this.trainId).clone();
+        state.bank.addTrains(this.train.type, 1);
+    }
+
+    doUndo(state) {
+        const company = state.getCompany(this.companyId);
+        state.bank.removeTrains(this.train.type, 1);
+        company.addTrain(this.train.clone());
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        const trainDefinition = __WEBPACK_IMPORTED_MODULE_1_1846_config_trainDefinitions__["a" /* default */][this.train.type];
+        return company.nickname + ' returned a ' + trainDefinition.name + 'T to the bank';
+    }
+
+    confirmation(state) {
+        const company = state.getCompany(this.companyId);
+        const train = company.getTrainById(this.trainId);
+        const trainDefinition = __WEBPACK_IMPORTED_MODULE_1_1846_config_trainDefinitions__["a" /* default */][train.type];
+        return 'Confirm return ' + trainDefinition.name + 'T to the bank?';
+    }
+}
+
+ReturnTrain.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (ReturnTrain);
+
+/***/ }),
+/* 53 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_config_trainNames__ = __webpack_require__(62);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__ = __webpack_require__(25);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_lodash__);
+
+
+
+
+
+
+
+
+class RunRoutes extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+
+        this.playerId = args.playerId;
+        this.companyId = args.companyId;
+        this.trains = args.trains;
+        this.revenue = args.revenue;
+        this.allocation = args.allocation;
+        this.oldLastRun = args.oldLastRun;
+        this.oldPriceIndex = args.oldPriceIndex;
+        this.newPriceIndex = args.newPriceIndex;
+        this.oldCompaniesForPriceIndex = args.oldCompaniesForPriceIndex;
+        this.oldTrains = args.oldTrains;
+        this.closeData = args.closeData;
+        this.oldOperated = args.oldOperated;
+        this.playerPayouts = args.playerPayouts || {};
+        this.companyPayout = args.companyPayout || 0;
+    }
+
+    doExecute(state) {
+        const company = state.getCompany(this.companyId);
+        const player = state.playersById()[this.playerId];
+        this.oldTrains = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(company.trains(), train => train.clone());
+        this.oldPriceIndex = company.priceIndex();
+        this.oldCompaniesForPriceIndex = state.stockBoard.getCompaniesForPriceIndex(this.oldPriceIndex);
+        this.oldLastRun = company.lastRun();
+        this.oldOperated = company.operated();
+        this.revenue = this.calculateRevenue(state);
+        const companyIncome = this.calculateCompanyIncome(company, this.revenue, this.allocation);
+        const payout = this.calculatePayout(this.revenue, this.allocation);
+
+        // Update and pay company
+        company.lastRun(this.revenue);
+
+        if (companyIncome > 0) {
+            state.bank.removeCash(companyIncome);
+            company.addCash(companyIncome);
+            this.companyPayout = companyIncome;
+        }
+
+        // Pay players
+        if (company.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].INDEPENDANT) {
+            if (this.revenue > 0) {
+                const halfPayout = this.revenue / 2;
+                state.bank.removeCash(halfPayout);
+                player.addCash(halfPayout);
+                this.playerPayouts[player.id] = halfPayout;
+            }
+        } else {
+            if (this.allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].NONE || this.revenue === 0) {
+                company.priceIndex(__WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].leftIndex(this.oldPriceIndex, !company.president() && company.numTrainsForLimit() === 0 ? 2 : 1));
+            } else {
+                company.priceIndex(__WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].rightIndex(this.oldPriceIndex, this.calculateStockMovement(payout, company.price())));
+            }
+
+            const payoutPerShare = payout / 10;
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.players(), player => {
+                const cash = player.numSharesOwnedOfCompany(this.companyId) * payoutPerShare;
+                if (cash > 0) {
+                    state.bank.removeCash(cash);
+                    player.addCash(cash);
+                    this.playerPayouts[player.id] = cash;
+                }
+            });
+        }
+
+        company.updateTrains(__WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(this.trains, train => train.clone()));
+        __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(company.trains(), train => {
+            if (train.phasedOut()) {
+                train.phasedOut(false);
+                train.rusted(true);
+            }
+        });
+
+        if (company.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].PUBLIC && company.priceIndex() === 0) {
+            this.closeData = company.close();
+        }
+        company.operated(true);
+        this.newPriceIndex = company.priceIndex();
+    }
+
+    doUndo(state) {
+        const company = state.getCompany(this.companyId);
+        const player = state.playersById()[this.playerId];
+        const companyIncome = this.calculateCompanyIncome(company, this.revenue, this.allocation);
+        const payout = this.calculatePayout(this.revenue, this.allocation);
+
+        if (this.closeData) {
+            company.unclose(this.closeData);
+        }
+
+        // Unpay players
+        if (company.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].INDEPENDANT) {
+            state.bank.addCash(this.revenue / 2);
+            player.removeCash(this.revenue / 2);
+        } else {
+            company.priceIndex(this.oldPriceIndex);
+            const payoutPerShare = payout / 10;
+            __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(state.players(), player => {
+                const cash = player.numSharesOwnedOfCompany(this.companyId) * payoutPerShare;
+                state.bank.addCash(cash);
+                player.removeCash(cash);
+            });
+            state.stockBoard.setCompaniesForPriceIndex(this.oldPriceIndex, this.oldCompaniesForPriceIndex);
+        }
+
+        // Update and unpay company
+        state.bank.addCash(companyIncome);
+        company.removeCash(companyIncome);
+        company.trains(__WEBPACK_IMPORTED_MODULE_6_lodash___default.a.map(this.oldTrains, train => train.clone()));
+        company.lastRun(this.oldLastRun);
+        company.operated(this.oldOperated);
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        const payout = this.calculatePayout(this.revenue, this.allocation);
+        const movement = this.revenue === 0 || this.allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].NONE ? -1 : this.calculateStockMovement(payout, __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].price(this.oldPriceIndex));
+        const newPrice = __WEBPACK_IMPORTED_MODULE_5_1846_config_prices__["a" /* default */].price(this.newPriceIndex);
+        const allocationText = this.revenue > 0 ? ' and ' + this.getAllocationText(this.allocation, true) : '';
+        const trainText = this.trains.length === 0 ? 'no trains' : 'its ' + __WEBPACK_IMPORTED_MODULE_6_lodash___default()(this.trains).map(train => __WEBPACK_IMPORTED_MODULE_3_1846_config_trainNames__["a" /* default */][train.type]).join(',') + ' train' + (this.trains.length > 1 ? 's' : '') + ' for $' + this.revenue + allocationText;
+        const stockText = company.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].INDEPENDANT ? '' : ' - share price ' + this.getMovementText(movement) + ' $' + newPrice;
+        return company.nickname + ' ran ' + trainText + stockText;
+    }
+
+    confirmation(state) {
+        const revenue = this.calculateRevenue(state);
+        const allocationText = this.revenue > 0 ? ' and ' + this.getAllocationText(this.allocation) : '';
+        return 'Confirm run trains for $' + revenue + allocationText;
+    }
+
+    details(state) {
+        const company = state.getCompany(this.companyId);
+        const details = [];
+        if (this.companyPayout) {
+            details.push(company.nickname + ' receives $' + this.companyPayout);
+        }
+        __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.each(this.playerPayouts, (amount, id) => {
+            const player = state.playersById()[id];
+            details.push(player.name() + ' receives $' + amount);
+        });
+        return details;
+    }
+
+    calculateRevenue(state) {
+        const company = state.getCompany(this.companyId);
+        let revenue = __WEBPACK_IMPORTED_MODULE_6_lodash___default.a.sumBy(this.trains, train => train.route.revenue());
+        if (company.hasPrivate(__WEBPACK_IMPORTED_MODULE_2_1846_config_companyIds__["a" /* default */].MAIL_CONTRACT)) {
+            revenue += (__WEBPACK_IMPORTED_MODULE_6_lodash___default()(this.trains).map(train => train.route.numStops()).max() || 0) * 10;
+        }
+        return revenue;
+    }
+
+    calculateCompanyIncome(company, revenue, allocation) {
+        let companyIncome = 0;
+        if (company.type === __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__["a" /* default */].INDEPENDANT) {
+            companyIncome = revenue / 2;
+        } else if (allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].NONE) {
+            companyIncome = revenue;
+        } else if (allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].HALF) {
+            const halfRevenue = revenue / 2;
+            const remainder = halfRevenue % 10;
+            const withheld = halfRevenue - remainder;
+            const payout = halfRevenue + remainder;
+            const payoutPerShare = payout / 10;
+            companyIncome = withheld + payoutPerShare * company.shares();
+        } else {
+            companyIncome = revenue / 10 * company.shares();
+        }
+        return companyIncome;
+    }
+
+    calculatePayout(revenue, allocation) {
+        let payout = 0;
+        if (allocation !== __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].NONE) {
+            if (allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].HALF) {
+                const halfRevenue = revenue / 2;
+                const remainder = halfRevenue % 10;
+                payout = halfRevenue + remainder;
+            } else {
+                payout = revenue;
+            }
+        }
+        return payout;
+    }
+
+    calculateStockMovement(revenue, currentPrice) {
+        if (revenue < currentPrice) {
+            return 0;
+        } else if (revenue < currentPrice * 2) {
+            return 1;
+        } else if (revenue < currentPrice * 3 || currentPrice < 165) {
+            return 2;
+        } else {
+            return 3;
+        }
+    }
+
+    getAllocationText(allocation, past) {
+        if (allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].NONE) {
+            return past ? 'withheld' : 'withhold';
+        } else if (allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].HALF) {
+            return past ? 'paid half' : 'pay half';
+        } else if (allocation === __WEBPACK_IMPORTED_MODULE_4_1846_config_allocations__["a" /* default */].FULL) {
+            return past ? 'paid full' : 'pay full';
+        }
+    }
+
+    getMovementText(movement) {
+        if (movement < 0) {
+            return 'moved back to';
+        } else if (movement === 0) {
+            return 'stayed at';
+        } else if (movement === 1) {
+            return 'moved to';
+        } else if (movement === 2) {
+            return 'double jumped to';
+        } else if (movement === 3) {
+            return 'triple jumped to';
+        }
+    }
+
+}
+
+RunRoutes.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (RunRoutes);
+
+/***/ }),
+/* 54 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__ = __webpack_require__(6);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_game_validationError__ = __webpack_require__(14);
+
+
+
+
+class SellShares extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+
+        this.playerId = args.playerId;
+        this.companyId = args.companyId;
+        this.count = args.count;
+        this.startIndex = args.startIndex;
+        this.endIndex = args.endIndex;
+        this.forced = args.forced;
+        this.newPresidentId = args.newPresidentId;
+        this.firstPassIndex = args.firstPassIndex;
+        this.oldCompaniesForPriceIndex = args.oldCompaniesForPriceIndex;
+        this.closeData = args.closeData;
+    }
+
+    doExecute(state) {
+        const player = state.playersById()[this.playerId];
+        const company = state.getCompany(this.companyId);
+        const isPresident = company.president() === this.playerId;
+        this.startIndex = company.priceIndex();
+        this.oldCompaniesForPriceIndex = state.stockBoard.getCompaniesForPriceIndex(this.startIndex);
+
+        // validate things
+        // company has operated or is pres
+        // owns shares
+        // market space
+        // presidency requirement
+
+        state.firstPassIndex(null);
+        this.endIndex = isPresident ? __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftIndex(this.startIndex) : this.startIndex;
+        company.priceIndex(this.endIndex);
+        const cash = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex) * this.count;
+        state.bank.removeCash(cash);
+        player.addCash(cash);
+
+        if (this.endIndex === 0) {
+            this.closeData = company.close();
+        } else {
+            if (isPresident && player.sharesPerCompany()[this.companyId] - this.count < 2) {
+                // Swap director cert
+                const target = _(state.players()).filter(otherPlayer => player.id !== otherPlayer.id && otherPlayer.sharesPerCompany()[this.companyId] >= 2).sortBy(otherPlayer => {
+                    return otherPlayer.order() > player.order() ? otherPlayer.order() : otherPlayer.order() + 10;
+                }).first();
+
+                if (!target) {
+                    throw new __WEBPACK_IMPORTED_MODULE_2_common_game_validationError__["a" /* default */]('Cannot find player to dump company on');
+                }
+
+                const nonPresidentCerts = target.removeNonPresidentCertsForCompany(2, this.companyId);
+                const presidentCert = player.removePresidentCertForCompany(this.companyId);
+
+                target.addCert(presidentCert);
+                player.addCerts(nonPresidentCerts);
+
+                this.newPresidentId = target.id;
+                company.president(target.id);
+            }
+
+            const certs = player.removeNonPresidentCertsForCompany(this.count, this.companyId);
+            state.bank.certificates.push.apply(state.bank.certificates, certs);
+        }
+    }
+
+    doUndo(state) {
+        const player = state.playersById()[this.playerId];
+        const company = state.getCompany(this.companyId);
+
+        const cash = __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex) * this.count;
+        state.bank.addCash(cash);
+        player.removeCash(cash);
+        company.priceIndex(this.startIndex);
+        state.stockBoard.setCompaniesForPriceIndex(this.startIndex, this.oldCompaniesForPriceIndex);
+        state.firstPassIndex(this.firstPassIndex);
+
+        if (this.closeData) {
+            company.unclose(this.closeData);
+        } else {
+            const certs = state.bank.removeNonPresidentCertsForCompany(this.count, this.companyId);
+            player.addCerts(certs);
+
+            if (this.newPresidentId) {
+                const newPresident = state.playersById()[this.newPresidentId];
+                const nonPresidentCerts = player.removeNonPresidentCertsForCompany(2, this.companyId);
+                const presidentCert = newPresident.removePresidentCertForCompany(this.companyId);
+
+                player.addCert(presidentCert);
+                newPresident.addCerts(nonPresidentCerts);
+                company.president(player.id);
+            }
+        }
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        return 'Sold ' + this.count + ' ' + company.nickname + ' @ ' + __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(this.startIndex) + (this.closeData ? ' closing the company' : '');
+    }
+
+    confirmation(state) {
+        const company = state.getCompany(this.companyId);
+        const isPresident = company.president() === this.playerId;
+        const endIndex = isPresident ? __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].leftIndex(this.startIndex) : this.startIndex;
+        return 'Sell ' + this.count + ' ' + company.nickname + ' @ ' + __WEBPACK_IMPORTED_MODULE_1_1846_config_prices__["a" /* default */].price(company.priceIndex()) + (endIndex ? ' closing the company' : '');
+    }
+
+}
+
+SellShares.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (SellShares);
+
+/***/ }),
+/* 55 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+
+
+class SetOperatingOrder extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+        this.operatingOrder = args.operatingOrder;
+        this.oldOperatingOrder = args.oldOperatingOrder;
+    }
+
+    doExecute(state) {
+        this.oldOperatingOrder = state.operatingOrder();
+        state.operatingOrder(this.operatingOrder);
+    }
+
+    doUndo(state) {
+        state.operatingOrder(this.oldOperatingOrder);
+    }
+
+    summary(state) {
+        return 'New operating order: ' + _.join(state.operatingOrder(), ',');
+    }
+}
+
+SetOperatingOrder.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (SetOperatingOrder);
+
+/***/ }),
+/* 56 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+
+
+class SetPriorityDeal extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+        this.playerIndex = args.playerIndex;
+        this.oldPlayerIndex = args.oldPlayerIndex;
+    }
+
+    doExecute(state) {
+        this.oldPlayerIndex = state.priorityDealIndex();
+        state.priorityDealIndex(this.playerIndex);
+    }
+
+    doUndo(state) {
+        state.priorityDealIndex(this.oldPlayerIndex);
+    }
+
+    summary(state) {
+        return this.playerIndex + ' has priority deal';
+    }
+}
+
+SetPriorityDeal.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (SetPriorityDeal);
+
+/***/ }),
+/* 57 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+
+
+class SkipSecondPrivateLay extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+        this.companyId = args.companyId;
+        this.privateId = args.privateId;
+    }
+
+    doExecute(state) {
+        const privateCompany = state.getCompany(this.privateId);
+        privateCompany.used(true);
+    }
+
+    doUndo(state) {
+        const privateCompany = state.getCompany(this.privateId);
+        privateCompany.used(false);
+    }
+
+    summary(state) {
+        const company = state.getCompany(this.companyId);
+        const privateCompany = state.getCompany(this.privateId);
+        return company.nickname + ' skipped ' + privateCompany.name + '\'s second tile lay';
+    }
+}
+
+SkipSecondPrivateLay.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (SkipSecondPrivateLay);
+
+/***/ }),
+/* 58 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
+
+
+
+class StockRoundPass extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+        this.playerIndex = args.playerIndex;
+    }
+
+    doExecute(state) {
+        if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isNull(state.firstPassIndex()) || __WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(state.firstPassIndex())) {
+            state.firstPassIndex(this.playerIndex);
+        }
+    }
+
+    doUndo(state) {
+        state.firstPassIndex(null);
+    }
+
+    summary(state) {
+        return 'Passed';
+    }
+
+    confirmation(state) {
+        return 'Confirm Pass';
+    }
+}
+
+StockRoundPass.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (StockRoundPass);
+
+/***/ }),
+/* 59 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_action__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
+
+
+
+class UpdateSequence extends __WEBPACK_IMPORTED_MODULE_0_common_game_action__["a" /* default */] {
+
+    constructor(args) {
+        super(args);
+        this.companyId = args.companyId;
+        this.playerIndex = args.playerIndex;
+        this.firstPassIndex = args.firstPassIndex;
+        this.winner = args.winner;
+        this.oldCompanyId = args.oldCompanyId;
+        this.oldPlayerIndex = args.oldPlayerIndex;
+        this.oldFirstPassIndex = args.oldFirstPassIndex;
+    }
+
+    doExecute(state) {
+        if (!__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(this.companyId)) {
+            this.oldCompanyId = state.currentCompanyId();
+            state.currentCompanyId(this.companyId);
+        }
+
+        if (!__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(this.playerIndex)) {
+            this.oldPlayerIndex = state.currentPlayerIndex();
+            state.currentPlayerIndex(this.playerIndex);
+        }
+
+        if (!__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(this.firstPassIndex)) {
+            this.oldFirstPassIndex = state.firstPassIndex();
+            state.firstPassIndex(this.firstPassIndex);
+        }
+
+        if (this.winner) {
+            state.winner(this.winner);
+        }
+    }
+
+    doUndo(state) {
+        if (!__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(this.companyId)) {
+            state.currentCompanyId(this.oldCompanyId);
+        }
+
+        if (!__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(this.playerIndex)) {
+            state.currentPlayerIndex(this.oldPlayerIndex);
+        }
+
+        if (!__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isUndefined(this.firstPassIndex)) {
+            state.firstPassIndex(this.oldFirstPassIndex);
+        }
+
+        if (this.winner) {
+            state.winner(null);
+        }
+    }
+
+    summary(state) {
+        return '';
+    }
+
+    confirmation(state) {
+        return '';
+    }
+}
+
+UpdateSequence.registerClass();
+
+/* harmony default export */ __webpack_exports__["a"] = (UpdateSequence);
+
+/***/ }),
+/* 60 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_lodash__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_company__ = __webpack_require__(32);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_model_certificate__ = __webpack_require__(83);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_model_privateCompany__ = __webpack_require__(84);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__ = __webpack_require__(8);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_config_trainIds__ = __webpack_require__(12);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_common_model_train__ = __webpack_require__(33);
+
+
+
+
+
+
+
+
+
+const PublicCompanyDefinitions = {
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].GRAND_TRUNK]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].GRAND_TRUNK,
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
+        name: 'Grand Trunk',
+        nickname: 'GT',
+        tokens: 3,
+        startTokens: 3,
+        homeCellId: 'B16'
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].NEW_YORK_CENTRAL]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].NEW_YORK_CENTRAL,
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
+        name: 'New York Central',
+        nickname: 'NYC',
+        tokens: 4,
+        startTokens: 4,
+        homeCellId: 'D20'
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].ERIE]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].ERIE,
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
+        name: 'Erie',
+        nickname: 'Erie',
+        tokens: 4,
+        startTokens: 4,
+        homeCellId: 'E21'
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].PENNSYLVANIA]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].PENNSYLVANIA,
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
+        name: 'Pennsylvania',
+        nickname: 'PRR',
+        tokens: 5,
+        startTokens: 5,
+        homeCellId: 'F20'
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].BALTIMORE_OHIO,
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
+        name: 'Baltimore & Ohio',
+        nickname: 'B&O',
+        tokens: 4,
+        startTokens: 4,
+        homeCellId: 'G19'
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].ILLINOIS_CENTRAL,
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
+        name: 'Illinois Central',
+        nickname: 'IC',
+        tokens: 4,
+        startTokens: 4,
+        homeCellId: 'K3'
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].CHESAPEAKE_OHIO]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].CHESAPEAKE_OHIO,
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PUBLIC,
+        nickname: 'C&O',
+        name: 'Chesapeake & Ohio',
+        tokens: 4,
+        startTokens: 4,
+        homeCellId: 'I15'
+    }
+};
+
+const PrivateCompanyDefinitions = {
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MICHIGAN_SOUTHERN]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MICHIGAN_SOUTHERN,
+        name: 'Michigan Southern',
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].INDEPENDANT,
+        nickname: 'MS',
+        tokens: 0,
+        startTokens: 1,
+        cost: 140,
+        baseCost: 140,
+        maxBuyInPrice: 60,
+        cash: 80,
+        homeCellId: 'C15',
+        trains: [new __WEBPACK_IMPORTED_MODULE_7_common_model_train__["a" /* default */]({ type: __WEBPACK_IMPORTED_MODULE_6_1846_config_trainIds__["a" /* default */].TRAIN_2, companyId: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MICHIGAN_SOUTHERN })]
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].BIG_4]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].BIG_4,
+        name: 'Big 4',
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].INDEPENDANT,
+        nickname: 'Big 4',
+        tokens: 0,
+        startTokens: 1,
+        cost: 100,
+        baseCost: 100,
+        maxBuyInPrice: 40,
+        cash: 60,
+        homeCellId: 'G9',
+        trains: [new __WEBPACK_IMPORTED_MODULE_7_common_model_train__["a" /* default */]({ type: __WEBPACK_IMPORTED_MODULE_6_1846_config_trainIds__["a" /* default */].TRAIN_2, companyId: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].BIG_4 })]
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].CHICAGO_WESTERN_INDIANA]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].CHICAGO_WESTERN_INDIANA,
+        name: 'Chicago & Western Indiana',
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
+        cost: 60,
+        baseCost: 60,
+        maxBuyInPrice: 60,
+        income: 10
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].OHIO_INDIANA]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].OHIO_INDIANA,
+        name: 'Ohio & Indiana',
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
+        cost: 40,
+        maxBuyInPrice: 40,
+        income: 15,
+        hasAbility: true
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MEAT_PACKING_COMPANY,
+        name: 'Meat Packing Company',
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
+        cost: 60,
+        baseCost: 60,
+        maxBuyInPrice: 60,
+        income: 15,
+        hasAbility: true
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].STEAMBOAT_COMPANY,
+        name: 'Steamboat Company',
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
+        cost: 40,
+        baseCost: 40,
+        maxBuyInPrice: 40,
+        income: 10,
+        hasAbility: true
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].LAKE_SHORE_LINE]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].LAKE_SHORE_LINE,
+        name: 'Lake Shore Line',
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
+        cost: 40,
+        baseCost: 40,
+        maxBuyInPrice: 40,
+        income: 15,
+        hasAbility: true
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MICHIGAN_CENTRAL,
+        name: 'Michigan Central',
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
+        cost: 40,
+        baseCost: 40,
+        maxBuyInPrice: 40,
+        income: 15,
+        hasAbility: true
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MAIL_CONTRACT]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].MAIL_CONTRACT,
+        name: 'Mail Contract',
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
+        cost: 80,
+        baseCost: 80,
+        maxBuyInPrice: 80,
+        income: 0
+    },
+    [__WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY]: {
+        id: __WEBPACK_IMPORTED_MODULE_5_1846_config_companyIds__["a" /* default */].TUNNEL_BLASTING_COMPANY,
+        name: 'Tunnel Blasting Company',
+        type: __WEBPACK_IMPORTED_MODULE_4_common_model_companyTypes__["a" /* default */].PRIVATE,
+        cost: 60,
+        baseCost: 60,
+        maxBuyInPrice: 60,
+        income: 20
+    }
+
+};
+
+class Companies {
+    static generatePublicCompanies() {
+        return __WEBPACK_IMPORTED_MODULE_0_lodash___default.a.map(PublicCompanyDefinitions, definition => {
+            definition.certificates = __WEBPACK_IMPORTED_MODULE_0_lodash___default.a.map(__WEBPACK_IMPORTED_MODULE_0_lodash___default.a.range(9), value => {
+                const certDefinition = {
+                    companyId: definition.id,
+                    shares: 1
+                };
+                if (value === 0) {
+                    certDefinition.shares += 1;
+                    certDefinition.president = true;
+                }
+
+                return new __WEBPACK_IMPORTED_MODULE_2_common_model_certificate__["a" /* default */](certDefinition);
+            });
+
+            return new __WEBPACK_IMPORTED_MODULE_1_common_model_company__["a" /* default */](definition);
+        });
+    }
+
+    static generatePrivateCompanies() {
+        return __WEBPACK_IMPORTED_MODULE_0_lodash___default.a.map(PrivateCompanyDefinitions, definition => {
+            definition.certificates = [new __WEBPACK_IMPORTED_MODULE_2_common_model_certificate__["a" /* default */]({
+                companyId: definition.id,
+                shares: 1
+            })];
+            return new __WEBPACK_IMPORTED_MODULE_3_common_model_privateCompany__["a" /* default */](definition);
+        });
+    }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (Companies);
+
+/***/ }),
+/* 61 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+
+const RouteColors = ['#888', // gray
+'#fd7e14', // orange
+'#007bff', // blue
+'#6f42c1', // purple
+'#e880cb' // pink
+];
+
+/* harmony default export */ __webpack_exports__["a"] = (RouteColors);
+
+/***/ }),
+/* 62 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__ = __webpack_require__(12);
+
+
+const TrainNames = {
+    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_2]: '2',
+    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_3_5]: '3/5',
+    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_4]: '4',
+    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_4_6]: '4/6',
+    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_5]: '5',
+    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_6]: '6',
+    [__WEBPACK_IMPORTED_MODULE_0_1846_config_trainIds__["a" /* default */].TRAIN_7_8]: '7/8'
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (TrainNames);
+
+/***/ }),
+/* 63 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__ = __webpack_require__(3);
+
+
+
+class History {
+    constructor() {
+        this.selectedRound = __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.observable();
+    }
+
+    selectRound(id) {
+        this.selectedRound(id);
+    }
+
+    getTurnsForRound(id) {
+        const round = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().roundHistory.getRound(id);
+        if (!round) {
+            return [];
+        }
+        const turnHistory = __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__["a" /* default */])().state().turnHistory;
+        return turnHistory.getTurnsForRange(round.actionStartIndex, round.actionEndIndex);
+    }
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (History);
+
+/***/ }),
 /* 64 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
@@ -42044,8 +42049,8 @@ Player.registerClass();
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_actions_draftPrivate__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_actions_draftPass__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_actions_draftPrivate__ = __webpack_require__(44);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_actions_draftPass__ = __webpack_require__(43);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_game_sequence__ = __webpack_require__(13);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_common_game_currentGame__ = __webpack_require__(3);
 
@@ -42260,10 +42265,10 @@ StockBoardEntry.registerClass();
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_game_currentGame__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_actions_buyShare__ = __webpack_require__(39);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_actions_sellShares__ = __webpack_require__(53);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_actions_buyShare__ = __webpack_require__(40);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_actions_sellShares__ = __webpack_require__(54);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_actions_startCompany__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_actions_stockRoundPass__ = __webpack_require__(57);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_actions_stockRoundPass__ = __webpack_require__(58);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_1846_game_sequence__ = __webpack_require__(13);
 
 
@@ -42421,7 +42426,7 @@ class StockRound {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_1846_config_mapTileIds__ = __webpack_require__(15);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_map_cell__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_map_cell__ = __webpack_require__(31);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_map_offBoardCell__ = __webpack_require__(71);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_common_map_tile__ = __webpack_require__(19);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_1846_config_tileManifest__ = __webpack_require__(18);
@@ -43220,7 +43225,7 @@ class Grid extends __WEBPACK_IMPORTED_MODULE_0_common_map_baseGrid__["a" /* defa
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_map_cell__ = __webpack_require__(30);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_map_cell__ = __webpack_require__(31);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 
@@ -43865,7 +43870,7 @@ class BaseState extends __WEBPACK_IMPORTED_MODULE_0_common_model_serializable__[
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_actionGroup__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_actionGroup__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_1846_config_roundTypes__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_short_uuid__ = __webpack_require__(9);
@@ -43976,7 +43981,7 @@ RoundHistory.registerClass();
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_actionGroup__ = __webpack_require__(28);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_game_actionGroup__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__ = __webpack_require__(3);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_lodash__);
@@ -44186,7 +44191,7 @@ Certificate.registerClass();
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_model_company__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_common_model_company__ = __webpack_require__(32);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_model_companyTypes__ = __webpack_require__(8);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_knockout__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_knockout__);
@@ -44477,7 +44482,7 @@ class User {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_knockout___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_knockout__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_common_game_currentGame__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_game_gameRecord__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_game_gameRecord__ = __webpack_require__(30);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_common_ui_newGameForm__ = __webpack_require__(88);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_1846_game_game__ = __webpack_require__(27);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_1846_game_sequence__ = __webpack_require__(13);
@@ -44692,7 +44697,7 @@ class Dashboard {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_lodash___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_lodash__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_common_server_user__ = __webpack_require__(86);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_1846_game_game__ = __webpack_require__(27);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_common_game_gameRecord__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_common_game_gameRecord__ = __webpack_require__(30);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_common_util_events__ = __webpack_require__(7);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_short_uuid__ = __webpack_require__(9);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_short_uuid___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_short_uuid__);
@@ -52872,7 +52877,7 @@ webpackContext.id = 164;
 /* 165 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(33);
+module.exports = __webpack_require__(34);
 
 
 /***/ })

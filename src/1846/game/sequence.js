@@ -1,6 +1,7 @@
 import RoundTypes from '1846/config/roundTypes';
 import PrivateDraft from '1846/game/privateDraft';
 import StockRound from '1846/game/stockRound';
+import OperatingRound from '1846/game/operatingRound';
 import SetPriorityDeal from '1846/actions/setPriorityDeal';
 import SetOperatingOrder from '1846/actions/setOperatingOrder';
 import AdjustStockPrices from '1846/actions/adjustStockPrices';
@@ -9,6 +10,7 @@ import CurrentGame from 'common/game/currentGame';
 import Events from 'common/util/events';
 import CompanyIDs from '1846/config/companyIds';
 import UpdateSequence from '1846/actions/updateSequence';
+
 
 import _ from 'lodash';
 class Sequence {
@@ -236,6 +238,9 @@ class Sequence {
 
         new UpdateSequence({playerIndex: nextPresidentIndex, companyId}).execute(state);
         CurrentGame().selectedCompany(state.currentCompanyId());
+        if(CurrentGame().operatingRound().canLayTrackOrToken()) {
+            CurrentGame().operatingRound().selectAction(CurrentGame().operatingRound().Actions.LAY_TRACK);
+        }
     }
 
     static nextPlayerIndex(fromIndex, reverse) {
