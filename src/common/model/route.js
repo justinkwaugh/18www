@@ -167,11 +167,11 @@ class Route extends Serializable {
     }
 
     cellIndex(id) {
-        return _.findIndex(this.cells(), cell => cell.id === id);
+        return _.findLastIndex(this.cells(), cell => cell.id === id);
     }
 
     getCell(id) {
-        return _.find(this.cells(), cell => cell.id === id);
+        return _.findLast(this.cells(), cell => cell.id === id);
     }
 
     firstCell() {
@@ -203,6 +203,19 @@ class Route extends Serializable {
             return upgradedConnectionsById[connectionId];
         });
         this.calculateRevenue(this.companyId);
+    }
+
+    containsPointInConnection(cellId, connection) {
+        return _.find(this.cells(), (cellInfo) => {
+            if(cellId !== cellInfo.id) {
+                return false;
+            }
+            return _.find(cellInfo.connections, existingConnection=>_.intersection(connection, existingConnection).length > 0);
+        });
+    }
+
+    getPriorConnectionsForCell(cellId) {
+        return _(this.cells()).take(this.cells().length-1).filter(cellInfo=>cellInfo.id === cellId).map(cellInfo=>cellInfo.connections).flatten().value();
     }
 }
 

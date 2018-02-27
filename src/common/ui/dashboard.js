@@ -139,8 +139,9 @@ class Dashboard {
         Events.emit('global:mouseup');
     }
 
-    onMouseOut() {
-        Events.emit('global:mouseout');
+    onMouseOut(param, param2) {
+
+        // Events.emit('global:mouseout');
     }
 
     downloadState() {

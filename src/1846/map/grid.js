@@ -274,11 +274,11 @@ class Grid extends BaseGrid {
     }
 
     tilePreviewCancelHandler() {
-        _.each(this.cellsById(), cell=> {
-           if(cell.preview()) {
-               cell.cancelPreview();
-               return false;
-           }
+        _.each(this.cellsById(), cell => {
+            if (cell.preview()) {
+                cell.cancelPreview();
+                return false;
+            }
         });
     }
 
@@ -532,23 +532,23 @@ class Grid extends BaseGrid {
     }
 
     onTouchStart(cell) {
-        this.onMouseDown(cell);
-        if(this.routing) {
-            this.lastTouchedCell = cell;
-        }
+        // this.onMouseDown(cell);
+        // if (this.routing) {
+        //     this.lastTouchedCell = cell;
+        // }
     }
 
     onTouchMove(originalCell, event) {
-        const element = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
-        const object = ko.dataFor(element);
-        if(object !== this.lastTouchedCell) {
-            this.lastTouchedCell = object;
-            this.onMouseOver(object);
-        }
+        // const element = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
+        // const object = ko.dataFor(element);
+        // if (object !== this.lastTouchedCell) {
+        //     this.lastTouchedCell = object;
+        //     this.onMouseOver(object);
+        // }
     }
 
     onTouchEnd(cell) {
-        this.finishRoute();
+        // this.finishRoute();
     }
 
     onMouseOver(cell) {
@@ -558,7 +558,7 @@ class Grid extends BaseGrid {
 
         // If reentering earlier in the route, prune to here
         if (this.route.containsCell(cell.id)) {
-            if (this.route.lastCell().id !== cell.id) {
+            if (this.route.nextToLastCell().id === cell.id) {
                 if (this.route.firstCell().id === cell.id) {
                     this.startRoute(cell);
                     return;
@@ -567,8 +567,13 @@ class Grid extends BaseGrid {
                     const index = this.route.cellIndex(cell.id);
                     const removedCells = this.route.pruneAt(index - 1);
                     _.each(removedCells,
-                           cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
-                    cell.tile().clearRoutedConnections(this.route.id);
+                           removedCell => {
+                               const tile = this.cellsById()[removedCell.id].tile();
+                               _.each(removedCell.connections, connection => {
+                                   tile.removeRoutedConnection(connection);
+                               });
+                           }
+                    );
                 }
             }
         }
@@ -600,6 +605,10 @@ class Grid extends BaseGrid {
 
             if (cell.tile().hasOtherRoutedConnection(connection, this.route.id)) {
                 usedCurrentConnectionPoints[connectionPoint] = true;
+                return true;
+            }
+
+            if (this.route.containsPointInConnection(cell.id, connection)) {
                 return true;
             }
         });
@@ -685,8 +694,12 @@ class Grid extends BaseGrid {
             lastCellConnections = [_.first(routeableConnectionsToCurrent)];
         }
 
+        const priorExistingConnections = this.route.getPriorConnectionsForCell(lastCellInRoute.id);
         lastCellInRoute.tile().clearRoutedConnections(this.route.id);
         _.each(lastCellConnections, connection => {
+            lastCellInRoute.tile().addRoutedConnection(connection, 0, this.route.id);
+        });
+        _.each(priorExistingConnections, connection => {
             lastCellInRoute.tile().addRoutedConnection(connection, 0, this.route.id);
         });
         this.route.updateConnections(lastCellInRoute.id, lastCellConnections);
@@ -701,7 +714,6 @@ class Grid extends BaseGrid {
 
         // Cap off the route if full
         if (this.route.isFull()) {
-
             const chicagoStation = cell.id === 'D6' && routeableConnectionsToPrior.length > 1;
             const connection = chicagoStation ? _.find(routeableConnectionsToPrior, connection => {
                 return cell.tile().hasTokenForCompany(CurrentGame().state().currentCompanyId(),
@@ -716,7 +728,6 @@ class Grid extends BaseGrid {
         _.each(this.route.cells(),
                cell => this.cellsById()[cell.id].tile().updateRoutedConnectionsColor(this.route.id,
                                                                                      valid ? this.route.color : 0));
-
     }
 
     onMouseOut(target) {
@@ -725,9 +736,10 @@ class Grid extends BaseGrid {
     startRoute(cell) {
         _.each(this.route.cells(), cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
         this.route.clear();
-        _.each(cell.tile().getUnroutedConnections(),
+        const newConnections = cell.tile().getUnroutedConnections();
+        _.each(newConnections,
                connection => cell.tile().addRoutedConnection(connection, 0, this.route.id));
-        this.route.addCell(cell.id, cell.tile().getUnroutedConnections);
+        this.route.addCell(cell.id, newConnections);
     }
 
     onMouseDown(cell) {
@@ -743,7 +755,14 @@ class Grid extends BaseGrid {
         }
 
         const removedCells = this.route.pruneToLastRevenueLocation();
-        _.each(removedCells, cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
+        _.each(removedCells,
+               removedCell => {
+                   const tile = this.cellsById()[removedCell.id].tile();
+                   _.each(removedCell.connections, connection => {
+                       tile.removeRoutedConnection(connection);
+                   });
+               }
+        );
 
         if (!this.route.isValid()) {
             _.each(this.route.cells(), cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
