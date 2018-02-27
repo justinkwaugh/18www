@@ -47860,7 +47860,7 @@ var LocalStore = function () {
         value: function loadCompressed(key, namespace) {
             var storage = LocalStore.getStorage();
             var item = storage.getItem(namespace ? namespace + ':' + key : key);
-            var decompressed = _browserDetect2.default.isIE() ? _lzString2.default.decompressFromEncodedURIComponent(value) : _lzString2.default.decompress(item);
+            var decompressed = _browserDetect2.default.isIE() ? _lzString2.default.decompressFromEncodedURIComponent(item) : _lzString2.default.decompress(item);
             return decompressed || item;
         }
     }]);

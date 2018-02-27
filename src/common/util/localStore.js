@@ -37,7 +37,7 @@ class LocalStore {
     static loadCompressed(key, namespace) {
         const storage = LocalStore.getStorage();
         const item = storage.getItem((namespace ? namespace + ':' + key : key));
-        const decompressed = BrowserDetect.isIE() ? LZString.decompressFromEncodedURIComponent(value) : LZString.decompress(item);
+        const decompressed = BrowserDetect.isIE() ? LZString.decompressFromEncodedURIComponent(item) : LZString.decompress(item);
         return decompressed || item;
     }
 }
