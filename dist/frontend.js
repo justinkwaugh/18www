@@ -42963,23 +42963,23 @@ class Grid extends __WEBPACK_IMPORTED_MODULE_0_common_map_baseGrid__["a" /* defa
     }
 
     onTouchStart(cell) {
-        this.onMouseDown(cell);
-        if (this.routing) {
-            this.lastTouchedCell = cell;
-        }
+        // this.onMouseDown(cell);
+        // if (this.routing) {
+        //     this.lastTouchedCell = cell;
+        // }
     }
 
     onTouchMove(originalCell, event) {
-        const element = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
-        const object = __WEBPACK_IMPORTED_MODULE_12_knockout___default.a.dataFor(element);
-        if (object !== this.lastTouchedCell) {
-            this.lastTouchedCell = object;
-            this.onMouseOver(object);
-        }
+        // const element = document.elementFromPoint(event.touches[0].clientX, event.touches[0].clientY);
+        // const object = ko.dataFor(element);
+        // if (object !== this.lastTouchedCell) {
+        //     this.lastTouchedCell = object;
+        //     this.onMouseOver(object);
+        // }
     }
 
     onTouchEnd(cell) {
-        this.finishRoute();
+        // this.finishRoute();
     }
 
     onMouseOver(cell) {
@@ -42989,15 +42989,19 @@ class Grid extends __WEBPACK_IMPORTED_MODULE_0_common_map_baseGrid__["a" /* defa
 
         // If reentering earlier in the route, prune to here
         if (this.route.containsCell(cell.id)) {
-            if (this.route.lastCell().id !== cell.id) {
+            if (this.route.nextToLastCell().id === cell.id) {
                 if (this.route.firstCell().id === cell.id) {
                     this.startRoute(cell);
                     return;
                 } else {
                     const index = this.route.cellIndex(cell.id);
                     const removedCells = this.route.pruneAt(index - 1);
-                    __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(removedCells, cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
-                    cell.tile().clearRoutedConnections(this.route.id);
+                    __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(removedCells, removedCell => {
+                        const tile = this.cellsById()[removedCell.id].tile();
+                        __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(removedCell.connections, connection => {
+                            tile.removeRoutedConnection(connection);
+                        });
+                    });
                 }
             }
         }
@@ -43029,6 +43033,10 @@ class Grid extends __WEBPACK_IMPORTED_MODULE_0_common_map_baseGrid__["a" /* defa
 
             if (cell.tile().hasOtherRoutedConnection(connection, this.route.id)) {
                 usedCurrentConnectionPoints[connectionPoint] = true;
+                return true;
+            }
+
+            if (this.route.containsPointInConnection(cell.id, connection)) {
                 return true;
             }
         });
@@ -43105,8 +43113,12 @@ class Grid extends __WEBPACK_IMPORTED_MODULE_0_common_map_baseGrid__["a" /* defa
             lastCellConnections = [__WEBPACK_IMPORTED_MODULE_2_lodash___default.a.first(routeableConnectionsToCurrent)];
         }
 
+        const priorExistingConnections = this.route.getPriorConnectionsForCell(lastCellInRoute.id);
         lastCellInRoute.tile().clearRoutedConnections(this.route.id);
         __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(lastCellConnections, connection => {
+            lastCellInRoute.tile().addRoutedConnection(connection, 0, this.route.id);
+        });
+        __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(priorExistingConnections, connection => {
             lastCellInRoute.tile().addRoutedConnection(connection, 0, this.route.id);
         });
         this.route.updateConnections(lastCellInRoute.id, lastCellConnections);
@@ -43120,7 +43132,6 @@ class Grid extends __WEBPACK_IMPORTED_MODULE_0_common_map_baseGrid__["a" /* defa
 
         // Cap off the route if full
         if (this.route.isFull()) {
-
             const chicagoStation = cell.id === 'D6' && routeableConnectionsToPrior.length > 1;
             const connection = chicagoStation ? __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.find(routeableConnectionsToPrior, connection => {
                 return cell.tile().hasTokenForCompany(__webpack_require__.i(__WEBPACK_IMPORTED_MODULE_8_common_game_currentGame__["a" /* default */])().state().currentCompanyId(), __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.max(connection));
@@ -43139,8 +43150,9 @@ class Grid extends __WEBPACK_IMPORTED_MODULE_0_common_map_baseGrid__["a" /* defa
     startRoute(cell) {
         __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(this.route.cells(), cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
         this.route.clear();
-        __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(cell.tile().getUnroutedConnections(), connection => cell.tile().addRoutedConnection(connection, 0, this.route.id));
-        this.route.addCell(cell.id, cell.tile().getUnroutedConnections);
+        const newConnections = cell.tile().getUnroutedConnections();
+        __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(newConnections, connection => cell.tile().addRoutedConnection(connection, 0, this.route.id));
+        this.route.addCell(cell.id, newConnections);
     }
 
     onMouseDown(cell) {
@@ -43156,7 +43168,12 @@ class Grid extends __WEBPACK_IMPORTED_MODULE_0_common_map_baseGrid__["a" /* defa
         }
 
         const removedCells = this.route.pruneToLastRevenueLocation();
-        __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(removedCells, cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
+        __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(removedCells, removedCell => {
+            const tile = this.cellsById()[removedCell.id].tile();
+            __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(removedCell.connections, connection => {
+                tile.removeRoutedConnection(connection);
+            });
+        });
 
         if (!this.route.isValid()) {
             __WEBPACK_IMPORTED_MODULE_2_lodash___default.a.each(this.route.cells(), cell => this.cellsById()[cell.id].tile().clearRoutedConnections(this.route.id));
@@ -44373,11 +44390,11 @@ class Route extends __WEBPACK_IMPORTED_MODULE_1_common_model_serializable__["a" 
     }
 
     cellIndex(id) {
-        return __WEBPACK_IMPORTED_MODULE_4_lodash___default.a.findIndex(this.cells(), cell => cell.id === id);
+        return __WEBPACK_IMPORTED_MODULE_4_lodash___default.a.findLastIndex(this.cells(), cell => cell.id === id);
     }
 
     getCell(id) {
-        return __WEBPACK_IMPORTED_MODULE_4_lodash___default.a.find(this.cells(), cell => cell.id === id);
+        return __WEBPACK_IMPORTED_MODULE_4_lodash___default.a.findLast(this.cells(), cell => cell.id === id);
     }
 
     firstCell() {
@@ -44409,6 +44426,19 @@ class Route extends __WEBPACK_IMPORTED_MODULE_1_common_model_serializable__["a" 
             return upgradedConnectionsById[connectionId];
         });
         this.calculateRevenue(this.companyId);
+    }
+
+    containsPointInConnection(cellId, connection) {
+        return __WEBPACK_IMPORTED_MODULE_4_lodash___default.a.find(this.cells(), cellInfo => {
+            if (cellId !== cellInfo.id) {
+                return false;
+            }
+            return __WEBPACK_IMPORTED_MODULE_4_lodash___default.a.find(cellInfo.connections, existingConnection => __WEBPACK_IMPORTED_MODULE_4_lodash___default.a.intersection(connection, existingConnection).length > 0);
+        });
+    }
+
+    getPriorConnectionsForCell(cellId) {
+        return __WEBPACK_IMPORTED_MODULE_4_lodash___default()(this.cells()).take(this.cells().length - 1).filter(cellInfo => cellInfo.id === cellId).map(cellInfo => cellInfo.connections).flatten().value();
     }
 }
 
@@ -44598,8 +44628,9 @@ class Dashboard {
         __WEBPACK_IMPORTED_MODULE_9_common_util_events__["a" /* default */].emit('global:mouseup');
     }
 
-    onMouseOut() {
-        __WEBPACK_IMPORTED_MODULE_9_common_util_events__["a" /* default */].emit('global:mouseout');
+    onMouseOut(param, param2) {
+
+        // Events.emit('global:mouseout');
     }
 
     downloadState() {
