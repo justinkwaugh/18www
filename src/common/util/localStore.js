@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import LZString from 'lz-string'
+import BrowserDetect from 'common/util/browserDetect';
 
 class LocalStore {
 
@@ -24,7 +25,7 @@ class LocalStore {
 
     static storeCompressed(key, value, namespace) {
         const storage = LocalStore.getStorage();
-        const compressed = LZString.compress(value);
+        const compressed = BrowserDetect.isIE() ? LZString.compressToEncodedURIComponent() : LZString.compress(value);
         storage.setItem((namespace ? namespace + ':' + key : key), compressed);
     }
 
@@ -36,7 +37,7 @@ class LocalStore {
     static loadCompressed(key, namespace) {
         const storage = LocalStore.getStorage();
         const item = storage.getItem((namespace ? namespace + ':' + key : key));
-        const decompressed = LZString.decompress(item);
+        const decompressed = BrowserDetect.isIE() ? LZString.decompressFromEncodedURIComponent() : LZString.decompress(item);
         return decompressed || item;
     }
 }

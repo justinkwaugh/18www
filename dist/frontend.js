@@ -23487,7 +23487,7 @@ exports.default = CompanyTypes;
  */
 module.exports = (function(){
 
-    var anyBase = __webpack_require__(35);
+    var anyBase = __webpack_require__(36);
     var uuidV4 = __webpack_require__(162);
 
     var flickrBase58 = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -23692,11 +23692,11 @@ var _roundTypes = __webpack_require__(17);
 
 var _roundTypes2 = _interopRequireDefault(_roundTypes);
 
-var _privateDraft = __webpack_require__(66);
+var _privateDraft = __webpack_require__(67);
 
 var _privateDraft2 = _interopRequireDefault(_privateDraft);
 
-var _stockRound = __webpack_require__(69);
+var _stockRound = __webpack_require__(70);
 
 var _stockRound2 = _interopRequireDefault(_stockRound);
 
@@ -23704,19 +23704,19 @@ var _operatingRound = __webpack_require__(28);
 
 var _operatingRound2 = _interopRequireDefault(_operatingRound);
 
-var _setPriorityDeal = __webpack_require__(56);
+var _setPriorityDeal = __webpack_require__(57);
 
 var _setPriorityDeal2 = _interopRequireDefault(_setPriorityDeal);
 
-var _setOperatingOrder = __webpack_require__(55);
+var _setOperatingOrder = __webpack_require__(56);
 
 var _setOperatingOrder2 = _interopRequireDefault(_setOperatingOrder);
 
-var _adjustStockPrices = __webpack_require__(38);
+var _adjustStockPrices = __webpack_require__(39);
 
 var _adjustStockPrices2 = _interopRequireDefault(_adjustStockPrices);
 
-var _privateIncome = __webpack_require__(50);
+var _privateIncome = __webpack_require__(51);
 
 var _privateIncome2 = _interopRequireDefault(_privateIncome);
 
@@ -23732,7 +23732,7 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _updateSequence = __webpack_require__(59);
+var _updateSequence = __webpack_require__(60);
 
 var _updateSequence2 = _interopRequireDefault(_updateSequence);
 
@@ -25133,7 +25133,7 @@ var _phaseIds = __webpack_require__(10);
 
 var _phaseIds2 = _interopRequireDefault(_phaseIds);
 
-var _routeColors = __webpack_require__(61);
+var _routeColors = __webpack_require__(62);
 
 var _routeColors2 = _interopRequireDefault(_routeColors);
 
@@ -36653,15 +36653,15 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _baseGame = __webpack_require__(75);
+var _baseGame = __webpack_require__(76);
 
 var _baseGame2 = _interopRequireDefault(_baseGame);
 
-var _grid = __webpack_require__(70);
+var _grid = __webpack_require__(71);
 
 var _grid2 = _interopRequireDefault(_grid);
 
-var _companies = __webpack_require__(60);
+var _companies = __webpack_require__(61);
 
 var _companies2 = _interopRequireDefault(_companies);
 
@@ -36669,11 +36669,11 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _state = __webpack_require__(72);
+var _state = __webpack_require__(73);
 
 var _state2 = _interopRequireDefault(_state);
 
-var _player = __webpack_require__(65);
+var _player = __webpack_require__(66);
 
 var _player2 = _interopRequireDefault(_player);
 
@@ -36681,7 +36681,7 @@ var _phaseIds = __webpack_require__(10);
 
 var _phaseIds2 = _interopRequireDefault(_phaseIds);
 
-var _bank = __webpack_require__(74);
+var _bank = __webpack_require__(75);
 
 var _bank2 = _interopRequireDefault(_bank);
 
@@ -36697,7 +36697,7 @@ var _tileManifest = __webpack_require__(18);
 
 var _tileManifest2 = _interopRequireDefault(_tileManifest);
 
-var _stockBoard = __webpack_require__(67);
+var _stockBoard = __webpack_require__(68);
 
 var _stockBoard2 = _interopRequireDefault(_stockBoard);
 
@@ -36713,7 +36713,7 @@ var _operatingRound = __webpack_require__(28);
 
 var _operatingRound2 = _interopRequireDefault(_operatingRound);
 
-var _history = __webpack_require__(63);
+var _history = __webpack_require__(64);
 
 var _history2 = _interopRequireDefault(_history);
 
@@ -36978,15 +36978,15 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _issueShares = __webpack_require__(46);
+var _issueShares = __webpack_require__(47);
 
 var _issueShares2 = _interopRequireDefault(_issueShares);
 
-var _redeemShares = __webpack_require__(51);
+var _redeemShares = __webpack_require__(52);
 
 var _redeemShares2 = _interopRequireDefault(_redeemShares);
 
-var _buyPrivate = __webpack_require__(39);
+var _buyPrivate = __webpack_require__(40);
 
 var _buyPrivate2 = _interopRequireDefault(_buyPrivate);
 
@@ -36998,15 +36998,15 @@ var _allocations = __webpack_require__(25);
 
 var _allocations2 = _interopRequireDefault(_allocations);
 
-var _runRoutes = __webpack_require__(53);
+var _runRoutes = __webpack_require__(54);
 
 var _runRoutes2 = _interopRequireDefault(_runRoutes);
 
-var _buyTrains = __webpack_require__(41);
+var _buyTrains = __webpack_require__(42);
 
 var _buyTrains2 = _interopRequireDefault(_buyTrains);
 
-var _skipSecondPrivateLay = __webpack_require__(57);
+var _skipSecondPrivateLay = __webpack_require__(58);
 
 var _skipSecondPrivateLay2 = _interopRequireDefault(_skipSecondPrivateLay);
 
@@ -37022,15 +37022,15 @@ var _companyTypes = __webpack_require__(8);
 
 var _companyTypes2 = _interopRequireDefault(_companyTypes);
 
-var _declareBankruptcy = __webpack_require__(42);
+var _declareBankruptcy = __webpack_require__(43);
 
 var _declareBankruptcy2 = _interopRequireDefault(_declareBankruptcy);
 
-var _forceIssueCloseCompany = __webpack_require__(45);
+var _forceIssueCloseCompany = __webpack_require__(46);
 
 var _forceIssueCloseCompany2 = _interopRequireDefault(_forceIssueCloseCompany);
 
-var _returnTrain = __webpack_require__(52);
+var _returnTrain = __webpack_require__(53);
 
 var _returnTrain2 = _interopRequireDefault(_returnTrain);
 
@@ -37038,7 +37038,7 @@ var _phaseIds = __webpack_require__(10);
 
 var _phaseIds2 = _interopRequireDefault(_phaseIds);
 
-var _browserDetect = __webpack_require__(89);
+var _browserDetect = __webpack_require__(34);
 
 var _browserDetect2 = _interopRequireDefault(_browserDetect);
 
@@ -38621,19 +38621,19 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _layTrack = __webpack_require__(47);
+var _layTrack = __webpack_require__(48);
 
 var _layTrack2 = _interopRequireDefault(_layTrack);
 
-var _addToken = __webpack_require__(37);
+var _addToken = __webpack_require__(38);
 
 var _addToken2 = _interopRequireDefault(_addToken);
 
-var _placeMeat = __webpack_require__(48);
+var _placeMeat = __webpack_require__(49);
 
 var _placeMeat2 = _interopRequireDefault(_placeMeat);
 
-var _placeSteamboat = __webpack_require__(49);
+var _placeSteamboat = __webpack_require__(50);
 
 var _placeSteamboat2 = _interopRequireDefault(_placeSteamboat);
 
@@ -39996,7 +39996,7 @@ var _serializable = __webpack_require__(4);
 
 var _serializable2 = _interopRequireDefault(_serializable);
 
-var _route = __webpack_require__(85);
+var _route = __webpack_require__(86);
 
 var _route2 = _interopRequireDefault(_route);
 
@@ -40056,11 +40056,70 @@ exports.default = Train;
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var BrowserDetect = function () {
+    function BrowserDetect() {
+        _classCallCheck(this, BrowserDetect);
+    }
+
+    _createClass(BrowserDetect, null, [{
+        key: 'supportTouch',
+        value: function supportTouch() {
+            return (/(iphone|ipod|ipad|android|iemobile|blackberry|bada)/.test(window.navigator.userAgent.toLowerCase())
+            );
+        }
+    }, {
+        key: 'isIE',
+        value: function isIE() {
+            var ua = window.navigator.userAgent;
+
+            var msie = ua.indexOf('MSIE ');
+            if (msie > 0) {
+                // IE 10 or older => return version number
+                return parseInt(ua.substring(msie + 5, ua.indexOf('.', msie)), 10);
+            }
+
+            var trident = ua.indexOf('Trident/');
+            if (trident > 0) {
+                // IE 11 => return version number
+                var rv = ua.indexOf('rv:');
+                return parseInt(ua.substring(rv + 3, ua.indexOf('.', rv)), 10);
+            }
+
+            var edge = ua.indexOf('Edge/');
+            if (edge > 0) {
+                // Edge (IE 12+) => return version number
+                return parseInt(ua.substring(edge + 5, ua.indexOf('.', edge)), 10);
+            }
+
+            return false;
+        }
+    }]);
+
+    return BrowserDetect;
+}();
+
+exports.default = BrowserDetect;
+
+/***/ }),
+/* 35 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 __webpack_require__(94);
 
 __webpack_require__(157);
 
-var _dashboard = __webpack_require__(87);
+var _dashboard = __webpack_require__(88);
 
 var _dashboard2 = _interopRequireDefault(_dashboard);
 
@@ -40076,10 +40135,10 @@ var dashboard = new _dashboard2.default();
 _knockout2.default.applyBindings(dashboard);
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Converter = __webpack_require__(36);
+var Converter = __webpack_require__(37);
 
 /**
  * Function get source and destination alphabet and return convert function
@@ -40111,7 +40170,7 @@ anyBase.HEX = '0123456789abcdef';
 module.exports = anyBase;
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40197,7 +40256,7 @@ Converter.prototype.isValid = function(number) {
 module.exports = Converter;
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40326,7 +40385,7 @@ AddToken.registerClass();
 exports.default = AddToken;
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40428,7 +40487,7 @@ AdjustStockPrices.registerClass();
 exports.default = AdjustStockPrices;
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40599,7 +40658,7 @@ BuyPrivate.registerClass();
 exports.default = BuyPrivate;
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40759,7 +40818,7 @@ BuyShare.registerClass();
 exports.default = BuyShare;
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41258,7 +41317,7 @@ BuyTrains.registerClass();
 exports.default = BuyTrains;
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41458,7 +41517,7 @@ DeclareBankruptcy.registerClass();
 exports.default = DeclareBankruptcy;
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41524,7 +41583,7 @@ DraftPass.registerClass();
 exports.default = DraftPass;
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41607,7 +41666,7 @@ DraftPrivate.registerClass();
 exports.default = DraftPrivate;
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41681,7 +41740,7 @@ ForceIssueCloesCompany.registerClass();
 exports.default = ForceIssueCloesCompany;
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41773,7 +41832,7 @@ IssueShares.registerClass();
 exports.default = IssueShares;
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41915,7 +41974,7 @@ LayTrack.registerClass();
 exports.default = LayTrack;
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42000,7 +42059,7 @@ PlaceMeat.registerClass();
 exports.default = PlaceMeat;
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42108,7 +42167,7 @@ PlaceSteamboat.registerClass();
 exports.default = PlaceSteamboat;
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42192,7 +42251,7 @@ PrivateIncome.registerClass();
 exports.default = PrivateIncome;
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42284,7 +42343,7 @@ RedeemShares.registerClass();
 exports.default = RedeemShares;
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42365,7 +42424,7 @@ ReturnTrain.registerClass();
 exports.default = ReturnTrain;
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42389,7 +42448,7 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _trainNames = __webpack_require__(62);
+var _trainNames = __webpack_require__(63);
 
 var _trainNames2 = _interopRequireDefault(_trainNames);
 
@@ -42678,7 +42737,7 @@ RunRoutes.registerClass();
 exports.default = RunRoutes;
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42838,7 +42897,7 @@ SellShares.registerClass();
 exports.default = SellShares;
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42901,7 +42960,7 @@ SetOperatingOrder.registerClass();
 exports.default = SetOperatingOrder;
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42964,7 +43023,7 @@ SetPriorityDeal.registerClass();
 exports.default = SetPriorityDeal;
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43030,7 +43089,7 @@ SkipSecondPrivateLay.registerClass();
 exports.default = SkipSecondPrivateLay;
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43102,7 +43161,7 @@ StockRoundPass.registerClass();
 exports.default = StockRoundPass;
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43209,7 +43268,7 @@ UpdateSequence.registerClass();
 exports.default = UpdateSequence;
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43231,11 +43290,11 @@ var _company = __webpack_require__(32);
 
 var _company2 = _interopRequireDefault(_company);
 
-var _certificate = __webpack_require__(83);
+var _certificate = __webpack_require__(84);
 
 var _certificate2 = _interopRequireDefault(_certificate);
 
-var _privateCompany = __webpack_require__(84);
+var _privateCompany = __webpack_require__(85);
 
 var _privateCompany2 = _interopRequireDefault(_privateCompany);
 
@@ -43459,7 +43518,7 @@ var Companies = function () {
 exports.default = Companies;
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43479,7 +43538,7 @@ var RouteColors = ['#888', // gray
 exports.default = RouteColors;
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43504,7 +43563,7 @@ var TrainNames = (_TrainNames = {}, _defineProperty(_TrainNames, _trainIds2.defa
 exports.default = TrainNames;
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43558,7 +43617,7 @@ var History = function () {
 exports.default = History;
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43583,7 +43642,7 @@ var PassCard = function PassCard(definition) {
 exports.default = PassCard;
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43595,7 +43654,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _basePlayer = __webpack_require__(76);
+var _basePlayer = __webpack_require__(77);
 
 var _basePlayer2 = _interopRequireDefault(_basePlayer);
 
@@ -43904,7 +43963,7 @@ Player.registerClass();
 exports.default = Player;
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43924,11 +43983,11 @@ var _lodash = __webpack_require__(0);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _draftPrivate = __webpack_require__(44);
+var _draftPrivate = __webpack_require__(45);
 
 var _draftPrivate2 = _interopRequireDefault(_draftPrivate);
 
-var _draftPass = __webpack_require__(43);
+var _draftPass = __webpack_require__(44);
 
 var _draftPass2 = _interopRequireDefault(_draftPass);
 
@@ -43998,7 +44057,7 @@ var PrivateDraft = function () {
 exports.default = PrivateDraft;
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44020,7 +44079,7 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _stockBoardEntry = __webpack_require__(68);
+var _stockBoardEntry = __webpack_require__(69);
 
 var _stockBoardEntry2 = _interopRequireDefault(_stockBoardEntry);
 
@@ -44193,7 +44252,7 @@ StockBoard.registerClass();
 exports.default = StockBoard;
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44246,7 +44305,7 @@ StockBoardEntry.registerClass();
 exports.default = StockBoardEntry;
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44270,11 +44329,11 @@ var _currentGame = __webpack_require__(3);
 
 var _currentGame2 = _interopRequireDefault(_currentGame);
 
-var _buyShare = __webpack_require__(40);
+var _buyShare = __webpack_require__(41);
 
 var _buyShare2 = _interopRequireDefault(_buyShare);
 
-var _sellShares = __webpack_require__(54);
+var _sellShares = __webpack_require__(55);
 
 var _sellShares2 = _interopRequireDefault(_sellShares);
 
@@ -44282,7 +44341,7 @@ var _startCompany = __webpack_require__(24);
 
 var _startCompany2 = _interopRequireDefault(_startCompany);
 
-var _stockRoundPass = __webpack_require__(58);
+var _stockRoundPass = __webpack_require__(59);
 
 var _stockRoundPass2 = _interopRequireDefault(_stockRoundPass);
 
@@ -44448,7 +44507,7 @@ var StockRound = function () {
 exports.default = StockRound;
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44462,7 +44521,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _SpecialTiles, _OffBoardDefinitions;
 
-var _baseGrid = __webpack_require__(82);
+var _baseGrid = __webpack_require__(83);
 
 var _baseGrid2 = _interopRequireDefault(_baseGrid);
 
@@ -44478,7 +44537,7 @@ var _cell = __webpack_require__(31);
 
 var _cell2 = _interopRequireDefault(_cell);
 
-var _offBoardCell = __webpack_require__(71);
+var _offBoardCell = __webpack_require__(72);
 
 var _offBoardCell2 = _interopRequireDefault(_offBoardCell);
 
@@ -45332,7 +45391,7 @@ var Grid = function (_BaseGrid) {
 exports.default = Grid;
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -45392,7 +45451,7 @@ var OffBoardCell = function (_Cell) {
 exports.default = OffBoardCell;
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -45408,19 +45467,19 @@ var _lodash = __webpack_require__(0);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _baseState = __webpack_require__(77);
+var _baseState = __webpack_require__(78);
 
 var _baseState2 = _interopRequireDefault(_baseState);
 
-var _roundHistory = __webpack_require__(79);
+var _roundHistory = __webpack_require__(80);
 
 var _roundHistory2 = _interopRequireDefault(_roundHistory);
 
-var _turnHistory = __webpack_require__(81);
+var _turnHistory = __webpack_require__(82);
 
 var _turnHistory2 = _interopRequireDefault(_turnHistory);
 
-var _actionHistory = __webpack_require__(73);
+var _actionHistory = __webpack_require__(74);
 
 var _actionHistory2 = _interopRequireDefault(_actionHistory);
 
@@ -45428,7 +45487,7 @@ var _phaseIds = __webpack_require__(10);
 
 var _phaseIds2 = _interopRequireDefault(_phaseIds);
 
-var _passCard = __webpack_require__(64);
+var _passCard = __webpack_require__(65);
 
 var _passCard2 = _interopRequireDefault(_passCard);
 
@@ -45672,7 +45731,7 @@ State.registerClass();
 exports.default = State;
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -45780,7 +45839,7 @@ ActionHistory.registerClass();
 exports.default = ActionHistory;
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46011,7 +46070,7 @@ Bank.registerClass();
 exports.default = Bank;
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46030,7 +46089,7 @@ var BaseGame = function BaseGame(definition) {
 exports.default = BaseGame;
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46216,7 +46275,7 @@ var BasePlayer = function (_Serializable) {
 exports.default = BasePlayer;
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46253,7 +46312,7 @@ var BaseState = function (_Serializable) {
 exports.default = BaseState;
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46334,7 +46393,7 @@ Round.registerClass();
 exports.default = Round;
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46354,7 +46413,7 @@ var _knockout = __webpack_require__(1);
 
 var _knockout2 = _interopRequireDefault(_knockout);
 
-var _round = __webpack_require__(78);
+var _round = __webpack_require__(79);
 
 var _round2 = _interopRequireDefault(_round);
 
@@ -46435,7 +46494,7 @@ RoundHistory.registerClass();
 exports.default = RoundHistory;
 
 /***/ }),
-/* 80 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46550,7 +46609,7 @@ Turn.registerClass();
 exports.default = Turn;
 
 /***/ }),
-/* 81 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46570,7 +46629,7 @@ var _knockout = __webpack_require__(1);
 
 var _knockout2 = _interopRequireDefault(_knockout);
 
-var _turn = __webpack_require__(80);
+var _turn = __webpack_require__(81);
 
 var _turn2 = _interopRequireDefault(_turn);
 
@@ -46673,7 +46732,7 @@ TurnHistory.registerClass();
 exports.default = TurnHistory;
 
 /***/ }),
-/* 82 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46710,7 +46769,7 @@ var BaseGrid = function BaseGrid(data) {
 exports.default = BaseGrid;
 
 /***/ }),
-/* 83 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46760,7 +46819,7 @@ Certificate.registerClass();
 exports.default = Certificate;
 
 /***/ }),
-/* 84 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46817,7 +46876,7 @@ PrivateCompany.registerClass();
 exports.default = PrivateCompany;
 
 /***/ }),
-/* 85 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47126,7 +47185,7 @@ Route.registerClass();
 exports.default = Route;
 
 /***/ }),
-/* 86 */
+/* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47154,7 +47213,7 @@ var User = function User(definition) {
 exports.default = User;
 
 /***/ }),
-/* 87 */
+/* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47178,7 +47237,7 @@ var _gameRecord = __webpack_require__(30);
 
 var _gameRecord2 = _interopRequireDefault(_gameRecord);
 
-var _newGameForm = __webpack_require__(88);
+var _newGameForm = __webpack_require__(89);
 
 var _newGameForm2 = _interopRequireDefault(_newGameForm);
 
@@ -47414,7 +47473,7 @@ var Dashboard = function () {
 exports.default = Dashboard;
 
 /***/ }),
-/* 88 */
+/* 89 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47434,7 +47493,7 @@ var _lodash = __webpack_require__(0);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _user = __webpack_require__(86);
+var _user = __webpack_require__(87);
 
 var _user2 = _interopRequireDefault(_user);
 
@@ -47510,39 +47569,6 @@ var NewGameForm = function () {
 }();
 
 exports.default = NewGameForm;
-
-/***/ }),
-/* 89 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var BrowserDetect = function () {
-    function BrowserDetect() {
-        _classCallCheck(this, BrowserDetect);
-    }
-
-    _createClass(BrowserDetect, null, [{
-        key: "supportTouch",
-        value: function supportTouch() {
-            return (/(iphone|ipod|ipad|android|iemobile|blackberry|bada)/.test(window.navigator.userAgent.toLowerCase())
-            );
-        }
-    }]);
-
-    return BrowserDetect;
-}();
-
-exports.default = BrowserDetect;
 
 /***/ }),
 /* 90 */
@@ -47781,6 +47807,10 @@ var _lzString = __webpack_require__(23);
 
 var _lzString2 = _interopRequireDefault(_lzString);
 
+var _browserDetect = __webpack_require__(34);
+
+var _browserDetect2 = _interopRequireDefault(_browserDetect);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -47816,7 +47846,7 @@ var LocalStore = function () {
         key: 'storeCompressed',
         value: function storeCompressed(key, value, namespace) {
             var storage = LocalStore.getStorage();
-            var compressed = _lzString2.default.compress(value);
+            var compressed = _browserDetect2.default.isIE() ? _lzString2.default.compressToEncodedURIComponent() : _lzString2.default.compress(value);
             storage.setItem(namespace ? namespace + ':' + key : key, compressed);
         }
     }, {
@@ -47830,7 +47860,7 @@ var LocalStore = function () {
         value: function loadCompressed(key, namespace) {
             var storage = LocalStore.getStorage();
             var item = storage.getItem(namespace ? namespace + ':' + key : key);
-            var decompressed = _lzString2.default.decompress(item);
+            var decompressed = _browserDetect2.default.isIE() ? _lzString2.default.decompressFromEncodedURIComponent() : _lzString2.default.decompress(item);
             return decompressed || item;
         }
     }]);
@@ -55707,7 +55737,7 @@ webpackContext.id = 164;
 /* 165 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(34);
+module.exports = __webpack_require__(35);
 
 
 /***/ })
