@@ -40675,7 +40675,10 @@ class OperatingRound {
             }).value();
         });
 
-        this.useablePrivates.subscribe(value => {
+        this.useablePrivates.subscribeChanged((value, oldValue) => {
+            if (__WEBPACK_IMPORTED_MODULE_1_lodash___default.a.isEqual(value, oldValue)) {
+                return;
+            }
             if (this.selectedPrivateId()) {
                 this.reset();
             }
@@ -44939,6 +44942,15 @@ __WEBPACK_IMPORTED_MODULE_0_knockout___default.a.extenders.numeric = function (t
 
     //return the new computed observable
     return result;
+};
+
+__WEBPACK_IMPORTED_MODULE_0_knockout___default.a.subscribable.fn.subscribeChanged = function (callback) {
+    let savedValue = this.peek();
+    return this.subscribe(function (latestValue) {
+        const oldValue = savedValue;
+        savedValue = latestValue;
+        callback(latestValue, oldValue);
+    });
 };
 /* WEBPACK VAR INJECTION */}.call(__webpack_exports__, __webpack_require__(22)))
 
