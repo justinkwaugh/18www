@@ -106,6 +106,10 @@ class Dashboard {
         this.availableGames(_.orderBy(GameRecord.list(), ['startDate', 'name']));
     }
 
+    goToDashboard() {
+        window.location.href = window.location.protocol + '//' + window.location.host + window.location.pathname
+    }
+
     goToGame(record) {
         window.location.href = '?game=' + record.id;
     }
