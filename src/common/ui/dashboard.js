@@ -48,14 +48,6 @@ class Dashboard {
         this.activePanel = ko.observable(ActivePanelIDs.ACTIVE_GAMES);
         this.ActivePanelIDs = ActivePanelIDs;
         this.rootPath = '/18www/';
-        this.rootPathForHistory = ko.computed(() => {
-            if (this.rootPath === '/') {
-                return this.rootPath;
-            }
-            else {
-                return this.rootPath.substring(0, this.rootPath.length - 1);
-            }
-        });
 
         Events.on('newGameCreated', (record) => {
             this.loadAvailableGames();
