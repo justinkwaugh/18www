@@ -14,7 +14,7 @@
             </thead>
             <tbody>
             <!-- ko foreach: $data.availableGames() -->
-            <tr style="cursor:pointer" data-bind="css: $index() % 2 === 0? 'bg-light' : 'bg-table-row-medium', click: function() { $root.launchGame($data);}">
+            <tr style="cursor:pointer" data-bind="css: $index() % 2 === 0? 'bg-light' : 'bg-table-row-medium', click: function() { $root.goToGame($data);}">
                 <td class="table-col-spacer p-3 border-0" data-bind="text: type"></td>
                 <td class="table-col-spacer p-3 border-0 " data-bind="text: name"></td>
                 <td class="table-col-spacer p-3 border-0" data-bind="text: players"></td>
