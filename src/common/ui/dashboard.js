@@ -8,7 +8,6 @@ import 'common/util/knockoutBootstrapBindings';
 import _ from 'lodash';
 import 'knockout-delegated-events';
 import Events from 'common/util/events';
-import History from 'common/util/history';
 import LZString from 'lz-string';
 import Serializable from 'common/model/serializable';
 import BrowserDetect from 'common/util/browserDetect';
@@ -60,14 +59,13 @@ class Dashboard {
 
         Events.on('newGameCreated', (record) => {
             this.loadAvailableGames();
-            this.launchGame(record);
+            this.goToGame(record);
         });
 
-        this.loadAvailableGames();
+        if(!this.checkNavigation()) {
+            this.loadAvailableGames();
+        }
 
-        Events.on('nav-change', (state) => {
-            this.checkNavigation(state);
-        });
         //
         // _.delay(()=> {
         //     this.fileInput = document.getElementById('fileInput');
@@ -96,21 +94,16 @@ class Dashboard {
         }
     }
 
-    checkNavigation(state) {
-        const fromState = state && state.game;
-
-        this.resetGame();
-
-        const gameId = fromState ? state.game : getParameterByName('game');
+    checkNavigation() {
+        const gameId =  getParameterByName('game');
         if (gameId) {
             const record = GameRecord.load(gameId);
             if (record) {
-                this.launchGame(record, fromState);
-                return;
+                this.launchGame(record);
+                return true;
             }
         }
-
-        History.replaceState({}, 'Games', this.rootPathForHistory());
+        return false;
     }
 
     setActivePanel(newPanel) {
@@ -121,20 +114,16 @@ class Dashboard {
         this.availableGames(_.orderBy(GameRecord.list(), ['startDate', 'name']));
     }
 
-    showDashboard() {
-        this.resetGame();
-        History.pushState({}, 'Games', this.rootPathForHistory());
+    goToGame(record) {
+        window.location.href = '?game=' + record.id;
     }
 
-    launchGame(record, fromState) {
+    launchGame(record) {
         const state = record.loadCurrentState();
         const game = new Game({record: record, state: state});
         CurrentGame(game);
         game.sequence.restore();
         Events.emit('stateUpdated');
-        if (!fromState) {
-            History.pushState({game: record.id}, record.name, this.rootPathForHistory() + '?game=' + record.id);
-        }
     }
 
     onMouseUp() {
@@ -142,8 +131,6 @@ class Dashboard {
     }
 
     onMouseOut(param, param2) {
-
-        // Events.emit('global:mouseout');
     }
 
     downloadState() {
