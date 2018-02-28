@@ -23726,7 +23726,7 @@ var MapTileIDs = {
     INDIANAPOLIS: 'indianapolis',
     CAIRO: 'cairo',
     HOLLAND: 'holland',
-    ST_LOUIS: 'stlouis',
+    ST_LOUIS: 'st_louis',
     SARNIA: 'sarnia',
     WINDSOR: 'windsor',
     BUFFALO: 'buffalo',
@@ -24666,6 +24666,9 @@ var TileManifest = function (_Serializable) {
         value: function getUpgradesForTile(id) {
             var _this2 = this;
 
+            if (id === 'stlouis') {
+                id = 'st_louis';
+            }
             return (0, _lodash2.default)(Manifest[id].upgrades || []).map(function (upgradeId) {
                 return {
                     tile: _this2.displayTilesById()[upgradeId],
@@ -24676,6 +24679,9 @@ var TileManifest = function (_Serializable) {
     }, {
         key: 'getTile',
         value: function getTile(id, replacedId) {
+            if (id === 'stlouis') {
+                id = 'st_louis';
+            }
             var numAvailable = this.availableTiles()[id];
             if (numAvailable === 0) {
                 throw new _validationError2.default('No ' + id + ' tile available');
@@ -24696,16 +24702,25 @@ var TileManifest = function (_Serializable) {
     }, {
         key: 'getTemplateName',
         value: function getTemplateName(id) {
+            if (id === 'stlouis') {
+                id = 'st_louis';
+            }
             return TileManifest.getTileDefinition(id).template || 'common';
         }
     }], [{
         key: 'getTileDefinition',
         value: function getTileDefinition(id) {
+            if (id === 'stlouis') {
+                id = 'st_louis';
+            }
             return TileDefinitions[id];
         }
     }, {
         key: 'createTile',
         value: function createTile(id) {
+            if (id === 'stlouis') {
+                id = 'st_louis';
+            }
             var definition = _lodash2.default.clone(TileDefinitions[id]);
             definition['upgrades'] = Manifest[id].upgrades;
             return new _tile2.default(definition);
@@ -40027,7 +40042,7 @@ var Company = function (_Serializable) {
         value: function unrust(phase) {
             var rustedTrains = (0, _currentGame2.default)().state().bank.getTrainsForPhase(phase);
             _lodash2.default.each(this.trains(), function (train) {
-                if (_lodash2.default.indexOf(rustedTrains, train.type) >= 0 && train.phasedOut(true)) {
+                if (_lodash2.default.indexOf(rustedTrains, train.type) >= 0 && train.phasedOut()) {
                     train.rusted(false);
                 }
             });
@@ -41054,16 +41069,16 @@ var BuyTrains = function (_Action) {
                 var player = state.playersById()[this.playerId];
                 var trainType = this.trains[0];
 
-                state.bank.addTrains(trainType, 1);
-                _lodash2.default.each(this.trainIds, function (id) {
-                    company.removeTrainById(id);
-                });
-
                 if (this.oldPhase) {
                     var currentPhase = state.currentPhaseId();
                     state.currentPhaseId(this.oldPhase);
                     this.undoPhaseChange(state, currentPhase);
                 }
+
+                state.bank.addTrains(trainType, 1);
+                _lodash2.default.each(this.trainIds, function (id) {
+                    company.removeTrainById(id);
+                });
 
                 _lodash2.default.each(this.stockSales, function (amount, companyId) {
                     var certs = state.bank.removeNonPresidentCertsForCompany(amount, companyId);
@@ -41101,6 +41116,12 @@ var BuyTrains = function (_Action) {
                 company.cash(this.oldCompanyCash);
                 state.bank.cash(this.oldBankCash);
             } else if (this.source === 'bank') {
+                if (this.oldPhase) {
+                    var _currentPhase = state.currentPhaseId();
+                    state.currentPhaseId(this.oldPhase);
+                    this.undoPhaseChange(state, _currentPhase);
+                }
+
                 _lodash2.default.each(this.trains, function (amount, type) {
                     var trainDefinition = _trainDefinitions2.default[type];
                     var cost = amount * trainDefinition.cost;
@@ -41111,12 +41132,6 @@ var BuyTrains = function (_Action) {
                         company.removeTrainById(id);
                     });
                 });
-
-                if (this.oldPhase) {
-                    var _currentPhase = state.currentPhaseId();
-                    state.currentPhaseId(this.oldPhase);
-                    this.undoPhaseChange(state, _currentPhase);
-                }
             } else {
                 var sellingCompany = state.getCompany(this.source);
                 company.removeTrainsById(this.trainIds);
@@ -41151,27 +41166,49 @@ var BuyTrains = function (_Action) {
                     company.phaseOut(_phaseIds2.default.PHASE_II);
                     company.rust(_phaseIds2.default.PHASE_I);
                 });
-                var meatTile = _lodash2.default.find(state.tilesByCellId, function (tile) {
-                    return tile.hasMeat();
+
+                var meatCellId = null;
+                var meatTile = null;
+
+                _lodash2.default.each(state.tilesByCellId, function (tile, cellId) {
+                    if (tile.hasMeat()) {
+                        meatCellId = cellId;
+                        meatTile = tile;
+                        return false;
+                    }
                 });
 
                 if (meatTile) {
                     meatTile.hasMeat(false);
-                    this.meatTileId = meatTile.id;
+                    this.meatTileId = meatCellId;
+                    if (this.meatTileId === 'stlouis') {
+                        this.meatTileId = 'st_louis';
+                    }
                 }
-                var steamBoatTile = _lodash2.default.find(state.tilesByCellId, function (tile) {
-                    return tile.hasSteamboat();
+
+                var steamBoatCellId = null;
+                var steamBoatTile = null;
+
+                _lodash2.default.each(state.tilesByCellId, function (tile, cellId) {
+                    if (tile.hasSteamboat()) {
+                        steamBoatCellId = cellId;
+                        steamBoatTile = tile;
+                        return false;
+                    }
                 });
 
                 if (steamBoatTile) {
                     steamBoatTile.hasSteamboat(false);
                     this.steamboatTileId = steamBoatTile.id;
+                    if (this.steamboatTileId === 'stlouis') {
+                        this.steamboatTileId = 'st_louis';
+                    }
                 }
                 state.trainLimit(2);
 
-                _lodash2.default.each(state.tilesByCellId, function (tile) {
+                _lodash2.default.each(state.tilesByCellId, function (tile, cellId) {
                     if (tile.reservedTokens().length > 0) {
-                        _this4.oldReservedTokens[tile.id] = _lodash2.default.clone(tile.reservedTokens());
+                        _this4.oldReservedTokens[cellId] = _lodash2.default.clone(tile.reservedTokens());
                         tile.reservedTokens([]);
                     }
                 });
@@ -41198,20 +41235,24 @@ var BuyTrains = function (_Action) {
                 });
 
                 if (this.meatTileId) {
+                    if (this.meatTileId === 'stlouis') {
+                        this.meatTileId = 'st_louis';
+                    }
                     var tile = state.tilesByCellId[this.meatTileId];
                     tile.hasMeat(true);
                 }
 
                 if (this.steamboatTileId) {
+                    if (this.steamboatTileId === 'stlouis') {
+                        this.steamboatTileId = 'st_louis';
+                    }
                     var _tile = state.tilesByCellId[this.steamboatTileId];
                     _tile.hasSteamboat(true);
                 }
                 state.trainLimit(3);
 
-                _lodash2.default.each(this.oldReservedTokens, function (tokens, tileId) {
-                    var tile = _lodash2.default.find(state.tilesByCellId, function (tile) {
-                        return tile.id === tileId;
-                    });
+                _lodash2.default.each(this.oldReservedTokens, function (tokens, cellId) {
+                    var tile = state.tilesByCellId[cellId];
                     tile.reservedTokens(_lodash2.default.clone(tokens));
                 });
             }
