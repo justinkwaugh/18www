@@ -28,8 +28,8 @@
 
 <!-- ko if: $data.preview() -->
 <div class="position-fixed" style="height:100%;width:100%;left:0;top:0;overflow:hidden;z-index:99"></div>
-<div class="d-flex position-absolute justify-content-between" style="width:132px;z-index:100"
-     data-bind="style: { top: ($data.top-35) + 'px', left: ($data.left-3) + 'px'}">
+<div class="d-flex position-absolute justify-content-between bg-light p-1" style="width:132px;z-index:100;border:1px solid #CCC;box-shadow:3px 3px 10px #818181"
+     data-bind="style: { top: ($data.top-41) + 'px', left: ($data.left-3) + 'px'}">
     <button type="button" style="min-width:35px;" class="btn btn-sm btn-danger font-weight-bold"
             data-bind="click: $data.cancelPreview"><span class="oi oi-x" title="icon name" aria-hidden="true"></span>
     </button>

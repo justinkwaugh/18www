@@ -45,7 +45,7 @@
         <div class="btn-group" role="group">
             <!-- ko foreach: _.range(1, $root.game().state().currentPlayer().sharesCanSell()[$data.selectedCompany().id].shares + 1) -->
             <button type="button" class="btn"
-                    data-bind="text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.numberOfShares($index()+1); }"></button>
+                    data-bind="text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.selectNumberOfShares($index()+1); }"></button>
             <!-- /ko -->
         </div>
     </div>
@@ -57,7 +57,7 @@
         <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
             <!-- ko foreach: $root.game().state().currentPlayer().companiesCanBuy() -->
             <li class="rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1" style="cursor:pointer;"
-                data-bind="click: function() {$parent.selectedCompanyId($data.id); },style: { opacity: !$parent.selectedCompanyId() || $parent.selectedCompanyId() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id ">
+                data-bind="click: function() {$parent.selectCompany($data.id); },style: { opacity: !$parent.selectedCompanyId() || $parent.selectedCompanyId() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id ">
                 <div data-bind="text: $data.opened() ? '' : 'open'"></div>
                 <strong class="h5" data-bind="text: $data.nickname"></strong>
                 <div data-bind="text: $data.opened() ? '$' + $data.price() : ''"></div>
@@ -71,7 +71,7 @@
         <div class="btn-group" role="group">
             <!-- ko foreach: $data.getParRange() -->
             <button type="button" class="btn"
-                    data-bind="text: $data, css: $parent.openingPriceIndex() === $index()+4 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.openingPriceIndex($index()+4); }"></button>
+                    data-bind="text: $data, css: $parent.openingPriceIndex() === $index()+4 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.selectOpeningPriceIndex($index()+4); }"></button>
             <!-- /ko -->
         </div>
     </div>
@@ -81,9 +81,9 @@
     <div class="d-flex justify-content-center">
 
             <button type="button" class="btn mr-1"
-                    data-bind="css: $data.chosenShareSource() === $data.ShareSources.MARKET ? 'btn-warning' : 'btn-secondary', click: function() { $data.chosenShareSource($data.ShareSources.MARKET); }"><strong class="h4 mr-2 align-middle" data-bind="text: $data.bankShares()"></strong><span class="align-middle">market</span></button>
+                    data-bind="css: $data.chosenShareSource() === $data.ShareSources.MARKET ? 'btn-warning' : 'btn-secondary', click: function() { $data.selectShareSource($data.ShareSources.MARKET); }"><strong class="h4 mr-2 align-middle" data-bind="text: $data.bankShares()"></strong><span class="align-middle">market</span></button>
             <button type="button" class="btn"
-                    data-bind="css: $data.chosenShareSource() === $data.ShareSources.TREASURY ? 'btn-warning' : 'btn-secondary', click: function() { $data.chosenShareSource($data.ShareSources.TREASURY); }"><strong class="h4 mr-2 align-middle" data-bind="text: $data.treasuryShares()"></strong><span class="align-middle">treasury</span></button>
+                    data-bind="css: $data.chosenShareSource() === $data.ShareSources.TREASURY ? 'btn-warning' : 'btn-secondary', click: function() { $data.selectShareSource($data.ShareSources.TREASURY); }"><strong class="h4 mr-2 align-middle" data-bind="text: $data.treasuryShares()"></strong><span class="align-middle">treasury</span></button>
     </div>
     <!-- /ko -->
     <!-- /ko -->

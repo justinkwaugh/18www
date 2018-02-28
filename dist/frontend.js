@@ -23686,385 +23686,6 @@ Object.defineProperty(exports, "__esModule", {
     value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _roundTypes = __webpack_require__(17);
-
-var _roundTypes2 = _interopRequireDefault(_roundTypes);
-
-var _privateDraft = __webpack_require__(67);
-
-var _privateDraft2 = _interopRequireDefault(_privateDraft);
-
-var _stockRound = __webpack_require__(70);
-
-var _stockRound2 = _interopRequireDefault(_stockRound);
-
-var _operatingRound = __webpack_require__(29);
-
-var _operatingRound2 = _interopRequireDefault(_operatingRound);
-
-var _setPriorityDeal = __webpack_require__(57);
-
-var _setPriorityDeal2 = _interopRequireDefault(_setPriorityDeal);
-
-var _setOperatingOrder = __webpack_require__(56);
-
-var _setOperatingOrder2 = _interopRequireDefault(_setOperatingOrder);
-
-var _adjustStockPrices = __webpack_require__(39);
-
-var _adjustStockPrices2 = _interopRequireDefault(_adjustStockPrices);
-
-var _privateIncome = __webpack_require__(51);
-
-var _privateIncome2 = _interopRequireDefault(_privateIncome);
-
-var _currentGame = __webpack_require__(3);
-
-var _currentGame2 = _interopRequireDefault(_currentGame);
-
-var _events = __webpack_require__(7);
-
-var _events2 = _interopRequireDefault(_events);
-
-var _companyIds = __webpack_require__(5);
-
-var _companyIds2 = _interopRequireDefault(_companyIds);
-
-var _updateSequence = __webpack_require__(60);
-
-var _updateSequence2 = _interopRequireDefault(_updateSequence);
-
-var _lodash = __webpack_require__(0);
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var Sequence = function () {
-    function Sequence() {
-        _classCallCheck(this, Sequence);
-    }
-
-    _createClass(Sequence, null, [{
-        key: 'undoLastAction',
-        value: function undoLastAction() {
-            (0, _currentGame2.default)().state().turnHistory.currentTurn().undoLast();
-            (0, _currentGame2.default)().saveLocalState();
-            _events2.default.emit('undo');
-        }
-    }, {
-        key: 'undoToRoundStart',
-        value: function undoToRoundStart(roundId) {
-            this.undoToIndex((0, _currentGame2.default)().state().roundHistory.getRound(roundId).actionStartIndex);
-        }
-    }, {
-        key: 'undoToTurnStart',
-        value: function undoToTurnStart(turnId) {
-            this.undoToIndex((0, _currentGame2.default)().state().turnHistory.getTurn(turnId).actionStartIndex);
-        }
-    }, {
-        key: 'undoToIndex',
-        value: function undoToIndex(index) {}
-    }, {
-        key: 'interruptTurn',
-        value: function interruptTurn(interruptionType) {
-            _events2.default.emit('turnEnd');
-            var game = (0, _currentGame2.default)();
-            var state = game.state();
-            state.interruptionType(interruptionType);
-            state.interruptedCompanyId(state.currentCompanyId());
-
-            //commit to server
-
-            // if local
-            state.actionHistory.commit();
-            this.nextOutOfTurn();
-            (0, _currentGame2.default)().saveLocalState();
-        }
-    }, {
-        key: 'finishTurn',
-        value: function finishTurn() {
-            var state = (0, _currentGame2.default)().state();
-            if (state.interruptionType()) {
-                state.turnHistory.currentTurn().commitActionGroup();
-
-                //commit to server
-                state.actionHistory.commit();
-                this.nextOutOfTurn();
-            } else {
-                state.turnHistory.commitTurn();
-                _events2.default.emit('turnEnd');
-
-                //commit to server
-
-                // if local
-                state.actionHistory.commit();
-                if (Sequence.isGameOverDueToBankruptcy()) {
-                    this.endGame();
-                } else {
-                    this.nextRoundPhaseAndTurn();
-                }
-            }
-            (0, _currentGame2.default)().saveLocalState();
-        }
-    }, {
-        key: 'nextOutOfTurn',
-        value: function nextOutOfTurn() {
-            var game = (0, _currentGame2.default)();
-            var state = game.state();
-
-            // Train limit checks
-            var companyWithTooManyTrains = _lodash2.default.find(state.publicCompanies, function (company) {
-                return company.hasTooManyTrains();
-            });
-
-            if (companyWithTooManyTrains) {
-                state.turnHistory.currentTurn().startActionGroup(state.interruptionType());
-                state.currentCompanyId(companyWithTooManyTrains.id);
-            } else {
-                state.currentCompanyId(state.interruptedCompanyId());
-                state.interruptionType(null);
-                state.interruptedCompanyId(null);
-            }
-
-            var presidentPlayerId = state.currentCompany().president();
-            var nextPresidentIndex = _lodash2.default.findIndex(state.players(), function (player) {
-                return player.id === presidentPlayerId;
-            });
-            state.currentPlayerIndex(nextPresidentIndex);
-        }
-    }, {
-        key: 'endGame',
-        value: function endGame() {
-            var state = (0, _currentGame2.default)().state();
-            state.roundHistory.commitRound();
-            new _updateSequence2.default({ winner: _lodash2.default.maxBy(state.players(), function (player) {
-                    return player.getNetWorth();
-                }).id }).execute(state);
-        }
-    }, {
-        key: 'nextRoundPhaseAndTurn',
-        value: function nextRoundPhaseAndTurn() {
-            var game = (0, _currentGame2.default)();
-            var state = game.state();
-
-            var currentRound = state.roundHistory.getCurrentRound();
-
-            if (!currentRound) {
-                state.roundHistory.startRound(_roundTypes2.default.PRIVATE_DRAFT, 1);
-                new _updateSequence2.default({ playerIndex: state.players().length - 1 }).execute(state);
-                game.privateDraft(new _privateDraft2.default());
-            } else if (currentRound.roundType === _roundTypes2.default.PRIVATE_DRAFT) {
-                if (state.undraftedPrivateIds().length > 0) {
-                    new _updateSequence2.default({ playerIndex: Sequence.nextPlayerIndex(null, true) }).execute(state);
-                    game.privateDraft(new _privateDraft2.default());
-                } else {
-                    Sequence.onPrivateDraftEnd(game);
-                }
-            } else if (currentRound.roundType === _roundTypes2.default.STOCK_ROUND) {
-                var nextPlayer = Sequence.nextPlayerIndex();
-                if (state.firstPassIndex() === nextPlayer) {
-                    Sequence.onStockRoundEnd(game);
-                } else {
-                    new _updateSequence2.default({ playerIndex: nextPlayer }).execute(state);
-                }
-            } else if (currentRound.roundType === _roundTypes2.default.OPERATING_ROUND_1 || currentRound.roundType === _roundTypes2.default.OPERATING_ROUND_2) {
-                var nextCompanyIndex = Sequence.getNextCompanyIndex(state);
-                if (nextCompanyIndex < state.operatingOrder().length) {
-                    Sequence.setNextCompanyAndPlayer(state, nextCompanyIndex);
-                } else {
-                    Sequence.onOperatingRoundEnd(game, currentRound.roundType);
-                }
-            }
-            state.turnHistory.startTurn({ state: state });
-        }
-    }, {
-        key: 'onPrivateDraftEnd',
-        value: function onPrivateDraftEnd(game) {
-            var state = game.state();
-            state.roundHistory.commitRound();
-            new _updateSequence2.default({ playerIndex: 0 }).execute(state);
-            game.privateDraft(null);
-            game.stockRound(new _stockRound2.default());
-            state.roundHistory.startRound(_roundTypes2.default.STOCK_ROUND, 1);
-            game.showOwnership();
-        }
-    }, {
-        key: 'onStockRoundEnd',
-        value: function onStockRoundEnd(game) {
-            var state = game.state();
-            new _setPriorityDeal2.default({ playerIndex: state.firstPassIndex() }).execute(state);
-            new _adjustStockPrices2.default({}).execute(state);
-            var currentRoundNumber = state.roundNumber();
-            state.roundHistory.commitRound();
-
-            game.stockRound(null);
-            state.roundHistory.startRound(_roundTypes2.default.OPERATING_ROUND_1);
-            new _setOperatingOrder2.default({ operatingOrder: state.stockBoard.getOperatingOrder(currentRoundNumber === 1) }).execute(state);
-            new _privateIncome2.default({}).execute(state);
-            if (!Sequence.doSteamboat(state)) {
-                Sequence.setNextCompanyAndPlayer(state, 0);
-            }
-            game.showMap();
-        }
-    }, {
-        key: 'onOperatingRoundEnd',
-        value: function onOperatingRoundEnd(game, currentRoundType) {
-            var state = game.state();
-            _lodash2.default.each(state.publicCompanies, function (company) {
-                _lodash2.default.each(company.trains(), function (train) {
-                    train.purchased = false;
-                });
-            });
-
-            if (currentRoundType === _roundTypes2.default.OPERATING_ROUND_1) {
-                state.roundHistory.commitRound();
-                state.roundHistory.startRound(_roundTypes2.default.OPERATING_ROUND_2);
-                new _setOperatingOrder2.default({ operatingOrder: state.stockBoard.getOperatingOrder() }).execute(state);
-                new _privateIncome2.default({}).execute(state);
-                if (!Sequence.doSteamboat(state)) {
-                    Sequence.setNextCompanyAndPlayer(state, 0);
-                }
-            } else {
-                if (Sequence.isGameOverDueToBankBreaking()) {
-                    this.endGame();
-                } else {
-                    var currentRoundNumber = state.roundNumber();
-                    state.roundHistory.commitRound();
-                    state.roundHistory.startRound(_roundTypes2.default.STOCK_ROUND, currentRoundNumber + 1);
-                    new _updateSequence2.default({ playerIndex: state.priorityDealIndex(), companyId: null, firstPassIndex: null }).execute(state);
-                    game.stockRound(new _stockRound2.default());
-                    game.showOwnership();
-                }
-            }
-        }
-    }, {
-        key: 'getNextCompanyIndex',
-        value: function getNextCompanyIndex(state) {
-            // In case of bankruptcy causing change of presidency but still no train...
-            var company = state.currentCompany();
-            if (company && !company.closed() && company.president() && company.getNonPhasedOutTrains().length === 0) {
-                return _lodash2.default.indexOf(state.operatingOrder(), state.currentCompanyId());
-            }
-
-            return company ? _lodash2.default.indexOf(state.operatingOrder(), state.currentCompanyId()) + 1 : 0;
-        }
-    }, {
-        key: 'doSteamboat',
-        value: function doSteamboat(state) {
-            var steamboatOwner = Sequence.getSteamboatOwner();
-            if (steamboatOwner) {
-                var steamboatOwnerIndex = _lodash2.default.findIndex(state.players(), function (player) {
-                    return player.id === steamboatOwner.id;
-                });
-                new _updateSequence2.default({ playerIndex: steamboatOwnerIndex, companyId: null }).execute(state);
-                return true;
-            }
-            return false;
-        }
-    }, {
-        key: 'setNextCompanyAndPlayer',
-        value: function setNextCompanyAndPlayer(state, companyIndex) {
-            var companyId = state.operatingOrder()[companyIndex];
-            var nextCompany = state.getCompany(companyId);
-
-            var presidentPlayerId = nextCompany.president();
-            if (!presidentPlayerId) {
-                presidentPlayerId = (0, _lodash2.default)(state.players()).reject(function (player) {
-                    return player.bankrupt();
-                }).sample().id;
-            }
-            var nextPresidentIndex = _lodash2.default.findIndex(state.players(), function (player) {
-                return player.id === presidentPlayerId;
-            });
-
-            new _updateSequence2.default({ playerIndex: nextPresidentIndex, companyId: companyId }).execute(state);
-            (0, _currentGame2.default)().selectedCompany(state.currentCompanyId());
-            if ((0, _currentGame2.default)().operatingRound().canLayTrackOrToken()) {
-                (0, _currentGame2.default)().operatingRound().selectAction((0, _currentGame2.default)().operatingRound().Actions.LAY_TRACK);
-            }
-        }
-    }, {
-        key: 'nextPlayerIndex',
-        value: function nextPlayerIndex(fromIndex, reverse) {
-            var state = (0, _currentGame2.default)().state();
-            if (!_lodash2.default.isNumber(fromIndex)) {
-                fromIndex = state.currentPlayerIndex();
-            }
-
-            var nextPlayerIndex = 0;
-            do {
-                nextPlayerIndex = fromIndex + (reverse ? -1 : 1);
-                if (nextPlayerIndex < 0) {
-                    nextPlayerIndex = state.players().length - 1;
-                } else if (nextPlayerIndex === state.players().length) {
-                    nextPlayerIndex = 0;
-                }
-                fromIndex = nextPlayerIndex;
-            } while (state.players()[nextPlayerIndex].bankrupt());
-
-            return nextPlayerIndex;
-        }
-    }, {
-        key: 'restore',
-        value: function restore() {
-
-            var game = (0, _currentGame2.default)();
-            var state = game.state();
-            var currentRound = state.roundHistory.getCurrentRound();
-            if (!currentRound) {
-                return;
-            }
-            if (currentRound.roundType === _roundTypes2.default.PRIVATE_DRAFT) {
-                game.privateDraft(new _privateDraft2.default());
-            } else if (currentRound.roundType === _roundTypes2.default.STOCK_ROUND) {
-                game.stockRound(new _stockRound2.default());
-                game.showOwnership();
-            } else {
-                (0, _currentGame2.default)().selectedCompany(state.currentCompanyId());
-            }
-        }
-    }, {
-        key: 'getSteamboatOwner',
-        value: function getSteamboatOwner() {
-            return _lodash2.default.find((0, _currentGame2.default)().state().players(), function (player) {
-                return player.hasPrivate(_companyIds2.default.STEAMBOAT_COMPANY);
-            });
-        }
-    }, {
-        key: 'isGameOverDueToBankBreaking',
-        value: function isGameOverDueToBankBreaking() {
-            return (0, _currentGame2.default)().state().bank.cash() <= 0;
-        }
-    }, {
-        key: 'isGameOverDueToBankruptcy',
-        value: function isGameOverDueToBankruptcy() {
-            return _lodash2.default.filter((0, _currentGame2.default)().state().players(), function (player) {
-                return !player.bankrupt();
-            }).length === 1;
-        }
-    }]);
-
-    return Sequence;
-}();
-
-exports.default = Sequence;
-
-/***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var ValidationError = function ValidationError(message) {
@@ -24077,7 +23698,7 @@ var ValidationError = function ValidationError(message) {
 exports.default = ValidationError;
 
 /***/ }),
-/* 15 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24122,7 +23743,7 @@ var MapTileIDs = {
 exports.default = MapTileIDs;
 
 /***/ }),
-/* 16 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24148,7 +23769,7 @@ var OffBoardIds = {
 exports.default = OffBoardIds;
 
 /***/ }),
-/* 17 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24167,7 +23788,7 @@ var RoundTypes = {
 exports.default = RoundTypes;
 
 /***/ }),
-/* 18 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -24199,7 +23820,7 @@ var _tileColorIds = __webpack_require__(21);
 
 var _tileColorIds2 = _interopRequireDefault(_tileColorIds);
 
-var _mapTileIds = __webpack_require__(15);
+var _mapTileIds = __webpack_require__(14);
 
 var _mapTileIds2 = _interopRequireDefault(_mapTileIds);
 
@@ -24207,7 +23828,7 @@ var _knockout = __webpack_require__(1);
 
 var _knockout2 = _interopRequireDefault(_knockout);
 
-var _validationError = __webpack_require__(14);
+var _validationError = __webpack_require__(13);
 
 var _validationError2 = _interopRequireDefault(_validationError);
 
@@ -25099,6 +24720,385 @@ TileManifest.registerClass();
 exports.default = TileManifest;
 
 /***/ }),
+/* 18 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _roundTypes = __webpack_require__(16);
+
+var _roundTypes2 = _interopRequireDefault(_roundTypes);
+
+var _privateDraft = __webpack_require__(67);
+
+var _privateDraft2 = _interopRequireDefault(_privateDraft);
+
+var _stockRound = __webpack_require__(70);
+
+var _stockRound2 = _interopRequireDefault(_stockRound);
+
+var _operatingRound = __webpack_require__(29);
+
+var _operatingRound2 = _interopRequireDefault(_operatingRound);
+
+var _setPriorityDeal = __webpack_require__(57);
+
+var _setPriorityDeal2 = _interopRequireDefault(_setPriorityDeal);
+
+var _setOperatingOrder = __webpack_require__(56);
+
+var _setOperatingOrder2 = _interopRequireDefault(_setOperatingOrder);
+
+var _adjustStockPrices = __webpack_require__(39);
+
+var _adjustStockPrices2 = _interopRequireDefault(_adjustStockPrices);
+
+var _privateIncome = __webpack_require__(51);
+
+var _privateIncome2 = _interopRequireDefault(_privateIncome);
+
+var _currentGame = __webpack_require__(3);
+
+var _currentGame2 = _interopRequireDefault(_currentGame);
+
+var _events = __webpack_require__(7);
+
+var _events2 = _interopRequireDefault(_events);
+
+var _companyIds = __webpack_require__(5);
+
+var _companyIds2 = _interopRequireDefault(_companyIds);
+
+var _updateSequence = __webpack_require__(60);
+
+var _updateSequence2 = _interopRequireDefault(_updateSequence);
+
+var _lodash = __webpack_require__(0);
+
+var _lodash2 = _interopRequireDefault(_lodash);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Sequence = function () {
+    function Sequence() {
+        _classCallCheck(this, Sequence);
+    }
+
+    _createClass(Sequence, null, [{
+        key: 'undoLastAction',
+        value: function undoLastAction() {
+            (0, _currentGame2.default)().state().turnHistory.currentTurn().undoLast();
+            (0, _currentGame2.default)().saveLocalState();
+            _events2.default.emit('undo');
+        }
+    }, {
+        key: 'undoToRoundStart',
+        value: function undoToRoundStart(roundId) {
+            this.undoToIndex((0, _currentGame2.default)().state().roundHistory.getRound(roundId).actionStartIndex);
+        }
+    }, {
+        key: 'undoToTurnStart',
+        value: function undoToTurnStart(turnId) {
+            this.undoToIndex((0, _currentGame2.default)().state().turnHistory.getTurn(turnId).actionStartIndex);
+        }
+    }, {
+        key: 'undoToIndex',
+        value: function undoToIndex(index) {}
+    }, {
+        key: 'interruptTurn',
+        value: function interruptTurn(interruptionType) {
+            _events2.default.emit('turnEnd');
+            var game = (0, _currentGame2.default)();
+            var state = game.state();
+            state.interruptionType(interruptionType);
+            state.interruptedCompanyId(state.currentCompanyId());
+
+            //commit to server
+
+            // if local
+            state.actionHistory.commit();
+            this.nextOutOfTurn();
+            (0, _currentGame2.default)().saveLocalState();
+        }
+    }, {
+        key: 'finishTurn',
+        value: function finishTurn() {
+            var state = (0, _currentGame2.default)().state();
+            if (state.interruptionType()) {
+                state.turnHistory.currentTurn().commitActionGroup();
+
+                //commit to server
+                state.actionHistory.commit();
+                this.nextOutOfTurn();
+            } else {
+                state.turnHistory.commitTurn();
+                _events2.default.emit('turnEnd');
+
+                //commit to server
+
+                // if local
+                state.actionHistory.commit();
+                if (Sequence.isGameOverDueToBankruptcy()) {
+                    this.endGame();
+                } else {
+                    this.nextRoundPhaseAndTurn();
+                }
+            }
+            (0, _currentGame2.default)().saveLocalState();
+        }
+    }, {
+        key: 'nextOutOfTurn',
+        value: function nextOutOfTurn() {
+            var game = (0, _currentGame2.default)();
+            var state = game.state();
+
+            // Train limit checks
+            var companyWithTooManyTrains = _lodash2.default.find(state.publicCompanies, function (company) {
+                return company.hasTooManyTrains();
+            });
+
+            if (companyWithTooManyTrains) {
+                state.turnHistory.currentTurn().startActionGroup(state.interruptionType());
+                state.currentCompanyId(companyWithTooManyTrains.id);
+            } else {
+                state.currentCompanyId(state.interruptedCompanyId());
+                state.interruptionType(null);
+                state.interruptedCompanyId(null);
+            }
+
+            var presidentPlayerId = state.currentCompany().president();
+            var nextPresidentIndex = _lodash2.default.findIndex(state.players(), function (player) {
+                return player.id === presidentPlayerId;
+            });
+            state.currentPlayerIndex(nextPresidentIndex);
+        }
+    }, {
+        key: 'endGame',
+        value: function endGame() {
+            var state = (0, _currentGame2.default)().state();
+            state.roundHistory.commitRound();
+            new _updateSequence2.default({ winner: _lodash2.default.maxBy(state.players(), function (player) {
+                    return player.getNetWorth();
+                }).id }).execute(state);
+        }
+    }, {
+        key: 'nextRoundPhaseAndTurn',
+        value: function nextRoundPhaseAndTurn() {
+            var game = (0, _currentGame2.default)();
+            var state = game.state();
+
+            var currentRound = state.roundHistory.getCurrentRound();
+
+            if (!currentRound) {
+                state.roundHistory.startRound(_roundTypes2.default.PRIVATE_DRAFT, 1);
+                new _updateSequence2.default({ playerIndex: state.players().length - 1 }).execute(state);
+                game.privateDraft(new _privateDraft2.default());
+            } else if (currentRound.roundType === _roundTypes2.default.PRIVATE_DRAFT) {
+                if (state.undraftedPrivateIds().length > 0) {
+                    new _updateSequence2.default({ playerIndex: Sequence.nextPlayerIndex(null, true) }).execute(state);
+                    game.privateDraft(new _privateDraft2.default());
+                } else {
+                    Sequence.onPrivateDraftEnd(game);
+                }
+            } else if (currentRound.roundType === _roundTypes2.default.STOCK_ROUND) {
+                var nextPlayer = Sequence.nextPlayerIndex();
+                if (state.firstPassIndex() === nextPlayer) {
+                    Sequence.onStockRoundEnd(game);
+                } else {
+                    new _updateSequence2.default({ playerIndex: nextPlayer }).execute(state);
+                }
+            } else if (currentRound.roundType === _roundTypes2.default.OPERATING_ROUND_1 || currentRound.roundType === _roundTypes2.default.OPERATING_ROUND_2) {
+                var nextCompanyIndex = Sequence.getNextCompanyIndex(state);
+                if (nextCompanyIndex < state.operatingOrder().length) {
+                    Sequence.setNextCompanyAndPlayer(state, nextCompanyIndex);
+                } else {
+                    Sequence.onOperatingRoundEnd(game, currentRound.roundType);
+                }
+            }
+            state.turnHistory.startTurn({ state: state });
+        }
+    }, {
+        key: 'onPrivateDraftEnd',
+        value: function onPrivateDraftEnd(game) {
+            var state = game.state();
+            state.roundHistory.commitRound();
+            new _updateSequence2.default({ playerIndex: 0 }).execute(state);
+            game.privateDraft(null);
+            game.stockRound(new _stockRound2.default());
+            state.roundHistory.startRound(_roundTypes2.default.STOCK_ROUND, 1);
+            game.showOwnership();
+        }
+    }, {
+        key: 'onStockRoundEnd',
+        value: function onStockRoundEnd(game) {
+            var state = game.state();
+            new _setPriorityDeal2.default({ playerIndex: state.firstPassIndex() }).execute(state);
+            new _adjustStockPrices2.default({}).execute(state);
+            var currentRoundNumber = state.roundNumber();
+            state.roundHistory.commitRound();
+
+            game.stockRound(null);
+            state.roundHistory.startRound(_roundTypes2.default.OPERATING_ROUND_1);
+            new _setOperatingOrder2.default({ operatingOrder: state.stockBoard.getOperatingOrder(currentRoundNumber === 1) }).execute(state);
+            new _privateIncome2.default({}).execute(state);
+            if (!Sequence.doSteamboat(state)) {
+                Sequence.setNextCompanyAndPlayer(state, 0);
+            }
+            game.showMap();
+        }
+    }, {
+        key: 'onOperatingRoundEnd',
+        value: function onOperatingRoundEnd(game, currentRoundType) {
+            var state = game.state();
+            _lodash2.default.each(state.publicCompanies, function (company) {
+                _lodash2.default.each(company.trains(), function (train) {
+                    train.purchased = false;
+                });
+            });
+
+            if (currentRoundType === _roundTypes2.default.OPERATING_ROUND_1) {
+                state.roundHistory.commitRound();
+                state.roundHistory.startRound(_roundTypes2.default.OPERATING_ROUND_2);
+                new _setOperatingOrder2.default({ operatingOrder: state.stockBoard.getOperatingOrder() }).execute(state);
+                new _privateIncome2.default({}).execute(state);
+                if (!Sequence.doSteamboat(state)) {
+                    Sequence.setNextCompanyAndPlayer(state, 0);
+                }
+            } else {
+                if (Sequence.isGameOverDueToBankBreaking()) {
+                    this.endGame();
+                } else {
+                    var currentRoundNumber = state.roundNumber();
+                    state.roundHistory.commitRound();
+                    state.roundHistory.startRound(_roundTypes2.default.STOCK_ROUND, currentRoundNumber + 1);
+                    new _updateSequence2.default({ playerIndex: state.priorityDealIndex(), companyId: null, firstPassIndex: null }).execute(state);
+                    game.stockRound(new _stockRound2.default());
+                    game.showOwnership();
+                }
+            }
+        }
+    }, {
+        key: 'getNextCompanyIndex',
+        value: function getNextCompanyIndex(state) {
+            // In case of bankruptcy causing change of presidency but still no train...
+            var company = state.currentCompany();
+            if (company && !company.closed() && company.president() && company.getNonPhasedOutTrains().length === 0) {
+                return _lodash2.default.indexOf(state.operatingOrder(), state.currentCompanyId());
+            }
+
+            return company ? _lodash2.default.indexOf(state.operatingOrder(), state.currentCompanyId()) + 1 : 0;
+        }
+    }, {
+        key: 'doSteamboat',
+        value: function doSteamboat(state) {
+            var steamboatOwner = Sequence.getSteamboatOwner();
+            if (steamboatOwner) {
+                var steamboatOwnerIndex = _lodash2.default.findIndex(state.players(), function (player) {
+                    return player.id === steamboatOwner.id;
+                });
+                new _updateSequence2.default({ playerIndex: steamboatOwnerIndex, companyId: null }).execute(state);
+                return true;
+            }
+            return false;
+        }
+    }, {
+        key: 'setNextCompanyAndPlayer',
+        value: function setNextCompanyAndPlayer(state, companyIndex) {
+            var companyId = state.operatingOrder()[companyIndex];
+            var nextCompany = state.getCompany(companyId);
+
+            var presidentPlayerId = nextCompany.president();
+            if (!presidentPlayerId) {
+                presidentPlayerId = (0, _lodash2.default)(state.players()).reject(function (player) {
+                    return player.bankrupt();
+                }).sample().id;
+            }
+            var nextPresidentIndex = _lodash2.default.findIndex(state.players(), function (player) {
+                return player.id === presidentPlayerId;
+            });
+
+            new _updateSequence2.default({ playerIndex: nextPresidentIndex, companyId: companyId }).execute(state);
+            (0, _currentGame2.default)().selectedCompany(state.currentCompanyId());
+            if ((0, _currentGame2.default)().operatingRound().canLayTrackOrToken()) {
+                (0, _currentGame2.default)().operatingRound().selectAction((0, _currentGame2.default)().operatingRound().Actions.LAY_TRACK);
+            }
+        }
+    }, {
+        key: 'nextPlayerIndex',
+        value: function nextPlayerIndex(fromIndex, reverse) {
+            var state = (0, _currentGame2.default)().state();
+            if (!_lodash2.default.isNumber(fromIndex)) {
+                fromIndex = state.currentPlayerIndex();
+            }
+
+            var nextPlayerIndex = 0;
+            do {
+                nextPlayerIndex = fromIndex + (reverse ? -1 : 1);
+                if (nextPlayerIndex < 0) {
+                    nextPlayerIndex = state.players().length - 1;
+                } else if (nextPlayerIndex === state.players().length) {
+                    nextPlayerIndex = 0;
+                }
+                fromIndex = nextPlayerIndex;
+            } while (state.players()[nextPlayerIndex].bankrupt());
+
+            return nextPlayerIndex;
+        }
+    }, {
+        key: 'restore',
+        value: function restore() {
+
+            var game = (0, _currentGame2.default)();
+            var state = game.state();
+            var currentRound = state.roundHistory.getCurrentRound();
+            if (!currentRound) {
+                return;
+            }
+            if (currentRound.roundType === _roundTypes2.default.PRIVATE_DRAFT) {
+                game.privateDraft(new _privateDraft2.default());
+            } else if (currentRound.roundType === _roundTypes2.default.STOCK_ROUND) {
+                game.stockRound(new _stockRound2.default());
+                game.showOwnership();
+            } else {
+                (0, _currentGame2.default)().selectedCompany(state.currentCompanyId());
+            }
+        }
+    }, {
+        key: 'getSteamboatOwner',
+        value: function getSteamboatOwner() {
+            return _lodash2.default.find((0, _currentGame2.default)().state().players(), function (player) {
+                return player.hasPrivate(_companyIds2.default.STEAMBOAT_COMPANY);
+            });
+        }
+    }, {
+        key: 'isGameOverDueToBankBreaking',
+        value: function isGameOverDueToBankBreaking() {
+            return (0, _currentGame2.default)().state().bank.cash() <= 0;
+        }
+    }, {
+        key: 'isGameOverDueToBankruptcy',
+        value: function isGameOverDueToBankruptcy() {
+            return _lodash2.default.filter((0, _currentGame2.default)().state().players(), function (player) {
+                return !player.bankrupt();
+            }).length === 1;
+        }
+    }]);
+
+    return Sequence;
+}();
+
+exports.default = Sequence;
+
+/***/ }),
 /* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -25137,15 +25137,15 @@ var _routeColors = __webpack_require__(62);
 
 var _routeColors2 = _interopRequireDefault(_routeColors);
 
-var _tileManifest = __webpack_require__(18);
+var _tileManifest = __webpack_require__(17);
 
 var _tileManifest2 = _interopRequireDefault(_tileManifest);
 
-var _offBoardIds = __webpack_require__(16);
+var _offBoardIds = __webpack_require__(15);
 
 var _offBoardIds2 = _interopRequireDefault(_offBoardIds);
 
-var _mapTileIds = __webpack_require__(15);
+var _mapTileIds = __webpack_require__(14);
 
 var _mapTileIds2 = _interopRequireDefault(_mapTileIds);
 
@@ -36555,7 +36555,7 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _validationError = __webpack_require__(14);
+var _validationError = __webpack_require__(13);
 
 var _validationError2 = _interopRequireDefault(_validationError);
 
@@ -36752,7 +36752,7 @@ var _lodash = __webpack_require__(0);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _tileManifest = __webpack_require__(18);
+var _tileManifest = __webpack_require__(17);
 
 var _tileManifest2 = _interopRequireDefault(_tileManifest);
 
@@ -36764,7 +36764,7 @@ var _events = __webpack_require__(7);
 
 var _events2 = _interopRequireDefault(_events);
 
-var _sequence = __webpack_require__(13);
+var _sequence = __webpack_require__(18);
 
 var _sequence2 = _interopRequireDefault(_sequence);
 
@@ -36776,7 +36776,7 @@ var _history = __webpack_require__(64);
 
 var _history2 = _interopRequireDefault(_history);
 
-var _roundTypes = __webpack_require__(17);
+var _roundTypes = __webpack_require__(16);
 
 var _roundTypes2 = _interopRequireDefault(_roundTypes);
 
@@ -36942,6 +36942,7 @@ var Game = function (_BaseGame) {
                 return new _player2.default({ user: user, cash: 400, order: index });
             }).value();
 
+            var removedPrivates = [];
             if (players.length === 3 || players.length === 4) {
                 var numToRemove = players.length === 3 ? 2 : 1;
                 var greenRemovals = (0, _lodash2.default)(greenGroup).shuffle().take(numToRemove).value();
@@ -36951,12 +36952,12 @@ var Game = function (_BaseGame) {
                 _lodash2.default.remove(publicCompanies, function (company) {
                     return _lodash2.default.indexOf(greenRemovals, company.id) >= 0;
                 });
-                _lodash2.default.remove(privateCompanies, function (company) {
+                removedPrivates = _lodash2.default.concat(removedPrivates, _lodash2.default.remove(privateCompanies, function (company) {
                     return _lodash2.default.indexOf(blueRemovals, company.id) >= 0;
-                });
-                _lodash2.default.remove(privateCompanies, function (company) {
+                }));
+                removedPrivates = _lodash2.default.concat(removedPrivates, _lodash2.default.remove(privateCompanies, function (company) {
                     return _lodash2.default.indexOf(orangeRemovals, company.id) >= 0;
-                });
+                }));
             }
 
             var cash = 0;
@@ -36988,6 +36989,7 @@ var Game = function (_BaseGame) {
 
             var state = new _state2.default({
                 players: players,
+                removedPrivates: removedPrivates,
                 publicCompanies: publicCompanies,
                 privateCompanies: privateCompanies,
                 bank: bank,
@@ -38660,7 +38662,7 @@ var _tile = __webpack_require__(19);
 
 var _tile2 = _interopRequireDefault(_tile);
 
-var _tileManifest = __webpack_require__(18);
+var _tileManifest = __webpack_require__(17);
 
 var _tileManifest2 = _interopRequireDefault(_tileManifest);
 
@@ -38704,7 +38706,7 @@ var _terrainTypes = __webpack_require__(27);
 
 var _terrainTypes2 = _interopRequireDefault(_terrainTypes);
 
-var _offBoardIds = __webpack_require__(16);
+var _offBoardIds = __webpack_require__(15);
 
 var _offBoardIds2 = _interopRequireDefault(_offBoardIds);
 
@@ -38728,7 +38730,7 @@ var FreeICCells = {
     J4: true
 };
 
-var FreeTunnelBlasterCells = {
+var TunnelBlasterCells = {
     F18: true,
     G17: true,
     H16: true,
@@ -39088,8 +39090,8 @@ var Cell = function () {
                 cost = 0;
             }
 
-            if (company.hasPrivate(_companyIds2.default.TUNNEL_BLASTING_COMPANY) && FreeTunnelBlasterCells[this.id]) {
-                cost = 0;
+            if (company.hasPrivate(_companyIds2.default.TUNNEL_BLASTING_COMPANY) && TunnelBlasterCells[this.id]) {
+                cost -= 20;
             }
 
             return cost;
@@ -39258,17 +39260,22 @@ var Cell = function () {
                 return 0;
             }
 
-            if (costData.type === _terrainTypes2.default.TUNNEL) {
-                var company = (0, _currentGame2.default)().state().currentCompany();
-                if (company.hasPrivate(_companyIds2.default.TUNNEL_BLASTING_COMPANY)) {
-                    return 0;
-                }
-            }
-
             var neighbor = this.neighbors[edgeIndex];
             var neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
             var neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
-            return neighborConnectionPoint >= 0 ? costData.cost : 0;
+
+            if (neighborConnectionPoint >= 0) {
+                var cost = costData.cost;
+                if (costData.type === _terrainTypes2.default.TUNNEL) {
+                    var company = (0, _currentGame2.default)().state().currentCompany();
+                    if (company.hasPrivate(_companyIds2.default.TUNNEL_BLASTING_COMPANY)) {
+                        cost -= 20;
+                    }
+                }
+                return cost;
+            }
+
+            return 0;
         }
     }, {
         key: 'isConnectedToStation',
@@ -41337,7 +41344,7 @@ var _prices = __webpack_require__(6);
 
 var _prices2 = _interopRequireDefault(_prices);
 
-var _sequence = __webpack_require__(13);
+var _sequence = __webpack_require__(18);
 
 var _sequence2 = _interopRequireDefault(_sequence);
 
@@ -41848,7 +41855,7 @@ var _action = __webpack_require__(2);
 
 var _action2 = _interopRequireDefault(_action);
 
-var _mapTileIds = __webpack_require__(15);
+var _mapTileIds = __webpack_require__(14);
 
 var _mapTileIds2 = _interopRequireDefault(_mapTileIds);
 
@@ -42077,7 +42084,7 @@ var _action = __webpack_require__(2);
 
 var _action2 = _interopRequireDefault(_action);
 
-var _offBoardIds = __webpack_require__(16);
+var _offBoardIds = __webpack_require__(15);
 
 var _offBoardIds2 = _interopRequireDefault(_offBoardIds);
 
@@ -42757,7 +42764,7 @@ var _prices = __webpack_require__(6);
 
 var _prices2 = _interopRequireDefault(_prices);
 
-var _validationError = __webpack_require__(14);
+var _validationError = __webpack_require__(13);
 
 var _validationError2 = _interopRequireDefault(_validationError);
 
@@ -43991,7 +43998,7 @@ var _draftPass = __webpack_require__(44);
 
 var _draftPass2 = _interopRequireDefault(_draftPass);
 
-var _sequence = __webpack_require__(13);
+var _sequence = __webpack_require__(18);
 
 var _sequence2 = _interopRequireDefault(_sequence);
 
@@ -44345,10 +44352,6 @@ var _stockRoundPass = __webpack_require__(59);
 
 var _stockRoundPass2 = _interopRequireDefault(_stockRoundPass);
 
-var _sequence = __webpack_require__(13);
-
-var _sequence2 = _interopRequireDefault(_sequence);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -44407,33 +44410,17 @@ var StockRound = function () {
             return _this.selectedCompany().shares();
         });
 
-        this.shareSource = _knockout2.default.computed(function () {
-            if (_this.chosenShareSource()) {
-                return _this.chosenShareSource();
-            }
-
-            if (_this.bankShares() && !_this.treasuryShares()) {
-                return _this.ShareSources.MARKET;
-            }
-
-            if (_this.treasuryShares() && !_this.bankShares()) {
-                return _this.ShareSources.TREASURY;
-            }
-
-            return null;
-        });
-
         this.action = _knockout2.default.computed(function () {
             if (!(0, _currentGame2.default)()) {
                 return false;
             }
 
             if (_this.selectedAction() === Actions.BUY && _this.selectedCompanyId()) {
-                if ((0, _currentGame2.default)().state().publicCompaniesById()[_this.selectedCompanyId()].opened() && _this.shareSource()) {
+                if ((0, _currentGame2.default)().state().getCompany(_this.selectedCompanyId()).opened() && _this.chosenShareSource()) {
                     return new _buyShare2.default({
                         playerId: (0, _currentGame2.default)().state().currentPlayerId(),
                         companyId: _this.selectedCompanyId(),
-                        treasury: _this.shareSource() === ShareSources.TREASURY
+                        treasury: _this.chosenShareSource() === ShareSources.TREASURY
                     });
                 } else if (_this.openingPriceIndex()) {
                     return new _startCompany2.default({
@@ -44480,8 +44467,35 @@ var StockRound = function () {
         value: function selectCompany(companyId) {
             this.selectedCompanyId(companyId);
             if (this.selectedAction() === Actions.SELL && (0, _currentGame2.default)().state().currentPlayer().sharesCanSell()[companyId].shares === 1) {
-                this.numberOfShares(1);
+                this.selectNumberOfShares(1);
             }
+            if (this.selectedAction() === Actions.BUY && (0, _currentGame2.default)().state().getCompany(this.selectedCompanyId()).opened()) {
+                if (this.bankShares() && !this.treasuryShares()) {
+                    this.selectShareSource(ShareSources.MARKET);
+                }
+
+                if (this.treasuryShares() && !this.bankShares()) {
+                    this.selectShareSource(ShareSources.TREASURY);
+                }
+            }
+        }
+    }, {
+        key: 'selectShareSource',
+        value: function selectShareSource(source) {
+            this.chosenShareSource(source);
+            this.commit();
+        }
+    }, {
+        key: 'selectNumberOfShares',
+        value: function selectNumberOfShares(num) {
+            this.numberOfShares(1);
+            this.commit();
+        }
+    }, {
+        key: 'selectOpeningPriceIndex',
+        value: function selectOpeningPriceIndex(index) {
+            this.openingPriceIndex(index);
+            this.commit();
         }
     }, {
         key: 'reset',
@@ -44525,7 +44539,7 @@ var _baseGrid = __webpack_require__(83);
 
 var _baseGrid2 = _interopRequireDefault(_baseGrid);
 
-var _mapTileIds = __webpack_require__(15);
+var _mapTileIds = __webpack_require__(14);
 
 var _mapTileIds2 = _interopRequireDefault(_mapTileIds);
 
@@ -44545,7 +44559,7 @@ var _tile = __webpack_require__(19);
 
 var _tile2 = _interopRequireDefault(_tile);
 
-var _tileManifest = __webpack_require__(18);
+var _tileManifest = __webpack_require__(17);
 
 var _tileManifest2 = _interopRequireDefault(_tileManifest);
 
@@ -44565,7 +44579,7 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _offBoardIds = __webpack_require__(16);
+var _offBoardIds = __webpack_require__(15);
 
 var _offBoardIds2 = _interopRequireDefault(_offBoardIds);
 
@@ -45491,7 +45505,7 @@ var _passCard = __webpack_require__(65);
 
 var _passCard2 = _interopRequireDefault(_passCard);
 
-var _roundTypes = __webpack_require__(17);
+var _roundTypes = __webpack_require__(16);
 
 var _roundTypes2 = _interopRequireDefault(_roundTypes);
 
@@ -45563,6 +45577,7 @@ var State = function (_BaseState) {
         });
         _this.trainLimit = _knockout2.default.observable(definition.trainLimit || 4);
 
+        _this.removedPrivates = definition.removedPrivates || [];
         _this.publicCompanies = definition.publicCompanies || [];
         _this.publicCompaniesById = _knockout2.default.computed(function () {
             return _lodash2.default.keyBy(_this.publicCompanies, 'id');
@@ -45859,7 +45874,7 @@ var _lodash = __webpack_require__(0);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _validationError = __webpack_require__(14);
+var _validationError = __webpack_require__(13);
 
 var _validationError2 = _interopRequireDefault(_validationError);
 
@@ -46119,7 +46134,7 @@ var _serializable = __webpack_require__(4);
 
 var _serializable2 = _interopRequireDefault(_serializable);
 
-var _validationError = __webpack_require__(14);
+var _validationError = __webpack_require__(13);
 
 var _validationError2 = _interopRequireDefault(_validationError);
 
@@ -46332,7 +46347,7 @@ var _currentGame = __webpack_require__(3);
 
 var _currentGame2 = _interopRequireDefault(_currentGame);
 
-var _roundTypes = __webpack_require__(17);
+var _roundTypes = __webpack_require__(16);
 
 var _roundTypes2 = _interopRequireDefault(_roundTypes);
 
@@ -47245,7 +47260,7 @@ var _game = __webpack_require__(28);
 
 var _game2 = _interopRequireDefault(_game);
 
-var _sequence = __webpack_require__(13);
+var _sequence = __webpack_require__(18);
 
 var _sequence2 = _interopRequireDefault(_sequence);
 
@@ -47339,7 +47354,7 @@ var Dashboard = function () {
         _events2.default.on('nav-change', function (state) {
             _this.checkNavigation(state);
         });
-
+        //
         // _.delay(()=> {
         //     this.fileInput = document.getElementById('fileInput');
         //     this.fileInput.addEventListener('change', (e) => {
@@ -52275,7 +52290,7 @@ module.exports = "module.exports = \"<div class=\\\"d-flex justify-content-cente
 /* 102 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<div style=\\\"pointer-events:none;position:absolute;\\\"\\n     data-bind=\\\"style: { top: $data.top +'px', left: $data.left + 'px'}, css: {editable: $data.canEdit()}\\\">\\n    <!-- ko if: $data.visibleTile() -->\\n    <svg xmlns=\\\"http://www.w3.org/2000/svg\\\" pointer-events=\\\"none\\\"\\n         data-bind=\\\"style: { width: $data.width +'px', height: $data.height + 'px'}\\\">\\n        <defs>\\n            <clipPath id=\\\"\\\" data-bind=\\\"attr: { id: 'tile-clip' + $data.id }\\\">\\n                <polygon stroke=\\\"black\\\"\\n                         points=\\\"\\\" data-bind=\\\"attr: { points: $data.outline }\\\"></polygon>\\n            </clipPath>\\n        </defs>\\n        <g clip-path=\\\"url(#tile-clip)\\\" pointer-events=\\\"all\\\" class=\\\"tile\\\" xmlns=\\\"http://www.w3.org/2000/svg\\\"\\n           fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\"\\n           data-bind=\\\"attr: { 'clip-path': 'url(#tile-clip' + $data.id + ')', transform: 'translate(' + Math.floor($data.width/2) + ', ' + Math.floor($data.height/2)+')' }, popover: $data.popoverParams, css: $data.offboard ? '' : 'pos' + ($data.visibleTile().position ? $data.visibleTile().position() : 0)\\\">\\n\\n            <g pointer-events=\\\"all\\\" transform=\\\"\\\"\\n               data-bind=\\\"attr: { transform: 'translate(-' + Math.floor($data.width/2) + ', -' + Math.floor($data.height/2)+')'  }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.visibleTile().id), data: $data.visibleTile() }\\\"></g>\\n            <!-- ko if: $data.canEdit() || $data.canRoute() -->\\n            <polygon pointer-events=\\\"all\\\" class=\\\"tile-border\\\" fill=\\\"none\\\" stroke=\\\"none\\\" stroke-width=\\\"0\\\"\\n                     points=\\\"\\\" data-bind=\\\"attr: { points: $data.outline }\\\" data-mouseover=\\\"onMouseOver\\\"\\n                     data-mousedown=\\\"onMouseDown\\\" data-mouseout=\\\"onMouseOut\\\" data-touchstart=\\\"onTouchStart\\\"\\n                     data-touchmove=\\\"onTouchMove\\\" data-touchend=\\\"onTouchEnd\\\"></polygon>\\n            <!-- /ko -->\\n        </g>\\n    </svg>\\n    <!-- /ko -->\\n</div>\\n\\n<!-- ko if: $data.preview() -->\\n<div class=\\\"position-fixed\\\" style=\\\"height:100%;width:100%;left:0;top:0;overflow:hidden;z-index:99\\\"></div>\\n<div class=\\\"d-flex position-absolute justify-content-between\\\" style=\\\"width:132px;z-index:100\\\"\\n     data-bind=\\\"style: { top: ($data.top-35) + 'px', left: ($data.left-3) + 'px'}\\\">\\n    <button type=\\\"button\\\" style=\\\"min-width:35px;\\\" class=\\\"btn btn-sm btn-danger font-weight-bold\\\"\\n            data-bind=\\\"click: $data.cancelPreview\\\"><span class=\\\"oi oi-x\\\" title=\\\"icon name\\\" aria-hidden=\\\"true\\\"></span>\\n    </button>\\n    <button type=\\\"button\\\" style=\\\"min-width:35px;\\\" class=\\\"btn btn-sm btn-light font-weight-bold\\\"\\n            data-bind=\\\"visible: $data.allowedPreviewPositions().length > 1, click: $data.nextPreviewPosition\\\"><img\\n            alt=\\\"rotate\\\" style=\\\"width:16px; height:16px;\\\"\\n            data-bind=\\\"attr: { src: $root.rootPath + 'open-iconic/svg/reload.svg' }\\\"/>\\n    </button>\\n    <button type=\\\"button\\\" style=\\\"min-width:35px;\\\" class=\\\"btn btn-sm btn-success\\\"\\n            data-bind=\\\"click: function() { $data.commitPreview($root.game().state());}\\\">OK\\n    </button>\\n</div>\\n\\n<div style=\\\"pointer-events:none;position:absolute;z-index:99\\\" data-bind=\\\"style: { top: $data.top +'px', left: $data.left + 'px'}\\\">\\n    <svg xmlns=\\\"http://www.w3.org/2000/svg\\\" pointer-events=\\\"none\\\"\\n         data-bind=\\\"style: { width: $data.width +'px', height: $data.height + 'px'}\\\">\\n        <defs>\\n            <clipPath id=\\\"\\\" data-bind=\\\"attr: { id: 'tile-clip' + $data.id }\\\">\\n                <polygon stroke=\\\"black\\\"\\n                         points=\\\"\\\" data-bind=\\\"attr: { points: $data.outline }\\\"></polygon>\\n            </clipPath>\\n        </defs>\\n        <g clip-path=\\\"url(#tile-clip)\\\" pointer-events=\\\"all\\\" class=\\\"tile\\\" xmlns=\\\"http://www.w3.org/2000/svg\\\"\\n           fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\"\\n           data-bind=\\\"attr: { 'clip-path': 'url(#tile-clip' + $data.id + ')', transform: 'translate(' + Math.floor($data.width/2) + ', ' + Math.floor($data.height/2)+')' }\\\">\\n\\n            <polygon pointer-events=\\\"all\\\" class=\\\"tile-border\\\" fill=\\\"none\\\" stroke=\\\"none\\\" stroke-width=\\\"0\\\"\\n                     points=\\\"\\\" data-bind=\\\"attr: { points: $data.outline }, click: $data.nextPreviewPosition\\\" ></polygon>\\n        </g>\\n    </svg>\\n    <!-- /ko -->\\n</div>\\n<!-- /ko -->\\n\";";
+module.exports = "module.exports = \"<div style=\\\"pointer-events:none;position:absolute;\\\"\\n     data-bind=\\\"style: { top: $data.top +'px', left: $data.left + 'px'}, css: {editable: $data.canEdit()}\\\">\\n    <!-- ko if: $data.visibleTile() -->\\n    <svg xmlns=\\\"http://www.w3.org/2000/svg\\\" pointer-events=\\\"none\\\"\\n         data-bind=\\\"style: { width: $data.width +'px', height: $data.height + 'px'}\\\">\\n        <defs>\\n            <clipPath id=\\\"\\\" data-bind=\\\"attr: { id: 'tile-clip' + $data.id }\\\">\\n                <polygon stroke=\\\"black\\\"\\n                         points=\\\"\\\" data-bind=\\\"attr: { points: $data.outline }\\\"></polygon>\\n            </clipPath>\\n        </defs>\\n        <g clip-path=\\\"url(#tile-clip)\\\" pointer-events=\\\"all\\\" class=\\\"tile\\\" xmlns=\\\"http://www.w3.org/2000/svg\\\"\\n           fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\"\\n           data-bind=\\\"attr: { 'clip-path': 'url(#tile-clip' + $data.id + ')', transform: 'translate(' + Math.floor($data.width/2) + ', ' + Math.floor($data.height/2)+')' }, popover: $data.popoverParams, css: $data.offboard ? '' : 'pos' + ($data.visibleTile().position ? $data.visibleTile().position() : 0)\\\">\\n\\n            <g pointer-events=\\\"all\\\" transform=\\\"\\\"\\n               data-bind=\\\"attr: { transform: 'translate(-' + Math.floor($data.width/2) + ', -' + Math.floor($data.height/2)+')'  }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.visibleTile().id), data: $data.visibleTile() }\\\"></g>\\n            <!-- ko if: $data.canEdit() || $data.canRoute() -->\\n            <polygon pointer-events=\\\"all\\\" class=\\\"tile-border\\\" fill=\\\"none\\\" stroke=\\\"none\\\" stroke-width=\\\"0\\\"\\n                     points=\\\"\\\" data-bind=\\\"attr: { points: $data.outline }\\\" data-mouseover=\\\"onMouseOver\\\"\\n                     data-mousedown=\\\"onMouseDown\\\" data-mouseout=\\\"onMouseOut\\\" data-touchstart=\\\"onTouchStart\\\"\\n                     data-touchmove=\\\"onTouchMove\\\" data-touchend=\\\"onTouchEnd\\\"></polygon>\\n            <!-- /ko -->\\n        </g>\\n    </svg>\\n    <!-- /ko -->\\n</div>\\n\\n<!-- ko if: $data.preview() -->\\n<div class=\\\"position-fixed\\\" style=\\\"height:100%;width:100%;left:0;top:0;overflow:hidden;z-index:99\\\"></div>\\n<div class=\\\"d-flex position-absolute justify-content-between bg-light p-1\\\" style=\\\"width:132px;z-index:100;border:1px solid #CCC;box-shadow:3px 3px 10px #818181\\\"\\n     data-bind=\\\"style: { top: ($data.top-41) + 'px', left: ($data.left-3) + 'px'}\\\">\\n    <button type=\\\"button\\\" style=\\\"min-width:35px;\\\" class=\\\"btn btn-sm btn-danger font-weight-bold\\\"\\n            data-bind=\\\"click: $data.cancelPreview\\\"><span class=\\\"oi oi-x\\\" title=\\\"icon name\\\" aria-hidden=\\\"true\\\"></span>\\n    </button>\\n    <button type=\\\"button\\\" style=\\\"min-width:35px;\\\" class=\\\"btn btn-sm btn-light font-weight-bold\\\"\\n            data-bind=\\\"visible: $data.allowedPreviewPositions().length > 1, click: $data.nextPreviewPosition\\\"><img\\n            alt=\\\"rotate\\\" style=\\\"width:16px; height:16px;\\\"\\n            data-bind=\\\"attr: { src: $root.rootPath + 'open-iconic/svg/reload.svg' }\\\"/>\\n    </button>\\n    <button type=\\\"button\\\" style=\\\"min-width:35px;\\\" class=\\\"btn btn-sm btn-success\\\"\\n            data-bind=\\\"click: function() { $data.commitPreview($root.game().state());}\\\">OK\\n    </button>\\n</div>\\n\\n<div style=\\\"pointer-events:none;position:absolute;z-index:99\\\" data-bind=\\\"style: { top: $data.top +'px', left: $data.left + 'px'}\\\">\\n    <svg xmlns=\\\"http://www.w3.org/2000/svg\\\" pointer-events=\\\"none\\\"\\n         data-bind=\\\"style: { width: $data.width +'px', height: $data.height + 'px'}\\\">\\n        <defs>\\n            <clipPath id=\\\"\\\" data-bind=\\\"attr: { id: 'tile-clip' + $data.id }\\\">\\n                <polygon stroke=\\\"black\\\"\\n                         points=\\\"\\\" data-bind=\\\"attr: { points: $data.outline }\\\"></polygon>\\n            </clipPath>\\n        </defs>\\n        <g clip-path=\\\"url(#tile-clip)\\\" pointer-events=\\\"all\\\" class=\\\"tile\\\" xmlns=\\\"http://www.w3.org/2000/svg\\\"\\n           fill-opacity=\\\"1\\\" visibility=\\\"inherit\\\"\\n           data-bind=\\\"attr: { 'clip-path': 'url(#tile-clip' + $data.id + ')', transform: 'translate(' + Math.floor($data.width/2) + ', ' + Math.floor($data.height/2)+')' }\\\">\\n\\n            <polygon pointer-events=\\\"all\\\" class=\\\"tile-border\\\" fill=\\\"none\\\" stroke=\\\"none\\\" stroke-width=\\\"0\\\"\\n                     points=\\\"\\\" data-bind=\\\"attr: { points: $data.outline }, click: $data.nextPreviewPosition\\\" ></polygon>\\n        </g>\\n    </svg>\\n    <!-- /ko -->\\n</div>\\n<!-- /ko -->\\n\";";
 
 /***/ }),
 /* 103 */
@@ -52383,7 +52398,7 @@ module.exports = "module.exports = \"<div class=\\\"d-flex flex-nowrap\\\" style
 /* 120 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<!-- ko if: $data -->\\n<div class=\\\"bg-light pt-1\\\">\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\">Companies in this game</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $root.game().state().publicCompanies -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.nickname\\\"></strong>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n</div>\\n<div class=\\\"row d-flex justify-content-center text-center align-items-center bg-light\\\" style=\\\"min-height:50vh;\\\">\\n    <div class=\\\"col\\\">\\n        <div class=\\\"col-lg-8 col-xl-7 mx-auto\\\">\\n            <div class=\\\"\\\"><h2 class=\\\"font-weight-light p-2 pb-0 m-0\\\">Choose a private company</h2>\\n                <!-- ko if: $data.revealed() -->\\n                <!-- ko if: $root.game().state().currentPlayer().getPrivateNames().length > 0 -->\\n                <div class=\\\"font-weight-light text-dark mb-3\\\" style=\\\"font-size:1.3rem\\\" data-bind=\\\"text: 'Already chosen: ' + _.join($root.game().state().currentPlayer().getPrivateNames(), ', ')\\\"></div>\\n                <!-- /ko -->\\n                <!-- ko foreach: $data.privatesOffered() -->\\n                <div class=\\\"card d-inline-flex mb-3 mr-3\\\"\\n                     style=\\\"overflow:hidden;background-size:contain;cursor:pointer;min-width:250px;min-height:160px;box-shadow:3px 3px 10px #ccc\\\"\\n                     data-bind=\\\"style: { backgroundImage: 'url(' + $root.rootPath + 'images/privates/' + $data.id + '.png)', borderWidth: $parent.selectedPrivateId() === $data.id ? '3px' : '1px' },click: $parent.selectPrivate.bind($parent, $data.id), css: {'border-warning': $parent.selectedPrivateId() === $data.id }\\\">\\n                    <!--<div data-bind=\\\"text: _.startsWith($data.id, 'pass') ? '' : $data.cost\\\"></div>-->\\n                </div>\\n                <!-- /ko -->\\n                <div>\\n                    <!-- ko if: $data.privatesOffered().length === 1 && $data.privatesOffered()[0].cost !== $data.privatesOffered()[0].baseCost -->\\n                        <h3 class=\\\"font-weight-light\\\" data-bind=\\\"text: 'Discounted to $' + $data.privatesOffered()[0].cost\\\"></h3>\\n                    <!-- /ko -->\\n                    <div class=\\\"d-inline-flex\\\">\\n                        <button type=\\\"button\\\" class=\\\"btn btn-warning\\\"\\n                                data-bind=\\\"click: pass, visible: $data.privatesOffered().length === 1 && $data.privatesOffered()[0].cost !== 0\\\">\\n                            Pass\\n                        </button>\\n                    </div>\\n                    <div class=\\\"d-inline-flex\\\">\\n                        <button type=\\\"button\\\" class=\\\"btn btn-primary\\\"\\n                                data-bind=\\\"click: commit, visible: selectedPrivateId()\\\">Confirm\\n                        </button>\\n                    </div>\\n                </div>\\n                <!-- /ko -->\\n                <!-- ko if: !$data.revealed() -->\\n                <button class=\\\"btn btn-large\\\" data-bind=\\\"click: function() {$data.revealed(true)}\\\">Reveal Choices</button>\\n                <!-- /ko -->\\n            </div>\\n        </div>\\n    </div>\\n</div>\\n<!-- /ko -->\";";
+module.exports = "module.exports = \"<!-- ko if: $data -->\\n<div class=\\\"bg-light pt-1\\\">\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\">Companies in this game</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $root.game().state().publicCompanies -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\"\\n                data-bind=\\\"css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.nickname\\\"></strong>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $root.game().state().removedPrivates.length > 0 -->\\n    <h5 class=\\\"mt-3 mb-2 text-center font-weight-light alert-heading\\\">Removed privates</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $root.game().state().removedPrivates -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1 bg-table-row-medium\\\" >\\n                <strong class=\\\"h5 font-weight-light\\\" data-bind=\\\"text: $data.name\\\"></strong>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- /ko -->\\n</div>\\n<div class=\\\"row d-flex justify-content-center text-center align-items-center bg-light\\\" style=\\\"min-height:50vh;\\\">\\n    <div class=\\\"col\\\">\\n        <div class=\\\"col-lg-8 col-xl-7 mx-auto\\\">\\n            <div class=\\\"\\\"><h2 class=\\\"font-weight-light p-2 pb-0 m-0\\\">Choose a private company</h2>\\n                <!-- ko if: $data.revealed() -->\\n                <!-- ko if: $root.game().state().currentPlayer().getPrivateNames().length > 0 -->\\n                <div class=\\\"font-weight-light text-dark mb-3\\\" style=\\\"font-size:1.3rem\\\" data-bind=\\\"text: 'Already chosen: ' + _.join($root.game().state().currentPlayer().getPrivateNames(), ', ')\\\"></div>\\n                <!-- /ko -->\\n                <!-- ko foreach: $data.privatesOffered() -->\\n                <div class=\\\"card d-inline-flex mb-3 mr-3\\\"\\n                     style=\\\"overflow:hidden;background-size:contain;cursor:pointer;min-width:250px;min-height:160px;box-shadow:3px 3px 10px #ccc\\\"\\n                     data-bind=\\\"style: { backgroundImage: 'url(' + $root.rootPath + 'images/privates/' + $data.id + '.png)', borderWidth: $parent.selectedPrivateId() === $data.id ? '3px' : '1px' },click: $parent.selectPrivate.bind($parent, $data.id), css: {'border-warning': $parent.selectedPrivateId() === $data.id }\\\">\\n                    <!--<div data-bind=\\\"text: _.startsWith($data.id, 'pass') ? '' : $data.cost\\\"></div>-->\\n                </div>\\n                <!-- /ko -->\\n                <div>\\n                    <!-- ko if: $data.privatesOffered().length === 1 && $data.privatesOffered()[0].cost !== $data.privatesOffered()[0].baseCost -->\\n                        <h3 class=\\\"font-weight-light\\\" data-bind=\\\"text: 'Discounted to $' + $data.privatesOffered()[0].cost\\\"></h3>\\n                    <!-- /ko -->\\n                    <div class=\\\"d-inline-flex\\\">\\n                        <button type=\\\"button\\\" class=\\\"btn btn-warning\\\"\\n                                data-bind=\\\"click: pass, visible: $data.privatesOffered().length === 1 && $data.privatesOffered()[0].cost !== 0\\\">\\n                            Pass\\n                        </button>\\n                    </div>\\n                    <div class=\\\"d-inline-flex\\\">\\n                        <button type=\\\"button\\\" class=\\\"btn btn-primary\\\"\\n                                data-bind=\\\"click: commit, visible: selectedPrivateId()\\\">Confirm\\n                        </button>\\n                    </div>\\n                </div>\\n                <!-- /ko -->\\n                <!-- ko if: !$data.revealed() -->\\n                <button class=\\\"btn btn-large\\\" data-bind=\\\"click: function() {$data.revealed(true)}\\\">Reveal Choices</button>\\n                <!-- /ko -->\\n            </div>\\n        </div>\\n    </div>\\n</div>\\n<!-- /ko -->\";";
 
 /***/ }),
 /* 121 */
@@ -52395,7 +52410,7 @@ module.exports = "module.exports = \"<!-- ko if: isStockRound() -->\\n<img style
 /* 122 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<!-- ko if: $data && ($root.game().state().currentPlayer().canSell() || $root.game().state().currentPlayer().canBuy() || $root.game().state().currentPlayer().canPass())-->\\n<div class=\\\"alert alert-dark rounded-0 border-top-0 border-right-0 border-left-0 m-0 p-3 d-flex flex-column justify-content-center\\\"\\n     role=\\\"alert\\\">\\n\\n\\n    <h5 class=\\\"text-center font-weight-light alert-heading\\\">Choose an action</h5>\\n\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <!-- ko if: $root.game().state().currentPlayer().canSell() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.SELL); }, css: $data.selectedAction() === $data.Actions.SELL ? 'active btn-danger' : 'btn-light' \\\">\\n            Sell\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $root.game().state().currentPlayer().canBuy() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.BUY); },css: $data.selectedAction() === $data.Actions.BUY ? 'active btn-success' : 'btn-light' \\\">\\n            Buy\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $root.game().state().currentPlayer().canPass() -->\\n        <button class=\\\"btn btn-sm \\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.PASS); },css: $data.selectedAction() === $data.Actions.PASS ? 'active btn-secondary' : 'btn-light' \\\">\\n            Pass\\n        </button>\\n        <!-- /ko -->\\n    </div>\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.SELL -->\\n    <!-- ko if: $root.game().state().currentPlayer().hasSharesToSell() -->\\n    <div class=\\\"mt-3 d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: _.values($root.game().state().currentPlayer().sharesCanSell()) -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$parent.selectCompany($data.id); },style: { opacity: !$parent.selectedCompanyId() || $parent.selectedCompanyId() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.company.nickname\\\"></strong>\\n                <div data-bind=\\\"text: $data.shares + ' @ $' + $data.company.price()\\\"></div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedCompany() && $root.game().state().currentPlayer().sharesCanSell()[$data.selectedCompany().id] -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">How many shares?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <!-- ko foreach: _.range(1, $root.game().state().currentPlayer().sharesCanSell()[$data.selectedCompany().id].shares + 1) -->\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.numberOfShares($index()+1); }\\\"></button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedAction() === $data.Actions.BUY -->\\n    <div class=\\\"mt-3 d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $root.game().state().currentPlayer().companiesCanBuy() -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$parent.selectedCompanyId($data.id); },style: { opacity: !$parent.selectedCompanyId() || $parent.selectedCompanyId() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <div data-bind=\\\"text: $data.opened() ? '' : 'open'\\\"></div>\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.nickname\\\"></strong>\\n                <div data-bind=\\\"text: $data.opened() ? '$' + $data.price() : ''\\\"></div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedCompany() && !$data.selectedCompany().opened()-->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Choose an initial stock price</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <!-- ko foreach: $data.getParRange() -->\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"text: $data, css: $parent.openingPriceIndex() === $index()+4 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.openingPriceIndex($index()+4); }\\\"></button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedCompany() && $data.selectedCompany().opened() && $data.bankShares() && $data.treasuryShares() -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Choose a share source</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n\\n            <button type=\\\"button\\\" class=\\\"btn mr-1\\\"\\n                    data-bind=\\\"css: $data.chosenShareSource() === $data.ShareSources.MARKET ? 'btn-warning' : 'btn-secondary', click: function() { $data.chosenShareSource($data.ShareSources.MARKET); }\\\"><strong class=\\\"h4 mr-2 align-middle\\\" data-bind=\\\"text: $data.bankShares()\\\"></strong><span class=\\\"align-middle\\\">market</span></button>\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: $data.chosenShareSource() === $data.ShareSources.TREASURY ? 'btn-warning' : 'btn-secondary', click: function() { $data.chosenShareSource($data.ShareSources.TREASURY); }\\\"><strong class=\\\"h4 mr-2 align-middle\\\" data-bind=\\\"text: $data.treasuryShares()\\\"></strong><span class=\\\"align-middle\\\">treasury</span></button>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.action() -->\\n    <div class=\\\"d-flex justify-content-center mt-3\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-primary mr-1\\\" data-bind=\\\"click: $data.commit, text: $data.action().confirmation($root.game().state())\\\"></button>\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-danger mr-1\\\" data-bind=\\\"click: $data.reset\\\">Cancel</button>\\n    </div>\\n    <!-- /ko -->\\n\\n</div>\\n<!-- /ko -->\\n\";";
+module.exports = "module.exports = \"<!-- ko if: $data && ($root.game().state().currentPlayer().canSell() || $root.game().state().currentPlayer().canBuy() || $root.game().state().currentPlayer().canPass())-->\\n<div class=\\\"alert alert-dark rounded-0 border-top-0 border-right-0 border-left-0 m-0 p-3 d-flex flex-column justify-content-center\\\"\\n     role=\\\"alert\\\">\\n\\n\\n    <h5 class=\\\"text-center font-weight-light alert-heading\\\">Choose an action</h5>\\n\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <!-- ko if: $root.game().state().currentPlayer().canSell() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.SELL); }, css: $data.selectedAction() === $data.Actions.SELL ? 'active btn-danger' : 'btn-light' \\\">\\n            Sell\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $root.game().state().currentPlayer().canBuy() -->\\n        <button class=\\\"btn btn-sm mr-2\\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.BUY); },css: $data.selectedAction() === $data.Actions.BUY ? 'active btn-success' : 'btn-light' \\\">\\n            Buy\\n        </button>\\n        <!-- /ko -->\\n        <!-- ko if: $root.game().state().currentPlayer().canPass() -->\\n        <button class=\\\"btn btn-sm \\\"\\n                data-bind=\\\"click: function() { $data.selectAction($data.Actions.PASS); },css: $data.selectedAction() === $data.Actions.PASS ? 'active btn-secondary' : 'btn-light' \\\">\\n            Pass\\n        </button>\\n        <!-- /ko -->\\n    </div>\\n\\n    <!-- ko if: $data.selectedAction() === $data.Actions.SELL -->\\n    <!-- ko if: $root.game().state().currentPlayer().hasSharesToSell() -->\\n    <div class=\\\"mt-3 d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: _.values($root.game().state().currentPlayer().sharesCanSell()) -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$parent.selectCompany($data.id); },style: { opacity: !$parent.selectedCompanyId() || $parent.selectedCompanyId() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.company.nickname\\\"></strong>\\n                <div data-bind=\\\"text: $data.shares + ' @ $' + $data.company.price()\\\"></div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedCompany() && $root.game().state().currentPlayer().sharesCanSell()[$data.selectedCompany().id] -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">How many shares?</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <!-- ko foreach: _.range(1, $root.game().state().currentPlayer().sharesCanSell()[$data.selectedCompany().id].shares + 1) -->\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"text: $data, css: $parent.numberOfShares() === $index()+1 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.selectNumberOfShares($index()+1); }\\\"></button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedAction() === $data.Actions.BUY -->\\n    <div class=\\\"mt-3 d-flex justify-content-center\\\">\\n        <ul class=\\\"list-unstyled font-weight-light m-0 d-flex flex-wrap text-center\\\">\\n            <!-- ko foreach: $root.game().state().currentPlayer().companiesCanBuy() -->\\n            <li class=\\\"rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1\\\" style=\\\"cursor:pointer;\\\"\\n                data-bind=\\\"click: function() {$parent.selectCompany($data.id); },style: { opacity: !$parent.selectedCompanyId() || $parent.selectedCompanyId() === $data.id ? 1 : 0.2}, css: 'bg-' + $data.id + ' text-' + $data.id \\\">\\n                <div data-bind=\\\"text: $data.opened() ? '' : 'open'\\\"></div>\\n                <strong class=\\\"h5\\\" data-bind=\\\"text: $data.nickname\\\"></strong>\\n                <div data-bind=\\\"text: $data.opened() ? '$' + $data.price() : ''\\\"></div>\\n            </li>\\n            <!-- /ko -->\\n        </ul>\\n    </div>\\n    <!-- ko if: $data.selectedCompany() && !$data.selectedCompany().opened()-->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Choose an initial stock price</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n        <div class=\\\"btn-group\\\" role=\\\"group\\\">\\n            <!-- ko foreach: $data.getParRange() -->\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"text: $data, css: $parent.openingPriceIndex() === $index()+4 ? 'btn-warning' : 'btn-secondary', click: function() { $parent.selectOpeningPriceIndex($index()+4); }\\\"></button>\\n            <!-- /ko -->\\n        </div>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.selectedCompany() && $data.selectedCompany().opened() && $data.bankShares() && $data.treasuryShares() -->\\n    <h5 class=\\\"mt-3 text-center font-weight-light alert-heading\\\">Choose a share source</h5>\\n    <div class=\\\"d-flex justify-content-center\\\">\\n\\n            <button type=\\\"button\\\" class=\\\"btn mr-1\\\"\\n                    data-bind=\\\"css: $data.chosenShareSource() === $data.ShareSources.MARKET ? 'btn-warning' : 'btn-secondary', click: function() { $data.selectShareSource($data.ShareSources.MARKET); }\\\"><strong class=\\\"h4 mr-2 align-middle\\\" data-bind=\\\"text: $data.bankShares()\\\"></strong><span class=\\\"align-middle\\\">market</span></button>\\n            <button type=\\\"button\\\" class=\\\"btn\\\"\\n                    data-bind=\\\"css: $data.chosenShareSource() === $data.ShareSources.TREASURY ? 'btn-warning' : 'btn-secondary', click: function() { $data.selectShareSource($data.ShareSources.TREASURY); }\\\"><strong class=\\\"h4 mr-2 align-middle\\\" data-bind=\\\"text: $data.treasuryShares()\\\"></strong><span class=\\\"align-middle\\\">treasury</span></button>\\n    </div>\\n    <!-- /ko -->\\n    <!-- /ko -->\\n\\n    <!-- ko if: $data.action() -->\\n    <div class=\\\"d-flex justify-content-center mt-3\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-primary mr-1\\\" data-bind=\\\"click: $data.commit, text: $data.action().confirmation($root.game().state())\\\"></button>\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-danger mr-1\\\" data-bind=\\\"click: $data.reset\\\">Cancel</button>\\n    </div>\\n    <!-- /ko -->\\n\\n</div>\\n<!-- /ko -->\\n\";";
 
 /***/ }),
 /* 123 */
