@@ -293,7 +293,7 @@ class Company extends Serializable {
     unrust(phase) {
         const rustedTrains = CurrentGame().state().bank.getTrainsForPhase(phase);
         _.each(this.trains(), train => {
-            if (_.indexOf(rustedTrains, train.type) >= 0 && train.phasedOut(true)) {
+            if (_.indexOf(rustedTrains, train.type) >= 0 && train.phasedOut()) {
                 train.rusted(false);
             }
         });

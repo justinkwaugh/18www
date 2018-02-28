@@ -17,7 +17,7 @@ const MapTileIDs = {
     INDIANAPOLIS: 'indianapolis',
     CAIRO: 'cairo',
     HOLLAND: 'holland',
-    ST_LOUIS: 'stlouis',
+    ST_LOUIS: 'st_louis',
     SARNIA: 'sarnia',
     WINDSOR: 'windsor',
     BUFFALO: 'buffalo',

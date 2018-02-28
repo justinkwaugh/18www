@@ -176,16 +176,17 @@ class BuyTrains extends Action {
             const player = state.playersById()[this.playerId];
             const trainType = this.trains[0];
 
-            state.bank.addTrains(trainType, 1);
-            _.each(this.trainIds, id => {
-                company.removeTrainById(id);
-            });
-
             if (this.oldPhase) {
                 const currentPhase = state.currentPhaseId();
                 state.currentPhaseId(this.oldPhase);
                 this.undoPhaseChange(state, currentPhase);
             }
+
+            state.bank.addTrains(trainType, 1);
+            _.each(this.trainIds, id => {
+                company.removeTrainById(id);
+            });
+
 
             _.each(this.stockSales, (amount, companyId) => {
                 const certs = state.bank.removeNonPresidentCertsForCompany(amount, companyId);
@@ -224,6 +225,12 @@ class BuyTrains extends Action {
             state.bank.cash(this.oldBankCash);
         }
         else if (this.source === 'bank') {
+            if (this.oldPhase) {
+                const currentPhase = state.currentPhaseId();
+                state.currentPhaseId(this.oldPhase);
+                this.undoPhaseChange(state, currentPhase);
+            }
+
             _.each(this.trains, (amount, type) => {
                 const trainDefinition = TrainDefinitions[type];
                 const cost = amount * trainDefinition.cost;
@@ -235,12 +242,7 @@ class BuyTrains extends Action {
                 });
             });
 
-            if (this.oldPhase) {
-                const currentPhase = state.currentPhaseId();
-                state.currentPhaseId(this.oldPhase);
-                this.undoPhaseChange(state, currentPhase);
 
-            }
         }
         else {
             const sellingCompany = state.getCompany(this.source);
@@ -259,7 +261,7 @@ class BuyTrains extends Action {
                 company.phaseOut(PhaseIDs.PHASE_I);
             });
             _.each(state.privateCompanies, company => {
-                if(!company.closed()) {
+                if (!company.closed()) {
                     closedPrivatesData.push(company.close());
                 }
             });
@@ -273,27 +275,49 @@ class BuyTrains extends Action {
                 company.phaseOut(PhaseIDs.PHASE_II);
                 company.rust(PhaseIDs.PHASE_I);
             });
-            const meatTile = _.find(state.tilesByCellId, tile => {
-                return tile.hasMeat();
+
+            let meatCellId = null;
+            let meatTile = null;
+
+            _.each(state.tilesByCellId, (tile, cellId) => {
+                if(tile.hasMeat()) {
+                    meatCellId = cellId;
+                    meatTile = tile;
+                    return false;
+                }
             });
 
             if (meatTile) {
                 meatTile.hasMeat(false);
-                this.meatTileId = meatTile.id;
+                this.meatTileId = meatCellId;
+                if (this.meatTileId === 'stlouis') {
+                    this.meatTileId = 'st_louis';
+                }
             }
-            const steamBoatTile = _.find(state.tilesByCellId, tile => {
-                return tile.hasSteamboat();
+
+            let steamBoatCellId = null;
+            let steamBoatTile = null;
+
+            _.each(state.tilesByCellId, (tile,cellId) => {
+                if(tile.hasSteamboat()) {
+                    steamBoatCellId = cellId;
+                    steamBoatTile = tile;
+                    return false;
+                }
             });
 
             if (steamBoatTile) {
                 steamBoatTile.hasSteamboat(false);
                 this.steamboatTileId = steamBoatTile.id;
+                if (this.steamboatTileId === 'stlouis') {
+                    this.steamboatTileId = 'st_louis';
+                }
             }
             state.trainLimit(2);
 
-            _.each(state.tilesByCellId, tile => {
-                if(tile.reservedTokens().length > 0) {
-                    this.oldReservedTokens[tile.id] = _.clone(tile.reservedTokens());
+            _.each(state.tilesByCellId, (tile,cellId) => {
+                if (tile.reservedTokens().length > 0) {
+                    this.oldReservedTokens[cellId] = _.clone(tile.reservedTokens());
                     tile.reservedTokens([]);
                 }
             });
@@ -320,32 +344,38 @@ class BuyTrains extends Action {
             });
 
             if (this.meatTileId) {
+                if (this.meatTileId === 'stlouis') {
+                    this.meatTileId = 'st_louis';
+                }
                 const tile = state.tilesByCellId[this.meatTileId];
                 tile.hasMeat(true);
             }
 
             if (this.steamboatTileId) {
+                if (this.steamboatTileId === 'stlouis') {
+                    this.steamboatTileId = 'st_louis';
+                }
                 const tile = state.tilesByCellId[this.steamboatTileId];
                 tile.hasSteamboat(true);
             }
             state.trainLimit(3);
 
-            _.each(this.oldReservedTokens, (tokens, tileId) => {
-                const tile = _.find(state.tilesByCellId, tile=> tile.id === tileId);
+            _.each(this.oldReservedTokens, (tokens, cellId) => {
+                const tile = state.tilesByCellId[cellId];
                 tile.reservedTokens(_.clone(tokens));
             })
         }
     }
 
     recalculateRouteRevenue(state) {
-        _.each(state.allCompaniesById(), company=> {
-                if(company.closed()) {
-                    return;
-                }
-                _.each(company.getNonRustedTrains(), train=>{
-                    train.route.calculateRevenue();
-                });
+        _.each(state.allCompaniesById(), company => {
+            if (company.closed()) {
+                return;
+            }
+            _.each(company.getNonRustedTrains(), train => {
+                train.route.calculateRevenue();
             });
+        });
     }
 
 

@@ -971,6 +971,9 @@ class TileManifest extends Serializable {
     }
 
     getUpgradesForTile(id) {
+        if(id === 'stlouis') {
+            id = 'st_louis';
+        }
         return _(Manifest[id].upgrades || []).map((upgradeId) => {
             return {
                 tile: this.displayTilesById()[upgradeId],
@@ -980,6 +983,9 @@ class TileManifest extends Serializable {
     }
 
     getTile(id, replacedId) {
+        if(id === 'stlouis') {
+            id = 'st_louis';
+        }
         const numAvailable = this.availableTiles()[id];
         if (numAvailable === 0) {
             throw new ValidationError('No ' + id + ' tile available');
@@ -1000,14 +1006,23 @@ class TileManifest extends Serializable {
     }
 
     static getTileDefinition(id) {
+        if(id === 'stlouis') {
+            id = 'st_louis';
+        }
         return TileDefinitions[id];
     }
 
     getTemplateName(id) {
+        if(id === 'stlouis') {
+            id = 'st_louis';
+        }
         return TileManifest.getTileDefinition(id).template || 'common';
     }
 
     static createTile(id) {
+        if(id === 'stlouis') {
+            id = 'st_louis';
+        }
         const definition = _.clone(TileDefinitions[id]);
         definition['upgrades'] = Manifest[id].upgrades;
         return new Tile(definition);
