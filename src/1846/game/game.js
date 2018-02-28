@@ -101,6 +101,7 @@ class Game extends BaseGame {
             return new Player({user, cash: 400, order: index});
         }).value();
 
+        let removedPrivates = [];
         if (players.length === 3 || players.length === 4) {
             const numToRemove = players.length === 3 ? 2 : 1;
             const greenRemovals = _(greenGroup).shuffle().take(numToRemove).value();
@@ -108,8 +109,8 @@ class Game extends BaseGame {
             const orangeRemovals = _(orangeGroup).shuffle().take(numToRemove).value();
 
             _.remove(publicCompanies, (company) => _.indexOf(greenRemovals, company.id) >= 0);
-            _.remove(privateCompanies, (company) => _.indexOf(blueRemovals, company.id) >= 0);
-            _.remove(privateCompanies, (company) => _.indexOf(orangeRemovals, company.id) >= 0);
+            removedPrivates = _.concat(removedPrivates, _.remove(privateCompanies, (company) => _.indexOf(blueRemovals, company.id) >= 0));
+            removedPrivates = _.concat(removedPrivates, _.remove(privateCompanies, (company) => _.indexOf(orangeRemovals, company.id) >= 0));
         }
 
         let cash = 0;
@@ -143,6 +144,7 @@ class Game extends BaseGame {
 
         const state = new State({
                              players,
+                             removedPrivates,
                              publicCompanies,
                              privateCompanies,
                              bank,

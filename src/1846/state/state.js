@@ -54,6 +54,7 @@ class State extends BaseState {
         });
         this.trainLimit = ko.observable(definition.trainLimit || 4);
 
+        this.removedPrivates = definition.removedPrivates || [];
         this.publicCompanies = definition.publicCompanies || [];
         this.publicCompaniesById = ko.computed(()=>{ return _.keyBy(this.publicCompanies, 'id'); });
         this.privateCompanies = definition.privateCompanies || [];

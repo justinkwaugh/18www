@@ -30,7 +30,7 @@ const FreeICCells = {
     J4: true
 };
 
-const FreeTunnelBlasterCells = {
+const TunnelBlasterCells = {
     F18: true,
     G17: true,
     H16: true,
@@ -119,7 +119,7 @@ class Cell {
                 return openCities;
             }
 
-            return _.filter(openCities, cityId => this.depthFirstSearchForStation(companyId, cityId, {},[]));
+            return _.filter(openCities, cityId => this.depthFirstSearchForStation(companyId, cityId, {}, []));
 
         });
 
@@ -369,8 +369,8 @@ class Cell {
             cost = 0;
         }
 
-        if (company.hasPrivate(CompanyIDs.TUNNEL_BLASTING_COMPANY) && FreeTunnelBlasterCells[this.id]) {
-            cost = 0;
+        if (company.hasPrivate(CompanyIDs.TUNNEL_BLASTING_COMPANY) && TunnelBlasterCells[this.id]) {
+            cost -= 20;
         }
 
 
@@ -495,7 +495,8 @@ class Cell {
                                                                           return true;
                                                                       }
 
-                                                                      const connectionId = this.getCellConnectionId(connection);
+                                                                      const connectionId = this.getCellConnectionId(
+                                                                          connection);
 
                                                                       if (connectionStart < 7 && !invalidEdges[connectionStart]) {
                                                                           const isEdgeValid = this.checkNeighborConnection(
@@ -555,17 +556,22 @@ class Cell {
             return 0;
         }
 
-        if (costData.type === TerrainTypes.TUNNEL) {
-            const company = CurrentGame().state().currentCompany();
-            if (company.hasPrivate(CompanyIDs.TUNNEL_BLASTING_COMPANY)) {
-                return 0;
-            }
-        }
-
         const neighbor = this.neighbors[edgeIndex];
         const neighborConnectionIndex = Cell.getNeighboringConnectionIndex(edgeIndex);
         const neighborConnectionPoint = neighbor.getConnectionPointAtIndex(this, neighborConnectionIndex);
-        return neighborConnectionPoint >= 0 ? costData.cost : 0;
+
+        if (neighborConnectionPoint >= 0) {
+            let cost = costData.cost;
+            if (costData.type === TerrainTypes.TUNNEL) {
+                const company = CurrentGame().state().currentCompany();
+                if (company.hasPrivate(CompanyIDs.TUNNEL_BLASTING_COMPANY)) {
+                    cost -= 20;
+                }
+            }
+            return cost;
+        }
+
+        return 0;
     }
 
     isConnectedToStation(companyId) {
@@ -616,14 +622,14 @@ class Cell {
         let found = false;
 
         _.each(connections, connection => {
-            const directionalConnectionId = this.id + '-' + this.getConnectionId(connection,true);
+            const directionalConnectionId = this.id + '-' + this.getConnectionId(connection, true);
             const connectionId = this.id + '-' + this.getConnectionId(connection);
             if (visited[directionalConnectionId] || _.indexOf(currentSearchPath, connectionId) >= 0) {
                 return;
             }
 
             visited[directionalConnectionId] = true;
-            if(currentSearchPath) {
+            if (currentSearchPath) {
                 currentSearchPath.push(connectionId);
             }
 
@@ -664,7 +670,7 @@ class Cell {
             }
 
         });
-        if(currentSearchPath) {
+        if (currentSearchPath) {
             currentSearchPath.pop();
         }
 
@@ -678,7 +684,7 @@ class Cell {
     }
 
     getConnectionId(connection, directional) {
-        if(directional) {
+        if (directional) {
             return connection[0] + '-' + connection[1];
         }
         else {

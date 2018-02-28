@@ -262,6 +262,14 @@ nav a, nav a:hover {
     border-radius: 4px;
 }
 
+.bg-table-row {
+    background-color: #DDDDDD;
+}
+
+.bg-table-row-medium {
+    background-color: #EEEEEE;
+}
+
 .text-ms {
     color: white;
 }
@@ -330,13 +338,6 @@ nav a, nav a:hover {
     max-width: 600px !important;
 }
 
-.bg-table-row {
-    background-color: #DDDDDD;
-}
-
-.bg-table-row-medium {
-    background-color: #EEEEEE;
-}
 
 .table-col-spacer {
     width:10px;

@@ -68,7 +68,7 @@ class Dashboard {
         Events.on('nav-change', (state) => {
             this.checkNavigation(state);
         });
-
+        //
         // _.delay(()=> {
         //     this.fileInput = document.getElementById('fileInput');
         //     this.fileInput.addEventListener('change', (e) => {

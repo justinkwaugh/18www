@@ -5,7 +5,6 @@ import BuyShare from '1846/actions/buyShare';
 import SellShares from '1846/actions/sellShares';
 import StartCompany from '1846/actions/startCompany';
 import StockRoundPass from '1846/actions/stockRoundPass';
-import Sequence from '1846/game/sequence';
 
 const Actions = {
     SELL: 'sell',
@@ -57,33 +56,17 @@ class StockRound {
             return this.selectedCompany().shares();
         });
 
-        this.shareSource = ko.computed(() => {
-            if (this.chosenShareSource()) {
-                return this.chosenShareSource();
-            }
-
-            if (this.bankShares() && !this.treasuryShares()) {
-                return this.ShareSources.MARKET;
-            }
-
-            if (this.treasuryShares() && !this.bankShares()) {
-                return this.ShareSources.TREASURY;
-            }
-
-            return null;
-        });
-
         this.action = ko.computed(() => {
             if(!CurrentGame()) {
                 return false;
             }
 
             if (this.selectedAction() === Actions.BUY && this.selectedCompanyId()) {
-                if (CurrentGame().state().publicCompaniesById()[this.selectedCompanyId()].opened() && this.shareSource()) {
+                if (CurrentGame().state().getCompany(this.selectedCompanyId()).opened() && this.chosenShareSource()) {
                     return new BuyShare({
                                             playerId: CurrentGame().state().currentPlayerId(),
                                             companyId: this.selectedCompanyId(),
-                                            treasury: this.shareSource() === ShareSources.TREASURY
+                                            treasury: this.chosenShareSource() === ShareSources.TREASURY
                                         });
                 }
                 else if (this.openingPriceIndex()) {
@@ -107,7 +90,6 @@ class StockRound {
                                           });
             }
         });
-
     }
 
     getParRange() {
@@ -130,8 +112,32 @@ class StockRound {
     selectCompany(companyId) {
         this.selectedCompanyId(companyId);
         if (this.selectedAction() === Actions.SELL && CurrentGame().state().currentPlayer().sharesCanSell()[companyId].shares === 1) {
-            this.numberOfShares(1);
+            this.selectNumberOfShares(1);
         }
+        if(this.selectedAction() === Actions.BUY && CurrentGame().state().getCompany(this.selectedCompanyId()).opened()) {
+            if (this.bankShares() && !this.treasuryShares()) {
+                this.selectShareSource(ShareSources.MARKET)
+            }
+
+            if (this.treasuryShares() && !this.bankShares()) {
+                this.selectShareSource(ShareSources.TREASURY)
+            }
+        }
+    }
+
+    selectShareSource(source) {
+        this.chosenShareSource(source);
+        this.commit();
+    }
+
+    selectNumberOfShares(num) {
+        this.numberOfShares(1);
+        this.commit();
+    }
+
+    selectOpeningPriceIndex(index) {
+        this.openingPriceIndex(index);
+        this.commit();
     }
 
     reset() {
