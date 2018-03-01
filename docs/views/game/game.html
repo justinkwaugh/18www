@@ -46,7 +46,8 @@
             <li class="nav-item">
                 <a
                         href="#" class="nav-link text-danger"
-                        data-bind="click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.REPORT_BUG)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.REPORT_BUG ? 'active text-white font-weight-bold' : 'text-secondary' ">Report Bug</a>
+                        data-bind="click: function() {$data.game().setActivePanel($data.game().ActivePanelIDs.REPORT_BUG)}, css: $data.game().activePanel() === $data.game().ActivePanelIDs.REPORT_BUG ? 'active text-white font-weight-bold' : 'text-secondary' ">Report
+                    Bug</a>
             </li>
         </ul>
     </div>
@@ -77,13 +78,28 @@
         </div>
 
         <div data-bind="visible: $data.game().activePanel() === $data.game().ActivePanelIDs.MAP">
-                <div class="col bg-dark p-0" data-bind="css: $data.game().touchMap() ? '' : 'pr-2'">
-                    <div class="d-flex">
-                        <div data-bind="visible:!$data.game().touchMap()">
-                            <div style="min-width:220px;"
-                                 data-bind="template: { name: 'views/companies', data: $data.game().state() }"></div>
+            <div class="col bg-dark p-0" data-bind="css: $data.game().touchMap() ? '' : 'pr-2'">
+                <div class="d-flex">
+                    <div data-bind="visible:!$data.game().touchMap()">
+                        <div style="min-width:220px;"
+                             data-bind="template: { name: 'views/companies', data: $data.game().state() }"></div>
+                    </div>
+                    <div class="pt-2" style="width:100%;overflow:hidden;">
+                        <div class="btn-group" role="group" style="">
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-light font-weight-bold "
+                                    data-bind="click: function() { $data.game().zoomOut(); }"><span
+                                    class="oi oi-zoom-out"></span>
+                            </button>
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-light font-weight-bold"
+                                    data-bind="click: function() { $data.game().zoomIn(); }"><span
+                                    class="oi oi-zoom-in"></span>
+                            </button>
                         </div>
-                        <div id="map" style="position:relative;width:100%;" data-bind="style: { overflow: $data.game().touchMap() ? 'hidden' : 'auto'}, css: $data.game().touchMap() ? 'mx-0' : ''">
+
+                        <div id="map" style="position:relative;width:100%;overflow:hidden;"
+                             data-bind="style: { height: $data.game().mapContainerHeight() }, css: $data.game().touchMap() ? 'mx-0' : ''">
                             <div class="mt-2"
                                  style="position:relative;transform-origin:0 0;transform:scale(.817);width:1836px;height:1186px;"
                                  data-bind="style: { transform: 'scale(' + $data.game().zoom() + ')' }">
@@ -100,22 +116,11 @@
                                 <div style="position:absolute;top:898px;left:723px;height:175px; width:175px;"
                                      data-bind="template: { name: 'views/rounds', data: $data.game().state() }"></div>
                             </div>
-                            <div class="zoom btn-group" role="group" style="position: absolute; top:10px; left:2px;">
-                                <button type="button"
-                                        class="btn btn-sm btn-dark font-weight-bold "
-                                        data-bind="click: function() { $data.game().zoomOut(); }"><span
-                                        class="oi oi-zoom-out"></span>
-                                </button>
-                                <button type="button"
-                                        class="btn btn-sm btn-dark font-weight-bold"
-                                        data-bind="click: function() { $data.game().zoomIn(); }"><span
-                                        class="oi oi-zoom-in"></span>
-                                </button>
-                            </div>
 
                         </div>
                     </div>
                 </div>
+            </div>
         </div>
 
         <div data-bind="if: $data.game().activePanel() === $data.game().ActivePanelIDs.HISTORY">

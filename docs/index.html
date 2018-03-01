@@ -11,7 +11,7 @@
 <!-- /ko -->
 <!-- ko if: !$root.isIE -->
 <!-- ko if: $root.game() -->
-<div data-bind="template: { name: 'views/game/game' }"></div>
+<div data-bind="template: { name: 'views/game/game', afterRender: function() { $root.game().doZoom() } }"></div>
 <!-- /ko -->
 <!-- ko if: !$root.game() -->
 <div data-bind="template: { name: 'views/dashboard/dashboard' }"></div>
