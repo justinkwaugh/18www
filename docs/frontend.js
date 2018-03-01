@@ -36857,9 +36857,6 @@ var Game = function (_BaseGame) {
         _this.touchMap = _knockout2.default.observable();
 
         (0, _jquery2.default)(window).resize(_lodash2.default.throttle(_lodash2.default.bind(_this.doZoom, _this), 100));
-
-        _events2.default.on('app-ready', _lodash2.default.bind(_this.doZoom, _this));
-
         return _this;
     }
 
@@ -36904,6 +36901,9 @@ var Game = function (_BaseGame) {
                 }
             }
             this.activePanel(newPanel);
+            if (newPanel === ActivePanelIDs.MAP) {
+                this.doZoom();
+            }
         }
     }, {
         key: 'updateState',

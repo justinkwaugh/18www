@@ -56,9 +56,6 @@ class Game extends BaseGame {
         this.touchMap = ko.observable();
 
         $(window).resize(_.throttle(_.bind(this.doZoom,this), 100));
-
-        Events.on('app-ready', _.bind(this.doZoom,this));
-
     }
 
     selectCompany(companyId) {
@@ -96,6 +93,9 @@ class Game extends BaseGame {
             }
         }
         this.activePanel(newPanel);
+        if (newPanel === ActivePanelIDs.MAP) {
+            this.doZoom();
+        }
     }
 
     static createInitialState(users) {
