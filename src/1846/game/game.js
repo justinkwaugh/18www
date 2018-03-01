@@ -27,6 +27,11 @@ const ActivePanelIDs = {
     REPORT_BUG: 'report_bug'
 };
 
+const ZoomState = {
+    GRID: 'grid',
+    BOARD: 'map'
+};
+
 class Game extends BaseGame {
     constructor(definition) {
         definition = definition || {};
@@ -35,11 +40,13 @@ class Game extends BaseGame {
         this.record = definition.record;
         this.state = ko.observable(definition.state);
         this.grid = ko.observable(new Grid(definition.state));
+        this.mapContainerHeight = ko.observable('100%');
         this.privateDraft = ko.observable();
         this.stockRound = ko.observable();
         this.operatingRound = ko.observable(new OperatingRound());
         this.history = ko.observable(new History());
-        this.zoom = ko.observable(.8);
+        this.zoom = ko.observable(1);
+        this.zoomState = ko.observable(ZoomState.BOARD);
         this.oldZoom = ko.observable();
         this.selectedCompany = ko.observable();
 
@@ -47,6 +54,10 @@ class Game extends BaseGame {
         this.ActivePanelIDs = ActivePanelIDs;
         this.sequence = Sequence;
         this.touchMap = ko.observable();
+
+        $(window).resize(_.throttle(_.bind(this.doZoom,this), 100));
+
+        Events.on('app-ready', _.bind(this.doZoom,this));
 
     }
 
@@ -60,15 +71,13 @@ class Game extends BaseGame {
     }
 
     zoomIn() {
-        if (this.zoom() < 1.5) {
-            this.zoom(this.zoom() + .05);
-        }
+        this.zoomState(ZoomState.GRID);
+        this.doZoom();
     }
 
     zoomOut() {
-        if (this.zoom() > .1) {
-            this.zoom(this.zoom() - .05);
-        }
+        this.zoomState(ZoomState.BOARD);
+        this.doZoom();
     }
 
     showMap() {
@@ -80,9 +89,9 @@ class Game extends BaseGame {
     }
 
     setActivePanel(newPanel) {
-        if(newPanel === ActivePanelIDs.HISTORY) {
+        if (newPanel === ActivePanelIDs.HISTORY) {
             const currentRound = CurrentGame().state().roundHistory.currentRound();
-            if(currentRound) {
+            if (currentRound) {
                 this.history().selectRound(currentRound.id);
             }
         }
@@ -109,8 +118,11 @@ class Game extends BaseGame {
             const orangeRemovals = _(orangeGroup).shuffle().take(numToRemove).value();
 
             _.remove(publicCompanies, (company) => _.indexOf(greenRemovals, company.id) >= 0);
-            removedPrivates = _.concat(removedPrivates, _.remove(privateCompanies, (company) => _.indexOf(blueRemovals, company.id) >= 0));
-            removedPrivates = _.concat(removedPrivates, _.remove(privateCompanies, (company) => _.indexOf(orangeRemovals, company.id) >= 0));
+            removedPrivates = _.concat(removedPrivates, _.remove(privateCompanies, (company) => _.indexOf(blueRemovals,
+                                                                                                          company.id) >= 0));
+            removedPrivates = _.concat(removedPrivates, _.remove(privateCompanies,
+                                                                 (company) => _.indexOf(orangeRemovals,
+                                                                                        company.id) >= 0));
         }
 
         let cash = 0;
@@ -143,14 +155,14 @@ class Game extends BaseGame {
         const stockBoard = new StockBoard();
 
         const state = new State({
-                             players,
-                             removedPrivates,
-                             publicCompanies,
-                             privateCompanies,
-                             bank,
-                             manifest,
-                             stockBoard
-                         });
+                                    players,
+                                    removedPrivates,
+                                    publicCompanies,
+                                    privateCompanies,
+                                    bank,
+                                    manifest,
+                                    stockBoard
+                                });
 
         state.roundHistory.startRound(RoundTypes.PRIVATE_DRAFT, 1);
         state.currentPlayerIndex(state.players().length - 1);
@@ -175,7 +187,6 @@ class Game extends BaseGame {
     enableTouchMap() {
         this.touchMap(true);
         this.shrinkMapToFitGrid();
-
     }
 
     disableTouchMap() {
@@ -187,14 +198,39 @@ class Game extends BaseGame {
         return this.privateDraft() && this.privateDraft().revealed();
     }
 
+    doZoom() {
+        if (this.zoomState() === ZoomState.GRID) {
+            this.shrinkMapToFitGrid();
+        }
+        else {
+            this.shrinkMapToFitWindow();
+        }
+    }
+
     shrinkMapToFitGrid() {
+        const mapHeight = 1186;
         const gridWidth = 1400;
         const map = $('#map');
         map.scrollLeft(0);
         const mapWidth = map.width();
 
         this.oldZoom(this.zoom());
+        console.log('container: ' + mapWidth);
         this.zoom(mapWidth / gridWidth);
+        this.mapContainerHeight((18 + Math.floor(mapHeight*this.zoom())) + 'px');
+    }
+
+    shrinkMapToFitWindow() {
+        const mapHeight = 1186;
+        const mapWidth = 1836;
+        const map = $('#map');
+        map.scrollLeft(0);
+        const containerWidth = map.width();
+
+        this.oldZoom(this.zoom());
+        console.log('container: ' + containerWidth);
+        this.zoom(containerWidth / mapWidth);
+        this.mapContainerHeight((18 + Math.floor(mapHeight*this.zoom())) + 'px');
     }
 
     restoreZoom() {
