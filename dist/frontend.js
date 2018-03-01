@@ -44564,7 +44564,7 @@ var StockRound = function () {
     }, {
         key: 'selectNumberOfShares',
         value: function selectNumberOfShares(num) {
-            this.numberOfShares(1);
+            this.numberOfShares(num);
             this.commit();
         }
     }, {
@@ -47417,7 +47417,6 @@ var Dashboard = function () {
             this.loadAvailableGames();
         }
 
-        //
         // _.delay(()=> {
         //     this.fileInput = document.getElementById('fileInput');
         //     this.fileInput.addEventListener('change', (e) => {

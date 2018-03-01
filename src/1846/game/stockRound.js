@@ -131,7 +131,7 @@ class StockRound {
     }
 
     selectNumberOfShares(num) {
-        this.numberOfShares(1);
+        this.numberOfShares(num);
         this.commit();
     }
 

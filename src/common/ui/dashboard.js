@@ -57,7 +57,7 @@ class Dashboard {
             this.loadAvailableGames();
         }
 
-        //
+
         // _.delay(()=> {
         //     this.fileInput = document.getElementById('fileInput');
         //     this.fileInput.addEventListener('change', (e) => {
