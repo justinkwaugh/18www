@@ -16,7 +16,7 @@
     <div class="d-flex justify-content-center">
         <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
             <!-- ko foreach: $root.game().state().removedPrivates -->
-            <li class="rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1 bg-table-row-medium" >
+            <li class="rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1 bg-table-row-medium">
                 <strong class="h5 font-weight-light" data-bind="text: $data.name"></strong>
             </li>
             <!-- /ko -->
@@ -30,7 +30,8 @@
             <div class=""><h2 class="font-weight-light p-2 pb-0 m-0">Choose a private company</h2>
                 <!-- ko if: $data.revealed() -->
                 <!-- ko if: $root.game().state().currentPlayer().getPrivateNames().length > 0 -->
-                <div class="font-weight-light text-dark mb-3" style="font-size:1.3rem" data-bind="text: 'Already chosen: ' + _.join($root.game().state().currentPlayer().getPrivateNames(), ', ')"></div>
+                <div class="font-weight-light text-dark mb-3" style="font-size:1.3rem"
+                     data-bind="text: 'Already chosen: ' + _.join($root.game().state().currentPlayer().getPrivateNames(), ', ')"></div>
                 <!-- /ko -->
                 <!-- ko foreach: $data.privatesOffered() -->
                 <div class="card d-inline-flex mb-3 mr-3"
@@ -41,7 +42,8 @@
                 <!-- /ko -->
                 <div>
                     <!-- ko if: $data.privatesOffered().length === 1 && $data.privatesOffered()[0].cost !== $data.privatesOffered()[0].baseCost -->
-                        <h3 class="font-weight-light" data-bind="text: 'Discounted to $' + $data.privatesOffered()[0].cost"></h3>
+                    <h3 class="font-weight-light"
+                        data-bind="text: 'Discounted to $' + $data.privatesOffered()[0].cost"></h3>
                     <!-- /ko -->
                     <div class="d-inline-flex">
                         <button type="button" class="btn btn-warning"
@@ -57,10 +59,13 @@
                 </div>
                 <!-- /ko -->
                 <!-- ko if: !$data.revealed() -->
-                <button class="btn btn-large" data-bind="click: function() {$data.revealed(true)}">Reveal Choices</button>
+                <button class="btn btn-large" data-bind="click: function() {$data.revealed(true)}">Reveal Choices
+                </button>
                 <!-- /ko -->
             </div>
+
         </div>
     </div>
 </div>
+
 <!-- /ko -->

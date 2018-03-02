@@ -85,17 +85,43 @@
                              data-bind="template: { name: 'views/companies', data: $data.game().state() }"></div>
                     </div>
                     <div class="pt-2" style="width:100%;overflow:hidden;">
-                        <div class="btn-group" role="group" style="">
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-light font-weight-bold "
-                                    data-bind="click: function() { $data.game().zoomOut(); }"><span
-                                    class="oi oi-zoom-out"></span>
-                            </button>
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-light font-weight-bold"
-                                    data-bind="click: function() { $data.game().zoomIn(); }"><span
-                                    class="oi oi-zoom-in"></span>
-                            </button>
+                        <div class="d-flex align-items-end">
+                            <div class="btn-group" role="group">
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-light font-weight-bold " style="height:35px;"
+                                        data-bind="click: function() { $data.game().zoomOut(); }"><span
+                                        class="oi oi-zoom-out"></span>
+                                </button>
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-light font-weight-bold" style="height:35px;"
+                                        data-bind="click: function() { $data.game().zoomIn(); }"><span
+                                        class="oi oi-zoom-in"></span>
+                                </button>
+                            </div>
+                            <!--&lt;!&ndash; ko if: $root.game().state().isOperatingRound() &ndash;&gt;-->
+                            <!--<div class="d-flex justify-content-center mt-2" style="width:100%">-->
+                                <!--<ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">-->
+                                    <!--<li>-->
+                                        <!--<div class="h3 font-weight-light pr-3 text-white ">Select Train</div>-->
+                                    <!--</li>-->
+                                    <!--&lt;!&ndash; ko foreach: $root.game().operatingRound().companyTrains() &ndash;&gt;-->
+                                    <!--<li>-->
+                                        <!--<div class="card d-inline-flex bg-route-train-mini text-white justify-content-start text-left"-->
+                                             <!--data-bind="css: 'bg-route-' + $data.route.color, style: { 'margin-left': $index() === 0 ? '0' : '10px' },click: function() { $root.game().operatingRound().selectTrain($data)} ">-->
+                                            <!--<div class="bg-route-train-border"-->
+                                                 <!--data-bind="css: 'bg-route-border-' + $data.route.color + ' ' + ($root.game().operatingRound().selectedTrain() === $data.id ? 'bg-route-train-mini-big-border' : 'bg-route-train-mini-small-border')"></div>-->
+                                            <!--<div style="border-radius:4px; border:1px solid white; padding:0 5px;position:absolute;top:-5px;right:-5px;color:white"-->
+                                                 <!--data-bind="css: 'bg-route-' + $data.route.color"><span-->
+                                                    <!--style="font-size:16px;font-weight:600"-->
+                                                    <!--data-bind="text: '$' + $data.route.revenue()"></span>-->
+                                            <!--</div>-->
+                                            <!--<div class="h3 m-0 pl-2" data-bind="text:$data.getName()"></div>-->
+                                        <!--</div>-->
+                                    <!--</li>-->
+                                    <!--&lt;!&ndash; /ko &ndash;&gt;-->
+                                <!--</ul>-->
+                            <!--</div>-->
+                            <!--&lt;!&ndash; /ko &ndash;&gt;-->
                         </div>
 
                         <div id="map" style="position:relative;width:100%;overflow:hidden;"

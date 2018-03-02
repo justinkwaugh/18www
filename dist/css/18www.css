@@ -231,13 +231,43 @@ nav a, nav a:hover {
     border-color: #e880cb !important;
 }
 
-.bg-route-train {
+.bg-train {
     position:relative;
     background-size:contain;
     cursor:pointer;
     min-width:130px !important;
     min-height:88px;
     box-shadow:3px 3px 10px #ccc;
+}
+
+.bg-train-small-border {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    bottom: -1px;
+    right: -1px;
+    border: 1px #888 solid;
+    border-radius: 4px;
+}
+
+.bg-train-big-border {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    bottom: -5px;
+    right: -5px;
+    border: 5px #888 solid;
+    border-radius: 4px;
+}
+
+.bg-route-train {
+    position:relative;
+    background-size:contain;
+    cursor:pointer;
+    min-width:130px !important;
+    min-height:88px;
 }
 
 .bg-route-train-small-border {
@@ -259,6 +289,35 @@ nav a, nav a:hover {
     bottom: -5px;
     right: -5px;
     border: 5px #888 solid;
+    border-radius: 4px;
+}
+
+.bg-route-train-mini {
+    position:relative;
+    background-size:contain;
+    cursor:pointer;
+    min-width:100px !important;
+}
+
+.bg-route-train-mini-small-border {
+    content: '';
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    bottom: -1px;
+    right: -1px;
+    border: 1px #888 solid;
+    border-radius: 4px;
+}
+
+.bg-route-train-mini-big-border {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -6px;
+    bottom: -6px;
+    right: -6px;
+    border: 2px #888 solid;
     border-radius: 4px;
 }
 

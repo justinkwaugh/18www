@@ -84,7 +84,7 @@ const PrivateCompanyDefinitions = {
         cost: 140,
         baseCost: 140,
         maxBuyInPrice: 60,
-        cash: 80,
+        cash: 60,
         homeCellId: 'C15',
         trains: [new Train({type:TrainIDs.TRAIN_2, companyId: CompanyIDs.MICHIGAN_SOUTHERN})]
     },
@@ -98,7 +98,7 @@ const PrivateCompanyDefinitions = {
         cost: 100,
         baseCost: 100,
         maxBuyInPrice: 40,
-        cash: 60,
+        cash: 40,
         homeCellId: 'G9',
         trains: [new Train({type:TrainIDs.TRAIN_2, companyId: CompanyIDs.BIG_4})]
     },
