@@ -1,5 +1,5 @@
 <!-- ko if: $data -->
-<div class="pt-1 pb-3 alert alert-warning m-0 border-0 rounded-0">
+<div class="pt-1 pb-3 alert alert-warning m-0 border-0 rounded-0 text-dark">
     <h5 class="mt-3 mb-2 text-center font-weight-light alert-heading">Companies in this game</h5>
     <div class="d-flex justify-content-center">
         <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center">
@@ -16,7 +16,7 @@
     <div class="d-flex justify-content-center">
         <ul class="list-unstyled font-weight-light m-0 d-flex flex-wrap text-center text-dark">
             <!-- ko foreach: $root.game().state().removedPrivates -->
-            <li class="rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1 bg-light">
+            <li class="rounded pl-3 pr-3 pt-1 pb-1 m-0 mr-1 bg-white">
                 <strong class="h5 font-weight-light" data-bind="text: $data.name"></strong>
             </li>
             <!-- /ko -->
