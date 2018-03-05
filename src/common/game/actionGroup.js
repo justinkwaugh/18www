@@ -20,6 +20,10 @@ class ActionGroup extends Serializable {
         CurrentGame().state().actionHistory.undoRange(this.actionStartIndex, this.actionEndIndex);
     }
 
+    hasActions() {
+        return this.actionEndIndex > this.actionStartIndex;
+    }
+
     getActions() {
         if (this.actionEndIndex <= this.actionStartIndex) {
             return [];

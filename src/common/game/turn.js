@@ -57,7 +57,6 @@ class Turn extends ActionGroup {
         const inProgress = _.last(this.inProgress());
         return inProgress ? inProgress.getSummaries() : this.getSummaries();
     }
-
 }
 
 Turn.registerClass();

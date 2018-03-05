@@ -18,6 +18,7 @@ import ForceIssueCloseCompany from '1846/actions/forceIssueCloseCompany';
 import ReturnTrain from '1846/actions/returnTrain';
 import PhaseIDs from '1846/config/phaseIds';
 import BrowserDetect from 'common/util/browserDetect';
+import TileColorIDs from '1846/config/tileColorIds';
 
 const Actions = {
     ISSUE_SHARES: 'issue',
@@ -97,8 +98,10 @@ class OperatingRound {
                         return false;
                     }
 
-                    if (privateCompany.id === CompanyIDs.LAKE_SHORE_LINE && CurrentGame().state().currentPhaseId() === PhaseIDs.PHASE_I) {
-                        return false;
+                    if (privateCompany.id === CompanyIDs.LAKE_SHORE_LINE) {
+                        if (CurrentGame().state().tilesByCellId['D14'].color === TileColorIDs.INVISIBLE && CurrentGame().state().tilesByCellId['E17'].color === TileColorIDs.INVISIBLE) {
+                            return false;
+                        }
                     }
 
                     return true;
@@ -106,7 +109,7 @@ class OperatingRound {
         });
 
         this.useablePrivates.subscribeChanged((value, oldValue) => {
-            if(_.isEqual(value, oldValue)) {
+            if (_.isEqual(value, oldValue)) {
                 return;
             }
             if (this.selectedPrivateId()) {
@@ -412,7 +415,7 @@ class OperatingRound {
             return false;
         }
 
-        if(CurrentGame().state().currentCompany().closed()) {
+        if (CurrentGame().state().currentCompany().closed()) {
             return false;
         }
 
@@ -817,7 +820,7 @@ class OperatingRound {
 
         const company = CurrentGame().state().currentCompany();
 
-        if(company.closed()) {
+        if (company.closed()) {
             return false;
         }
 

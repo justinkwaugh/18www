@@ -18,7 +18,7 @@
                     </td>
                     <td class="pt-1 pb-1 border-0 "
                         data-bind="css: $root.game().state().currentPlayerId() === $data.id ? 'bg-warning' : $index() % 2 ? 'bg-table-row' : 'bg-light'">
-                        <div data-bind="text:$data.numSharesOwnedOfCompany($parent.id)"></div>
+                        <div data-bind="text: ($data.isPresidentOfCompany($parent.id) ? 'P':'') + $data.numSharesOwnedOfCompany($parent.id)"></div>
                     </td>
                 </tr>
                 <!-- /ko -->

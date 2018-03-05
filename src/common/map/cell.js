@@ -307,6 +307,10 @@ class Cell {
         const phase = CurrentGame().state().currentPhaseId();
         return _.filter(CurrentGame().state().manifest.getUpgradesForTile(this.tile().id) || [], (upgrade) => {
 
+            if(this.isLSLLay() && this.tile().color === TileColorIDs.INVISIBLE) {
+                return false;
+            }
+
             if (upgrade.tile.colorId !== TileColorIDs.YELLOW && (phase === PhaseIDs.PHASE_I || !this.canUpgrade())) {
                 return false;
             }
