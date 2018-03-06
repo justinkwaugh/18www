@@ -55,7 +55,7 @@
                 <td class="border-0"
                     data-bind="css: $root.game().state().currentPlayerId() === $parent.id ? 'bg-warning' : $parentContext.$index() % 2 ? 'bg-table-row' : 'bg-light'">
                     <h5 class="m-0 font-weight-normal text-dark"
-                        data-bind="text:($parent.isPresidentOfCompany($data.id) ? 'P':'') + $parent.numSharesOwnedOfCompany($data.id)"></h5></td>
+                        data-bind="css: $parent.isPresidentOfCompany($data.id) ? 'font-weight-bold' : '', text:($parent.isPresidentOfCompany($data.id) ? '*' :'' ) + $parent.numSharesOwnedOfCompany($data.id)"></h5></td>
                 <!-- /ko -->
             </tr>
             <!-- /ko -->
@@ -133,8 +133,11 @@
                 </th>
                 <!-- ko foreach: $data.openCompanies() -->
                 <td class="table-col-spacer p-0 border-0">&nbsp;</td>
-                <td class="pt-1 pb-1 bg-light border-0"
-                    data-bind="text: _.join(_.map($data.getNonPhasedOutTrains(), train=>train.getName()).sort(), ' ')"></td>
+                <td class="pt-1 pb-1 bg-light border-0">
+                    <span style="color:red"
+                          data-bind="text: _.join(_.map($data.getPhasedOutTrains(), train=>train.getName()).sort(), ' ')"></span>&nbsp;<span
+                            data-bind="text: _.join(_.map($data.getNonPhasedOutTrains(), train=>train.getName()).sort(), ' ')"></span>
+                </td>
                 <!-- /ko -->
             </tr>
             <tr>

@@ -13,12 +13,12 @@
                     <td class="border-0 font-weight-normal  p-0 text-right" scope="row"
                         data-bind="css: $root.game().state().currentPlayerId() === $data.id ? 'bg-warning': $index() %2 ? 'bg-table-row' : 'bg-light'">
                         <div class="p-1 pl-2 pr-2">
-                            <div data-bind="text:$data.user().username">Price</div>
+                            <div data-bind="css: $data.isPresidentOfCompany($parent.id) ? 'font-weight-bold' : '', text:$data.user().username"></div>
                         </div>
                     </td>
                     <td class="pt-1 pb-1 border-0 "
                         data-bind="css: $root.game().state().currentPlayerId() === $data.id ? 'bg-warning' : $index() % 2 ? 'bg-table-row' : 'bg-light'">
-                        <div data-bind="text: ($data.isPresidentOfCompany($parent.id) ? 'P':'') + $data.numSharesOwnedOfCompany($parent.id)"></div>
+                        <div data-bind="css: $data.isPresidentOfCompany($parent.id) ? 'font-weight-bold' : '', text: ($data.isPresidentOfCompany($parent.id) ? '*' :'' ) + $data.numSharesOwnedOfCompany($parent.id)"></div>
                     </td>
                 </tr>
                 <!-- /ko -->
