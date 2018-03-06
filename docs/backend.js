@@ -103,10 +103,10 @@ fs.readdir(testFolder, function (err, files) {
 });
 
 var app = (0, _express2.default)();
-app.use(_express2.default.static(_path2.default.resolve(_path2.default.join(__dirname, '/Users/justin/PycharmProjects/18www/dist'))));
+app.use(_express2.default.static(_path2.default.resolve(_path2.default.join(__dirname, '../../dist'))));
 
 app.get('/', function (req, res) {
-    res.sendFile('index.html', { root: _path2.default.join(__dirname, '/Users/justin/PycharmProjects/18www/dist') });
+    res.sendFile('index.html', { root: _path2.default.join(__dirname, '../../dist') });
 });
 
 app.get('/api/register', function (req, res) {
