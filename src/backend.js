@@ -15,10 +15,10 @@ fs.readdir(testFolder, (err, files) => {
 });
 
 const app = express();
-app.use(express.static(path.resolve(path.join(__dirname, '/Users/justin/PycharmProjects/18www/dist'))));
+app.use(express.static(path.resolve(path.join(__dirname, '../../dist'))));
 
 app.get('/', (req, res) => {
-    res.sendFile('index.html', {root: path.join(__dirname, '/Users/justin/PycharmProjects/18www/dist')});
+    res.sendFile('index.html', {root: path.join(__dirname, '../../dist')});
 });
 
 app.get('/api/register', (req, res) => {

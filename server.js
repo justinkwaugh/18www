@@ -16,7 +16,7 @@ fs.readdir(testFolder, (err, files) => {
 
 })
 const app = express();
-app.use(express.static(path.resolve(path.join(__dirname, '/dist'))));
+app.use(express.static(path.resolve(path.join(__dirname, '../dist'))));
 
 app.get('/', (req, res) => {
     res.render('index');
