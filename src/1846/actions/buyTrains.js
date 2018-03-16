@@ -321,6 +321,7 @@ class BuyTrains extends Action {
                     tile.reservedTokens([]);
                 }
             });
+            this.recalculateRouteRevenue(state);
         }
     }
 
@@ -363,7 +364,8 @@ class BuyTrains extends Action {
             _.each(this.oldReservedTokens, (tokens, cellId) => {
                 const tile = state.tilesByCellId[cellId];
                 tile.reservedTokens(_.clone(tokens));
-            })
+            });
+            this.recalculateRouteRevenue(state);
         }
     }
 
