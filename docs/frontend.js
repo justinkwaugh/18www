@@ -39218,8 +39218,6 @@ var Cell = function () {
                 return this.getPrivatePairPositionData(oldTile, newTileId, this.id === 'F14' || this.id === 'B10' ? 1 : 4);
             }
 
-            var visited = {};
-
             var validEdges = {};
             var invalidEdges = {};
 
@@ -39230,6 +39228,8 @@ var Cell = function () {
             }
 
             return (0, _lodash2.default)(_lodash2.default.range(0, 6)).map(function (pos) {
+                var visited = {};
+
                 // Check against existing tile connections
                 var oldConnectionsIds = _tile2.default.getConnectionIdsForPosition(oldTile.id, oldTile.position());
                 var newConnectionsIds = _tile2.default.getConnectionIdsForPosition(newTileId, pos);
@@ -40922,6 +40922,10 @@ var _phaseIds = __webpack_require__(10);
 
 var _phaseIds2 = _interopRequireDefault(_phaseIds);
 
+var _companyIds = __webpack_require__(5);
+
+var _companyIds2 = _interopRequireDefault(_companyIds);
+
 var _prices = __webpack_require__(6);
 
 var _prices2 = _interopRequireDefault(_prices);
@@ -41203,7 +41207,7 @@ var BuyTrains = function (_Action) {
                     company.phaseOut(_phaseIds2.default.PHASE_I);
                 });
                 _lodash2.default.each(state.privateCompanies, function (company) {
-                    if (!company.closed()) {
+                    if (!company.closed() && company.id !== _companyIds2.default.MAIL_CONTRACT) {
                         closedPrivatesData.push(company.close());
                     }
                 });
@@ -41262,6 +41266,7 @@ var BuyTrains = function (_Action) {
                         tile.reservedTokens([]);
                     }
                 });
+                this.recalculateRouteRevenue(state);
             }
         }
     }, {
@@ -41305,6 +41310,7 @@ var BuyTrains = function (_Action) {
                     var tile = state.tilesByCellId[cellId];
                     tile.reservedTokens(_lodash2.default.clone(tokens));
                 });
+                this.recalculateRouteRevenue(state);
             }
         }
     }, {
