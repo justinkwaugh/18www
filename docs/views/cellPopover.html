@@ -12,11 +12,11 @@
     <!-- /ko -->
     <div class="d-flex flex-wrap mx-auto" data-bind="css: $data.canToken() && $data.tokenableCities() && $data.upgradeTiles().length > 0 ? 'mt-2' : ''">
         <!-- ko foreach: $data.upgradeTiles() -->
-        <div class="position-relative" style="cursor:pointer" data-bind="click: function() { $parent.previewTile($data.tile.id); }">
+        <div class="position-relative" style="cursor:pointer" data-bind="click: function() { if($data.remaining > 0) {$parent.previewTile($data.tile.id);} }">
             <h5 class="position-absolute" style="top:0;left:10px;"
                 data-bind="text: $data.remaining === -1 ? '&#x221e;' : $data.remaining "></h5>
             <div class="mr-1 mb-1" style="width:124px;height:144px;"
-                 data-bind="style: { opacity : $data.remaining === 0 ? .5 : 1 }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.tile.id), data: $data.tile }"></div>
+                 data-bind="style: { opacity : $data.remaining === 0 ? .4 : 1 }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.tile.id), data: $data.tile }"></div>
         </div>
         <!-- /ko -->
     </div>
