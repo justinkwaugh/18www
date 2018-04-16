@@ -436,7 +436,7 @@ class Cell {
                                                    (this.id === 'F14' || this.id === 'B10') ? 1 : 4);
         }
 
-        const visited = {};
+
 
         const validEdges = {};
         const invalidEdges = {};
@@ -447,7 +447,10 @@ class Cell {
             return [];
         }
 
+
         return _(_.range(0, 6)).map((pos) => {
+            const visited = {};
+
             // Check against existing tile connections
             const oldConnectionsIds = Tile.getConnectionIdsForPosition(oldTile.id, oldTile.position());
             const newConnectionsIds = Tile.getConnectionIdsForPosition(newTileId, pos);

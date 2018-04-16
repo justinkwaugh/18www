@@ -3,6 +3,7 @@ import Train from 'common/model/train';
 import TrainDefinitions from '1846/config/trainDefinitions';
 import TrainIDs from '1846/config/trainIds';
 import PhaseIDs from '1846/config/phaseIds';
+import CompanyIDs from '1846/config/companyIds';
 import Prices from '1846/config/prices';
 import _ from 'lodash';
 
@@ -261,7 +262,7 @@ class BuyTrains extends Action {
                 company.phaseOut(PhaseIDs.PHASE_I);
             });
             _.each(state.privateCompanies, company => {
-                if (!company.closed()) {
+                if (!company.closed() && company.id !== CompanyIDs.MAIL_CONTRACT) {
                     closedPrivatesData.push(company.close());
                 }
             });
