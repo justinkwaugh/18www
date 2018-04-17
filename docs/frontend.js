@@ -24831,7 +24831,6 @@ var Sequence = function () {
     _createClass(Sequence, null, [{
         key: 'undoLastAction',
         value: function undoLastAction() {
-            debugger;
             (0, _currentGame2.default)().state().turnHistory.currentTurn().undoLast();
             (0, _currentGame2.default)().saveLocalState();
             _events2.default.emit('undo');
@@ -36624,6 +36623,9 @@ var StartCompany = function (_Action) {
             state.stockBoard.addCompany(company);
             player.removeCash(cash);
             company.addCash(cash + (this.companyId === _companyIds2.default.ILLINOIS_CENTRAL ? price : 0));
+            if (this.companyId === _companyIds2.default.ILLINOIS_CENTRAL) {
+                state.bank.removeCash(price);
+            }
 
             var tile = state.tilesByCellId[company.homeCellId];
             company.useToken();
@@ -36650,6 +36652,9 @@ var StartCompany = function (_Action) {
 
             company.removeCash(cash + (this.companyId === _companyIds2.default.ILLINOIS_CENTRAL ? price : 0));
             player.addCash(cash);
+            if (this.companyId === _companyIds2.default.ILLINOIS_CENTRAL) {
+                state.bank.addCash(price);
+            }
 
             state.stockBoard.removeCompany(company.id);
             company.priceIndex(0);
@@ -37591,7 +37596,6 @@ var OperatingRound = function () {
                 return false;
             }
 
-            console.log('can steamboat');
             return true;
         }
     }, {
@@ -40891,10 +40895,10 @@ var BuyShare = function (_Action) {
 
             var cert = null;
             if (this.treasury) {
-                company.cash(company.cash() + cash);
+                company.addCash(cash);
                 cert = company.certificates.pop();
             } else {
-                state.bank.cash(state.bank.cash() - cash);
+                state.bank.addCash(cash);
                 // Only pres share in bank, buying from bank
                 if (!company.president() && player.sharesPerCompany()[this.companyId] === 1 && state.bank.numSharesOwnedOfCompany(this.companyId) === 2) {
                     var nonPresidentCerts = player.removeNonPresidentCertsForCompany(1, this.companyId);
@@ -42414,12 +42418,14 @@ var PrivateIncome = function (_Action) {
                     return privateCo.income;
                 });
                 player.addCash(cash);
+                state.bank.removeCash(cash);
             });
             _lodash2.default.each(state.publicCompanies, function (company) {
                 var cash = _lodash2.default.sumBy(company.getPrivates(), function (privateCo) {
                     return privateCo.income;
                 });
                 company.addCash(cash);
+                state.bank.removeCash(cash);
             });
         }
     }, {
@@ -42430,12 +42436,14 @@ var PrivateIncome = function (_Action) {
                     return privateCo.income;
                 });
                 player.removeCash(cash);
+                state.bank.addCash(cash);
             });
             _lodash2.default.each(state.publicCompanies, function (company) {
                 var cash = _lodash2.default.sumBy(company.getPrivates(), function (privateCo) {
                     return privateCo.income;
                 });
                 company.removeCash(cash);
+                state.bank.addCash(cash);
             });
         }
     }, {
@@ -45934,15 +45942,17 @@ var State = function (_BaseState) {
     }, {
         key: 'checkBank',
         value: function checkBank() {
-            var publicCompanyCash = this.publicCompaniesById().sumBy(function (company) {
-                return company.cash() || 0;
-            });
-            var independantCompanyCash = this.privateCompaniesById().sumBy(function (company) {
-                return company.cash() || 0;
-            });
-            var playerCash = this.playersById().sumBy(function (player) {
+            var publicCompanyCash = (0, _lodash2.default)(this.publicCompaniesById()).map(function (company) {
+                return company.cash();
+            }).sum();
+            var independantCompanyCash = (0, _lodash2.default)(this.privateCompaniesById()).filter(function (company) {
+                return company.president() && !company.closed();
+            }).map(function (company) {
+                return company.cash();
+            }).sum();
+            var playerCash = (0, _lodash2.default)(this.playersById()).map(function (player) {
                 return player.cash();
-            });
+            }).sum();
 
             var total = publicCompanyCash + independantCompanyCash + playerCash + this.bank.cash();
             if (total !== 6500) {
@@ -47596,7 +47606,6 @@ var Dashboard = function () {
         key: 'launchGame',
         value: function launchGame(record) {
             var state = record.loadCurrentState();
-            debugger;
             var game = new _game2.default({ record: record, state: state });
             (0, _currentGame2.default)(game);
             game.sequence.restore();
@@ -47650,19 +47659,19 @@ var Dashboard = function () {
                 var decompressed = JSON.parse(_lzString2.default.decompressFromEncodedURIComponent(reader.result));
                 var record = _gameRecord2.default.deserialize(decompressed.record);
                 var state = _serializable2.default.deserialize(decompressed.state);
-                // record.save(state);
-                var newState = _game2.default.generateOriginalGameState(state);
-                var gameRecord = new _gameRecord2.default({
-                    type: '1846',
-                    name: 'Game - Copy',
-                    location: 'local',
-                    startDate: new Date().toISOString().substring(0, 10),
-                    players: newState.players().length,
-                    round: newState.roundHistory.currentRound().getRoundName(),
-                    turn: newState.currentPlayer().name()
-                });
-                gameRecord.create(newState, newState);
-                _events2.default.emit('newGameCreated', gameRecord);
+                record.save(state);
+                // const newState = Game.generateOriginalGameState(state);
+                // const gameRecord = new GameRecord({
+                //                                       type: '1846',
+                //                                       name: 'Game - Copy',
+                //                                       location: 'local',
+                //                                       startDate: new Date().toISOString().substring(0, 10),
+                //                                       players: newState.players().length,
+                //                                       round: newState.roundHistory.currentRound().getRoundName(),
+                //                                       turn: newState.currentPlayer().name()
+                //                                   });
+                // gameRecord.create(newState, newState);
+                // Events.emit('newGameCreated', gameRecord);
             };
 
             reader.readAsText(file);
