@@ -23487,7 +23487,7 @@ exports.default = CompanyTypes;
  */
 module.exports = (function(){
 
-    var anyBase = __webpack_require__(36);
+    var anyBase = __webpack_require__(37);
     var uuidV4 = __webpack_require__(162);
 
     var flickrBase58 = '123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
@@ -24771,11 +24771,11 @@ var _roundTypes = __webpack_require__(16);
 
 var _roundTypes2 = _interopRequireDefault(_roundTypes);
 
-var _privateDraft = __webpack_require__(67);
+var _privateDraft = __webpack_require__(68);
 
 var _privateDraft2 = _interopRequireDefault(_privateDraft);
 
-var _stockRound = __webpack_require__(70);
+var _stockRound = __webpack_require__(71);
 
 var _stockRound2 = _interopRequireDefault(_stockRound);
 
@@ -24783,19 +24783,19 @@ var _operatingRound = __webpack_require__(29);
 
 var _operatingRound2 = _interopRequireDefault(_operatingRound);
 
-var _setPriorityDeal = __webpack_require__(57);
+var _setPriorityDeal = __webpack_require__(58);
 
 var _setPriorityDeal2 = _interopRequireDefault(_setPriorityDeal);
 
-var _setOperatingOrder = __webpack_require__(56);
+var _setOperatingOrder = __webpack_require__(57);
 
 var _setOperatingOrder2 = _interopRequireDefault(_setOperatingOrder);
 
-var _adjustStockPrices = __webpack_require__(39);
+var _adjustStockPrices = __webpack_require__(40);
 
 var _adjustStockPrices2 = _interopRequireDefault(_adjustStockPrices);
 
-var _privateIncome = __webpack_require__(51);
+var _privateIncome = __webpack_require__(52);
 
 var _privateIncome2 = _interopRequireDefault(_privateIncome);
 
@@ -24811,7 +24811,7 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _updateSequence = __webpack_require__(60);
+var _updateSequence = __webpack_require__(61);
 
 var _updateSequence2 = _interopRequireDefault(_updateSequence);
 
@@ -24831,6 +24831,7 @@ var Sequence = function () {
     _createClass(Sequence, null, [{
         key: 'undoLastAction',
         value: function undoLastAction() {
+            debugger;
             (0, _currentGame2.default)().state().turnHistory.currentTurn().undoLast();
             (0, _currentGame2.default)().saveLocalState();
             _events2.default.emit('undo');
@@ -25168,7 +25169,7 @@ var _phaseIds = __webpack_require__(10);
 
 var _phaseIds2 = _interopRequireDefault(_phaseIds);
 
-var _routeColors = __webpack_require__(62);
+var _routeColors = __webpack_require__(63);
 
 var _routeColors2 = _interopRequireDefault(_routeColors);
 
@@ -36727,15 +36728,15 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _baseGame = __webpack_require__(76);
+var _baseGame = __webpack_require__(77);
 
 var _baseGame2 = _interopRequireDefault(_baseGame);
 
-var _grid = __webpack_require__(71);
+var _grid = __webpack_require__(72);
 
 var _grid2 = _interopRequireDefault(_grid);
 
-var _companies = __webpack_require__(61);
+var _companies = __webpack_require__(62);
 
 var _companies2 = _interopRequireDefault(_companies);
 
@@ -36743,11 +36744,11 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _state = __webpack_require__(73);
+var _state = __webpack_require__(74);
 
 var _state2 = _interopRequireDefault(_state);
 
-var _player = __webpack_require__(66);
+var _player = __webpack_require__(67);
 
 var _player2 = _interopRequireDefault(_player);
 
@@ -36755,7 +36756,7 @@ var _phaseIds = __webpack_require__(10);
 
 var _phaseIds2 = _interopRequireDefault(_phaseIds);
 
-var _bank = __webpack_require__(75);
+var _bank = __webpack_require__(76);
 
 var _bank2 = _interopRequireDefault(_bank);
 
@@ -36771,7 +36772,7 @@ var _tileManifest = __webpack_require__(18);
 
 var _tileManifest2 = _interopRequireDefault(_tileManifest);
 
-var _stockBoard = __webpack_require__(68);
+var _stockBoard = __webpack_require__(69);
 
 var _stockBoard2 = _interopRequireDefault(_stockBoard);
 
@@ -36787,7 +36788,7 @@ var _operatingRound = __webpack_require__(29);
 
 var _operatingRound2 = _interopRequireDefault(_operatingRound);
 
-var _history = __webpack_require__(64);
+var _history = __webpack_require__(65);
 
 var _history2 = _interopRequireDefault(_history);
 
@@ -36806,6 +36807,10 @@ var _currentGame2 = _interopRequireDefault(_currentGame);
 var _jquery = __webpack_require__(23);
 
 var _jquery2 = _interopRequireDefault(_jquery);
+
+var _user = __webpack_require__(35);
+
+var _user2 = _interopRequireDefault(_user);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -36915,6 +36920,7 @@ var Game = function (_BaseGame) {
     }, {
         key: 'saveLocalState',
         value: function saveLocalState() {
+            // this.state().checkBank();
             this.record.round = this.state().winner() ? 'Game End' : this.state().roundHistory.currentRound().getRoundName();
             this.record.turn = this.state().currentPlayer().name();
             this.record.save(this.state());
@@ -37053,6 +37059,69 @@ var Game = function (_BaseGame) {
 
             return state;
         }
+    }, {
+        key: 'generateOriginalGameState',
+        value: function generateOriginalGameState(state) {
+            var users = (0, _lodash2.default)(state.players()).map(function (player, index) {
+                return new _user2.default({ id: player.id, username: player.name() || 'Player ' + (index + 1) });
+            }).value();
+
+            var publicCompanies = _lodash2.default.filter(_companies2.default.generatePublicCompanies(), function (company) {
+                return state.publicCompaniesById()[company.id];
+            });
+            var privateCompanies = _lodash2.default.filter(_companies2.default.generatePrivateCompanies(), function (company) {
+                return state.privateCompaniesById()[company.id];
+            });
+
+            var players = (0, _lodash2.default)(users).map(function (user, index) {
+                return new _player2.default({ id: user.id, user: user, cash: 400, order: index });
+            }).value();
+
+            var removedPrivates = [];
+
+            var cash = 0;
+            var trainsByPhase = {};
+            if (players.length === 3) {
+                cash = 5300;
+                trainsByPhase[_phaseIds2.default.PHASE_I] = 5;
+                trainsByPhase[_phaseIds2.default.PHASE_II] = 4;
+                trainsByPhase[_phaseIds2.default.PHASE_III] = 3;
+                trainsByPhase[_phaseIds2.default.PHASE_IV] = -1;
+            } else if (players.length === 4) {
+                cash = 5900;
+                trainsByPhase[_phaseIds2.default.PHASE_I] = 6;
+                trainsByPhase[_phaseIds2.default.PHASE_II] = 5;
+                trainsByPhase[_phaseIds2.default.PHASE_III] = 4;
+                trainsByPhase[_phaseIds2.default.PHASE_IV] = -1;
+            } else if (players.length === 5) {
+                cash = 7000;
+                trainsByPhase[_phaseIds2.default.PHASE_I] = 7;
+                trainsByPhase[_phaseIds2.default.PHASE_II] = 6;
+                trainsByPhase[_phaseIds2.default.PHASE_III] = 5;
+                trainsByPhase[_phaseIds2.default.PHASE_IV] = -1;
+            }
+
+            var bank = new _bank2.default({ cash: cash, trainsByPhase: trainsByPhase });
+
+            var manifest = new _tileManifest2.default();
+            var stockBoard = new _stockBoard2.default();
+
+            var newState = new _state2.default({
+                players: players,
+                removedPrivates: removedPrivates,
+                publicCompanies: publicCompanies,
+                privateCompanies: privateCompanies,
+                bank: bank,
+                manifest: manifest,
+                stockBoard: stockBoard
+            });
+
+            newState.roundHistory.startRound(_roundTypes2.default.PRIVATE_DRAFT, 1);
+            newState.currentPlayerIndex(newState.players().length - 1);
+            newState.turnHistory.startTurn({ state: newState });
+
+            return newState;
+        }
     }]);
 
     return Game;
@@ -37089,15 +37158,15 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _issueShares = __webpack_require__(47);
+var _issueShares = __webpack_require__(48);
 
 var _issueShares2 = _interopRequireDefault(_issueShares);
 
-var _redeemShares = __webpack_require__(52);
+var _redeemShares = __webpack_require__(53);
 
 var _redeemShares2 = _interopRequireDefault(_redeemShares);
 
-var _buyPrivate = __webpack_require__(40);
+var _buyPrivate = __webpack_require__(41);
 
 var _buyPrivate2 = _interopRequireDefault(_buyPrivate);
 
@@ -37109,15 +37178,15 @@ var _allocations = __webpack_require__(26);
 
 var _allocations2 = _interopRequireDefault(_allocations);
 
-var _runRoutes = __webpack_require__(54);
+var _runRoutes = __webpack_require__(55);
 
 var _runRoutes2 = _interopRequireDefault(_runRoutes);
 
-var _buyTrains = __webpack_require__(42);
+var _buyTrains = __webpack_require__(43);
 
 var _buyTrains2 = _interopRequireDefault(_buyTrains);
 
-var _skipSecondPrivateLay = __webpack_require__(58);
+var _skipSecondPrivateLay = __webpack_require__(59);
 
 var _skipSecondPrivateLay2 = _interopRequireDefault(_skipSecondPrivateLay);
 
@@ -37133,15 +37202,15 @@ var _companyTypes = __webpack_require__(8);
 
 var _companyTypes2 = _interopRequireDefault(_companyTypes);
 
-var _declareBankruptcy = __webpack_require__(43);
+var _declareBankruptcy = __webpack_require__(44);
 
 var _declareBankruptcy2 = _interopRequireDefault(_declareBankruptcy);
 
-var _forceIssueCloseCompany = __webpack_require__(46);
+var _forceIssueCloseCompany = __webpack_require__(47);
 
 var _forceIssueCloseCompany2 = _interopRequireDefault(_forceIssueCloseCompany);
 
-var _returnTrain = __webpack_require__(53);
+var _returnTrain = __webpack_require__(54);
 
 var _returnTrain2 = _interopRequireDefault(_returnTrain);
 
@@ -38743,19 +38812,19 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _layTrack = __webpack_require__(48);
+var _layTrack = __webpack_require__(49);
 
 var _layTrack2 = _interopRequireDefault(_layTrack);
 
-var _addToken = __webpack_require__(38);
+var _addToken = __webpack_require__(39);
 
 var _addToken2 = _interopRequireDefault(_addToken);
 
-var _placeMeat = __webpack_require__(49);
+var _placeMeat = __webpack_require__(50);
 
 var _placeMeat2 = _interopRequireDefault(_placeMeat);
 
-var _placeSteamboat = __webpack_require__(50);
+var _placeSteamboat = __webpack_require__(51);
 
 var _placeSteamboat2 = _interopRequireDefault(_placeSteamboat);
 
@@ -40127,7 +40196,7 @@ var _serializable = __webpack_require__(4);
 
 var _serializable2 = _interopRequireDefault(_serializable);
 
-var _route = __webpack_require__(86);
+var _route = __webpack_require__(87);
 
 var _route2 = _interopRequireDefault(_route);
 
@@ -40187,6 +40256,34 @@ exports.default = Train;
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var User = function User(definition) {
+    _classCallCheck(this, User);
+
+    definition = definition || {};
+    this.id = definition.id;
+    this.local = definition.local;
+    this.username = definition.username;
+    this.email = definition.email;
+    this.passwordHash = definition.passwordHash;
+    this.passwordSalt = definition.passwordSalt;
+    this.verified = definition.verified || false;
+};
+
+exports.default = User;
+
+/***/ }),
+/* 36 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
 __webpack_require__(93);
 
 __webpack_require__(157);
@@ -40207,10 +40304,10 @@ var dashboard = new _dashboard2.default();
 _knockout2.default.applyBindings(dashboard);
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Converter = __webpack_require__(37);
+var Converter = __webpack_require__(38);
 
 /**
  * Function get source and destination alphabet and return convert function
@@ -40242,7 +40339,7 @@ anyBase.HEX = '0123456789abcdef';
 module.exports = anyBase;
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40328,7 +40425,7 @@ Converter.prototype.isValid = function(number) {
 module.exports = Converter;
 
 /***/ }),
-/* 38 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40457,7 +40554,7 @@ AddToken.registerClass();
 exports.default = AddToken;
 
 /***/ }),
-/* 39 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40559,7 +40656,7 @@ AdjustStockPrices.registerClass();
 exports.default = AdjustStockPrices;
 
 /***/ }),
-/* 40 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40730,7 +40827,7 @@ BuyPrivate.registerClass();
 exports.default = BuyPrivate;
 
 /***/ }),
-/* 41 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -40890,7 +40987,7 @@ BuyShare.registerClass();
 exports.default = BuyShare;
 
 /***/ }),
-/* 42 */
+/* 43 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41421,7 +41518,7 @@ BuyTrains.registerClass();
 exports.default = BuyTrains;
 
 /***/ }),
-/* 43 */
+/* 44 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41621,7 +41718,7 @@ DeclareBankruptcy.registerClass();
 exports.default = DeclareBankruptcy;
 
 /***/ }),
-/* 44 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41687,7 +41784,7 @@ DraftPass.registerClass();
 exports.default = DraftPass;
 
 /***/ }),
-/* 45 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41745,6 +41842,7 @@ var DraftPrivate = function (_Action) {
 
                 if (this.privateId === _companyIds2.default.MICHIGAN_SOUTHERN || this.privateId === _companyIds2.default.BIG_4) {
                     privateCompany.president(this.playerId);
+                    state.bank.removeCash(this.privateId === _companyIds2.default.MICHIGAN_SOUTHERN ? 60 : 40);
                 }
             }
             state.undraftedPrivateIds.removeAll(this.offeredIds);
@@ -41770,7 +41868,7 @@ DraftPrivate.registerClass();
 exports.default = DraftPrivate;
 
 /***/ }),
-/* 46 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41844,7 +41942,7 @@ ForceIssueCloesCompany.registerClass();
 exports.default = ForceIssueCloesCompany;
 
 /***/ }),
-/* 47 */
+/* 48 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -41936,7 +42034,7 @@ IssueShares.registerClass();
 exports.default = IssueShares;
 
 /***/ }),
-/* 48 */
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42078,7 +42176,7 @@ LayTrack.registerClass();
 exports.default = LayTrack;
 
 /***/ }),
-/* 49 */
+/* 50 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42163,7 +42261,7 @@ PlaceMeat.registerClass();
 exports.default = PlaceMeat;
 
 /***/ }),
-/* 50 */
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42271,7 +42369,7 @@ PlaceSteamboat.registerClass();
 exports.default = PlaceSteamboat;
 
 /***/ }),
-/* 51 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42355,7 +42453,7 @@ PrivateIncome.registerClass();
 exports.default = PrivateIncome;
 
 /***/ }),
-/* 52 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42447,7 +42545,7 @@ RedeemShares.registerClass();
 exports.default = RedeemShares;
 
 /***/ }),
-/* 53 */
+/* 54 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42528,7 +42626,7 @@ ReturnTrain.registerClass();
 exports.default = ReturnTrain;
 
 /***/ }),
-/* 54 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -42552,7 +42650,7 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _trainNames = __webpack_require__(63);
+var _trainNames = __webpack_require__(64);
 
 var _trainNames2 = _interopRequireDefault(_trainNames);
 
@@ -42841,7 +42939,7 @@ RunRoutes.registerClass();
 exports.default = RunRoutes;
 
 /***/ }),
-/* 55 */
+/* 56 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43001,7 +43099,7 @@ SellShares.registerClass();
 exports.default = SellShares;
 
 /***/ }),
-/* 56 */
+/* 57 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43064,7 +43162,7 @@ SetOperatingOrder.registerClass();
 exports.default = SetOperatingOrder;
 
 /***/ }),
-/* 57 */
+/* 58 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43127,7 +43225,7 @@ SetPriorityDeal.registerClass();
 exports.default = SetPriorityDeal;
 
 /***/ }),
-/* 58 */
+/* 59 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43193,7 +43291,7 @@ SkipSecondPrivateLay.registerClass();
 exports.default = SkipSecondPrivateLay;
 
 /***/ }),
-/* 59 */
+/* 60 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43265,7 +43363,7 @@ StockRoundPass.registerClass();
 exports.default = StockRoundPass;
 
 /***/ }),
-/* 60 */
+/* 61 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43372,7 +43470,7 @@ UpdateSequence.registerClass();
 exports.default = UpdateSequence;
 
 /***/ }),
-/* 61 */
+/* 62 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43394,11 +43492,11 @@ var _company = __webpack_require__(33);
 
 var _company2 = _interopRequireDefault(_company);
 
-var _certificate = __webpack_require__(84);
+var _certificate = __webpack_require__(85);
 
 var _certificate2 = _interopRequireDefault(_certificate);
 
-var _privateCompany = __webpack_require__(85);
+var _privateCompany = __webpack_require__(86);
 
 var _privateCompany2 = _interopRequireDefault(_privateCompany);
 
@@ -43622,7 +43720,7 @@ var Companies = function () {
 exports.default = Companies;
 
 /***/ }),
-/* 62 */
+/* 63 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43642,7 +43740,7 @@ var RouteColors = ['#888', // gray
 exports.default = RouteColors;
 
 /***/ }),
-/* 63 */
+/* 64 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43667,7 +43765,7 @@ var TrainNames = (_TrainNames = {}, _defineProperty(_TrainNames, _trainIds2.defa
 exports.default = TrainNames;
 
 /***/ }),
-/* 64 */
+/* 65 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43721,7 +43819,7 @@ var History = function () {
 exports.default = History;
 
 /***/ }),
-/* 65 */
+/* 66 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43746,7 +43844,7 @@ var PassCard = function PassCard(definition) {
 exports.default = PassCard;
 
 /***/ }),
-/* 66 */
+/* 67 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -43758,7 +43856,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _basePlayer = __webpack_require__(77);
+var _basePlayer = __webpack_require__(78);
 
 var _basePlayer2 = _interopRequireDefault(_basePlayer);
 
@@ -44067,7 +44165,7 @@ Player.registerClass();
 exports.default = Player;
 
 /***/ }),
-/* 67 */
+/* 68 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44087,11 +44185,11 @@ var _lodash = __webpack_require__(0);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _draftPrivate = __webpack_require__(45);
+var _draftPrivate = __webpack_require__(46);
 
 var _draftPrivate2 = _interopRequireDefault(_draftPrivate);
 
-var _draftPass = __webpack_require__(44);
+var _draftPass = __webpack_require__(45);
 
 var _draftPass2 = _interopRequireDefault(_draftPass);
 
@@ -44161,7 +44259,7 @@ var PrivateDraft = function () {
 exports.default = PrivateDraft;
 
 /***/ }),
-/* 68 */
+/* 69 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44183,7 +44281,7 @@ var _companyIds = __webpack_require__(5);
 
 var _companyIds2 = _interopRequireDefault(_companyIds);
 
-var _stockBoardEntry = __webpack_require__(69);
+var _stockBoardEntry = __webpack_require__(70);
 
 var _stockBoardEntry2 = _interopRequireDefault(_stockBoardEntry);
 
@@ -44356,7 +44454,7 @@ StockBoard.registerClass();
 exports.default = StockBoard;
 
 /***/ }),
-/* 69 */
+/* 70 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44409,7 +44507,7 @@ StockBoardEntry.registerClass();
 exports.default = StockBoardEntry;
 
 /***/ }),
-/* 70 */
+/* 71 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44433,11 +44531,11 @@ var _currentGame = __webpack_require__(3);
 
 var _currentGame2 = _interopRequireDefault(_currentGame);
 
-var _buyShare = __webpack_require__(41);
+var _buyShare = __webpack_require__(42);
 
 var _buyShare2 = _interopRequireDefault(_buyShare);
 
-var _sellShares = __webpack_require__(55);
+var _sellShares = __webpack_require__(56);
 
 var _sellShares2 = _interopRequireDefault(_sellShares);
 
@@ -44445,7 +44543,7 @@ var _startCompany = __webpack_require__(25);
 
 var _startCompany2 = _interopRequireDefault(_startCompany);
 
-var _stockRoundPass = __webpack_require__(59);
+var _stockRoundPass = __webpack_require__(60);
 
 var _stockRoundPass2 = _interopRequireDefault(_stockRoundPass);
 
@@ -44618,7 +44716,7 @@ var StockRound = function () {
 exports.default = StockRound;
 
 /***/ }),
-/* 71 */
+/* 72 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -44632,7 +44730,7 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 var _SpecialTiles, _OffBoardDefinitions;
 
-var _baseGrid = __webpack_require__(83);
+var _baseGrid = __webpack_require__(84);
 
 var _baseGrid2 = _interopRequireDefault(_baseGrid);
 
@@ -44648,7 +44746,7 @@ var _cell = __webpack_require__(32);
 
 var _cell2 = _interopRequireDefault(_cell);
 
-var _offBoardCell = __webpack_require__(72);
+var _offBoardCell = __webpack_require__(73);
 
 var _offBoardCell2 = _interopRequireDefault(_offBoardCell);
 
@@ -45502,7 +45600,7 @@ var Grid = function (_BaseGrid) {
 exports.default = Grid;
 
 /***/ }),
-/* 72 */
+/* 73 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -45562,7 +45660,7 @@ var OffBoardCell = function (_Cell) {
 exports.default = OffBoardCell;
 
 /***/ }),
-/* 73 */
+/* 74 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -45578,19 +45676,19 @@ var _lodash = __webpack_require__(0);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _baseState = __webpack_require__(78);
+var _baseState = __webpack_require__(79);
 
 var _baseState2 = _interopRequireDefault(_baseState);
 
-var _roundHistory = __webpack_require__(80);
+var _roundHistory = __webpack_require__(81);
 
 var _roundHistory2 = _interopRequireDefault(_roundHistory);
 
-var _turnHistory = __webpack_require__(82);
+var _turnHistory = __webpack_require__(83);
 
 var _turnHistory2 = _interopRequireDefault(_turnHistory);
 
-var _actionHistory = __webpack_require__(74);
+var _actionHistory = __webpack_require__(75);
 
 var _actionHistory2 = _interopRequireDefault(_actionHistory);
 
@@ -45598,7 +45696,7 @@ var _phaseIds = __webpack_require__(10);
 
 var _phaseIds2 = _interopRequireDefault(_phaseIds);
 
-var _passCard = __webpack_require__(65);
+var _passCard = __webpack_require__(66);
 
 var _passCard2 = _interopRequireDefault(_passCard);
 
@@ -45833,6 +45931,29 @@ var State = function (_BaseState) {
         value: function tryDeserialize() {
             var state = _serializable2.default.deserialize(this.serialize());
         }
+    }, {
+        key: 'checkBank',
+        value: function checkBank() {
+            var publicCompanyCash = this.publicCompaniesById().sumBy(function (company) {
+                return company.cash() || 0;
+            });
+            var independantCompanyCash = this.privateCompaniesById().sumBy(function (company) {
+                return company.cash() || 0;
+            });
+            var playerCash = this.playersById().sumBy(function (player) {
+                return player.cash();
+            });
+
+            var total = publicCompanyCash + independantCompanyCash + playerCash + this.bank.cash();
+            if (total !== 6500) {
+                console.log('BANK IS WRONG: ' + total);
+                console.log('    public: ' + publicCompanyCash);
+                console.log('    independant: ' + independantCompanyCash);
+                console.log('    player: ' + playerCash);
+                console.log('    --------------------');
+                console.log('    bank: ' + this.bank.cash());
+            }
+        }
     }]);
 
     return State;
@@ -45843,7 +45964,7 @@ State.registerClass();
 exports.default = State;
 
 /***/ }),
-/* 74 */
+/* 75 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -45951,7 +46072,7 @@ ActionHistory.registerClass();
 exports.default = ActionHistory;
 
 /***/ }),
-/* 75 */
+/* 76 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46182,7 +46303,7 @@ Bank.registerClass();
 exports.default = Bank;
 
 /***/ }),
-/* 76 */
+/* 77 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46201,7 +46322,7 @@ var BaseGame = function BaseGame(definition) {
 exports.default = BaseGame;
 
 /***/ }),
-/* 77 */
+/* 78 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46387,7 +46508,7 @@ var BasePlayer = function (_Serializable) {
 exports.default = BasePlayer;
 
 /***/ }),
-/* 78 */
+/* 79 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46424,7 +46545,7 @@ var BaseState = function (_Serializable) {
 exports.default = BaseState;
 
 /***/ }),
-/* 79 */
+/* 80 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46505,7 +46626,7 @@ Round.registerClass();
 exports.default = Round;
 
 /***/ }),
-/* 80 */
+/* 81 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46525,7 +46646,7 @@ var _knockout = __webpack_require__(1);
 
 var _knockout2 = _interopRequireDefault(_knockout);
 
-var _round = __webpack_require__(79);
+var _round = __webpack_require__(80);
 
 var _round2 = _interopRequireDefault(_round);
 
@@ -46606,7 +46727,7 @@ RoundHistory.registerClass();
 exports.default = RoundHistory;
 
 /***/ }),
-/* 81 */
+/* 82 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46721,7 +46842,7 @@ Turn.registerClass();
 exports.default = Turn;
 
 /***/ }),
-/* 82 */
+/* 83 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46741,7 +46862,7 @@ var _knockout = __webpack_require__(1);
 
 var _knockout2 = _interopRequireDefault(_knockout);
 
-var _turn = __webpack_require__(81);
+var _turn = __webpack_require__(82);
 
 var _turn2 = _interopRequireDefault(_turn);
 
@@ -46844,7 +46965,7 @@ TurnHistory.registerClass();
 exports.default = TurnHistory;
 
 /***/ }),
-/* 83 */
+/* 84 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46881,7 +47002,7 @@ var BaseGrid = function BaseGrid(data) {
 exports.default = BaseGrid;
 
 /***/ }),
-/* 84 */
+/* 85 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46931,7 +47052,7 @@ Certificate.registerClass();
 exports.default = Certificate;
 
 /***/ }),
-/* 85 */
+/* 86 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46988,7 +47109,7 @@ PrivateCompany.registerClass();
 exports.default = PrivateCompany;
 
 /***/ }),
-/* 86 */
+/* 87 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -47297,34 +47418,6 @@ Route.registerClass();
 exports.default = Route;
 
 /***/ }),
-/* 87 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var User = function User(definition) {
-    _classCallCheck(this, User);
-
-    definition = definition || {};
-    this.id = definition.id;
-    this.local = definition.local;
-    this.username = definition.username;
-    this.email = definition.email;
-    this.passwordHash = definition.passwordHash;
-    this.passwordSalt = definition.passwordSalt;
-    this.verified = definition.verified || false;
-};
-
-exports.default = User;
-
-/***/ }),
 /* 88 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -47438,12 +47531,12 @@ var Dashboard = function () {
             this.loadAvailableGames();
         }
 
-        // _.delay(()=> {
+        // _.delay(() => {
         //     this.fileInput = document.getElementById('fileInput');
         //     this.fileInput.addEventListener('change', (e) => {
         //         this.loadState();
         //     });
-        // },2000);
+        // }, 2000);
 
         _events2.default.emit('app-ready');
     }
@@ -47503,6 +47596,7 @@ var Dashboard = function () {
         key: 'launchGame',
         value: function launchGame(record) {
             var state = record.loadCurrentState();
+            debugger;
             var game = new _game2.default({ record: record, state: state });
             (0, _currentGame2.default)(game);
             game.sequence.restore();
@@ -47556,7 +47650,19 @@ var Dashboard = function () {
                 var decompressed = JSON.parse(_lzString2.default.decompressFromEncodedURIComponent(reader.result));
                 var record = _gameRecord2.default.deserialize(decompressed.record);
                 var state = _serializable2.default.deserialize(decompressed.state);
-                record.save(state);
+                // record.save(state);
+                var newState = _game2.default.generateOriginalGameState(state);
+                var gameRecord = new _gameRecord2.default({
+                    type: '1846',
+                    name: 'Game - Copy',
+                    location: 'local',
+                    startDate: new Date().toISOString().substring(0, 10),
+                    players: newState.players().length,
+                    round: newState.roundHistory.currentRound().getRoundName(),
+                    turn: newState.currentPlayer().name()
+                });
+                gameRecord.create(newState, newState);
+                _events2.default.emit('newGameCreated', gameRecord);
             };
 
             reader.readAsText(file);
@@ -47589,7 +47695,7 @@ var _lodash = __webpack_require__(0);
 
 var _lodash2 = _interopRequireDefault(_lodash);
 
-var _user = __webpack_require__(87);
+var _user = __webpack_require__(35);
 
 var _user2 = _interopRequireDefault(_user);
 
@@ -52313,7 +52419,7 @@ module.exports = "module.exports = \"<div style=\\\"pointer-events:none;position
 /* 102 */
 /***/ (function(module, exports) {
 
-module.exports = "module.exports = \"<!-- ko if: $data.tile() -->\\n<div data-bind=\\\"style: { 'width': $data.upgradeTiles().length < 2 ? '126px' : '256px'} \\\">\\n    <!-- ko if: $data.canToken() -->\\n    <div class=\\\"d-flex flex-column align-items-center justify-content-center\\\" data-bind=\\\"css: $data.canToken() && $data.tokenableCities() && $data.upgradeTiles().length > 0 ? 'mt-2' : ''\\\">\\n        <!-- ko foreach: $data.tokenableCities() -->\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-success\\\" data-bind=\\\"css: $index() > 0 ? 'mt-2' : '', click: function() { $parent.tokenCity($data); }, text: 'Add ' + ($parent.tokenableCities().length > 1 ? $parent.tile().getCityName($data) + ' ' : '') + 'Token' \\\"></button>\\n        <!-- /ko -->\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.canToken() && $data.tokenableCities() && $data.upgradeTiles().length > 0 -->\\n    <hr>\\n    <!-- /ko -->\\n    <div class=\\\"d-flex flex-wrap mx-auto\\\" data-bind=\\\"css: $data.canToken() && $data.tokenableCities() && $data.upgradeTiles().length > 0 ? 'mt-2' : ''\\\">\\n        <!-- ko foreach: $data.upgradeTiles() -->\\n        <div class=\\\"position-relative\\\" style=\\\"cursor:pointer\\\" data-bind=\\\"click: function() { if($data.remaining > 0) {$parent.previewTile($data.tile.id);} }\\\">\\n            <h5 class=\\\"position-absolute\\\" style=\\\"top:0;left:10px;\\\"\\n                data-bind=\\\"text: $data.remaining === -1 ? '&#x221e;' : $data.remaining \\\"></h5>\\n            <div class=\\\"mr-1 mb-1\\\" style=\\\"width:124px;height:144px;\\\"\\n                 data-bind=\\\"style: { opacity : $data.remaining === 0 ? .4 : 1 }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.tile.id), data: $data.tile }\\\"></div>\\n        </div>\\n        <!-- /ko -->\\n    </div>\\n    <!-- ko if: $data.canPlaceMeat() -->\\n    <div class=\\\"d-flex justify-content-center bg-light\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-success\\\" data-bind=\\\"click: function() { $data.placeMeat(); }\\\">Place Meat</button>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.canPlaceSteamboat() -->\\n    <div class=\\\"d-flex justify-content-center bg-light\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-success\\\" data-bind=\\\"click: function() { $data.placeSteamboat();}\\\">Place Steamboat</button>\\n    </div>\\n    <!-- /ko -->\\n</div>\\n\\n<!-- /ko -->\";";
+module.exports = "module.exports = \"<!-- ko if: $data.tile() -->\\n<div data-bind=\\\"style: { 'width': $data.upgradeTiles().length < 2 ? '126px' : '256px'} \\\">\\n    <!-- ko if: $data.canToken() -->\\n    <div class=\\\"d-flex flex-column align-items-center justify-content-center\\\" data-bind=\\\"css: $data.canToken() && $data.tokenableCities() && $data.upgradeTiles().length > 0 ? 'mt-2' : ''\\\">\\n        <!-- ko foreach: $data.tokenableCities() -->\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-success\\\" data-bind=\\\"css: $index() > 0 ? 'mt-2' : '', click: function() { $parent.tokenCity($data); }, text: 'Add ' + ($parent.tokenableCities().length > 1 ? $parent.tile().getCityName($data) + ' ' : '') + 'Token' \\\"></button>\\n        <!-- /ko -->\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.canToken() && $data.tokenableCities() && $data.upgradeTiles().length > 0 -->\\n    <hr>\\n    <!-- /ko -->\\n    <div class=\\\"d-flex flex-wrap mx-auto\\\" data-bind=\\\"css: $data.canToken() && $data.tokenableCities() && $data.upgradeTiles().length > 0 ? 'mt-2' : ''\\\">\\n        <!-- ko foreach: $data.upgradeTiles() -->\\n        <div class=\\\"position-relative\\\" style=\\\"cursor:pointer\\\" data-bind=\\\"click: function() { if($data.remaining !== 0) {$parent.previewTile($data.tile.id);} }\\\">\\n            <h5 class=\\\"position-absolute\\\" style=\\\"top:0;left:10px;\\\"\\n                data-bind=\\\"text: $data.remaining === -1 ? '&#x221e;' : $data.remaining \\\"></h5>\\n            <div class=\\\"mr-1 mb-1\\\" style=\\\"width:124px;height:144px;\\\"\\n                 data-bind=\\\"style: { opacity : $data.remaining === 0 ? .4 : 1 }, template: { name: 'views/tiles/' + $root.game().state().manifest.getTemplateName($data.tile.id), data: $data.tile }\\\"></div>\\n        </div>\\n        <!-- /ko -->\\n    </div>\\n    <!-- ko if: $data.canPlaceMeat() -->\\n    <div class=\\\"d-flex justify-content-center bg-light\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-success\\\" data-bind=\\\"click: function() { $data.placeMeat(); }\\\">Place Meat</button>\\n    </div>\\n    <!-- /ko -->\\n    <!-- ko if: $data.canPlaceSteamboat() -->\\n    <div class=\\\"d-flex justify-content-center bg-light\\\">\\n        <button type=\\\"button\\\" class=\\\"btn btn-sm btn-success\\\" data-bind=\\\"click: function() { $data.placeSteamboat();}\\\">Place Steamboat</button>\\n    </div>\\n    <!-- /ko -->\\n</div>\\n\\n<!-- /ko -->\";";
 
 /***/ }),
 /* 103 */
@@ -55781,7 +55887,7 @@ webpackContext.id = 164;
 /* 165 */
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(35);
+module.exports = __webpack_require__(36);
 
 
 /***/ })
