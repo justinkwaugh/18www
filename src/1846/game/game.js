@@ -18,6 +18,7 @@ import RoundTypes from '1846/config/roundTypes';
 import LZString from 'lz-string';
 import CurrentGame from 'common/game/currentGame';
 import $ from 'jquery';
+import User from 'common/server/user';
 
 const ActivePanelIDs = {
     MAP: 'map',
@@ -179,6 +180,7 @@ class Game extends BaseGame {
     }
 
     saveLocalState() {
+        // this.state().checkBank();
         this.record.round = this.state().winner() ? 'Game End' : this.state().roundHistory.currentRound().getRoundName();
         this.record.turn = this.state().currentPlayer().name();
         this.record.save(this.state());
@@ -235,6 +237,67 @@ class Game extends BaseGame {
 
     restoreZoom() {
         this.zoom(this.oldZoom());
+    }
+
+    static generateOriginalGameState(state) {
+        const users = _(state.players()).map( (player, index) => {
+            return new User({id: player.id, username: player.name() || 'Player ' + (index+1) });
+        }).value();
+
+        const publicCompanies = _.filter(Companies.generatePublicCompanies(), company=>state.publicCompaniesById()[company.id]);
+        const privateCompanies = _.filter(Companies.generatePrivateCompanies(), company=>state.privateCompaniesById()[company.id]);
+
+
+        const players = _(users).map((user, index) => {
+            return new Player({id: user.id, user, cash: 400, order: index});
+        }).value();
+
+        const removedPrivates = [];
+
+        let cash = 0;
+        const trainsByPhase = {};
+        if (players.length === 3) {
+            cash = 5300;
+            trainsByPhase[PhaseIDs.PHASE_I] = 5;
+            trainsByPhase[PhaseIDs.PHASE_II] = 4;
+            trainsByPhase[PhaseIDs.PHASE_III] = 3;
+            trainsByPhase[PhaseIDs.PHASE_IV] = -1;
+        }
+        else if (players.length === 4) {
+            cash = 5900;
+            trainsByPhase[PhaseIDs.PHASE_I] = 6;
+            trainsByPhase[PhaseIDs.PHASE_II] = 5;
+            trainsByPhase[PhaseIDs.PHASE_III] = 4;
+            trainsByPhase[PhaseIDs.PHASE_IV] = -1;
+        }
+        else if (players.length === 5) {
+            cash = 7000;
+            trainsByPhase[PhaseIDs.PHASE_I] = 7;
+            trainsByPhase[PhaseIDs.PHASE_II] = 6;
+            trainsByPhase[PhaseIDs.PHASE_III] = 5;
+            trainsByPhase[PhaseIDs.PHASE_IV] = -1;
+        }
+
+        const bank = new Bank({cash, trainsByPhase});
+
+        const manifest = new TileManifest();
+        const stockBoard = new StockBoard();
+
+        const newState = new State({
+                                    players,
+                                    removedPrivates,
+                                    publicCompanies,
+                                    privateCompanies,
+                                    bank,
+                                    manifest,
+                                    stockBoard
+                                });
+
+        newState.roundHistory.startRound(RoundTypes.PRIVATE_DRAFT, 1);
+        newState.currentPlayerIndex(newState.players().length - 1);
+        newState.turnHistory.startTurn({state: newState});
+
+        return newState;
     }
 
 }

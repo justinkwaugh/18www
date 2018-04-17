@@ -195,6 +195,23 @@ class State extends BaseState {
         const state = Serializable.deserialize(this.serialize());
     }
 
+    checkBank() {
+        const publicCompanyCash = this.publicCompaniesById().sumBy(company=>company.cash() || 0);
+        const independantCompanyCash = this.privateCompaniesById().sumBy(company=>company.cash() || 0);
+        const playerCash = this.playersById().sumBy(player=>player.cash());
+
+        const total = publicCompanyCash + independantCompanyCash + playerCash + this.bank.cash();
+        if( total !== 6500) {
+            console.log('BANK IS WRONG: ' + total);
+            console.log('    public: ' + publicCompanyCash);
+            console.log('    independant: ' + independantCompanyCash);
+            console.log('    player: ' + playerCash);
+            console.log('    --------------------');
+            console.log('    bank: ' + this.bank.cash())
+        }
+
+    }
+
 }
 
 State.registerClass();

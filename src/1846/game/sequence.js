@@ -16,6 +16,7 @@ import _ from 'lodash';
 class Sequence {
 
     static undoLastAction() {
+        debugger;
         CurrentGame().state().turnHistory.currentTurn().undoLast();
         CurrentGame().saveLocalState();
         Events.emit('undo');

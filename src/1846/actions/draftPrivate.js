@@ -22,6 +22,7 @@ class DraftPrivate extends Action {
 
             if(this.privateId === CompanyIDs.MICHIGAN_SOUTHERN || this.privateId === CompanyIDs.BIG_4) {
                 privateCompany.president(this.playerId);
+                state.bank.removeCash(this.privateId === CompanyIDs.MICHIGAN_SOUTHERN ? 60 : 40);
             }
         }
         state.undraftedPrivateIds.removeAll(this.offeredIds);
