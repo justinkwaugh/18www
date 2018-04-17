@@ -380,8 +380,7 @@ class OperatingRound {
         if (this.hasPlacedSteamboatThisTurn()) {
             return false;
         }
-
-        console.log('can steamboat');
+        
         return true;
     }
 

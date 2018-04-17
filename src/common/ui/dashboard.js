@@ -115,7 +115,6 @@ class Dashboard {
 
     launchGame(record) {
         const state = record.loadCurrentState();
-        debugger
         const game = new Game({record: record, state: state});
         CurrentGame(game);
         game.sequence.restore();
@@ -166,19 +165,19 @@ class Dashboard {
             const decompressed = JSON.parse(LZString.decompressFromEncodedURIComponent(reader.result));
             const record = GameRecord.deserialize(decompressed.record);
             const state = Serializable.deserialize(decompressed.state);
-            // record.save(state);
-            const newState = Game.generateOriginalGameState(state);
-            const gameRecord = new GameRecord({
-                                                  type: '1846',
-                                                  name: 'Game - Copy',
-                                                  location: 'local',
-                                                  startDate: new Date().toISOString().substring(0, 10),
-                                                  players: newState.players().length,
-                                                  round: newState.roundHistory.currentRound().getRoundName(),
-                                                  turn: newState.currentPlayer().name()
-                                              });
-            gameRecord.create(newState, newState);
-            Events.emit('newGameCreated', gameRecord);
+            record.save(state);
+            // const newState = Game.generateOriginalGameState(state);
+            // const gameRecord = new GameRecord({
+            //                                       type: '1846',
+            //                                       name: 'Game - Copy',
+            //                                       location: 'local',
+            //                                       startDate: new Date().toISOString().substring(0, 10),
+            //                                       players: newState.players().length,
+            //                                       round: newState.roundHistory.currentRound().getRoundName(),
+            //                                       turn: newState.currentPlayer().name()
+            //                                   });
+            // gameRecord.create(newState, newState);
+            // Events.emit('newGameCreated', gameRecord);
         };
 
         reader.readAsText(file);

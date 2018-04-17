@@ -38,6 +38,9 @@ class StartCompany extends Action {
         state.stockBoard.addCompany(company);
         player.removeCash(cash);
         company.addCash(cash + (this.companyId === CompanyIDs.ILLINOIS_CENTRAL ? price : 0));
+        if(this.companyId === CompanyIDs.ILLINOIS_CENTRAL) {
+            state.bank.removeCash(price);
+        }
 
 
         const tile = state.tilesByCellId[company.homeCellId];
@@ -65,6 +68,9 @@ class StartCompany extends Action {
 
         company.removeCash(cash + (this.companyId === CompanyIDs.ILLINOIS_CENTRAL ? price : 0));
         player.addCash(cash);
+        if(this.companyId === CompanyIDs.ILLINOIS_CENTRAL) {
+            state.bank.addCash(price);
+        }
 
         state.stockBoard.removeCompany(company.id);
         company.priceIndex(0);

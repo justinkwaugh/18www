@@ -196,9 +196,9 @@ class State extends BaseState {
     }
 
     checkBank() {
-        const publicCompanyCash = this.publicCompaniesById().sumBy(company=>company.cash() || 0);
-        const independantCompanyCash = this.privateCompaniesById().sumBy(company=>company.cash() || 0);
-        const playerCash = this.playersById().sumBy(player=>player.cash());
+        const publicCompanyCash = _(this.publicCompaniesById()).map(company=>company.cash()).sum();
+        const independantCompanyCash = _(this.privateCompaniesById()).filter(company=>company.president()&&!company.closed()).map(company=>company.cash()).sum();
+        const playerCash = _(this.playersById()).map(player=>player.cash()).sum();
 
         const total = publicCompanyCash + independantCompanyCash + playerCash + this.bank.cash();
         if( total !== 6500) {

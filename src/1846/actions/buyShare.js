@@ -31,11 +31,11 @@ class BuyShare extends Action {
 
         let cert = null;
         if (this.treasury) {
-            company.cash(company.cash() + cash);
+            company.addCash(cash);
             cert = company.certificates.pop();
         }
         else {
-            state.bank.cash(state.bank.cash() - cash);
+            state.bank.addCash(cash);
             // Only pres share in bank, buying from bank
             if (!company.president() && player.sharesPerCompany()[this.companyId] === 1 && state.bank.numSharesOwnedOfCompany(this.companyId) === 2) {
                 const nonPresidentCerts = player.removeNonPresidentCertsForCompany(1, this.companyId);
