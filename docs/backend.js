@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 6);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -71,42 +71,23 @@
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(__dirname) {
+
 
 var _express = __webpack_require__(2);
 
 var _express2 = _interopRequireDefault(_express);
 
-var _path = __webpack_require__(5);
-
-var _path2 = _interopRequireDefault(_path);
-
 var _register = __webpack_require__(1);
 
 var _register2 = _interopRequireDefault(_register);
 
-var _lodash = __webpack_require__(4);
-
-var _lodash2 = _interopRequireDefault(_lodash);
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-console.log('why? ' + __dirname);
-
-var testFolder = __dirname;
-var fs = __webpack_require__(3);
-
-fs.readdir(testFolder, function (err, files) {
-    _lodash2.default.each(files, function (file) {
-        console.log(file);
-    });
-});
-
 var app = (0, _express2.default)();
-app.use(_express2.default.static(_path2.default.resolve(_path2.default.join(__dirname, '../../dist'))));
+app.use(_express2.default.static(__dirname));
 
 app.get('/', function (req, res) {
-    res.sendFile('index.html', { root: _path2.default.join(__dirname, '../../dist') });
+    res.sendFile('index.html', { root: __dirname });
 });
 
 app.get('/api/register', function (req, res) {
@@ -119,7 +100,6 @@ app.listen(PORT, function () {
     console.log('App listening on port ' + PORT);
     console.log('Press Ctrl+C to quit.');
 });
-/* WEBPACK VAR INJECTION */}.call(exports, "/"))
 
 /***/ }),
 /* 1 */
@@ -161,24 +141,6 @@ module.exports = require("express");
 
 /***/ }),
 /* 3 */
-/***/ (function(module, exports) {
-
-module.exports = require("fs");
-
-/***/ }),
-/* 4 */
-/***/ (function(module, exports) {
-
-module.exports = require("lodash");
-
-/***/ }),
-/* 5 */
-/***/ (function(module, exports) {
-
-module.exports = require("path");
-
-/***/ }),
-/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = __webpack_require__(0);
