@@ -3,15 +3,16 @@ const webpack = require('webpack');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 const common = {
+    mode: 'development',
     module: {
-        loaders: [{
+        rules: [{
             test: /\.js$/,
             include: [
                 path.resolve(__dirname, 'src'),
                 path.resolve(__dirname, 'test')
             ],
             exclude: /node_modules/,
-            loader: 'babel-loader'
+            use: ['babel-loader']
         }, {test: /\.(woff2?|svg)$/, loader: 'url-loader?limit=10000'},
             {test: /\.(ttf|eot)$/, loader: 'file-loader'},
             {test: /\.css$/, use: ['style-loader', 'css-loader']},
@@ -20,7 +21,6 @@ const common = {
                 include: path.join(__dirname, 'web'),
                 use: ['html-loader']
             }
-
         ]
     },
 
@@ -38,8 +38,6 @@ const common = {
             path.resolve('./web')
         ]
     },
-
-    devtool: "cheap-module-eval-source-map",
     devServer: {
         contentBase: "./dist",
         headers: {
@@ -49,9 +47,7 @@ const common = {
 };
 
 const frontend = {
-    entry: {
-        frontend: ['./src/frontend.js']
-    },
+    entry: ['./src/frontend.js'],
 
     plugins: [
         new CopyWebpackPlugin([{
@@ -65,8 +61,8 @@ const frontend = {
     ],
 
     output: {
-        filename: '[name].js',
-        path: path.resolve(__dirname, 'dist')
+        filename: 'frontend.js',
+        path: __dirname + '/dist'
     }
 };
 
