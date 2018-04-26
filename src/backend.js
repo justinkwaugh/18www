@@ -13,9 +13,9 @@ app.use(koaBody());
 app.use(serve(__dirname));
 
 const router = new Router();
-router.get('/api/login', Api.login);
-router.get('/api/logout', Api.logout);
-router.get('/api/register', Api.registerUser);
+router.get('/api/user/login', Api.login);
+router.get('/api/user/logout', Api.logout);
+router.get('/api/user/register', Api.registerUser);
 router.get('/api/games', Api.listGames);
 router.get('/api/game/create', Api.createGame);
 router.get('/api/game/state', Api.getGameState);
