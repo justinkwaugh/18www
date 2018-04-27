@@ -2,7 +2,7 @@
   "name": "18www",
   "version": "1.0.0",
   "description": "Online 18xx Implementation",
-  "main": "src/main.js",
+  "main": "dist/backend.js",
   "babel": {
     "presets": [
       "env"
@@ -14,15 +14,22 @@
     "test": "test",
     "web": "web"
   },
+  "dependencies": {
+    "koa": "^2.5.1",
+    "koa-body": "^2.5.0",
+    "koa-logger": "^3.2.0",
+    "koa-router": "^7.4.0",
+    "koa-static": "^4.0.2",
+    "mongodb": "^3.0.7"
+  },
   "devDependencies": {
-    "babel-core": "^6.26.0",
+    "babel-core": "^6.26.2",
     "babel-loader": "^7.1.4",
     "babel-preset-env": "^1.6.1",
     "bootstrap": "^4.1.0",
     "chai": "^4.0.2",
     "copy-webpack-plugin": "^4.0.1",
     "css-loader": "^0.28.4",
-    "express": "^4.16.2",
     "html-loader": "^0.5.1",
     "jquery": "^3.3.1",
     "karma": "^2.0.2",
@@ -36,16 +43,10 @@
     "knockout-amd-helpers": "^1.0.0",
     "knockout-delegated-events": "^0.6.1",
     "knockout-template-loader": "^2.0.0",
-    "koa": "^2.5.0",
-    "koa-body": "^2.5.0",
-    "koa-logger": "^3.2.0",
-    "koa-router": "^7.4.0",
-    "koa-static": "^4.0.2",
     "lodash": "^4.17.4",
     "lz-string": "^1.4.4",
     "mocha": "^5.1.1",
-    "mongodb": "^3.0.7",
-    "node-sass": "^4.5.3",
+    "node-sass": "^4.9.0",
     "popper.js": "^1.14.3",
     "resolve-url-loader": "^2.1.0",
     "sass-loader": "^7.0.1",

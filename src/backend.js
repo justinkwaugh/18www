@@ -1,9 +1,9 @@
+import Api from 'common/api/api';
 import Koa from 'koa';
 import logger from 'koa-logger';
 import Router from 'koa-router';
 import koaBody from 'koa-body';
 import serve from 'koa-static';
-import Api from 'common/api/api';
 
 const env = process.env.NODE_ENV || 'development';
 
@@ -21,4 +21,5 @@ router.get('/api/game/create', Api.createGame);
 router.get('/api/game/state', Api.getGameState);
 
 app.use(router.routes());
-app.listen('3000');
+
+app.listen(process.env.PORT || 3000, process.env.BIND_IP || '127.0.0.1');

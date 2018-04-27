@@ -24,13 +24,6 @@ const common = {
         ]
     },
 
-    plugins: [
-        new webpack.ProvidePlugin({
-                                      $: 'jquery',
-                                      jQuery: 'jquery'
-                                  })
-    ],
-
     resolve: {
         modules: [
             "node_modules",
@@ -79,7 +72,7 @@ const backend = {
     },
 
     target: 'node',
-        node: {
+    node: {
         __dirname: false,
         __filename: false,
     },
@@ -87,7 +80,14 @@ const backend = {
     output: {
         filename: 'backend.js',
         path: path.resolve(__dirname, 'dist')
-    }
+    },
+    plugins: [
+        new webpack.ProvidePlugin({
+                                      $: 'jquery',
+                                      jQuery: 'jquery',
+                                      koa: 'koa'
+                                  })
+    ]
 };
 
 module.exports = [
